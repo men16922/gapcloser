@@ -22,6 +22,8 @@ flowchart LR
 
 ## Results
 
+Cost on Nebius Token Factory (measured): Nemotron 3 Super is $0.30 / $0.90 per 1M input / output tokens; one diagnosis uses about 1.2k input and 1.0k output tokens (≈ $0.0013). The full 10-world benchmark cost about $0.015 and recording all five demo scenarios plus benchmark about $0.03.
+
 Nemotron runs at temperature 0.2, so its numbers vary between runs; both runs are shown. The rule-based rows are deterministic.
 
 Ten random hidden worlds (two changed parameters each), all rollouts in NVIDIA Newton:
@@ -32,13 +34,14 @@ Ten random hidden worlds (two changed parameters each), all rollouts in NVIDIA N
 | Nominal sim, no randomization | 24% | — |
 | GapCloser, end positions only (rule-based) | 80% | 0.42 / 1.00 |
 | GapCloser, tracked motion (rule-based) | 96% | 1.00 / 1.00 |
-| **GapCloser, Nemotron 3 Nano 30B diagnoser** | **93–99%** (two runs) | 0.89–0.94 / 1.00 |
+| GapCloser, Nemotron 3 Nano 30B (local, Ollama) | 93–99% (two runs) | 0.89–0.94 / 1.00 |
+| **GapCloser, Nemotron 3 Super 120B (Nebius Token Factory)** | **93–94%** (two runs) | 0.89–0.94 / 1.00 |
 
-Recorded scenarios with Nemotron 3 Nano 30B as the diagnoser (dashboard; clips show a Franka FR3 arm, kinematic via IK, striking a cube simulated in Newton): slippery cube 0 → 100%, shifted camera 0 → 100%, sticky table 0 → 100%, weak motor 0 → 100% (the end-position-only agent stays at 0%). Each took one fix.
+Recorded scenarios with Nemotron 3 Super 120B on Nebius Token Factory as the diagnoser (dashboard; clips show a Franka FR3 arm, kinematic via IK, striking a cube simulated in Newton): slippery cube 0 → 100%, shifted camera 0 → 100%, sticky table 0 → 100%, weak motor 0 → 100% (the end-position-only agent stays at 0%). Each took one fix.
 
 Local Nemotron 3 Nano 4B also diagnosed all five probe worlds correctly, including two simultaneous changes (`actuator_gain=1.2`, `object_mu=0.4` → estimates 1.2 and μ_eff 0.6), at ~2.4k prompt tokens per diagnosis.
 
-**Known limitation:** when effective friction reaches about 1 (the cube's width/height ratio), cubes tip over instead of sliding. The Newton env flags tipped cubes and the diagnosers exclude them, but the agent has no fix for tipping: the "Tipping edge" scenario (table μ 1.18) stays at 5–40% across runs, while the end-position-only agent, which fits whatever happens, reaches 75%.
+**Known limitation:** when effective friction reaches about 1 (the cube's width/height ratio), cubes tip over instead of sliding. The Newton env flags tipped cubes and the diagnosers exclude them, but the agent has no fix for tipping: results on the "Tipping edge" scenario (table μ 1.18) swing between runs: 5–40% with local Nano 30B, 85% with Super 120B on Token Factory, vs 75% for the end-position-only agent, which fits whatever happens.
 
 ## Quickstart
 

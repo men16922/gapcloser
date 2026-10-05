@@ -6,10 +6,8 @@ Rolling plan containing open work only. Completed history is in `docs/COMPLETED_
 
 ## Priority 0 — Tier 0 core (10/6–10/12)
 
-- [ ] [manual] User: Nebius Builder signup + hackathon credit form + `NEBIUS_API_KEY` (`docs/setup/NEBIUS_SETUP.md`).
-- [ ] [manual] Token Factory live check: `python -m agent.llm --provider tokenfactory --models`, then `--ping`; re-record demo with `--llm tokenfactory` (Devpost requires Token Factory in the running app).
 
-- [ ] [manual] With Token Factory: check whether Nemotron 3 Nano Omni accepts images; if yes pass `frames=lambda: extract_frames(real_clip, ...)` to `LLMDiagnoser` in `eval/record_demo.py` (extractor and vision role already implemented and tested).
+- [ ] [manual] Vision: Nano Omni is not on Token Factory (2026-10-05 model list). Candidate: `openbmb/MiniCPM-V-4_5` (not NVIDIA) or skip; if used, check image support then if yes pass `frames=lambda: extract_frames(real_clip, ...)` to `LLMDiagnoser` in `eval/record_demo.py` (extractor and vision role already implemented and tested).
 
 - [ ] [manual] Deploy the live demo: Hugging Face Space (free) with `NEBIUS_API_KEY` secret, or a Nebius CPU VM (~$0.06/h, user decision). Guide: `docs/deploy/DEPLOY.md`. Image builds and runs locally (verified).
 

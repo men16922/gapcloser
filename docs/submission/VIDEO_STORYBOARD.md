@@ -14,6 +14,6 @@ Source: the dashboard (`make demo`, open `dashboard/dist/gapcloser.standalone.ht
 | 2:35–3:00 | Architecture (README mermaid) + stack chips: NVIDIA Newton, Nemotron via Nebius Token Factory. | "Newton for physics, Nemotron on Nebius Token Factory for reasoning, all on a laptop. Days of manual sim tuning become one agent loop." |
 
 Checklist before recording:
-- [ ] Re-record with `--llm tokenfactory` so the chips and timeline show Token Factory.
+- [x] Re-recorded with `--llm tokenfactory` (2026-10-05): chips and timeline show Nemotron 3 Super on Token Factory.
 - [ ] Larger font zoom (browser 125%) for legibility.
 - [ ] Mention the tipping limitation only if asked; it is documented in the README.

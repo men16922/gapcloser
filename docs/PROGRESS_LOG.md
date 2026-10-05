@@ -4,6 +4,12 @@ Last Updated: 2026-10-05
 
 This file maintains only recent incremental summaries (newest 3-5 items, ≤120 lines). Older entries are archived to `docs/archive/progress-YYYY-MM.md` via `/tidy-docs`.
 
+## 2026-10-05 — Token Factory live: demo and benchmark on Nemotron 3 Super
+- Status: Rules requirement met — the app runs Nemotron 3 Super 120B on Nebius Token Factory. Dashboard v5 recorded on Token Factory.
+- Changed: `.env` loader in `agent/llm.py`; compare prints LLM usage; prices read from `/v1/models?verbose=true`.
+- Verified: models listed (Nano 30B, Super 120B, Ultra 550B, 3.5 Lightning; no Omni). Benchmark 10 worlds: Super 94% (P 0.94 / R 1.00), 12 calls, 14.2k in + 12.0k out ≈ $0.015. Record: 4 sliding scenarios 0→100%, tipping edge 85% (outcome-only 75%), 23 calls ≈ $0.034.
+- Next: deploy, video.
+
 ## 2026-10-05 — Live demo server + Docker
 - Status: `make serve` runs a live console where visitors hide physics and watch the agent (SSE). Docker image builds from a clean clone and ran a full live run against host Ollama.
 - Changed: `server/app.py` (FastAPI, /api/runs start+list, SSE, cost guards), dashboard live variant + New run form, `record_scenario` streaming, `Dockerfile`, `requirements.txt` (min deps incl. trimesh/pycollada/scipy/GitPython), `deploy/hf-space/README.md`, `docs/deploy/DEPLOY.md`; `runs/demo` now tracked.

@@ -17,6 +17,22 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Protocol
 
+def load_dotenv(path: Path | None = None) -> None:
+    """Read KEY=VALUE lines from the repo's .env into os.environ (existing variables win)."""
+    path = path or Path(__file__).resolve().parent.parent / ".env"
+    if not path.exists():
+        return
+    for line in path.read_text().splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        k, v = line.split("=", 1)
+        k, v = k.strip().removeprefix("export ").strip(), v.strip().strip('"').strip("'")
+        os.environ.setdefault(k, v)
+
+
+load_dotenv()
+
 BASE_URL = "https://api.tokenfactory.nebius.com/v1/"
 OLLAMA_URL = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434/v1/")
 

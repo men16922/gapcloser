@@ -1,6 +1,6 @@
 # Devpost draft — GapCloser
 
-Status: draft 2026-10-05. Numbers come from `eval.compare --env newton --llm local` (Nemotron 3 Nano 30B on Ollama) and `eval.record_demo`; re-run with `--llm tokenfactory` before submitting (needs `NEBIUS_API_KEY`).
+Status: draft 2026-10-05. Numbers come from `eval.compare --env newton --llm tokenfactory` (Nemotron 3 Super 120B on Nebius Token Factory) and `eval.record_demo --llm tokenfactory`.
 
 ## Tagline
 
@@ -31,11 +31,13 @@ The agent console shows each step: training, measurement, Nemotron's diagnosis i
 | Nominal simulator | 24% |
 | GapCloser, end positions only | 80% |
 | GapCloser, tracked motion, rule-based | 96% |
-| GapCloser, Nemotron 3 Nano 30B diagnoser | 93–99% (two runs) |
+| GapCloser, Nemotron 3 Super on Nebius Token Factory | 93–94% (two runs) |
 
 Nemotron matches the best rule-based diagnoser while explaining each diagnosis in plain language, and names the true cause in every world (recall 1.00).
 
 The "weak motor" world shows why the evidence matters: from end positions, a weaker motor looks exactly like a stickier table. The end-position-only agent stays at 0%; with tracked motion, Nemotron identifies `actuator_gain ≈ 0.76` and the loop reaches 100% in one fix.
+
+A full diagnosis costs about $0.0013 on Token Factory (≈1.2k input + 1.0k output tokens with Nemotron 3 Super); the whole 10-world benchmark costs about $0.015.
 
 ## Challenges
 

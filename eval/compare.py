@@ -142,6 +142,9 @@ def main() -> None:
         extra["gapcloser_llm"] = lambda: LLMDiagnoser(llm)
     rows = run(a.worlds, a.perturbed, seed=a.seed, env_name=a.env, extra_diagnosers=extra)
     print(json.dumps(summarize(rows), indent=2) if a.json else format_table(rows))
+    if extra:
+        u = llm.usage
+        print(f"\nLLM usage: {u.calls} calls, {u.prompt_tokens} prompt + {u.completion_tokens} completion tokens, models {u.by_model}")
 
 
 if __name__ == "__main__":
