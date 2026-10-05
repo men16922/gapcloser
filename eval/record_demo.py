@@ -31,16 +31,25 @@ SCENARIOS = [
 CLIP_TARGET = 0.45
 
 
-def record_scenario(sc: dict, out: Path, targets: list[float], diagnoser=None) -> dict:
+def record_scenario(sc: dict, out: Path, targets: list[float], diagnoser=None, *, env=None, render: bool = True,
+                    on_event=None, max_iter: int = 5) -> dict:
+    """Run the agent on one hidden world, render clips, compute baselines.
+
+    on_event(event) is called as each agent step happens (the live server streams these); events are
+    also collected in the returned run dict. env defaults to NVIDIA Newton; render=False skips clips."""
     hidden = ParamSet.nominal().with_(**sc["hidden"])
-    newton_env = NewtonPushEnv()
-    real = RealWorld(newton_env, hidden)
+    world_env = env or NewtonPushEnv()
+    real = RealWorld(world_env, hidden)
     events: list[dict] = []
+    truth = {k: {"nominal": a, "hidden": b} for k, (a, b) in ParamSet.nominal().diff(hidden).items()}
+    send = on_event or (lambda e: None)
     t0 = time.perf_counter()
+    send({"type": "start", "t": 0.0, "id": sc["id"], "title": sc.get("title", sc["id"]), "hidden": sc["hidden"],
+          "truth": truth, "max_iter": max_iter})
 
     def emit(e: dict) -> None:
         e = {"t": round(time.perf_counter() - t0, 3), **e}
-        if e["type"] == "measure":
+        if e["type"] == "measure" and render:
             it = e["iter"]
             cmd = _cmd(e["policy_c"], CLIP_TARGET, hidden)
             real_clip = f"clips/{sc['id']}-it{it}-real.webp"
@@ -54,17 +63,19 @@ def record_scenario(sc: dict, out: Path, targets: list[float], diagnoser=None) -
                 "sim_slide": render_trial(sim_p, _cmd(e["policy_c"], CLIP_TARGET, sim_p), CLIP_TARGET, out / sim_clip),
             }
         events.append(e)
+        send(e)
 
     res = run_loop(real, GridTrainer(AnalyticPushEnv()), diagnoser or TrajectoryDiagnoser(), HeuristicPlanner(), targets,
-                   sim_env=newton_env, emit=emit)
+                   sim_env=world_env, emit=emit, max_iter=max_iter)
     outcome_only = run_loop(real, GridTrainer(AnalyticPushEnv()), HeuristicDiagnoser(), HeuristicPlanner(), targets,
-                            sim_env=newton_env)
+                            sim_env=world_env, max_iter=max_iter)
     baselines = {"outcome_only": outcome_only.final_success}
     for name, rand in (("full_dr", Randomization.full()), ("nominal", Randomization.none())):
         baselines[name] = real.rollout(GridTrainer(AnalyticPushEnv()).train(rand), targets).success_rate
-    truth = {k: {"nominal": a, "hidden": b} for k, (a, b) in ParamSet.nominal().diff(hidden).items()}
-    return {**sc, "events": events, "final_success": res.final_success, "iterations": res.iterations,
-            "baselines": baselines, "truth": truth}
+    run = {**sc, "events": events, "final_success": res.final_success, "iterations": res.iterations,
+           "baselines": baselines, "truth": truth}
+    send({"type": "end", "t": round(time.perf_counter() - t0, 3), "run": {k: v for k, v in run.items() if k != "events"}})
+    return run
 
 
 def rerender_clips(out: Path) -> None:

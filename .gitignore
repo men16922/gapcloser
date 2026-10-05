@@ -6,5 +6,7 @@ docs/test/history/*-overnight-review-checklist.md
 __pycache__/
 .env
 spike/out/
-runs/
+runs/live/
+runs/*.log
+runs/*.md
 dashboard/dist/

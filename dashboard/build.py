@@ -36,13 +36,26 @@ def build(bundle_path: Path, out: Path) -> Path:
     return out
 
 
+def build_live(out: Path) -> Path:
+    """Server variant: no embedded data; the page loads /api/bundle and /api/status at runtime."""
+    tpl = (HERE / "template.html").read_text().replace('"__BUNDLE__"', "null", 1)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text('<!doctype html><html lang="en"><head><meta charset="utf-8">'
+                   '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">'
+                   '</head><body style="margin:0">' + tpl + "</body></html>")
+    return out
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--bundle", type=Path, default=Path("runs/demo/bundle.json"))
     ap.add_argument("--out", type=Path, default=HERE / "dist" / "gapcloser.html")
     a = ap.parse_args()
-    out = build(a.bundle, a.out)
-    print(f"wrote {out} ({out.stat().st_size / 1e6:.2f} MB)")
+    live = build_live(a.out.with_name("gapcloser.live.html"))
+    print(f"wrote {live}")
+    if a.bundle.exists():
+        out = build(a.bundle, a.out)
+        print(f"wrote {out} ({out.stat().st_size / 1e6:.2f} MB)")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,14 @@
+.venv
+.git
+**/__pycache__
+runs/live
+runs/*.log
+runs/*.md
+spike
+dashboard/dist
+scripts
+docs
+tests
+.claude
+.codex
+.kiro

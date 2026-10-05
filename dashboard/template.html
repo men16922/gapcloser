@@ -156,6 +156,13 @@ td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
 .cell .b { height: 6px; background: var(--line-soft); position: relative; }
 .cell .b span { position: absolute; inset: 0 auto 0 0; background: var(--dim); }
 .cell.top .b span { background: var(--green); }
+.form { display: grid; gap: 10px; max-width: 760px; }
+.form .row { display: grid; grid-template-columns: 150px minmax(0, 1fr) 120px; gap: var(--s3); align-items: center; }
+.form .nm { font: 400 13px/1.2 var(--f-mono); color: var(--muted); }
+.form .row.moved .nm, .form .row.moved .val { color: var(--green); }
+.form input[type=range] { width: 100%; accent-color: var(--green); }
+.form .val { font-size: 13px; text-align: right; }
+.btn[disabled] { opacity: 0.4; cursor: not-allowed; }
 .foot { margin-top: var(--s5); color: var(--dim); font-size: 12.5px; display: flex; flex-wrap: wrap; gap: var(--s2) var(--s5); border-top: 1px solid var(--line); padding-top: var(--s3); }
 
 @media (max-width: 1180px) {
@@ -187,7 +194,7 @@ td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
 <script>window.BUNDLE = "__BUNDLE__";</script>
 <script>
 (() => {
-  const B = window.BUNDLE;
+function boot(B, LIVE) {
   const $ = (s, el = document) => el.querySelector(s);
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const pct = (x) => `${Math.round(x * 100)}%`;
@@ -197,30 +204,32 @@ td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
     const d = Math.abs(v) < 0.1 ? 3 : 2;
     return `${(+v).toFixed(d)}${u && u !== "-" ? (u === "x" ? "×" : " " + u) : ""}`;
   };
-  const S = { tab: 0, iter: null, sel: null, reveal: false, shown: null, timer: null };
+  const S = { tab: B.runs.length ? 0 : "new", iter: null, sel: null, reveal: false, shown: null, timer: null, form: null, err: "" };
 
   const STEP = { train: ["T", "Train"], measure: ["M", "Measure"], diagnose: ["D", "Diagnose"], plan: ["P", "Plan"], done: ["✓", "Goal"] };
 
   // ---------- chrome ----------
-  const prov = B.stack.llm_provider || "none";
+  const prov = LIVE ? LIVE.provider : (B.stack.llm_provider || "none");
   $("#stack").innerHTML = [
     ["", B.stack.physics],
-    ["", B.stack.diagnoser.replace(" (cube tracking, offline)", " · cube tracking")],
+    ["", LIVE ? (LIVE.model ? `Nemotron (${LIVE.model})` : "TrajectoryDiagnoser · cube tracking") : B.stack.diagnoser.replace(" (cube tracking, offline)", " · cube tracking")],
     prov === "tokenfactory" ? ["", "Nebius Token Factory"] : prov === "local" ? ["pending", "Local Nemotron · Token Factory run pending"] : ["pending", "Nemotron · Token Factory: key pending"],
   ].map(([c, t]) => `<span class="chip ${c}"><i></i>${esc(t)}</span>`).join("");
   $("#foot").innerHTML = `<span>Task: ${esc(B.task.name)} · ${B.task.n_targets} targets 0.20–0.60 m · success = stop within ±${B.task.success_tol_m * 100} cm</span>
     <span>All success rates measured by rollout in NVIDIA Newton. Hidden “real” physics is never shown to the agent.</span>
-    <span>Recorded ${esc(B.generated.replace("T", " ").replace("+00:00", " UTC"))}</span>`;
+    <span>${LIVE ? `Live server · ${LIVE.runs_per_hour} runs/hour per visitor · ${LIVE.llm_calls_left} LLM calls left` : `Recorded ${esc(B.generated.replace("T", " ").replace("+00:00", " UTC"))}`}</span>`;
 
   function renderTabs() {
-    const tabs = B.runs.map((r, i) => `<button class="tab" role="tab" aria-selected="${S.tab === i}" data-tab="${i}">${esc(r.title)}<span class="pill ${r.final_success >= 0.9 ? "ok" : ""}">${pct(r.final_success)}</span></button>`);
-    tabs.push(`<button class="tab" role="tab" aria-selected="${S.tab === "bench"}" data-tab="bench">Benchmark<span class="pill ok">${B.benchmark.rows.length} worlds</span></button>`);
+    const pill = (r) => r.final_success == null ? `<span class="pill">${r.error ? "error" : "live"}</span>` : `<span class="pill ${r.final_success >= 0.9 ? "ok" : ""}">${pct(r.final_success)}</span>`;
+    const tabs = B.runs.map((r, i) => `<button class="tab" role="tab" aria-selected="${S.tab === i}" data-tab="${i}">${esc(r.title)}${pill(r)}</button>`);
+    if (B.benchmark) tabs.push(`<button class="tab" role="tab" aria-selected="${S.tab === "bench"}" data-tab="bench">Benchmark<span class="pill ok">${B.benchmark.rows.length} worlds</span></button>`);
+    if (LIVE) tabs.push(`<button class="tab" role="tab" aria-selected="${S.tab === "new"}" data-tab="new">+ New run</button>`);
     $("#tabs").innerHTML = tabs.join("");
   }
   $("#tabs").addEventListener("click", (e) => {
     const b = e.target.closest("[data-tab]"); if (!b) return;
     stopReplay();
-    S.tab = b.dataset.tab === "bench" ? "bench" : +b.dataset.tab; S.iter = null; S.sel = null; S.shown = null; S.reveal = false;
+    S.tab = ["bench", "new"].includes(b.dataset.tab) ? b.dataset.tab : +b.dataset.tab; S.iter = null; S.sel = null; S.shown = null; S.reveal = false;
     render();
   });
 
@@ -278,9 +287,9 @@ td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
       const err = clipErr(m, which), ok = Math.abs(err) <= B.task.success_tol_m;
       return `<figure class="clip" style="margin:0"><div class="frame"><img alt="${tag} push rendered in Newton" src="${m.clip[which]}"><span class="tag">${tag}</span><span class="res ${ok ? "ok" : "bad"}">${err >= 0 ? "+" : ""}${(err * 100).toFixed(1)} cm ${ok ? "on line" : err > 0 ? "overshoot" : "short"}</span></div><figcaption class="cap"><span>${p}</span><span class="mono">stop ${m.clip[`${which}_slide`].toFixed(3)} m</span></figcaption></figure>`;
     };
-    return `<section class="pane" aria-label="Evidence"><header><span class="label">Sim vs real · same policy, target ${m.clip.target.toFixed(2)} m</span><div class="iters" id="iters">${iterBtns}</div></header>
+    return `<section class="pane" aria-label="Evidence"><header><span class="label">Sim vs real · same policy${m.clip ? `, target ${m.clip.target.toFixed(2)} m` : ""}</span><div class="iters" id="iters">${iterBtns}</div></header>
       <div class="body">
-        <div class="clips">${clip("sim", "Sim · agent’s model", "What the agent expects")}${clip("real", "Real · hidden physics", "What actually happens")}</div>
+        ${m.clip ? `<div class="clips">${clip("sim", "Sim · agent’s model", "What the agent expects")}${clip("real", "Real · hidden physics", "What actually happens")}</div>` : ""}
         <div class="evh"><span class="label">Every push this iteration · stop error vs target</span>
           <div class="legend"><span><i class="sw" style="background:var(--green)"></i>real, on line</span><span><i class="sw" style="background:var(--bad)"></i>real, miss</span><span><i class="sw" style="border:1px solid var(--muted)"></i>sim prediction</span></div></div>
         ${trialChart(m)}
@@ -313,7 +322,7 @@ td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
     let g = [0, 0.5, 1].map((v) => `<line x1="${L}" x2="${W - R}" y1="${ys(v)}" y2="${ys(v)}" stroke="#222"/><text x="${L - 6}" y="${ys(v) + 4}" text-anchor="end">${pct(v)}</text>`).join("");
     g += Array.from({ length: n }, (_, i) => `<text x="${xs(i)}" y="${H - 8}" text-anchor="middle">it ${i}</text>`).join("");
     const refs = [["nominal", "#666", "4 3"], ["full_dr", "#666", "1 3"], ["outcome_only", "#d9a13b", "6 3"]];
-    g += refs.map(([k, c, d]) => `<line x1="${L}" x2="${W - R}" y1="${ys(run.baselines[k])}" y2="${ys(run.baselines[k])}" stroke="${c}" stroke-dasharray="${d}"/>`).join("");
+    g += refs.filter(([k]) => run.baselines && run.baselines[k] != null).map(([k, c, d]) => `<line x1="${L}" x2="${W - R}" y1="${ys(run.baselines[k])}" y2="${ys(run.baselines[k])}" stroke="${c}" stroke-dasharray="${d}"/>`).join("");
     const sim = its.map((x, i) => `${xs(i)},${ys(x.measure.sim.success_rate)}`).join(" ");
     const real = its.map((x, i) => `${xs(i)},${ys(x.measure.real.success_rate)}`).join(" ");
     const area = its.length > 1 ? `<polygon points="${xs(0)},${ys(0)} ${real} ${xs(its.length - 1)},${ys(0)}" fill="rgba(118,185,0,0.10)"/>` : "";
@@ -323,7 +332,7 @@ td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
     const last = its[its.length - 1].measure.real.success_rate;
     g += `<text x="${xs(its.length - 1) - 10}" y="${last > 0.85 ? ys(last) + 16 : ys(last) - 10}" text-anchor="end" fill="#eee">${pct(last)}</text>`;
     return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Real success per iteration">${g}</svg>
-      <div class="legend" style="margin-top:8px"><span><i class="sw" style="background:#76b900"></i>real (measured)</span><span><i class="sw" style="border:1px dashed #999"></i>sim</span><span><i class="sw" style="background:#d9a13b"></i>outcome-only agent ${pct(run.baselines.outcome_only)}</span><span>· · nominal ${pct(run.baselines.nominal)} / full DR ${pct(run.baselines.full_dr)}</span></div>`;
+      <div class="legend" style="margin-top:8px"><span><i class="sw" style="background:#76b900"></i>real (measured)</span><span><i class="sw" style="border:1px dashed #999"></i>sim</span>${run.baselines ? `<span><i class="sw" style="background:#d9a13b"></i>outcome-only agent ${pct(run.baselines.outcome_only)}</span><span>· · nominal ${pct(run.baselines.nominal)} / full DR ${pct(run.baselines.full_dr)}</span>` : `<span>baselines run after the agent finishes</span>`}</div>`;
   }
   function belief(run, its, it) {
     const tr = its[it].train;
@@ -363,21 +372,25 @@ td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
   };
   function renderRun(run) {
     const shown = S.shown ?? run.events.length;
-    const its = iterations(run, shown);
-    const fullIts = iterations(run);
+    const its = iterations(run, shown).filter((x) => x.measure);
+    const fullIts = iterations(run).filter((x) => x.measure);
     const it = Math.min(S.iter ?? its.length - 1, its.length - 1);
-    const first = fullIts[0].measure.real.success_rate, last = fullIts[fullIts.length - 1].measure.real.success_rate;
+    const live = run.final_success == null && !run.error;
+    const first = fullIts.length ? fullIts[0].measure.real.success_rate : null;
+    const last = fullIts.length ? fullIts[fullIts.length - 1].measure.real.success_rate : null;
+    const bl = run.baselines || {};
+    const P_ = (x) => (x == null ? "…" : pct(x));
     const hidden = Object.entries(run.truth).map(([k, v]) => `${k}`).join(", ");
-    return `<div class="scn"><div><span class="label">Scenario · hidden change in ${Object.keys(run.truth).length} parameters</span><h2>${esc(run.title)}</h2><p>${esc(BLURB[run.id] || "")}</p></div>
-        <div class="controls"><button class="btn primary" id="play">${S.timer ? "Pause" : "Replay run"}</button><button class="btn" id="end">Show result</button></div></div>
+    return `<div class="scn"><div><span class="label">Scenario · hidden change in ${Object.keys(run.truth).length} parameters</span><h2>${esc(run.title)}</h2><p>${esc(BLURB[run.id] || (run.hidden ? "Custom world: " + Object.entries(run.hidden).map(([k, v]) => `${k} = ${fmt(k, v)}`).join(", ") + "." : ""))}</p>${run.error ? `<p class="bad-t">${esc(run.error)}</p>` : ""}</div>
+        <div class="controls">${live ? `<span class="chip"><i></i>agent running…</span>` : `<button class="btn primary" id="play">${S.timer ? "Pause" : "Replay run"}</button><button class="btn" id="end">Show result</button>`}</div></div>
       <div class="kpis">
-        <div class="kpi"><span class="label">Before</span><span class="v">${pct(first)}</span><span class="d">real success, sim-trained policy</span></div>
-        <div class="kpi hero"><span class="label">After GapCloser</span><span class="v">${pct(last)}</span><span class="d">measured in hidden physics</span></div>
-        <div class="kpi"><span class="label">Agent loops</span><span class="v">${fullIts.length - 1}<small> fixes</small></span><span class="d">${fullIts.length} trainings total</span></div>
-        <div class="kpi"><span class="label">Outcome-only agent</span><span class="v">${pct(run.baselines.outcome_only)}</span><span class="d">same loop, sees end positions only</span></div>
-        <div class="kpi"><span class="label">Domain randomization</span><span class="v">${pct(run.baselines.full_dr)}</span><span class="d">all 10 params, full range</span></div>
+        <div class="kpi"><span class="label">Before</span><span class="v">${P_(first)}</span><span class="d">real success, sim-trained policy</span></div>
+        <div class="kpi hero"><span class="label">After GapCloser</span><span class="v">${P_(live ? null : last)}</span><span class="d">${live && last != null ? `latest ${pct(last)}, still working` : "measured in hidden physics"}</span></div>
+        <div class="kpi"><span class="label">Agent loops</span><span class="v">${Math.max(0, fullIts.length - 1)}<small> fixes</small></span><span class="d">${fullIts.length} trainings total</span></div>
+        <div class="kpi"><span class="label">Outcome-only agent</span><span class="v">${P_(bl.outcome_only)}</span><span class="d">same loop, sees end positions only</span></div>
+        <div class="kpi"><span class="label">Domain randomization</span><span class="v">${P_(bl.full_dr)}</span><span class="d">all 10 params, full range</span></div>
       </div>
-      <div class="grid">${renderTimeline(run, shown)}${renderEvidence(run, its, it)}${renderRight(run, its, it)}</div>`;
+      <div class="grid">${renderTimeline(run, shown)}${its.length ? renderEvidence(run, its, it) + renderRight(run, its, it) : `<section class="pane"><div class="body"><p class="note">Training the first policy in simulation, then measuring it in the hidden world…</p></div></section>`}</div>`;
   }
 
   // ---------- benchmark ----------
@@ -417,17 +430,88 @@ td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
   // ---------- render + events ----------
   function render() {
     renderTabs();
-    $("#main").innerHTML = S.tab === "bench" ? renderBench() : renderRun(B.runs[S.tab]);
+    $("#main").innerHTML = S.tab === "bench" ? renderBench() : S.tab === "new" ? renderNew() : renderRun(B.runs[S.tab]);
   }
+
+  // ---------- live: new run ----------
+  function renderNew() {
+    const f = (S.form ||= Object.fromEntries(Object.keys(P).map((k) => [k, P[k].nominal])));
+    const changed = Object.keys(P).filter((k) => Math.abs(f[k] - P[k].nominal) > 1e-9);
+    const rows = Object.keys(P).map((k) => {
+      const p = P[k], step = (p.high - p.low) / 100, on = changed.includes(k);
+      return `<div class="row ${on ? "moved" : ""}"><label class="nm" for="p-${k}">${k}</label>
+        <input type="range" id="p-${k}" data-p="${k}" min="${p.low}" max="${p.high}" step="${step}" value="${f[k]}">
+        <span class="mono val">${fmt(k, f[k])}</span></div>`;
+    }).join("");
+    const max = LIVE.max_hidden, over = changed.length > max;
+    return `<div class="scn"><div><span class="label">Live run · NVIDIA Newton${LIVE.model ? " · " + esc(LIVE.model) : ""}</span><h2>Hide some physics, watch the agent find it</h2>
+        <p>Move up to ${max} sliders away from nominal. The agent never sees these values; it trains a policy, measures it in this hidden world, and repairs its simulator. A run takes about a minute.</p></div></div>
+      <section class="pane"><header><span class="label">Hidden “real” world · ${changed.length}/${max} changed</span>
+        <div class="controls"><button class="btn" id="rand">Randomize</button><button class="btn" id="reset">Reset</button><button class="btn primary" id="go" ${!changed.length || over || LIVE.busy ? "disabled" : ""}>Run agent</button></div></header>
+        <div class="body"><div class="form">${rows}</div>
+        <p class="note">${over ? `<span class="bad-t">Change at most ${max} parameters.</span> ` : ""}${S.err ? `<span class="bad-t">${esc(S.err)}</span> ` : ""}Density, size, restitution, light and camera height do not change the outcome: good tests of whether the agent blames the wrong thing.</p></div></section>`;
+  }
+  function stream(run) {
+    const es = new EventSource(`api/runs/${run.id}/events`);
+    es.onmessage = (msg) => {
+      const e = JSON.parse(msg.data);
+      if (e.type === "start") { run.truth = e.truth; }
+      else if (e.type === "end") { Object.assign(run, e.run, { events: run.events }); es.close(); LIVE.busy = false; }
+      else if (e.type === "error") { run.error = e.message; es.close(); LIVE.busy = false; }
+      else { run.events.push(e); if (e.type === "measure" && B.runs[S.tab] === run) S.iter = null; }
+      if (B.runs[S.tab] === run || S.tab === "new") { render(); const tl = $("#tl"); if (tl) tl.scrollTop = tl.scrollHeight; }
+    };
+    es.onerror = () => { if (run.final_success == null && !run.error) { run.error = "Connection lost. Reload to see the finished run."; } es.close(); render(); };
+  }
+  async function startRun() {
+    const hidden = Object.fromEntries(Object.keys(P).filter((k) => Math.abs(S.form[k] - P[k].nominal) > 1e-9).map((k) => [k, +S.form[k]]));
+    S.err = "";
+    try {
+      const r = await fetch("api/runs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ hidden, title: "Custom world" }) });
+      const data = await r.json();
+      if (!r.ok) { S.err = data.detail || "The run could not start."; render(); return; }
+      const run = { id: data.id, title: `Custom #${B.runs.filter((x) => x.hidden && x.id.startsWith("live-")).length + 1}`, hidden, events: [], truth: {}, baselines: null, final_success: null };
+      B.runs.push(run); LIVE.busy = true;
+      S.tab = B.runs.length - 1; S.iter = null; S.shown = null; S.reveal = false;
+      render(); stream(run);
+    } catch (_) { S.err = "The server is not reachable."; render(); }
+  }
+  $("#main").addEventListener("input", (e) => {
+    const k = e.target.dataset && e.target.dataset.p; if (!k) return;
+    S.form[k] = +e.target.value;
+    const val = e.target.parentElement.querySelector(".val"); if (val) val.textContent = fmt(k, S.form[k]);
+  });
+  $("#main").addEventListener("change", (e) => { if (e.target.dataset && e.target.dataset.p) render(); });
   $("#main").addEventListener("click", (e) => {
     const t = e.target;
     if (t.closest("#play")) { if (S.timer) { stopReplay(); render(); } else startReplay(); return; }
     if (t.closest("#end")) { stopReplay(); S.shown = null; S.iter = null; render(); return; }
     if (t.closest("#reveal")) { S.reveal = !S.reveal; render(); return; }
+    if (t.closest("#go")) { startRun(); return; }
+    if (t.closest("#reset")) { S.form = null; S.err = ""; render(); return; }
+    if (t.closest("#rand")) {
+      const pick = ["object_mu", "table_mu", "actuator_gain", "camera_dx", "camera_pitch_deg", "light_intensity", "restitution"].sort(() => Math.random() - 0.5).slice(0, 2);
+      S.form = Object.fromEntries(Object.keys(P).map((k) => [k, P[k].nominal]));
+      pick.forEach((k) => { const p = P[k]; const u = Math.random(); S.form[k] = +(p.low + (p.high - p.low) * (u < 0.5 ? u * 0.6 : 0.4 + u * 0.6)).toFixed(4); });
+      render(); return;
+    }
     const ib = t.closest("[data-iter]");
     if (ib) { S.iter = +ib.dataset.iter; render(); }
   });
-  try { const h = location.hash.slice(1); if (h === "benchmark") S.tab = "bench"; else { const i = B.runs.findIndex((r) => r.id === h); if (i >= 0) S.tab = i; } } catch (_) {}
+  try { const h = location.hash.slice(1); if (h === "new" && LIVE) S.tab = "new"; else if (h === "benchmark") S.tab = "bench"; else { const i = B.runs.findIndex((r) => r.id === h); if (i >= 0) S.tab = i; } } catch (_) {}
   render();
+}
+const EMPTY = { runs: [], benchmark: null, params: null, task: { name: "Push-to-line", n_targets: 20, success_tol_m: 0.03 }, stack: { physics: "NVIDIA Newton", diagnoser: "" }, generated: "" };
+if (window.BUNDLE) boot(window.BUNDLE, null);
+else Promise.all([
+  fetch("api/bundle").then((r) => (r.ok ? r.json() : null)).catch(() => null),
+  fetch("api/status").then((r) => r.json()).catch(() => null),
+  fetch("api/runs").then((r) => (r.ok ? r.json() : [])).catch(() => []),
+]).then(([b, st, past]) => {
+  const B = b || EMPTY;
+  if (!B.params && st) B.params = st.params;
+  past.forEach((r, i) => B.runs.push({ ...r, title: `Custom #${i + 1}` }));
+  boot(B, st);
+});
 })();
 </script>

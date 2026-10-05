@@ -43,11 +43,20 @@ Local Nemotron 3 Nano 4B also diagnosed all five probe worlds correctly, includi
 ## Quickstart
 
 ```bash
-python3 -m venv .venv && .venv/bin/pip install "newton[examples]" openai pytest
-make check            # offline gate: 28 tests, no network
+python3 -m venv .venv && .venv/bin/pip install -r requirements.txt pytest httpx
+make check            # offline gate: 33 tests, no network
 make demo             # record 5 Newton scenarios + build the dashboard (~30 s; add --llm local via eval.record_demo for Nemotron)
 open dashboard/dist/gapcloser.standalone.html
 ```
+
+Live demo server (visitors hide physics and watch the agent):
+
+```bash
+make serve                      # http://localhost:8000, add GAPCLOSER_LLM=local|tokenfactory|none
+make docker && docker run --rm -p 7860:7860 -e NEBIUS_API_KEY=$NEBIUS_API_KEY gapcloser
+```
+
+Deployment to Hugging Face Spaces (free), a Nebius CPU VM, or GitHub Pages: [docs/deploy/DEPLOY.md](docs/deploy/DEPLOY.md).
 
 Benchmark:
 
@@ -76,7 +85,9 @@ Model ids are resolved at runtime from the provider's model list, so no id is ha
 | `agent/loop.py` | the loop, rule-based and trajectory diagnosers, planner, event stream |
 | `agent/llm.py`, `agent/llm_diagnoser.py` | OpenAI-compatible client (Token Factory / Ollama), record/replay, Nemotron diagnoser |
 | `eval/compare.py`, `eval/record_demo.py` | benchmark and demo recorder |
-| `dashboard/` | agent console (template + builder) |
+| `dashboard/` | agent console (template + builder; static and live variants) |
+| `server/app.py` | live server: FastAPI, SSE event stream, cost guards |
+| `Dockerfile`, `deploy/`, `docs/deploy/` | container and deployment guides |
 | `docs/` | plan, status, decisions, setup, design reference, submission drafts |
 
 ## Credits

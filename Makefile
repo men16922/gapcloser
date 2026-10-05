@@ -1,10 +1,10 @@
 # GapCloser — Sim2Real self-closing agent (Nebius x NVIDIA hackathon)
 # Gate must stay OFFLINE + DETERMINISTIC: no GPU, no network, no Nebius/Token Factory calls.
-.PHONY: check test lint smoke-local demo dashboard
+.PHONY: check test lint smoke-local demo dashboard serve docker
 
 PY := $(shell [ -x .venv/bin/python ] && echo .venv/bin/python || echo python3)
 
-PY_SRC := $(shell find agent sim eval dashboard -name '*.py' 2>/dev/null)
+PY_SRC := $(shell find agent sim eval dashboard server -name '*.py' 2>/dev/null)
 
 check: lint test
 
@@ -24,6 +24,13 @@ demo:
 
 dashboard:
 	$(PY) -m dashboard.build
+
+# live server on http://localhost:8000 (GAPCLOSER_LLM=local|tokenfactory|none)
+serve: dashboard
+	$(PY) -m uvicorn server.app:app --host 0.0.0.0 --port $${PORT:-8000}
+
+docker:
+	docker build -t gapcloser .
 
 # ===== overnight harness targets (append to your Makefile) =====
 # The overnight runner + helpers are the Single Source of Truth in the overnight-harness

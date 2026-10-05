@@ -1,0 +1,12 @@
+# Runtime for the GapCloser server (CPU only). Pinned to the versions verified on 2026-10-05.
+newton==1.6.0
+warp-lang==1.18.0
+numpy==2.5.3
+pillow==12.3.0
+trimesh==5.1.1
+pycollada==0.9.3
+scipy==1.18.1
+GitPython==3.2.0
+openai==3.24.0
+fastapi==0.142.2
+uvicorn[standard]==0.54.0
