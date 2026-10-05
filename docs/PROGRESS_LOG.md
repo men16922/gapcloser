@@ -4,6 +4,13 @@ Last Updated: 2026-10-05
 
 This file maintains only recent incremental summaries (newest 3-5 items, ≤120 lines). Older entries are archived to `docs/archive/progress-YYYY-MM.md` via `/tidy-docs`.
 
+## 2026-10-05 — Live demo server + Docker
+- Status: `make serve` runs a live console where visitors hide physics and watch the agent (SSE). Docker image builds from a clean clone and ran a full live run against host Ollama.
+- Changed: `server/app.py` (FastAPI, /api/runs start+list, SSE, cost guards), dashboard live variant + New run form, `record_scenario` streaming, `Dockerfile`, `requirements.txt` (min deps incl. trimesh/pycollada/scipy/GitPython), `deploy/hf-space/README.md`, `docs/deploy/DEPLOY.md`; `runs/demo` now tracked.
+- Verified: 33 tests (5 server tests incl. budget fallback, rate limit, validation). Local live run: gain 1.2 + object_mu 0.45 → Nemotron 30B estimates 1.2 / μ_eff 0.63 → 100% in 59 s. Container run: table_mu 0.4 → μ_eff 0.6 → 100%.
+- Bugs caught by tests: `max_llm_calls=0` treated as unset; missing output dir when rendering is off.
+- Next: deploy (HF Space or Nebius VM) once NEBIUS_API_KEY exists.
+
 ## 2026-10-05 — Franka arm clips, Nemotron-only demo, benchmark with LLM column
 - Status: All 4 sliding-regime scenarios diagnosed directly by Nemotron 3 Nano 30B (no fallback), 0→100% each; dashboard v4 with Franka FR3 clips.
 - Changed: `render_trial_arm` (IK-driven kinematic Franka, cube in Newton); recorder `--only`, `--clips-only`, `--bench-only`; LLM retry + 60-word reasoning; tipping-edge scenario.

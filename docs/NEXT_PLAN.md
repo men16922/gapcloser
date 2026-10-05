@@ -11,6 +11,8 @@ Rolling plan containing open work only. Completed history is in `docs/COMPLETED_
 
 - [ ] [manual] With Token Factory: check whether Nemotron 3 Nano Omni accepts images; if yes pass `frames=lambda: extract_frames(real_clip, ...)` to `LLMDiagnoser` in `eval/record_demo.py` (extractor and vision role already implemented and tested).
 
+- [ ] [manual] Deploy the live demo: Hugging Face Space (free) with `NEBIUS_API_KEY` secret, or a Nebius CPU VM (~$0.06/h, user decision). Guide: `docs/deploy/DEPLOY.md`. Image builds and runs locally (verified).
+
 ## Priority 1 — Demo quality (10/13–10/19, freeze 10/19)
 
 - [ ] [manual] Review dashboard (artifact) and decide video storyboard around the weak-motor scenario.

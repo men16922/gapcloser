@@ -5,9 +5,10 @@ Last Updated: 2026-10-05
 ## Current Baseline
 
 - Scope: zero cost, no hardware, Tier 0. Local Mac: NVIDIA Newton + Nemotron 3 Nano (Ollama 4B/30B). Token Factory run pending key.
-- `make check` green: 28 tests (incl. Newton env, tipping, recorded real Nemotron response replay, vision-role request shape).
+- `make check` green: 33 tests (incl. live server, Newton env, tipping, recorded real Nemotron response replay, vision-role request shape).
 - Agent: LLMDiagnoser (Nemotron) → fallback TrajectoryDiagnoser; HeuristicPlanner applies estimates. Tipped trials excluded from fits.
 - Benchmark (Newton, 10 worlds): full DR 18% / nominal 24% / outcome-only 89% / tracking 94%; Nemotron 30B 99% (run 1) / 93% (run 2), P 0.89/0.94, R 1.00.
+- Live server: `make serve` / Docker image (CPU), deploy guide `docs/deploy/DEPLOY.md`.
 - Demo: 5 scenarios recorded with Nemotron 30B; dashboard v2 https://claude.ai/artifact/WVBNfVMAzeNg71kDSFqYAf.
 
 ## Active Focus
