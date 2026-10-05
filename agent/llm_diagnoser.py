@@ -8,8 +8,11 @@ malformed or out of range falls back to TrajectoryDiagnoser, so the loop never s
 
 from __future__ import annotations
 
+import base64
 import json
 import re
+from pathlib import Path
+from typing import Callable
 
 from agent.llm import LLM
 from agent.loop import Diagnosis, Suspect, TrajectoryDiagnoser, _fit_line, _launch_stats
@@ -58,6 +61,7 @@ def build_evidence(real: Rollout, sim: Rollout, sim_params: ParamSet) -> dict:
     ev = {
         "outcome": {
             "real_success_rate": round(real.success_rate, 3),
+            "real_trials_cube_tipped_over": sum(t.tipped for t in real.trials),
             "sim_predicted_success_rate": round(sim.success_rate, 3),
             "success_tolerance_m": SUCCESS_TOL,
             "stop_distance_scale_real_over_sim": round(a_r / a_s if a_s else 1.0, 4),
@@ -111,6 +115,8 @@ def validate_suspects(raw: list, sim_params: ParamSet | None = None, rel_tol: fl
         conf = s.get("confidence", 0.5)
         conf = min(1.0, max(0.0, float(conf))) if isinstance(conf, (int, float)) else 0.5
         d = s.get("direction") if s.get("direction") in ("up", "down", "unknown") else "unknown"
+        if est is None and conf < 0.5:  # vague, low-confidence mentions are noise, not a diagnosis
+            continue
         if est is not None and sim_params is not None:
             cur = sim_params[name]
             if abs(est - cur) <= rel_tol * max(abs(cur), (p.high - p.low) * 0.1):
@@ -121,22 +127,34 @@ def validate_suspects(raw: list, sim_params: ParamSet | None = None, rel_tol: fl
     return sorted(best.values(), key=lambda x: -x.confidence)
 
 
+def image_part(path: Path) -> dict:
+    mime = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp"}[path.suffix.lower()]
+    return {"type": "image_url", "image_url": {"url": f"data:{mime};base64," + base64.b64encode(path.read_bytes()).decode()}}
+
+
 class LLMDiagnoser:
-    def __init__(self, llm: LLM, fallback=None, role: str = "diagnose"):
-        self.llm, self.role = llm, role
+    """frames: optional callable returning still images of the current real attempt (e.g. first/mid/last
+    Newton frames). When it returns images, the request goes to the multimodal `vision` role."""
+
+    def __init__(self, llm: LLM, fallback=None, role: str = "diagnose",
+                 frames: Callable[[], list[Path]] | None = None, vision_role: str = "vision"):
+        self.llm, self.role, self.vision_role = llm, role, vision_role
         self.fallback = fallback or TrajectoryDiagnoser()
+        self.frames = frames
         self.history: list[dict] = []
 
     def diagnose(self, real: Rollout, sim: Rollout, sim_params: ParamSet) -> Diagnosis:
         evidence = build_evidence(real, sim, sim_params)
-        messages = [
-            {"role": "system", "content": SYSTEM},
-            {"role": "user", "content": "Evidence from this iteration:\n" + json.dumps(evidence, indent=1)
-             + "\n\nReturn JSON: {\"reasoning\": short explanation, \"suspects\": [{name, direction, confidence 0-1, estimate or null}]}"},
-        ]
+        text = ("Evidence from this iteration:\n" + json.dumps(evidence, indent=1)
+                + "\n\nReturn JSON: {\"reasoning\": short explanation, \"suspects\": [{name, direction, confidence 0-1, estimate or null}]}")
+        images = list(self.frames()) if self.frames else []
+        role = self.vision_role if images else self.role
+        content = ([{"type": "text", "text": text + "\nThe images are camera frames of one real push (start, middle, end)."}]
+                   + [image_part(Path(p)) for p in images]) if images else text
+        messages = [{"role": "system", "content": SYSTEM}, {"role": "user", "content": content}]
         model, err = "", ""
         try:
-            r = self.llm.complete(self.role, messages, SCHEMA)
+            r = self.llm.complete(role, messages, SCHEMA)
             model = r.model
             data = parse_response(r.text)
             suspects = validate_suspects(data.get("suspects"), sim_params)

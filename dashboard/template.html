@@ -141,7 +141,7 @@ svg text { font-family: var(--f-mono); font-size: 11px; fill: var(--muted); }
 .note { font-size: 12.5px; color: var(--dim); margin: var(--s3) 0 0; }
 
 /* benchmark */
-.bench-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--line); margin-bottom: var(--s4); }
+.bench-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); border: 1px solid var(--line); margin-bottom: var(--s4); }
 .bench-tiles > div { padding: var(--s4); border-right: 1px solid var(--line); display: grid; gap: 6px; }
 .bench-tiles > div:last-child { border-right: 0; }
 .bench-tiles .v { font: 600 40px/1 var(--f-display); font-variant-numeric: tabular-nums; }
@@ -243,7 +243,8 @@ td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
     if (e.type === "measure") {
       const r = e.real, s = e.sim;
       const n = r.trials.length, ok = r.trials.filter((t) => t.success).length;
-      return `<div class="who">NVIDIA Newton rollout · ${n} pushes each</div><div class="txt">Real <b class="${r.success_rate >= 0.9 ? "ok-t" : "bad-t"}">${ok}/${n}</b> on target, sim predicted <b>${s.trials.filter((t) => t.success).length}/${n}</b>.</div>`;
+      const tipped = r.trials.filter((t) => t.tipped).length;
+      return `<div class="who">NVIDIA Newton rollout · ${n} pushes each</div><div class="txt">Real <b class="${r.success_rate >= 0.9 ? "ok-t" : "bad-t"}">${ok}/${n}</b> on target, sim predicted <b>${s.trials.filter((t) => t.success).length}/${n}</b>.${tipped ? ` <span style="color:var(--warn)">${tipped} cube${tipped > 1 ? "s" : ""} tipped over.</span>` : ""}</div>`;
     }
     if (e.type === "diagnose") {
       const why = e.reasoning ? `<blockquote class="why">${esc(e.reasoning)}</blockquote>` : "";
@@ -379,11 +380,13 @@ td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
   }
 
   // ---------- benchmark ----------
-  const METH = [["full_dr", "Domain randomization", "all params, full range"], ["nominal", "Nominal sim", "no randomization"], ["gapcloser_outcome", "GapCloser · outcome-only", "sees end positions"], ["gapcloser_traj", "GapCloser · tracking", "sees cube motion"]];
+  const METH_ALL = [["full_dr", "Domain randomization", "all params, full range"], ["nominal", "Nominal sim", "no randomization"], ["gapcloser_outcome", "GapCloser · outcome-only", "sees end positions"], ["gapcloser_traj", "GapCloser · tracking", "sees cube motion"], ["gapcloser_llm", "GapCloser · Nemotron", "LLM reads the evidence"]];
   function renderBench() {
     const s = B.benchmark.summary;
+    const METH = METH_ALL.filter(([k]) => s[k]);
     const best = Math.max(...METH.map(([k]) => s[k].mean_success));
-    const tiles = METH.map(([k, n, d]) => `<div class="${s[k].mean_success === best ? "best" : ""}"><span class="label">${n}</span><span class="v">${pct(s[k].mean_success)}</span><span class="d">${d} · ${s[k].mean_train_calls.toFixed(1)} trainings</span></div>`).join("");
+    const pr = (k) => s[k].diag_precision != null ? ` · diagnosis P ${s[k].diag_precision.toFixed(2)} / R ${s[k].diag_recall.toFixed(2)}` : "";
+    const tiles = METH.map(([k, n, d]) => `<div class="${s[k].mean_success === best ? "best" : ""}"><span class="label">${n}</span><span class="v">${pct(s[k].mean_success)}</span><span class="d">${d} · ${s[k].mean_train_calls.toFixed(1)} trainings${pr(k)}</span></div>`).join("");
     const rows = B.benchmark.rows.map((r) => {
       const top = Math.max(...METH.map(([k]) => r.success[k]));
       return `<tr><td class="num">${r.world}</td><td class="num">${Object.entries(r.hidden).map(([k, v]) => `${k}=${fmt(k, v)}`).join("<br>")}</td>${METH.map(([k]) => `<td><div class="cell ${r.success[k] === top && top > 0 ? "top" : ""}"><span class="mono">${pct(r.success[k])}</span><span class="b"><span style="width:${r.success[k] * 100}%"></span></span></div></td>`).join("")}</tr>`;
@@ -391,7 +394,7 @@ td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
     return `<div class="scn"><div><span class="label">Tier 0 benchmark · ${B.benchmark.rows.length} random hidden worlds, 2 changed parameters each</span><h2>Same budget, four strategies</h2><p>Each world hides two of the ten physical and camera parameters. Every method is graded by the share of ${B.task.n_targets} real pushes that stop within ±${B.task.success_tol_m * 100} cm.</p></div></div>
       <div class="bench-tiles">${tiles}</div>
       <div class="tbl-wrap"><table><thead><tr><th>World</th><th>Hidden change</th>${METH.map(([, n]) => `<th>${n}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table></div>
-      <p class="note">Benchmark rollouts use the analytic surrogate of the Newton push task (agrees with Newton within 5 mm); scenario tabs are full Newton runs.</p>`;
+      <p class="note">${B.benchmark.env === "newton" ? "All rollouts in NVIDIA Newton. Policy search uses the analytic surrogate (agrees with Newton within 1 cm)." : "Rollouts use the analytic surrogate of the Newton push task."} Diagnosis precision/recall grades the first diagnosis against the hidden changes that can affect the measurements.</p>`;
   }
 
   // ---------- replay ----------

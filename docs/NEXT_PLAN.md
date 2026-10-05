@@ -7,11 +7,9 @@ Rolling plan containing open work only. Completed history is in `docs/COMPLETED_
 ## Priority 0 — Tier 0 core (10/6–10/12)
 
 - [ ] [manual] User: Nebius Builder signup + hackathon credit form + `NEBIUS_API_KEY` (`docs/setup/NEBIUS_SETUP.md`).
-- [ ] [auto] `agent/llm.py`: Token Factory client (OpenAI-compatible, model ids from env/config) + `RecordedLLM` mock replaying fixture JSON. Done: unit test with the mock, no network in `make check`.
-- [ ] [auto] `agent/llm_diagnoser.py`: Diagnoser that builds a prompt from rollout stats (+ optional frame paths) and parses a JSON suspects list; robust to malformed output (falls back to HeuristicDiagnoser). Done: tests with recorded good/malformed responses.
-- [ ] [auto] `eval/compare.py`: add `--env newton` (benchmark in Newton, not only the surrogate) and a diagnosis-precision column vs hidden truth. Done: test on 2 worlds with newton marker.
-- [ ] [auto] Dashboard: render LLM diagnosis text and model id per diagnose event when present (`agent`, `reasoning` fields); keep layout unchanged when absent. Done: `make dashboard` builds and a unit test checks the template contains the `reasoning` hook.
-- [ ] [manual] Token Factory live check: list models, test Nano Omni with a spike GIF/frames; record responses as fixtures.
+- [ ] [manual] Token Factory live check: `python -m agent.llm --provider tokenfactory --models`, then `--ping`; re-record demo with `--llm tokenfactory` (Devpost requires Token Factory in the running app).
+
+- [ ] [manual] With Token Factory: check whether Nemotron 3 Nano Omni accepts images; if yes pass `frames=lambda: extract_frames(real_clip, ...)` to `LLMDiagnoser` in `eval/record_demo.py` (extractor and vision role already implemented and tested).
 
 ## Priority 1 — Demo quality (10/13–10/19, freeze 10/19)
 

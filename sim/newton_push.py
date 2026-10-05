@@ -86,10 +86,30 @@ class NewtonPushEnv:
                 tracks.append(s.body_q.numpy()[cubes, 1].copy())
 
         final = _simulate(model, state, track)
-        ys = final.body_q.numpy()[cubes, 1]
+        q = final.body_q.numpy()[cubes]
+        ys = q[:, 1]
+        tilt = tilt_deg(q[:, 3:7])
         tr = np.asarray(tracks)  # (frames, worlds)
-        return Rollout([Trial(d, o, c, float(y), [float(v) for v in tr[:, i]])
+        return Rollout([Trial(d, o, c, float(y), [float(v) for v in tr[:, i]], bool(tilt[i] > TIP_DEG))
                         for i, (d, o, c, y) in enumerate(zip(targets, observed, commands, ys))])
+
+
+TIP_DEG = 30.0
+
+
+def tilt_deg(quat_xyzw: np.ndarray) -> np.ndarray:
+    """Smallest rotation (deg) that maps the cube's resting pose to its current pose, modulo the
+    cube's 90° symmetries: a cube that rolled exactly onto another face reads ~90°, so use the
+    angle of whichever body axis is closest to world Z."""
+    x, y, z, w = quat_xyzw.T
+    # world-frame images of the body axes' z components (third row of the rotation matrix)
+    zx = 2 * (x * z - w * y)
+    zy = 2 * (y * z + w * x)
+    zz = 1 - 2 * (x * x + y * y)
+    best = np.max(np.abs(np.stack([zx, zy, zz])), axis=0)
+    rolled_face = np.abs(zz) < 0.7  # resting on a different face than it started on
+    ang = np.degrees(np.arccos(np.clip(best, -1, 1)))
+    return np.where(rolled_face, np.maximum(ang, 90.0), ang)
 
 
 def _camera_quat(pitch_deg: float):

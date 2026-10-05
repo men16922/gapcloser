@@ -66,6 +66,23 @@ def record_scenario(sc: dict, out: Path, targets: list[float], diagnoser=None) -
             "baselines": baselines, "truth": truth}
 
 
+def extract_frames(clip: Path, out_dir: Path, n: int = 3) -> list[Path]:
+    """First, middle and last frame of an animated clip as PNGs (input for a multimodal diagnoser)."""
+    from PIL import Image
+
+    im = Image.open(clip)
+    count = getattr(im, "n_frames", 1)
+    idx = sorted({0, count // 2, count - 1})[:n]
+    out_dir.mkdir(parents=True, exist_ok=True)
+    paths = []
+    for i in idx:
+        im.seek(i)
+        p = out_dir / f"{clip.stem}-f{i}.png"
+        im.convert("RGB").save(p)
+        paths.append(p)
+    return paths
+
+
 def _cmd(c: float, target: float, p: ParamSet) -> float:
     from sim.push_task import Policy, observe
 

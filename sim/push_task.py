@@ -39,6 +39,7 @@ class Trial:
     command: float
     slide: float
     track: list[float] = field(default_factory=list)  # cube y at frames 0..TRACK_FRAMES (camera tracking)
+    tipped: bool = False  # cube rolled over instead of sliding (outside the sliding model)
 
     @property
     def success(self) -> bool:
@@ -58,7 +59,7 @@ class Rollout:
             "success_rate": self.success_rate,
             "trials": [
                 {"target": t.target, "observed": t.observed, "command": t.command, "slide": t.slide, "success": t.success,
-                 "track": t.track}
+                 "track": t.track, "tipped": t.tipped}
                 for t in self.trials
             ],
         }

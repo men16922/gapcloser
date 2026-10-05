@@ -87,3 +87,22 @@ def test_recording_llm_writes_replayable_fixture(tmp_path):
     data = json.loads(path.read_text())
     assert data["diagnose"][0]["model"] == "fake"
     assert RecordedLLM(data).complete("diagnose", []).completion_tokens == 4
+
+
+def test_frames_switch_to_vision_role_with_image_parts(tmp_path):
+    from PIL import Image
+
+    frame = tmp_path / "f0.png"
+    Image.new("RGB", (8, 8), (10, 200, 10)).save(frame)
+    reply = {"text": '{"reasoning": "slow launch", "suspects": [{"name": "actuator_gain", "direction": "down", '
+                     '"confidence": 0.9, "estimate": 0.76}]}', "model": "omni"}
+    env = AnalyticPushEnv()
+    for frames, role in ((lambda: [frame], "vision"), (None, "diagnose")):
+        llm = RecordedLLM({"vision": [reply] * 3, "diagnose": [reply] * 3})
+        run_loop(RealWorld(env, ParamSet.nominal().with_(actuator_gain=0.76)), GridTrainer(env),
+                 LLMDiagnoser(llm, frames=frames), HeuristicPlanner(), TARGETS, max_iter=2)
+        sent_role, messages = llm.calls[0]
+        assert sent_role == role
+        content = messages[1]["content"]
+        has_image = isinstance(content, list) and any(p.get("type") == "image_url" for p in content)
+        assert has_image == (frames is not None)

@@ -68,3 +68,20 @@ def test_trajectory_diagnoser_breaks_gain_confound():
     assert traj.final_success >= 0.9
     first = traj.log[0].diagnosis["suspects"][0]
     assert first["name"] == "actuator_gain" and abs(first["estimate"] - 0.76) < 0.01
+
+
+def test_tipped_trials_do_not_drive_friction_changes():
+    """Tipped cubes stop short for reasons outside the sliding model; the diagnosers must ignore them."""
+    from agent.loop import HeuristicDiagnoser, TrajectoryDiagnoser
+    from sim.push_task import Rollout
+
+    env = AnalyticPushEnv()
+    pol = GridTrainer(env).train(Randomization.none())
+    sim = env.rollout(ParamSet.nominal(), pol, TARGETS)
+    real = env.rollout(ParamSet.nominal(), pol, TARGETS)
+    for t in real.trials[:8]:  # 8 cubes tipped and stopped early
+        t.tipped, t.slide = True, t.slide * 0.5
+    real = Rollout(real.trials)
+    for d in (HeuristicDiagnoser(), TrajectoryDiagnoser()):
+        names = [s.name for s in d.diagnose(real, sim, ParamSet.nominal()).suspects]
+        assert "object_mu" not in names and "table_mu" not in names

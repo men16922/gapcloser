@@ -54,6 +54,13 @@ class Planner(Protocol):
     def plan(self, diag: Diagnosis, rand: Randomization, sim_params: ParamSet) -> ConfigDiff: ...
 
 
+def sliding(ro: Rollout) -> Rollout:
+    """Trials where the cube slid (tipped-over cubes are outside the sliding model). Falls back to all
+    trials when fewer than 3 remain, so fits stay defined."""
+    keep = [t for t in ro.trials if not getattr(t, "tipped", False)]
+    return Rollout(keep) if len(keep) >= 3 else ro
+
+
 def _fit_line(xs: list[float], ys: list[float]) -> tuple[float, float]:
     n = len(xs)
     mx, my = sum(xs) / n, sum(ys) / n
@@ -69,6 +76,7 @@ class HeuristicDiagnoser:
     scale the slide) -- that confound is exactly what visual evidence (Cosmos/Nemotron) should break."""
 
     def diagnose(self, real: Rollout, sim: Rollout, sim_params: ParamSet) -> Diagnosis:
+        real, sim = _paired_sliding(real, sim)
         targets = [t.target for t in real.trials]
         a_r, b_r = _fit_line(targets, [t.slide for t in real.trials])
         a_s, b_s = _fit_line(targets, [t.slide for t in sim.trials])
@@ -87,6 +95,15 @@ class HeuristicDiagnoser:
             suspects.append(Suspect("camera_dx", "up" if offset > 0 else "down", 0.6, sim_params["camera_dx"] + offset / ratio))
         summary = f"slide scale x{ratio:.3f}, offset {offset:+.3f} m"
         return Diagnosis(summary, ratio, offset, sorted(suspects, key=lambda s: -s.confidence))
+
+
+def _paired_sliding(real: Rollout, sim: Rollout) -> tuple[Rollout, Rollout]:
+    """Drop trial pairs where either cube tipped, keeping real/sim aligned by target."""
+    pairs = [(r, s) for r, s in zip(real.trials, sim.trials)
+             if not getattr(r, "tipped", False) and not getattr(s, "tipped", False)]
+    if len(pairs) < 3:
+        return real, sim
+    return Rollout([r for r, _ in pairs]), Rollout([s for _, s in pairs])
 
 
 def fit_launch(track: list[float], dt: float = FRAME_DT) -> tuple[float, float] | None:
@@ -127,6 +144,10 @@ class TrajectoryDiagnoser:
     def diagnose(self, real: Rollout, sim: Rollout, sim_params: ParamSet) -> Diagnosis:
         suspects: list[Suspect] = []
         notes = []
+        n_tipped = sum(getattr(t, "tipped", False) for t in real.trials)
+        if n_tipped:
+            notes.append(f"{n_tipped} cube(s) tipped over, excluded from fits")
+        real, sim = _paired_sliding(real, sim)
         real_fit, sim_fit = _launch_stats(real), _launch_stats(sim)
         if real_fit and sim_fit:
             # relative to the sim's own tracked motion, so engine-specific biases cancel

@@ -25,3 +25,23 @@ def test_newton_loop_closes_weak_motor_gap():
     res = run_loop(real, GridTrainer(AnalyticPushEnv()), TrajectoryDiagnoser(), HeuristicPlanner(), TARGETS, sim_env=env)
     assert res.log[0].real_success < 0.2
     assert res.final_success >= 0.9
+
+
+def test_tipping_is_flagged_only_at_high_friction():
+    from sim.push_task import Policy
+
+    env = NewtonPushEnv()
+    low = env.rollout(ParamSet.nominal(), Policy(2 * 0.8 * 9.81), TARGETS)
+    high = env.rollout(ParamSet.nominal().with_(object_mu=1.0, table_mu=1.0), Policy(2 * 1.0 * 9.81), TARGETS)
+    assert sum(t.tipped for t in low.trials) == 0
+    assert sum(t.tipped for t in high.trials) >= 5
+
+
+def test_extract_frames_from_rendered_clip(tmp_path):
+    from eval.record_demo import extract_frames
+    from sim.newton_push import render_trial
+
+    clip = tmp_path / "c.webp"
+    render_trial(ParamSet.nominal(), 2.5, 0.4, clip)
+    frames = extract_frames(clip, tmp_path / "frames")
+    assert 2 <= len(frames) <= 3 and all(f.exists() and f.suffix == ".png" for f in frames)
