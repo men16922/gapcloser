@@ -31,18 +31,18 @@ Ten random hidden worlds (two changed parameters each), all rollouts in NVIDIA N
 | GapCloser, end positions only | 89% | 0.43 / 1.00 |
 | **GapCloser, tracked motion** | **94%** | **1.00 / 1.00** |
 
-Recorded scenarios (dashboard): slippery cube 0 → 100%, shifted camera 0 → 100%, sticky table 5 → 95%, weak motor 0 → 100% (the end-position-only agent stays at 0%).
+Recorded scenarios with Nemotron 3 Nano 30B as the diagnoser (dashboard): slippery cube 0 → 100%, shifted camera 0 → 100%, sticky table 0 → 100%, weak motor 0 → 100% (the end-position-only agent stays at 0%). Each took one fix.
 
-Local Nemotron 3 Nano (4B, Ollama) diagnosed all five probe worlds correctly, including two simultaneous changes (`actuator_gain=1.2`, `object_mu=0.4` → estimates 1.2 and μ_eff 0.6), at ~2.4k prompt tokens per diagnosis.
+Local Nemotron 3 Nano 4B also diagnosed all five probe worlds correctly, including two simultaneous changes (`actuator_gain=1.2`, `object_mu=0.4` → estimates 1.2 and μ_eff 0.6), at ~2.4k prompt tokens per diagnosis.
 
-**Known limitation:** when effective friction reaches about 1 (the cube's width/height ratio), the cube tips over instead of sliding. The agent's sliding model doesn't cover tipping, so one benchmark world (table μ 1.18) stays at 35%.
+**Known limitation:** when effective friction reaches about 1 (the cube's width/height ratio), cubes tip over instead of sliding. The Newton env flags tipped cubes and the diagnosers exclude them, but the agent has no fix for tipping: the "Tipping edge" scenario (table μ 1.18) stays at 5%, while the end-position-only agent, which fits whatever happens, reaches 75%.
 
 ## Quickstart
 
 ```bash
 python3 -m venv .venv && .venv/bin/pip install "newton[examples]" openai pytest
-make check            # offline gate: 24 tests, no network
-make demo             # record 4 Newton scenarios + build the dashboard (~30 s on an M4 Max CPU)
+make check            # offline gate: 28 tests, no network
+make demo             # record 5 Newton scenarios + build the dashboard (~30 s; add --llm local via eval.record_demo for Nemotron)
 open dashboard/dist/gapcloser.standalone.html
 ```
 

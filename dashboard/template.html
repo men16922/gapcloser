@@ -358,6 +358,7 @@ td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
     "slippery-cube": "The real cube is far slipperier than modeled. Pushes tuned in sim overshoot the line.",
     "camera-offset": "The real camera sits a few centimeters off. Every target is perceived short, the room is also dimmer.",
     "sticky-table": "The real table grips harder than the sim surface, so every push falls short.",
+    "tipping-edge": "The table grips so hard that many cubes tip over instead of sliding. Tipping is outside the agent’s sliding model; this run shows where the method stops working.",
     "weak-motor": "The arm delivers less speed than commanded. From end positions alone this looks exactly like extra friction; the tracked launch speed tells them apart.",
   };
   function renderRun(run) {

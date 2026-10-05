@@ -4,6 +4,13 @@ Last Updated: 2026-10-05
 
 This file maintains only recent incremental summaries (newest 3-5 items, ≤120 lines). Older entries are archived to `docs/archive/progress-YYYY-MM.md` via `/tidy-docs`.
 
+## 2026-10-05 — Local Nemotron in the loop, tipping found, dashboard v2
+- Status: Nemotron 3 Nano 30B (Ollama, local) drives diagnosis in all recorded scenarios; dashboard v2 published (https://claude.ai/artifact/WVBNfVMAzeNg71kDSFqYAf).
+- Changed: `agent/llm.py` provider-agnostic (local/tokenfactory, max_tokens cap 2048, timeout 180 s); `agent/llm_diagnoser.py` (validation, vague-suspect filter, vision role + frames); tipping detection in Newton env + diagnosers skip tipped trials; `eval.compare --env newton --llm`, diagnosis P/R; `extract_frames`; README, LICENSE (Apache-2.0), Devpost draft, video storyboard; 2 commits.
+- Verified: `make check` 28 passed. Recorded (Newton, Nemotron 30B): slippery 0→100, camera 0→100, sticky (table μ 1.05) 0→100, weak motor 0→100 (outcome-only 0), tipping edge (table μ 1.18) 5% (outcome-only 75%). Newton benchmark w/o LLM: 18/24/89/94%, P/R outcome 0.43/1.00 vs tracking 1.00/1.00.
+- Blockers: Token Factory run (key). Root-caused a stall: 30B generated 31k tokens without stopping → fixed by max_tokens.
+- Next: Token Factory re-record; tipping-aware planning (outcome-only beats model-based diagnosis at the tipping edge).
+
 ## 2026-10-05 — Newton env, trajectory diagnoser, agent console dashboard
 - Status: Visible demo exists — dashboard with 4 recorded Newton scenarios + benchmark tab (https://claude.ai/artifact/WVBNfVMAzeNg71kDSFqYAf).
 - Changed: `sim/newton_push.py` (Newton env, same rollout contract, cube tracking, `render_trial` animated WebP); `Trial.track` + `analytic_track`; `agent/loop.py` emit events, `fit_launch`, `TrajectoryDiagnoser`, planner uses direct estimates; `eval/compare.py` 4 methods; `eval/record_demo.py`; `dashboard/template.html` + `dashboard/build.py`; `docs/design/REFERENCE.md`; `make demo`/`make dashboard`; tests (17).

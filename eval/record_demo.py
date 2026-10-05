@@ -24,8 +24,9 @@ from sim.push_task import SUCCESS_TOL, AnalyticPushEnv, GridTrainer, eval_target
 SCENARIOS = [
     {"id": "slippery-cube", "title": "Slippery cube", "hidden": {"object_mu": 0.25, "restitution": 0.15}},
     {"id": "camera-offset", "title": "Shifted camera", "hidden": {"camera_dx": -0.028, "light_intensity": 0.6}},
-    {"id": "sticky-table", "title": "Sticky table", "hidden": {"table_mu": 1.15, "light_intensity": 1.4}},
+    {"id": "sticky-table", "title": "Sticky table", "hidden": {"table_mu": 1.05, "light_intensity": 1.4}},
     {"id": "weak-motor", "title": "Weak motor", "hidden": {"actuator_gain": 0.76, "restitution": 0.15}},
+    {"id": "tipping-edge", "title": "Tipping edge", "hidden": {"table_mu": 1.18}},
 ]
 CLIP_TARGET = 0.45
 

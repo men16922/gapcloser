@@ -69,13 +69,14 @@ def pick_model(ids: list[str], hint: str) -> str | None:
 
 class OpenAICompatLLM:
     def __init__(self, base_url: str, api_key: str, hints: dict[str, str], provider: str, temperature: float = 0.2,
-                 timeout: float = 600.0):
+                 timeout: float = 180.0, max_tokens: int = 2048):
         from openai import OpenAI
 
         self.client = OpenAI(base_url=base_url, api_key=api_key, timeout=timeout)
         self.provider = provider
         self.hints = hints
         self.temperature = temperature
+        self.max_tokens = max_tokens  # hard cap: a runaway generation must not stall the loop
         self.usage = Usage()
         self._ids: list[str] | None = None
 
@@ -107,7 +108,8 @@ class OpenAICompatLLM:
         if schema is not None:
             kwargs["response_format"] = {"type": "json_schema", "json_schema": {"name": "result", "schema": schema}}
         model = self.model_for(role)
-        r = self.client.chat.completions.create(model=model, messages=messages, temperature=self.temperature, **kwargs)
+        r = self.client.chat.completions.create(model=model, messages=messages, temperature=self.temperature,
+                                                max_tokens=self.max_tokens, **kwargs)
         u = r.usage
         resp = LLMResponse(r.choices[0].message.content or "", model,
                            getattr(u, "prompt_tokens", 0) or 0, getattr(u, "completion_tokens", 0) or 0)
