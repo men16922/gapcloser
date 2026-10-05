@@ -1,0 +1,10 @@
+{
+ "diagnose": [
+  {
+   "text": "\n{\n  \"reasoning\": \"Real stop distance is 0.5776\u00d7sim, matching launch_speed_ratio 0.7596 and deceleration_ratio 0.9985; thus real actuator gain \u22480.7596, real \u03bc_eff\u22480.799, implying object_\u03bc and table_\u03bc\u22480.799.\",\n  \"suspects\": [\n    {\"name\": \"actuator_gain\", \"direction\": \"down\", \"confidence\": 0.99, \"estimate\": 0.7596},\n    {\"name\": \"object_mu\", \"direction\": \"down\", \"confidence\": 0.99, \"estimate\": 0.799},\n    {\"name\": \"table_mu\", \"direction\": \"down\", \"confidence\": 0.99, \"estimate\": 0.799}\n  ]\n}",
+   "model": "nemotron-3-nano:4b",
+   "prompt_tokens": 2575,
+   "completion_tokens": 203
+  }
+ ]
+}

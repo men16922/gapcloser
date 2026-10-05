@@ -1,0 +1,429 @@
+<title>GapCloser Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: Isaac/Omniverse-style tool console. Top bar → scenario tabs → 3 panes
+   (agent timeline | sim-vs-real evidence | outcome + belief). Single dark theme by choice,
+   tokens taken from nvidia.com CSS (see docs/design/REFERENCE.md). */
+:root {
+  color-scheme: dark;
+  --bg: #000000;          /* page */
+  --panel: #111111;       /* gray-950 */
+  --raised: #1a1a1a;      /* gray-900, brand black-1 */
+  --line: #333333;        /* gray-700 hairline */
+  --line-soft: #222222;   /* gray-800 */
+  --fg: #eeeeee;          /* gray-100 */
+  --muted: #999999;       /* gray-400 */
+  --dim: #666666;         /* gray-600 */
+  --green: #76b900;       /* brand green: the one accent */
+  --green-hi: #91c733;    /* brand green hover */
+  --green-wash: rgba(118, 185, 0, 0.12);
+  --warn: #d9a13b;
+  --bad: #e2574c;
+  --bad-wash: rgba(226, 87, 76, 0.14);
+  --f-display: "Barlow Semi Condensed", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --f-body: "Barlow", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px;
+}
+* { box-sizing: border-box; }
+html, body { background: var(--bg); color: var(--fg); }
+body { font: 15px/1.45 var(--f-body); padding-inline: 16px; padding-block: 0 32px; }
+.wrap { max-width: 1480px; margin: 0 auto; }
+h1, h2, h3 { font-family: var(--f-display); font-weight: 600; margin: 0; text-wrap: balance; }
+.label { font: 600 11px/1 var(--f-display); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+
+/* top bar */
+.top { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s4) var(--s5); padding-block: var(--s4); border-bottom: 1px solid var(--line); }
+.brand { display: flex; align-items: baseline; gap: var(--s3); }
+.brand h1 { font-size: 26px; letter-spacing: 0.01em; }
+.brand h1 b { color: var(--green); font-weight: 700; }
+.brand .sub { color: var(--muted); font-size: 14px; }
+.stack { margin-left: auto; display: flex; flex-wrap: wrap; gap: var(--s2); }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border: 1px solid var(--line); font: 500 12px/1.2 var(--f-mono); color: var(--muted); white-space: nowrap; }
+.chip i { width: 6px; height: 6px; background: var(--green); display: inline-block; }
+.chip.pending i { background: var(--warn); }
+
+/* tabs */
+.tabs { display: flex; flex-wrap: wrap; gap: 0; border-bottom: 1px solid var(--line); }
+.tab { background: none; border: 0; border-bottom: 2px solid transparent; padding: var(--s3) var(--s4); cursor: pointer; color: var(--muted); font: 600 14px/1.2 var(--f-display); letter-spacing: 0.04em; text-transform: uppercase; display: flex; gap: var(--s2); align-items: center; }
+.tab:hover { color: var(--fg); }
+.tab[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--green); }
+.tab .pill { font: 500 11px/1 var(--f-mono); padding: 3px 5px; background: var(--raised); color: var(--muted); letter-spacing: 0; }
+.tab .pill.ok { color: var(--green); }
+
+/* scenario header */
+.scn { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--s4); align-items: end; padding-block: var(--s5) var(--s4); }
+.scn h2 { font-size: 34px; line-height: 1.05; }
+.scn p { margin: var(--s2) 0 0; color: var(--muted); max-width: 70ch; }
+.controls { display: flex; gap: var(--s2); }
+.btn { background: var(--raised); border: 1px solid var(--line); padding: 8px 14px; cursor: pointer; font: 600 13px/1 var(--f-display); letter-spacing: 0.08em; text-transform: uppercase; }
+.btn:hover { border-color: var(--dim); }
+.btn.primary { background: var(--green); border-color: var(--green); color: #000; }
+.btn.primary:hover { background: var(--green-hi); border-color: var(--green-hi); }
+
+.kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border: 1px solid var(--line); margin-bottom: var(--s4); }
+.kpi { padding: var(--s3) var(--s4); border-right: 1px solid var(--line); display: grid; gap: 6px; }
+.kpi:last-child { border-right: 0; }
+.kpi .v { font: 600 30px/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.kpi .v small { font-size: 15px; color: var(--muted); font-weight: 500; }
+.kpi.hero .v { color: var(--green); }
+.kpi .d { font-size: 12px; color: var(--dim); }
+
+/* panes */
+.grid { display: grid; grid-template-columns: 340px minmax(0, 1fr) 380px; gap: var(--s4); align-items: start; }
+.pane { background: var(--panel); border: 1px solid var(--line); min-width: 0; }
+.pane > header { display: flex; justify-content: space-between; align-items: center; gap: var(--s2); padding: var(--s3) var(--s4); border-bottom: 1px solid var(--line); }
+.pane > .body { padding: var(--s4); }
+
+/* timeline */
+.tl { list-style: none; margin: 0; padding: 0; max-height: 860px; overflow-y: auto; }
+.tl li { border-bottom: 1px solid var(--line-soft); padding: var(--s3) var(--s4); display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: var(--s3); cursor: pointer; }
+.tl li:hover { background: var(--raised); }
+.tl li.sel { background: var(--raised); box-shadow: inset 2px 0 0 var(--green); }
+.tl .ico { width: 22px; height: 22px; border: 1px solid var(--line); display: grid; place-items: center; font: 600 11px/1 var(--f-mono); color: var(--muted); }
+.tl li.live .ico { border-color: var(--green); color: var(--green); animation: pulse 1.1s ease-in-out infinite; }
+.tl .h { display: flex; justify-content: space-between; gap: var(--s2); align-items: baseline; }
+.tl .h b { font: 600 14px/1.2 var(--f-display); letter-spacing: 0.05em; text-transform: uppercase; }
+.tl .h span { font: 400 11px/1 var(--f-mono); color: var(--dim); }
+.tl .who { font: 500 11px/1.4 var(--f-mono); color: var(--dim); }
+.tl .txt { font-size: 13.5px; color: var(--fg); margin-top: 4px; overflow-wrap: anywhere; }
+.tl .txt .mono { font-size: 12.5px; }
+.sus { display: grid; gap: 4px; margin-top: 6px; }
+.sus div { display: grid; grid-template-columns: minmax(0, 1fr) 56px 50px; gap: 6px; align-items: center; font: 400 12px/1.2 var(--f-mono); }
+.sus .bar { height: 4px; background: var(--line); position: relative; }
+.sus .bar span { position: absolute; inset: 0 auto 0 0; background: var(--green); }
+.why { margin: 8px 0 0; padding: 6px 0 6px 10px; border-left: 2px solid var(--green); font-size: 13.5px; line-height: 1.45; color: var(--fg); overflow-wrap: anywhere; }
+.diff { margin-top: 6px; font: 400 12px/1.5 var(--f-mono); background: #0a0a0a; border: 1px solid var(--line-soft); padding: 6px 8px; overflow-x: auto; white-space: pre; }
+.diff .old { color: var(--dim); text-decoration: line-through; }
+.diff .new { color: var(--green); }
+.ok-t { color: var(--green); } .bad-t { color: var(--bad); }
+@keyframes pulse { 50% { box-shadow: 0 0 0 3px var(--green-wash); } }
+
+/* evidence */
+.clips { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s3); }
+.clip { display: grid; gap: var(--s2); min-width: 0; }
+.clip .frame { position: relative; border: 1px solid var(--line); background: #000; aspect-ratio: 16 / 9; max-width: 100%; overflow: hidden; }
+.clip img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.clip .tag { position: absolute; top: 8px; left: 8px; font: 600 11px/1 var(--f-display); letter-spacing: 0.12em; text-transform: uppercase; padding: 4px 6px; background: rgba(0,0,0,0.72); }
+.clip .res { position: absolute; bottom: 8px; right: 8px; font: 500 12px/1 var(--f-mono); padding: 4px 6px; background: rgba(0,0,0,0.72); }
+.clip .res.ok { color: var(--green); } .clip .res.bad { color: var(--bad); }
+.clip .cap { display: flex; justify-content: space-between; gap: var(--s2); font-size: 12.5px; color: var(--muted); }
+.evh { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s2); margin: var(--s5) 0 var(--s2); flex-wrap: wrap; }
+.legend { display: flex; gap: var(--s4); font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+.legend span { display: inline-flex; gap: 6px; align-items: center; }
+.sw { width: 10px; height: 10px; display: inline-block; }
+svg text { font-family: var(--f-mono); font-size: 11px; fill: var(--muted); }
+.chart { width: 100%; height: auto; display: block; }
+.iters { display: flex; gap: 0; border: 1px solid var(--line); width: fit-content; max-width: 100%; overflow-x: auto; }
+.iters button { background: none; border: 0; border-right: 1px solid var(--line); padding: 6px 12px; cursor: pointer; font: 500 12px/1 var(--f-mono); color: var(--muted); }
+.iters button:last-child { border-right: 0; }
+.iters button[aria-pressed="true"] { background: var(--green); color: #000; }
+
+/* belief */
+.bel { display: grid; gap: 10px; }
+.bel .row { display: grid; grid-template-columns: 118px minmax(0, 1fr); gap: var(--s3); align-items: center; }
+.bel .nm { font: 400 12px/1.2 var(--f-mono); color: var(--muted); overflow-wrap: anywhere; }
+.bel .row.moved .nm { color: var(--fg); }
+.bel .track { position: relative; height: 18px; border-left: 1px solid var(--line); border-right: 1px solid var(--line); }
+.bel .track::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--line); }
+.bel .band { position: absolute; top: 4px; bottom: 4px; background: var(--green-wash); border: 1px solid var(--green); min-width: 3px; }
+.bel .nom { position: absolute; top: 2px; bottom: 2px; width: 1px; background: var(--dim); }
+.bel .truth { position: absolute; top: -3px; width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 7px solid var(--fg); transform: translateX(-5px); }
+.bel .truth.miss { border-top-color: var(--bad); }
+.bel-legend { display: flex; flex-wrap: wrap; gap: var(--s4); font-size: 12px; color: var(--muted); margin-top: var(--s3); }
+.toggle { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font: 600 12px/1 var(--f-display); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); background: none; border: 1px solid var(--line); padding: 6px 10px; }
+.toggle[aria-pressed="true"] { color: #000; background: var(--fg); border-color: var(--fg); }
+.note { font-size: 12.5px; color: var(--dim); margin: var(--s3) 0 0; }
+
+/* benchmark */
+.bench-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--line); margin-bottom: var(--s4); }
+.bench-tiles > div { padding: var(--s4); border-right: 1px solid var(--line); display: grid; gap: 6px; }
+.bench-tiles > div:last-child { border-right: 0; }
+.bench-tiles .v { font: 600 40px/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.bench-tiles .best .v { color: var(--green); }
+.bench-tiles .d { font-size: 13px; color: var(--muted); }
+.tbl-wrap { overflow-x: auto; border: 1px solid var(--line); background: var(--panel); }
+table { border-collapse: collapse; width: 100%; min-width: 760px; font-size: 13px; }
+th, td { padding: 9px 12px; border-bottom: 1px solid var(--line-soft); text-align: left; }
+th { font: 600 11px/1.2 var(--f-display); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); background: var(--raised); }
+td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.cell { display: grid; grid-template-columns: 40px minmax(40px, 1fr); gap: 8px; align-items: center; }
+.cell .b { height: 6px; background: var(--line-soft); position: relative; }
+.cell .b span { position: absolute; inset: 0 auto 0 0; background: var(--dim); }
+.cell.top .b span { background: var(--green); }
+.foot { margin-top: var(--s5); color: var(--dim); font-size: 12.5px; display: flex; flex-wrap: wrap; gap: var(--s2) var(--s5); border-top: 1px solid var(--line); padding-top: var(--s3); }
+
+@media (max-width: 1180px) {
+  .grid { grid-template-columns: minmax(0, 1fr); }
+  .tl { max-height: 420px; }
+}
+@media (max-width: 720px) {
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kpi { border-bottom: 1px solid var(--line); }
+  .bench-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .clips { grid-template-columns: minmax(0, 1fr); }
+  .scn { grid-template-columns: minmax(0, 1fr); }
+  .scn h2 { font-size: 28px; }
+  .stack { margin-left: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .tl li.live .ico { animation: none; } }
+</style>
+
+<div class="wrap">
+  <div class="top">
+    <div class="brand"><h1>Gap<b>Closer</b></h1><span class="sub">Sim2Real agent console</span></div>
+    <div class="stack" id="stack"></div>
+  </div>
+  <nav class="tabs" id="tabs" role="tablist" aria-label="Scenarios"></nav>
+  <main id="main"></main>
+  <div class="foot" id="foot"></div>
+</div>
+
+<script>window.BUNDLE = "__BUNDLE__";</script>
+<script>
+(() => {
+  const B = window.BUNDLE;
+  const $ = (s, el = document) => el.querySelector(s);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const pct = (x) => `${Math.round(x * 100)}%`;
+  const P = B.params;
+  const fmt = (name, v) => {
+    const u = P[name] ? P[name].unit : "";
+    const d = Math.abs(v) < 0.1 ? 3 : 2;
+    return `${(+v).toFixed(d)}${u && u !== "-" ? (u === "x" ? "×" : " " + u) : ""}`;
+  };
+  const S = { tab: 0, iter: null, sel: null, reveal: false, shown: null, timer: null };
+
+  const STEP = { train: ["T", "Train"], measure: ["M", "Measure"], diagnose: ["D", "Diagnose"], plan: ["P", "Plan"], done: ["✓", "Goal"] };
+
+  // ---------- chrome ----------
+  const prov = B.stack.llm_provider || "none";
+  $("#stack").innerHTML = [
+    ["", B.stack.physics],
+    ["", B.stack.diagnoser.replace(" (cube tracking, offline)", " · cube tracking")],
+    prov === "tokenfactory" ? ["", "Nebius Token Factory"] : prov === "local" ? ["pending", "Local Nemotron · Token Factory run pending"] : ["pending", "Nemotron · Token Factory: key pending"],
+  ].map(([c, t]) => `<span class="chip ${c}"><i></i>${esc(t)}</span>`).join("");
+  $("#foot").innerHTML = `<span>Task: ${esc(B.task.name)} · ${B.task.n_targets} targets 0.20–0.60 m · success = stop within ±${B.task.success_tol_m * 100} cm</span>
+    <span>All success rates measured by rollout in NVIDIA Newton. Hidden “real” physics is never shown to the agent.</span>
+    <span>Recorded ${esc(B.generated.replace("T", " ").replace("+00:00", " UTC"))}</span>`;
+
+  function renderTabs() {
+    const tabs = B.runs.map((r, i) => `<button class="tab" role="tab" aria-selected="${S.tab === i}" data-tab="${i}">${esc(r.title)}<span class="pill ${r.final_success >= 0.9 ? "ok" : ""}">${pct(r.final_success)}</span></button>`);
+    tabs.push(`<button class="tab" role="tab" aria-selected="${S.tab === "bench"}" data-tab="bench">Benchmark<span class="pill ok">${B.benchmark.rows.length} worlds</span></button>`);
+    $("#tabs").innerHTML = tabs.join("");
+  }
+  $("#tabs").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-tab]"); if (!b) return;
+    stopReplay();
+    S.tab = b.dataset.tab === "bench" ? "bench" : +b.dataset.tab; S.iter = null; S.sel = null; S.shown = null; S.reveal = false;
+    render();
+  });
+
+  // ---------- helpers on a run ----------
+  const iterations = (run, upto) => {
+    const ev = run.events.slice(0, upto ?? run.events.length);
+    const its = [];
+    ev.forEach((e) => { (its[e.iter] ||= {})[e.type] = e; });
+    return its.filter(Boolean);
+  };
+  const changedRanges = (ranges) => Object.entries(ranges).filter(([k, [lo, hi]]) => Math.abs(lo - P[k].nominal) > 1e-9 || Math.abs(hi - P[k].nominal) > 1e-9);
+  const clipErr = (m, which) => m.clip[`${which}_slide`] - m.clip.target;
+
+  // ---------- timeline ----------
+  function eventText(e, run) {
+    if (e.type === "train") {
+      const ch = changedRanges(e.ranges);
+      return `<div class="who">surrogate policy search · 64 randomized worlds</div><div class="txt">${e.iter === 0 ? "Policy trained in the nominal simulator." : "Retrained with the updated simulator."} <span class="mono">c=${e.policy_c.toFixed(2)}</span>${ch.length ? `<div class="diff">${ch.map(([k, [lo, hi]]) => `${k.padEnd(16)} ${fmt(k, lo)} … ${fmt(k, hi)}`).join("\n")}</div>` : ""}</div>`;
+    }
+    if (e.type === "measure") {
+      const r = e.real, s = e.sim;
+      const n = r.trials.length, ok = r.trials.filter((t) => t.success).length;
+      return `<div class="who">NVIDIA Newton rollout · ${n} pushes each</div><div class="txt">Real <b class="${r.success_rate >= 0.9 ? "ok-t" : "bad-t"}">${ok}/${n}</b> on target, sim predicted <b>${s.trials.filter((t) => t.success).length}/${n}</b>.</div>`;
+    }
+    if (e.type === "diagnose") {
+      const why = e.reasoning ? `<blockquote class="why">${esc(e.reasoning)}</blockquote>` : "";
+      return `<div class="who">${esc(e.agent)}</div><div class="txt">${esc(e.summary)}</div>${why}${e.suspects.length ? `<div class="sus">${e.suspects.slice(0, 5).map((s) => `<div><span>${esc(s.name)} ${s.direction === "up" ? "↑" : s.direction === "down" ? "↓" : "?"}</span><span class="bar"><span style="width:${s.confidence * 100}%"></span></span><span>${s.estimate != null ? fmt(s.name, s.estimate) : "—"}</span></div>`).join("")}</div>` : `<div class="txt" style="color:var(--muted)">No significant gap left.</div>`}`;
+    }
+    if (e.type === "plan") {
+      const rows = Object.entries(e.set_ranges).map(([k, [lo, hi]]) => `${k.padEnd(16)} <span class="new">${fmt(k, (lo + hi) / 2)} ± ${fmt(k, (hi - lo) / 2)}</span>`);
+      return `<div class="who">${esc(e.agent)} → sim config diff</div>${rows.length ? `<div class="diff">${rows.join("\n")}</div>` : `<div class="txt">No change.</div>`}`;
+    }
+    if (e.type === "done") {
+      return `<div class="txt">${e.reached_goal ? `<b class="ok-t">Gap closed.</b> ${pct(e.final_success)} of real pushes land on the line.` : `<b class="bad-t">Stopped at ${pct(e.final_success)}</b> after the iteration budget.`}</div>`;
+    }
+    return "";
+  }
+  function renderTimeline(run, shown) {
+    const ev = run.events.slice(0, shown);
+    return `<section class="pane" aria-label="Agent timeline"><header><span class="label">Agent timeline</span><span class="label mono">${ev.length}/${run.events.length} steps</span></header>
+      <ol class="tl" id="tl">${ev.map((e, i) => {
+        const [ic, nm] = STEP[e.type];
+        const live = S.timer && i === ev.length - 1;
+        const sel = S.iter === e.iter && (e.type === "measure");
+        return `<li class="${live ? "live" : ""} ${sel ? "sel" : ""}" data-iter="${e.iter}"><span class="ico">${ic}</span><div><div class="h"><b>${nm} · it ${e.iter}</b><span>${e.t.toFixed(1)} s</span></div>${eventText(e, run)}</div></li>`;
+      }).join("")}</ol></section>`;
+  }
+
+  // ---------- evidence ----------
+  function renderEvidence(run, its, it) {
+    const m = its[it].measure;
+    const iterBtns = its.map((x, i) => `<button aria-pressed="${i === it}" data-iter="${i}">it ${i}</button>`).join("");
+    const clip = (which, tag, p) => {
+      const err = clipErr(m, which), ok = Math.abs(err) <= B.task.success_tol_m;
+      return `<figure class="clip" style="margin:0"><div class="frame"><img alt="${tag} push rendered in Newton" src="${m.clip[which]}"><span class="tag">${tag}</span><span class="res ${ok ? "ok" : "bad"}">${err >= 0 ? "+" : ""}${(err * 100).toFixed(1)} cm ${ok ? "on line" : err > 0 ? "overshoot" : "short"}</span></div><figcaption class="cap"><span>${p}</span><span class="mono">stop ${m.clip[`${which}_slide`].toFixed(3)} m</span></figcaption></figure>`;
+    };
+    return `<section class="pane" aria-label="Evidence"><header><span class="label">Sim vs real · same policy, target ${m.clip.target.toFixed(2)} m</span><div class="iters" id="iters">${iterBtns}</div></header>
+      <div class="body">
+        <div class="clips">${clip("sim", "Sim · agent’s model", "What the agent expects")}${clip("real", "Real · hidden physics", "What actually happens")}</div>
+        <div class="evh"><span class="label">Every push this iteration · stop error vs target</span>
+          <div class="legend"><span><i class="sw" style="background:var(--green)"></i>real, on line</span><span><i class="sw" style="background:var(--bad)"></i>real, miss</span><span><i class="sw" style="border:1px solid var(--muted)"></i>sim prediction</span></div></div>
+        ${trialChart(m)}
+        <p class="note">Shaded band = ±${B.task.success_tol_m * 100} cm tolerance. Real and sim use the identical commands; only the physics differs.</p>
+      </div></section>`;
+  }
+  function trialChart(m) {
+    const W = 640, H = 230, L = 46, R = 28, T = 12, Bm = 30;
+    const xs = (x) => L + ((x - 0.2) / 0.4) * (W - L - R);
+    const all = [...m.real.trials, ...m.sim.trials].map((t) => t.slide - t.target);
+    const lim = Math.max(0.06, Math.min(0.3, Math.ceil(Math.max(...all.map(Math.abs)) * 50) / 50));
+    const ys = (e) => T + ((lim - e) / (2 * lim)) * (H - T - Bm);
+    const tol = B.task.success_tol_m;
+    const yt = [-lim, -lim / 2, 0, lim / 2, lim];
+    let g = `<rect x="${L}" y="${ys(tol)}" width="${W - L - R}" height="${ys(-tol) - ys(tol)}" fill="rgba(118,185,0,0.10)"/>`;
+    g += yt.map((v) => `<line x1="${L}" x2="${W - R}" y1="${ys(v)}" y2="${ys(v)}" stroke="${v === 0 ? "#666" : "#222"}"/><text x="${L - 6}" y="${ys(v) + 4}" text-anchor="end">${v > 0 ? "+" : ""}${(v * 100).toFixed(0)}</text>`).join("");
+    g += [0.2, 0.3, 0.4, 0.5, 0.6].map((v) => `<text x="${xs(v)}" y="${H - 10}" text-anchor="middle">${v.toFixed(1)} m</text>`).join("");
+    g += `<text x="10" y="${T + 8}" fill="#999">cm</text>`;
+    g += m.sim.trials.map((t) => `<circle cx="${xs(t.target)}" cy="${ys(t.slide - t.target)}" r="5" fill="none" stroke="#999" stroke-width="1"/>`).join("");
+    g += m.real.trials.map((t) => `<circle cx="${xs(t.target)}" cy="${ys(Math.max(-lim, Math.min(lim, t.slide - t.target)))}" r="4" fill="${t.success ? "#76b900" : "#e2574c"}"/>`).join("");
+    return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Stop error per push">${g}</svg>`;
+  }
+
+  // ---------- outcome + belief ----------
+  function successChart(run, its) {
+    const W = 380, H = 190, L = 40, R = 14, T = 14, Bm = 28;
+    const n = Math.max(its.length, 2);
+    const xs = (i) => L + (i / (n - 1)) * (W - L - R);
+    const ys = (v) => T + (1 - v) * (H - T - Bm);
+    let g = [0, 0.5, 1].map((v) => `<line x1="${L}" x2="${W - R}" y1="${ys(v)}" y2="${ys(v)}" stroke="#222"/><text x="${L - 6}" y="${ys(v) + 4}" text-anchor="end">${pct(v)}</text>`).join("");
+    g += Array.from({ length: n }, (_, i) => `<text x="${xs(i)}" y="${H - 8}" text-anchor="middle">it ${i}</text>`).join("");
+    const refs = [["nominal", "#666", "4 3"], ["full_dr", "#666", "1 3"], ["outcome_only", "#d9a13b", "6 3"]];
+    g += refs.map(([k, c, d]) => `<line x1="${L}" x2="${W - R}" y1="${ys(run.baselines[k])}" y2="${ys(run.baselines[k])}" stroke="${c}" stroke-dasharray="${d}"/>`).join("");
+    const sim = its.map((x, i) => `${xs(i)},${ys(x.measure.sim.success_rate)}`).join(" ");
+    const real = its.map((x, i) => `${xs(i)},${ys(x.measure.real.success_rate)}`).join(" ");
+    const area = its.length > 1 ? `<polygon points="${xs(0)},${ys(0)} ${real} ${xs(its.length - 1)},${ys(0)}" fill="rgba(118,185,0,0.10)"/>` : "";
+    g += area + `<polyline points="${sim}" fill="none" stroke="#999" stroke-dasharray="3 3"/>`;
+    g += `<polyline points="${real}" fill="none" stroke="#76b900" stroke-width="2"/>`;
+    g += its.map((x, i) => `<circle cx="${xs(i)}" cy="${ys(x.measure.real.success_rate)}" r="${i === its.length - 1 ? 5 : 3.5}" fill="#76b900"/>`).join("");
+    const last = its[its.length - 1].measure.real.success_rate;
+    g += `<text x="${xs(its.length - 1) - 10}" y="${last > 0.85 ? ys(last) + 16 : ys(last) - 10}" text-anchor="end" fill="#eee">${pct(last)}</text>`;
+    return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Real success per iteration">${g}</svg>
+      <div class="legend" style="margin-top:8px"><span><i class="sw" style="background:#76b900"></i>real (measured)</span><span><i class="sw" style="border:1px dashed #999"></i>sim</span><span><i class="sw" style="background:#d9a13b"></i>outcome-only agent ${pct(run.baselines.outcome_only)}</span><span>· · nominal ${pct(run.baselines.nominal)} / full DR ${pct(run.baselines.full_dr)}</span></div>`;
+  }
+  function belief(run, its, it) {
+    const tr = its[it].train;
+    const ranges = tr.ranges;
+    const truth = run.truth;
+    const rows = Object.keys(P).map((k) => {
+      const p = P[k], span = p.high - p.low || 1;
+      const x = (v) => `${((v - p.low) / span) * 100}%`;
+      const [lo, hi] = ranges[k];
+      const moved = Math.abs(lo - p.nominal) > 1e-9 || Math.abs(hi - p.nominal) > 1e-9;
+      const tv = truth[k] ? truth[k].hidden : p.nominal;
+      const hit = tv >= lo - 1e-9 && tv <= hi + 1e-9 || (!moved && !truth[k]);
+      return `<div class="row ${moved ? "moved" : ""}"><span class="nm">${k}</span><div class="track" title="${k}: ${fmt(k, p.low)} … ${fmt(k, p.high)}">
+        <span class="nom" style="left:${x(p.nominal)}"></span>
+        <span class="band" style="left:${x(lo)};width:calc(${x(hi)} - ${x(lo)})"></span>
+        ${S.reveal ? `<span class="truth ${hit ? "" : "miss"}" style="left:${x(tv)}"></span>` : ""}</div></div>`;
+    }).join("");
+    const nTruth = Object.keys(truth).length;
+    const found = Object.keys(truth).filter((k) => { const [lo, hi] = ranges[k]; return truth[k].hidden >= lo - 1e-9 && truth[k].hidden <= hi + 1e-9; }).length;
+    return `<div class="bel">${rows}</div>
+      <div class="bel-legend"><span><i class="sw" style="background:var(--green-wash);border:1px solid var(--green)"></i>sim belief (it ${it})</span><span><i class="sw" style="width:1px;background:var(--dim)"></i>nominal</span>${S.reveal ? `<span>▼ hidden truth</span>` : ""}</div>
+      ${S.reveal ? `<p class="note">${found}/${nTruth} hidden changes are inside the agent’s belief at it ${it}. Changes the outcome cannot reveal (light, restitution) are left at nominal by design.</p>` : `<p class="note">Truth stays hidden from the agent. Reveal it to grade the diagnosis.</p>`}`;
+  }
+  function renderRight(run, its, it) {
+    return `<div style="display:grid;gap:16px;min-width:0">
+      <section class="pane" aria-label="Outcome"><header><span class="label">Real success per iteration</span></header><div class="body">${successChart(run, its)}</div></section>
+      <section class="pane" aria-label="Belief vs truth"><header><span class="label">Sim parameters · belief vs truth</span><button class="toggle" id="reveal" aria-pressed="${S.reveal}">${S.reveal ? "Hide truth" : "Reveal truth"}</button></header><div class="body">${belief(run, its, it)}</div></section></div>`;
+  }
+
+  // ---------- scenario page ----------
+  const BLURB = {
+    "slippery-cube": "The real cube is far slipperier than modeled. Pushes tuned in sim overshoot the line.",
+    "camera-offset": "The real camera sits a few centimeters off. Every target is perceived short, the room is also dimmer.",
+    "sticky-table": "The real table grips harder than the sim surface, so every push falls short.",
+    "weak-motor": "The arm delivers less speed than commanded. From end positions alone this looks exactly like extra friction; the tracked launch speed tells them apart.",
+  };
+  function renderRun(run) {
+    const shown = S.shown ?? run.events.length;
+    const its = iterations(run, shown);
+    const fullIts = iterations(run);
+    const it = Math.min(S.iter ?? its.length - 1, its.length - 1);
+    const first = fullIts[0].measure.real.success_rate, last = fullIts[fullIts.length - 1].measure.real.success_rate;
+    const hidden = Object.entries(run.truth).map(([k, v]) => `${k}`).join(", ");
+    return `<div class="scn"><div><span class="label">Scenario · hidden change in ${Object.keys(run.truth).length} parameters</span><h2>${esc(run.title)}</h2><p>${esc(BLURB[run.id] || "")}</p></div>
+        <div class="controls"><button class="btn primary" id="play">${S.timer ? "Pause" : "Replay run"}</button><button class="btn" id="end">Show result</button></div></div>
+      <div class="kpis">
+        <div class="kpi"><span class="label">Before</span><span class="v">${pct(first)}</span><span class="d">real success, sim-trained policy</span></div>
+        <div class="kpi hero"><span class="label">After GapCloser</span><span class="v">${pct(last)}</span><span class="d">measured in hidden physics</span></div>
+        <div class="kpi"><span class="label">Agent loops</span><span class="v">${fullIts.length - 1}<small> fixes</small></span><span class="d">${fullIts.length} trainings total</span></div>
+        <div class="kpi"><span class="label">Outcome-only agent</span><span class="v">${pct(run.baselines.outcome_only)}</span><span class="d">same loop, sees end positions only</span></div>
+        <div class="kpi"><span class="label">Domain randomization</span><span class="v">${pct(run.baselines.full_dr)}</span><span class="d">all 10 params, full range</span></div>
+      </div>
+      <div class="grid">${renderTimeline(run, shown)}${renderEvidence(run, its, it)}${renderRight(run, its, it)}</div>`;
+  }
+
+  // ---------- benchmark ----------
+  const METH = [["full_dr", "Domain randomization", "all params, full range"], ["nominal", "Nominal sim", "no randomization"], ["gapcloser_outcome", "GapCloser · outcome-only", "sees end positions"], ["gapcloser_traj", "GapCloser · tracking", "sees cube motion"]];
+  function renderBench() {
+    const s = B.benchmark.summary;
+    const best = Math.max(...METH.map(([k]) => s[k].mean_success));
+    const tiles = METH.map(([k, n, d]) => `<div class="${s[k].mean_success === best ? "best" : ""}"><span class="label">${n}</span><span class="v">${pct(s[k].mean_success)}</span><span class="d">${d} · ${s[k].mean_train_calls.toFixed(1)} trainings</span></div>`).join("");
+    const rows = B.benchmark.rows.map((r) => {
+      const top = Math.max(...METH.map(([k]) => r.success[k]));
+      return `<tr><td class="num">${r.world}</td><td class="num">${Object.entries(r.hidden).map(([k, v]) => `${k}=${fmt(k, v)}`).join("<br>")}</td>${METH.map(([k]) => `<td><div class="cell ${r.success[k] === top && top > 0 ? "top" : ""}"><span class="mono">${pct(r.success[k])}</span><span class="b"><span style="width:${r.success[k] * 100}%"></span></span></div></td>`).join("")}</tr>`;
+    }).join("");
+    return `<div class="scn"><div><span class="label">Tier 0 benchmark · ${B.benchmark.rows.length} random hidden worlds, 2 changed parameters each</span><h2>Same budget, four strategies</h2><p>Each world hides two of the ten physical and camera parameters. Every method is graded by the share of ${B.task.n_targets} real pushes that stop within ±${B.task.success_tol_m * 100} cm.</p></div></div>
+      <div class="bench-tiles">${tiles}</div>
+      <div class="tbl-wrap"><table><thead><tr><th>World</th><th>Hidden change</th>${METH.map(([, n]) => `<th>${n}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table></div>
+      <p class="note">Benchmark rollouts use the analytic surrogate of the Newton push task (agrees with Newton within 5 mm); scenario tabs are full Newton runs.</p>`;
+  }
+
+  // ---------- replay ----------
+  function stopReplay() { if (S.timer) { clearInterval(S.timer); S.timer = null; } }
+  function startReplay() {
+    const run = B.runs[S.tab];
+    S.shown = 1; S.iter = 0; S.reveal = false;
+    S.timer = setInterval(() => {
+      if (S.shown >= run.events.length) { stopReplay(); S.shown = null; render(); return; }
+      S.shown += 1;
+      const e = run.events[S.shown - 1];
+      if (e.type === "measure") S.iter = e.iter;
+      render();
+      const tl = $("#tl"); if (tl) tl.scrollTop = tl.scrollHeight;
+    }, 1300);
+    render();
+  }
+
+  // ---------- render + events ----------
+  function render() {
+    renderTabs();
+    $("#main").innerHTML = S.tab === "bench" ? renderBench() : renderRun(B.runs[S.tab]);
+  }
+  $("#main").addEventListener("click", (e) => {
+    const t = e.target;
+    if (t.closest("#play")) { if (S.timer) { stopReplay(); render(); } else startReplay(); return; }
+    if (t.closest("#end")) { stopReplay(); S.shown = null; S.iter = null; render(); return; }
+    if (t.closest("#reveal")) { S.reveal = !S.reveal; render(); return; }
+    const ib = t.closest("[data-iter]");
+    if (ib) { S.iter = +ib.dataset.iter; render(); }
+  });
+  try { const h = location.hash.slice(1); if (h === "benchmark") S.tab = "bench"; else { const i = B.runs.findIndex((r) => r.id === h); if (i >= 0) S.tab = i; } } catch (_) {}
+  render();
+})();
+</script>
