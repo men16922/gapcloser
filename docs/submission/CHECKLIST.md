@@ -16,7 +16,7 @@ Deadline: 2026-10-30 10:00 PDT (KST 10-31 02:00). Target: submit 10-29.
 ## Needs you (outward-facing or account actions)
 
 - [ ] Watch `video/out/gapcloser_demo.mp4`. Optionally re-record with your own voice (the storyboard has the script) and upload to YouTube/Vimeo (public or unlisted, per Devpost rules).
-- [ ] Create a **public GitHub repo** and push (`git remote add origin … && git push -u origin master`). Check that `.env` is not in `git ls-files`.
+- [ ] Create a **public GitHub repo** and push (`git remote add origin … && git push -u origin main`). Check that `.env` is not in `git ls-files`.
 - [ ] Optional live demo: Hugging Face Space (free) or Nebius CPU VM (~$0.06/h). Steps: `docs/deploy/DEPLOY.md`. Add `NEBIUS_API_KEY` as a platform secret.
 - [ ] Optional static demo: GitHub Pages from `site/`.
 - [ ] Devpost: paste `docs/submission/DEVPOST.md`, add the video URL, repo URL, (live demo URL), choose the Physical AI track, list team members.
