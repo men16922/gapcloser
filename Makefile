@@ -1,10 +1,10 @@
 # GapCloser — Sim2Real self-closing agent (Nebius x NVIDIA hackathon)
 # Gate must stay OFFLINE + DETERMINISTIC: no GPU, no network, no Nebius/Token Factory calls.
-.PHONY: check test lint smoke-local demo dashboard serve docker
+.PHONY: check test lint smoke-local demo dashboard serve docker site video
 
 PY := $(shell [ -x .venv/bin/python ] && echo .venv/bin/python || echo python3)
 
-PY_SRC := $(shell find agent sim eval dashboard server -name '*.py' 2>/dev/null)
+PY_SRC := $(shell find agent sim eval dashboard server video -name '*.py' 2>/dev/null)
 
 check: lint test
 
@@ -31,6 +31,14 @@ serve: dashboard
 
 docker:
 	docker build -t gapcloser .
+
+# static, self-contained page for GitHub Pages (recorded runs only)
+site: dashboard
+	mkdir -p site && cp dashboard/dist/gapcloser.standalone.html site/index.html
+
+# demo video (Chrome + ffmpeg + macOS say); start `make serve` first to include the live scene
+video: dashboard
+	$(PY) -m video.make_video
 
 # ===== overnight harness targets (append to your Makefile) =====
 # The overnight runner + helpers are the Single Source of Truth in the overnight-harness

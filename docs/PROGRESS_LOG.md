@@ -4,6 +4,12 @@ Last Updated: 2026-10-05
 
 This file maintains only recent incremental summaries (newest 3-5 items, ≤120 lines). Older entries are archived to `docs/archive/progress-YYYY-MM.md` via `/tidy-docs`.
 
+## 2026-10-05 — Local completion: fresh-clone check, Docker on Token Factory, video, site
+- Status: Everything that can be done locally is done and verified; remaining items are account/publishing actions (`docs/submission/CHECKLIST.md`).
+- Changed: dashboard deep links (`#run.sN.iN.reveal`), final KPIs hidden mid-replay; `video/make_video.py` + `make video`; `make site`; CHECKLIST.
+- Verified: fresh clone → `make check` 33 passed, `make demo` OK; Docker image rebuilt and ran a live run on Token Factory (gain 0.8 + pitch 3° → 0.799 / 3.0 → 100%, 1 call, no errors); video 1920x1080, 110 s, AAC audio (mean −16 dB), frames inspected; narration numbers match the screen (fixed a rounding mismatch 18% vs 19%).
+- Next: user actions in the checklist.
+
 ## 2026-10-05 — Token Factory live: demo and benchmark on Nemotron 3 Super
 - Status: Rules requirement met — the app runs Nemotron 3 Super 120B on Nebius Token Factory. Dashboard v5 recorded on Token Factory.
 - Changed: `.env` loader in `agent/llm.py`; compare prints LLM usage; prices read from `/v1/models?verbose=true`.

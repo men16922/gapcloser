@@ -8,14 +8,15 @@ Last Updated: 2026-10-05
 - `make check` green: 33 tests (incl. live server, Newton env, tipping, recorded real Nemotron response replay, vision-role request shape).
 - Agent: LLMDiagnoser (Nemotron) → fallback TrajectoryDiagnoser; HeuristicPlanner applies estimates. Tipped trials excluded from fits.
 - Benchmark (Newton, 10 worlds): full DR 18% / nominal 24% / outcome-only 89% / tracking 94%; Nemotron 30B 99% (run 1) / 93% (run 2), P 0.89/0.94, R 1.00.
-- Live server: `make serve` / Docker image (CPU), deploy guide `docs/deploy/DEPLOY.md`.
+- Live server: `make serve` / Docker image (CPU) — verified with Token Factory in a container; deploy guide `docs/deploy/DEPLOY.md`.
+- Submission assets: `make site` (static page), `make video` (1080p draft, ~110 s), fresh-clone reproduction verified.
 - Demo: 5 scenarios recorded with Nemotron 30B; dashboard v2 https://claude.ai/artifact/WVBNfVMAzeNg71kDSFqYAf.
 
 ## Active Focus
 
 Authority: `docs/NEXT_PLAN.md`.
 
-0. Deploy the live demo (HF Space free or Nebius VM ~$0.06/h); record the video.
+0. Local work complete; remaining steps need the user: `docs/submission/CHECKLIST.md` (public repo, video upload, optional deploy, Devpost).
 
 ## Open Risks
 

@@ -10,3 +10,5 @@ runs/live/
 runs/*.log
 runs/*.md
 dashboard/dist/
+video/out/
+site/

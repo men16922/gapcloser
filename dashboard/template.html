@@ -307,7 +307,7 @@ function boot(B, LIVE) {
     let g = `<rect x="${L}" y="${ys(tol)}" width="${W - L - R}" height="${ys(-tol) - ys(tol)}" fill="rgba(118,185,0,0.10)"/>`;
     g += yt.map((v) => `<line x1="${L}" x2="${W - R}" y1="${ys(v)}" y2="${ys(v)}" stroke="${v === 0 ? "#666" : "#222"}"/><text x="${L - 6}" y="${ys(v) + 4}" text-anchor="end">${v > 0 ? "+" : ""}${(v * 100).toFixed(0)}</text>`).join("");
     g += [0.2, 0.3, 0.4, 0.5, 0.6].map((v) => `<text x="${xs(v)}" y="${H - 10}" text-anchor="middle">${v.toFixed(1)} m</text>`).join("");
-    g += `<text x="10" y="${T + 8}" fill="#999">cm</text>`;
+    g += `<text x="4" y="${H - 10}" fill="#999">cm</text>`;
     g += m.sim.trials.map((t) => `<circle cx="${xs(t.target)}" cy="${ys(t.slide - t.target)}" r="5" fill="none" stroke="#999" stroke-width="1"/>`).join("");
     g += m.real.trials.map((t) => `<circle cx="${xs(t.target)}" cy="${ys(Math.max(-lim, Math.min(lim, t.slide - t.target)))}" r="4" fill="${t.success ? "#76b900" : "#e2574c"}"/>`).join("");
     return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Stop error per push">${g}</svg>`;
@@ -377,6 +377,8 @@ function boot(B, LIVE) {
     const it = Math.min(S.iter ?? its.length - 1, its.length - 1);
     const live = run.final_success == null && !run.error;
     const first = fullIts.length ? fullIts[0].measure.real.success_rate : null;
+    const partial = shown < run.events.length;  // mid-replay: don't give away the ending
+    const shownLast = its.length ? its[its.length - 1].measure.real.success_rate : null;
     const last = fullIts.length ? fullIts[fullIts.length - 1].measure.real.success_rate : null;
     const bl = run.baselines || {};
     const P_ = (x) => (x == null ? "…" : pct(x));
@@ -385,8 +387,8 @@ function boot(B, LIVE) {
         <div class="controls">${live ? `<span class="chip"><i></i>agent running…</span>` : `<button class="btn primary" id="play">${S.timer ? "Pause" : "Replay run"}</button><button class="btn" id="end">Show result</button>`}</div></div>
       <div class="kpis">
         <div class="kpi"><span class="label">Before</span><span class="v">${P_(first)}</span><span class="d">real success, sim-trained policy</span></div>
-        <div class="kpi hero"><span class="label">After GapCloser</span><span class="v">${P_(live ? null : last)}</span><span class="d">${live && last != null ? `latest ${pct(last)}, still working` : "measured in hidden physics"}</span></div>
-        <div class="kpi"><span class="label">Agent loops</span><span class="v">${Math.max(0, fullIts.length - 1)}<small> fixes</small></span><span class="d">${fullIts.length} trainings total</span></div>
+        <div class="kpi hero"><span class="label">After GapCloser</span><span class="v">${P_(live || partial ? null : last)}</span><span class="d">${(live || partial) && shownLast != null ? `latest ${pct(shownLast)}, still working` : "measured in hidden physics"}</span></div>
+        <div class="kpi"><span class="label">Agent loops</span><span class="v">${Math.max(0, (partial ? its : fullIts).length - 1)}<small> fixes</small></span><span class="d">${(partial ? its : fullIts).length} trainings${partial ? " so far" : " total"}</span></div>
         <div class="kpi"><span class="label">Outcome-only agent</span><span class="v">${P_(bl.outcome_only)}</span><span class="d">same loop, sees end positions only</span></div>
         <div class="kpi"><span class="label">Domain randomization</span><span class="v">${P_(bl.full_dr)}</span><span class="d">all 10 params, full range</span></div>
       </div>
@@ -498,7 +500,18 @@ function boot(B, LIVE) {
     const ib = t.closest("[data-iter]");
     if (ib) { S.iter = +ib.dataset.iter; render(); }
   });
-  try { const h = location.hash.slice(1); if (h === "new" && LIVE) S.tab = "new"; else if (h === "benchmark") S.tab = "bench"; else { const i = B.runs.findIndex((r) => r.id === h); if (i >= 0) S.tab = i; } } catch (_) {}
+  // deep link: #<run-id>[.s<steps shown>][.i<iteration>][.reveal]  e.g. #weak-motor.s3.i0.reveal
+  try {
+    const [h, ...opts] = location.hash.slice(1).split(".");
+    if (h === "new" && LIVE) S.tab = "new";
+    else if (h === "benchmark") S.tab = "bench";
+    else { const i = B.runs.findIndex((r) => r.id === h); if (i >= 0) S.tab = i; }
+    opts.forEach((o) => {
+      if (/^s\d+$/.test(o)) S.shown = +o.slice(1);
+      else if (/^i\d+$/.test(o)) S.iter = +o.slice(1);
+      else if (o === "reveal") S.reveal = true;
+    });
+  } catch (_) {}
   render();
 }
 const EMPTY = { runs: [], benchmark: null, params: null, task: { name: "Push-to-line", n_targets: 20, success_tol_m: 0.03 }, stack: { physics: "NVIDIA Newton", diagnoser: "" }, generated: "" };

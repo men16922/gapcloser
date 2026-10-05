@@ -20,7 +20,7 @@ Rolling plan containing open work only. Completed history is in `docs/COMPLETED_
 
 - [ ] [manual] Optional extras if time: Cosmos Reason (build.nvidia.com/AWS), dynamic Franka push (arm currently kinematic in clips), Isaac Lab demo on AWS (needs GPU quota request + approval).
 - [ ] [auto] Tipping-aware planning: when ≥30% of real trials tip, propose lowering push speed (policy ceiling) instead of leaving the gap; Done: Newton-marked test on table μ 1.18 improves over the current result.
-- [ ] [manual] Record the 3-min video from the dashboard (`docs/submission/VIDEO_STORYBOARD.md`), finalize `docs/submission/DEVPOST.md`, push to a public GitHub repo, submit 10-29. README and LICENSE are done.
+- [ ] [manual] Review the video draft (`make video`), optionally re-voice it; push a public GitHub repo; Devpost submission 10-29. See `docs/submission/CHECKLIST.md`.
 
 ## Rules
 

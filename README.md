@@ -61,6 +61,13 @@ make docker && docker run --rm -p 7860:7860 -e NEBIUS_API_KEY=$NEBIUS_API_KEY ga
 
 Deployment to Hugging Face Spaces (free), a Nebius CPU VM, or GitHub Pages: [docs/deploy/DEPLOY.md](docs/deploy/DEPLOY.md).
 
+Static page and demo video:
+
+```bash
+make site     # site/index.html, self-contained (recorded runs + clips)
+make video    # video/out/gapcloser_demo.mp4: dashboard captures + Newton clips + narration (Chrome, ffmpeg, macOS say)
+```
+
 Benchmark:
 
 ```bash
@@ -91,6 +98,7 @@ Model ids are resolved at runtime from the provider's model list, so no id is ha
 | `dashboard/` | agent console (template + builder; static and live variants) |
 | `server/app.py` | live server: FastAPI, SSE event stream, cost guards |
 | `Dockerfile`, `deploy/`, `docs/deploy/` | container and deployment guides |
+| `video/make_video.py` | demo video builder (numbers in the narration come from the recorded bundle) |
 | `docs/` | plan, status, decisions, setup, design reference, submission drafts |
 
 ## Credits
