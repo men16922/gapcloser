@@ -22,14 +22,17 @@ flowchart LR
 
 ## Results
 
+Nemotron runs at temperature 0.2, so its numbers vary between runs; both runs are shown. The rule-based rows are deterministic.
+
 Ten random hidden worlds (two changed parameters each), all rollouts in NVIDIA Newton:
 
 | Strategy | Real success | Diagnosis precision / recall |
 |---|---|---|
 | Domain randomization (all 10 params, full range) | 18% | — |
 | Nominal sim, no randomization | 24% | — |
-| GapCloser, end positions only | 89% | 0.43 / 1.00 |
-| **GapCloser, tracked motion** | **94%** | **1.00 / 1.00** |
+| GapCloser, end positions only (rule-based) | 80% | 0.42 / 1.00 |
+| GapCloser, tracked motion (rule-based) | 96% | 1.00 / 1.00 |
+| **GapCloser, Nemotron 3 Nano 30B diagnoser** | **93–99%** (two runs) | 0.89–0.94 / 1.00 |
 
 Recorded scenarios with Nemotron 3 Nano 30B as the diagnoser (dashboard): slippery cube 0 → 100%, shifted camera 0 → 100%, sticky table 0 → 100%, weak motor 0 → 100% (the end-position-only agent stays at 0%). Each took one fix.
 

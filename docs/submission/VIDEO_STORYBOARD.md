@@ -10,7 +10,7 @@ Source: the dashboard (`make demo`, open `dashboard/dist/gapcloser.standalone.ht
 | 1:05–1:25 | Plan card: config diff `actuator_gain 0.76× ± 0.03×`. Train it 1. | "The agent rewrites the simulator and retrains." |
 | 1:25–1:45 | Measure it 1: real 20/20, success chart jumps to 100%, clips both on the line. | "Measured in the real world again: 100%." |
 | 1:45–2:05 | Reveal truth: triangle lands inside the belief band. KPI "Outcome-only agent 0%". | "The hidden truth was 0.76. An agent that only looks at where the cube stopped blames friction and never recovers." |
-| 2:05–2:35 | Benchmark tab: tiles 18% / 24% / 89% / 94%, precision 0.43 vs 1.00. | "Across ten random worlds, GapCloser beats domain randomization and the nominal simulator, with every diagnosis correct." |
+| 2:05–2:35 | Benchmark tab: tiles 18% / 24% / 80% / 96% / Nemotron (93–99% across runs; use the recorded number on screen). | "Across ten random worlds, GapCloser lifts real success from under 25% to over 90%, and Nemotron names the true cause in every world." |
 | 2:35–3:00 | Architecture (README mermaid) + stack chips: NVIDIA Newton, Nemotron via Nebius Token Factory. | "Newton for physics, Nemotron on Nebius Token Factory for reasoning, all on a laptop. Days of manual sim tuning become one agent loop." |
 
 Checklist before recording:

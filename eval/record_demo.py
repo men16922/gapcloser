@@ -96,6 +96,7 @@ def main() -> None:
     ap.add_argument("--llm", choices=["none", "local", "tokenfactory"], default="none",
                     help="diagnose with Nemotron (local Ollama or Token Factory); none = TrajectoryDiagnoser")
     ap.add_argument("--model", default=None, help="model hint override for the diagnose role")
+    ap.add_argument("--bench-only", action="store_true", help="keep recorded scenarios, recompute only the benchmark")
     a = ap.parse_args()
     llm = None
     if a.llm != "none":
@@ -108,7 +109,8 @@ def main() -> None:
     a.out.mkdir(parents=True, exist_ok=True)
     targets = eval_targets(20, 1000)
     runs = []
-    for sc in SCENARIOS:
+    old = json.loads((a.out / "bundle.json").read_text()) if a.bench_only else None
+    for sc in ([] if a.bench_only else SCENARIOS):
         t = time.perf_counter()
         diag = None
         if llm is not None:
@@ -119,7 +121,14 @@ def main() -> None:
         print(f"{sc['id']:15s} final {r['final_success']:.0%} in {r['iterations']} iters "
               f"(outcome-only {r['baselines']['outcome_only']:.0%}, full_dr {r['baselines']['full_dr']:.0%}, nominal {r['baselines']['nominal']:.0%})  {time.perf_counter() - t:.1f}s")
         runs.append(r)
-    rows = compare_run(n_worlds=10, seed=0, env_name="newton")
+    extra = {}
+    if llm is not None:
+        from agent.llm_diagnoser import LLMDiagnoser
+
+        extra["gapcloser_llm"] = lambda: LLMDiagnoser(llm)
+    rows = compare_run(n_worlds=10, seed=0, env_name="newton", extra_diagnosers=extra)
+    if old is not None:
+        runs = old["runs"]
     bundle = {
         "generated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "task": {"name": "Push-to-line", "success_tol_m": SUCCESS_TOL, "n_targets": len(targets), "targets": targets},
