@@ -29,7 +29,7 @@ Rules: name only parameters the evidence supports; give a numeric estimate of th
 evidence determines it (e.g. real actuator_gain = sim actuator_gain * launch_speed_ratio; real mu_eff =
 sim mu_eff * deceleration_ratio and object_mu/table_mu cannot be separated, so give both the same
 estimate); parameters that cannot change these measurements (density, size, restitution, light,
-camera_dz) must not be blamed. Answer with JSON only."""
+camera_dz) must not be blamed. Keep "reasoning" under 60 words. Answer with JSON only, no other text."""
 
 SCHEMA = {
     "type": "object",
@@ -137,8 +137,9 @@ class LLMDiagnoser:
     Newton frames). When it returns images, the request goes to the multimodal `vision` role."""
 
     def __init__(self, llm: LLM, fallback=None, role: str = "diagnose",
-                 frames: Callable[[], list[Path]] | None = None, vision_role: str = "vision"):
+                 frames: Callable[[], list[Path]] | None = None, vision_role: str = "vision", retries: int = 1):
         self.llm, self.role, self.vision_role = llm, role, vision_role
+        self.retries = retries
         self.fallback = fallback or TrajectoryDiagnoser()
         self.frames = frames
         self.history: list[dict] = []
@@ -152,19 +153,22 @@ class LLMDiagnoser:
         content = ([{"type": "text", "text": text + "\nThe images are camera frames of one real push (start, middle, end)."}]
                    + [image_part(Path(p)) for p in images]) if images else text
         messages = [{"role": "system", "content": SYSTEM}, {"role": "user", "content": content}]
-        model, err = "", ""
-        try:
-            r = self.llm.complete(role, messages, SCHEMA)
-            model = r.model
-            data = parse_response(r.text)
-            suspects = validate_suspects(data.get("suspects"), sim_params)
-            reasoning = str(data.get("reasoning", "")).strip()
-            if not suspects and real.success_rate < 0.9:
-                raise ValueError("no valid suspects while the gap is still open")
-        except Exception as e:  # noqa: BLE001 - any LLM failure falls back, the loop must not stall
-            err = f"{type(e).__name__}: {e}"
+        model, err, attempts = "", "", 0
+        for attempts in range(1, self.retries + 2):
+            try:
+                r = self.llm.complete(role, messages, SCHEMA)
+                model = r.model
+                data = parse_response(r.text)
+                suspects = validate_suspects(data.get("suspects"), sim_params)
+                reasoning = str(data.get("reasoning", "")).strip()
+                if not suspects and real.success_rate < 0.9:
+                    raise ValueError("no valid suspects while the gap is still open")
+                err = ""
+                break
+            except Exception as e:  # noqa: BLE001 - any LLM failure falls back, the loop must not stall
+                err = f"{type(e).__name__}: {e}"
         base = self.fallback.diagnose(real, sim, sim_params)
-        self.history.append({"evidence": evidence, "model": model, "error": err})
+        self.history.append({"evidence": evidence, "model": model, "error": err, "attempts": attempts})
         if err:
             base.summary = f"[fallback: {err[:80]}] " + base.summary
             base.model = f"{model or 'llm'} → fallback {type(self.fallback).__name__}"

@@ -17,7 +17,7 @@ from pathlib import Path
 from agent.loop import HeuristicDiagnoser, HeuristicPlanner, RealWorld, TrajectoryDiagnoser, run_loop
 from eval.compare import run as compare_run
 from eval.compare import summarize
-from sim.newton_push import NewtonPushEnv, render_trial
+from sim.newton_push import NewtonPushEnv, render_trial_arm as render_trial
 from sim.params import PARAM_SPACE, ParamSet, Randomization
 from sim.push_task import SUCCESS_TOL, AnalyticPushEnv, GridTrainer, eval_targets
 
@@ -67,6 +67,24 @@ def record_scenario(sc: dict, out: Path, targets: list[float], diagnoser=None) -
             "baselines": baselines, "truth": truth}
 
 
+def rerender_clips(out: Path) -> None:
+    """Re-render the sim/real clips of an existing bundle from its stored inputs (deterministic)."""
+    path = out / "bundle.json"
+    bundle = json.loads(path.read_text())
+    for run in bundle["runs"]:
+        hidden = ParamSet.nominal().with_(**run["hidden"])
+        for e in run["events"]:
+            clip = e.get("clip")
+            if not clip:
+                continue
+            sim_p = ParamSet(e["sim_params"])
+            clip["real_slide"] = render_trial(hidden, _cmd(e["policy_c"], clip["target"], hidden), clip["target"], out / clip["real"])
+            clip["sim_slide"] = render_trial(sim_p, _cmd(e["policy_c"], clip["target"], sim_p), clip["target"], out / clip["sim"])
+        print(f"re-rendered {run['id']}")
+    bundle["stack"]["clips"] = "Franka FR3 (kinematic, IK) strikes; cube physics in NVIDIA Newton"
+    path.write_text(json.dumps(bundle, indent=1))
+
+
 def extract_frames(clip: Path, out_dir: Path, n: int = 3) -> list[Path]:
     """First, middle and last frame of an animated clip as PNGs (input for a multimodal diagnoser)."""
     from PIL import Image
@@ -97,7 +115,12 @@ def main() -> None:
                     help="diagnose with Nemotron (local Ollama or Token Factory); none = TrajectoryDiagnoser")
     ap.add_argument("--model", default=None, help="model hint override for the diagnose role")
     ap.add_argument("--bench-only", action="store_true", help="keep recorded scenarios, recompute only the benchmark")
+    ap.add_argument("--clips-only", action="store_true", help="re-render every clip of the existing bundle (no LLM, no reruns)")
+    ap.add_argument("--only", nargs="+", default=None, help="re-record only these scenario ids, keep the rest and the benchmark")
     a = ap.parse_args()
+    if a.clips_only:
+        rerender_clips(a.out)
+        return
     llm = None
     if a.llm != "none":
         from agent.llm import make_llm
@@ -109,8 +132,9 @@ def main() -> None:
     a.out.mkdir(parents=True, exist_ok=True)
     targets = eval_targets(20, 1000)
     runs = []
-    old = json.loads((a.out / "bundle.json").read_text()) if a.bench_only else None
-    for sc in ([] if a.bench_only else SCENARIOS):
+    old = json.loads((a.out / "bundle.json").read_text()) if (a.bench_only or a.only) else None
+    todo = [] if a.bench_only else [sc for sc in SCENARIOS if not a.only or sc["id"] in a.only]
+    for sc in todo:
         t = time.perf_counter()
         diag = None
         if llm is not None:
@@ -121,6 +145,15 @@ def main() -> None:
         print(f"{sc['id']:15s} final {r['final_success']:.0%} in {r['iterations']} iters "
               f"(outcome-only {r['baselines']['outcome_only']:.0%}, full_dr {r['baselines']['full_dr']:.0%}, nominal {r['baselines']['nominal']:.0%})  {time.perf_counter() - t:.1f}s")
         runs.append(r)
+    if a.only:
+        fresh = {r["id"]: r for r in runs}
+        old["runs"] = [fresh.get(r["id"], r) for r in old["runs"]]
+        if llm is not None:
+            old["stack"]["llm_usage_last"] = vars(llm.usage)
+        old["stack"]["clips"] = "Franka FR3 (kinematic, IK) strikes; cube physics in NVIDIA Newton"
+        (a.out / "bundle.json").write_text(json.dumps(old, indent=1))
+        print(f"updated {a.out / 'bundle.json'} ({', '.join(fresh)})")
+        return
     extra = {}
     if llm is not None:
         from agent.llm_diagnoser import LLMDiagnoser
@@ -137,6 +170,7 @@ def main() -> None:
         "stack": {"physics": "NVIDIA Newton 1.6 (Warp, CPU)",
                   "diagnoser": (f"Nemotron ({llm.model_for('diagnose')}) via {a.llm}" if llm else "TrajectoryDiagnoser (cube tracking, offline)"),
                   "planner": "HeuristicPlanner", "llm_provider": a.llm,
+                  "clips": "Franka FR3 (kinematic, IK) strikes; cube physics in NVIDIA Newton",
                   "llm_usage": (vars(llm.usage) if llm else None)},
         "runs": runs,
         "benchmark": {"summary": summarize(rows),

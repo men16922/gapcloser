@@ -34,11 +34,11 @@ Ten random hidden worlds (two changed parameters each), all rollouts in NVIDIA N
 | GapCloser, tracked motion (rule-based) | 96% | 1.00 / 1.00 |
 | **GapCloser, Nemotron 3 Nano 30B diagnoser** | **93–99%** (two runs) | 0.89–0.94 / 1.00 |
 
-Recorded scenarios with Nemotron 3 Nano 30B as the diagnoser (dashboard): slippery cube 0 → 100%, shifted camera 0 → 100%, sticky table 0 → 100%, weak motor 0 → 100% (the end-position-only agent stays at 0%). Each took one fix.
+Recorded scenarios with Nemotron 3 Nano 30B as the diagnoser (dashboard; clips show a Franka FR3 arm, kinematic via IK, striking a cube simulated in Newton): slippery cube 0 → 100%, shifted camera 0 → 100%, sticky table 0 → 100%, weak motor 0 → 100% (the end-position-only agent stays at 0%). Each took one fix.
 
 Local Nemotron 3 Nano 4B also diagnosed all five probe worlds correctly, including two simultaneous changes (`actuator_gain=1.2`, `object_mu=0.4` → estimates 1.2 and μ_eff 0.6), at ~2.4k prompt tokens per diagnosis.
 
-**Known limitation:** when effective friction reaches about 1 (the cube's width/height ratio), cubes tip over instead of sliding. The Newton env flags tipped cubes and the diagnosers exclude them, but the agent has no fix for tipping: the "Tipping edge" scenario (table μ 1.18) stays at 5%, while the end-position-only agent, which fits whatever happens, reaches 75%.
+**Known limitation:** when effective friction reaches about 1 (the cube's width/height ratio), cubes tip over instead of sliding. The Newton env flags tipped cubes and the diagnosers exclude them, but the agent has no fix for tipping: the "Tipping edge" scenario (table μ 1.18) stays at 5–40% across runs, while the end-position-only agent, which fits whatever happens, reaches 75%.
 
 ## Quickstart
 

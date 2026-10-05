@@ -284,7 +284,7 @@ td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
         <div class="evh"><span class="label">Every push this iteration · stop error vs target</span>
           <div class="legend"><span><i class="sw" style="background:var(--green)"></i>real, on line</span><span><i class="sw" style="background:var(--bad)"></i>real, miss</span><span><i class="sw" style="border:1px solid var(--muted)"></i>sim prediction</span></div></div>
         ${trialChart(m)}
-        <p class="note">Shaded band = ±${B.task.success_tol_m * 100} cm tolerance. Real and sim use the identical commands; only the physics differs.</p>
+        <p class="note">Shaded band = ±${B.task.success_tol_m * 100} cm tolerance. Real and sim use the identical commands; only the physics differs.${B.stack.clips ? " Clips: the Franka arm is kinematic (IK) and only visualizes the strike; the cube’s motion is simulated in NVIDIA Newton." : ""}</p>
       </div></section>`;
   }
   function trialChart(m) {
