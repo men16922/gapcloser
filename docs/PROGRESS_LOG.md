@@ -4,6 +4,13 @@ Last Updated: 2026-10-05
 
 This file maintains only recent incremental summaries (newest 3-5 items, ≤120 lines). Older entries are archived to `docs/archive/progress-YYYY-MM.md` via `/tidy-docs`.
 
+## 2026-10-05 — Franka arm clips, Nemotron-only demo, benchmark with LLM column
+- Status: All 4 sliding-regime scenarios diagnosed directly by Nemotron 3 Nano 30B (no fallback), 0→100% each; dashboard v4 with Franka FR3 clips.
+- Changed: `render_trial_arm` (IK-driven kinematic Franka, cube in Newton); recorder `--only`, `--clips-only`, `--bench-only`; LLM retry + 60-word reasoning; tipping-edge scenario.
+- Verified: `make check` 28 passed. Benchmark Newton 10 worlds: full DR 18 / nominal 24 / outcome-only 80 / tracking 96 / Nemotron 99 (run 1), 93 (run 2).
+- Blockers: Token Factory key (user).
+- Next: Token Factory re-record; video; tipping-aware planning.
+
 ## 2026-10-05 — Local Nemotron in the loop, tipping found, dashboard v2
 - Status: Nemotron 3 Nano 30B (Ollama, local) drives diagnosis in all recorded scenarios; dashboard v2 published (https://claude.ai/artifact/WVBNfVMAzeNg71kDSFqYAf).
 - Changed: `agent/llm.py` provider-agnostic (local/tokenfactory, max_tokens cap 2048, timeout 180 s); `agent/llm_diagnoser.py` (validation, vague-suspect filter, vision role + frames); tipping detection in Newton env + diagnosers skip tipped trials; `eval.compare --env newton --llm`, diagnosis P/R; `extract_frames`; README, LICENSE (Apache-2.0), Devpost draft, video storyboard; 2 commits.

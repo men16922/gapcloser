@@ -15,12 +15,12 @@ Rolling plan containing open work only. Completed history is in `docs/COMPLETED_
 
 - [ ] [manual] Review dashboard (artifact) and decide video storyboard around the weak-motor scenario.
 
-- [ ] [manual] Live LLM runs: 10 hidden worlds × {heuristic, llm}; publish table.
 
 ## Priority 2 — Submission (10/20–10/29)
 
-- [ ] [manual] Optional extras if time: Cosmos Reason (build.nvidia.com/AWS), Franka arm instead of initial-velocity push, Isaac Lab demo on AWS.
-- [ ] [manual] 3-min video, README, LICENSE, Devpost text; submit 10-29.
+- [ ] [manual] Optional extras if time: Cosmos Reason (build.nvidia.com/AWS), dynamic Franka push (arm currently kinematic in clips), Isaac Lab demo on AWS (needs GPU quota request + approval).
+- [ ] [auto] Tipping-aware planning: when ≥30% of real trials tip, propose lowering push speed (policy ceiling) instead of leaving the gap; Done: Newton-marked test on table μ 1.18 improves over the current result.
+- [ ] [manual] Record the 3-min video from the dashboard (`docs/submission/VIDEO_STORYBOARD.md`), finalize `docs/submission/DEVPOST.md`, push to a public GitHub repo, submit 10-29. README and LICENSE are done.
 
 ## Rules
 
