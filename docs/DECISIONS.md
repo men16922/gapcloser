@@ -31,3 +31,14 @@ Record of architectural or hard-to-undo choices (provider, infra, data model, do
 - **Decision**: One OpenAI-compatible client (`agent/llm.py`) with providers `local` (Ollama, `nemotron-3-nano:4b`/`:30b`) and `tokenfactory`. Model ids resolved from hints via the provider's model list. Tests replay a recorded real Nemotron response (`tests/fixtures/nemotron_weak_motor.json`).
 - **Reason**: User asked to experiment locally; no API key yet. Same model family as Token Factory (Nemotron 3 Nano 30B), so prompts/validation carry over. Ollama build is text-only (no vision).
 - **Impact**: Submission still needs a Token Factory run (rules). Local 4B diagnosed all probe worlds correctly at ~2.4k prompt tokens/call.
+
+## 2026-10-07 — Award plan: open-world faults, tool-using Nemotron agent, honest baselines
+- **Decision**: Move from "guess 10 hidden params" to open-world faults (friction strip `patch_y0`/`patch_mu`, `lens_k`) with a Nemotron tool agent (decel_profile, perception_check, fit/test_hypothesis, probe_real, commit) and Gap-Bench vs rule-based and passive sysID baselines. Policy trained by inverting the simulator (`InverseTrainer`). Cosmos Reason 2 runs locally as a second opinion only.
+- **Reason**: Nemotron Super 93-94% < rule-based 96% on the closed benchmark gave no answer to "why an LLM?"; closed worlds are solvable by rules. Spike showed rules break on strips/lens and a tool agent with a fitter closes them.
+- **Impact**: Closed-world results unchanged (identical benchmark JSON). Claim limited to "matches sysID on its own, designs probes, explains fixes" after n=15 showed no edge over sysID (Newton compound: rule 54 / sysID 97 / agent 96). Devpost/README state this explicitly.
+
+## 2026-10-08 — Cosmos is a second opinion, never the tipped signal
+- **Decision**: `tipped` stays Newton's physics flag (peak tilt); Cosmos events are displayed and optionally given to the agent as `camera_events`. Default `--eyes none`; gate never needs the model.
+- **Reason**: Held-out tip recall ~50% (spike); 21/21 agreement on easy demo clips is not evidence of reliability. License requires "Built on NVIDIA Cosmos" attribution (added).
+- **Impact**: Optional llama.cpp dependency, weights not redistributed; extra RAM ~9 GB when used.
+
