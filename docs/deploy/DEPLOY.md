@@ -32,9 +32,12 @@ The image bundles `runs/demo` (recorded scenarios and clips, committed to git). 
 | `GAPCLOSER_DIAG_MODEL` | `nemotron super` | model hint for diagnosis (words matched against the model list) |
 | `GAPCLOSER_MAX_LLM_CALLS` | 200 | total LLM calls for the server's lifetime; then the rule-based diagnoser takes over |
 | `GAPCLOSER_RUNS_PER_HOUR` | 6 | runs per visitor IP per hour |
+| `GAPCLOSER_MAX_TURNS_PER_RUN` | 24 | Nemotron tool-agent chat turns per live run (max 8 per diagnosis); past it, the rule-based diagnoser takes over |
 | `PORT` | 7860 | listen port |
 
-Cost guards built in: one run at a time, max 4 iterations, max 3 hidden parameters, bounded values, per-IP rate limit, global LLM-call cap, ~2.4k prompt tokens per diagnosis and a 2048-token output cap. With 200 calls the worst case is roughly 0.9M tokens.
+"Stump the agent": with an LLM configured, every live run uses the open-world path. Visitors pick a preset (wet strip, rough strip, lens distortion, three faults, surprise me) or build a world, including a friction strip (`patch_y0` + `patch_mu`, counted as one fault) and lens distortion; the Nemotron tool agent's lab notebook streams step by step (`agent_step` events) while it experiments.
+
+Cost guards built in: one run at a time, max 4 iterations, max 3 hidden faults (a strip counts as one), values inside the parameter bounds and `patch_mu` ≤ 0.95 (stickier strips tip the cube), per-IP rate limit, a global LLM-call cap, a per-run cap of 24 agent turns, and a 2048-token output cap. Every chat turn counts as one call. Tool-agent turns resend the growing conversation (about 2–6k prompt tokens each; the spike measured ~17k in + 2k out per world with Super, ≈ $0.007), so 200 calls stay around 1M tokens in the worst case.
 
 ## Hugging Face Spaces (free)
 

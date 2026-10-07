@@ -55,7 +55,7 @@ def record_scenario(sc: dict, out: Path, targets: list[float], diagnoser=None, *
     send = on_event or (lambda e: None)
     t0 = time.perf_counter()
     send({"type": "start", "t": 0.0, "id": sc["id"], "title": sc.get("title", sc["id"]), "hidden": sc["hidden"],
-          "truth": truth, "max_iter": max_iter})
+          "truth": truth, "max_iter": max_iter, "open": bool(sc.get("open"))})
 
     def emit(e: dict) -> None:
         e = {"t": round(time.perf_counter() - t0, 3), **e}

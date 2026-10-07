@@ -284,8 +284,42 @@ td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
 .v3 .tag.strip.belief { border-style: dashed; }
 .v3 .bar .toggle { height: 32px; }
 
+/* live: "Your worlds" + stump-the-agent form */
+.tgroup.mine > .label { color: var(--fg); }
+.tgroup.mine > .label i { width: 6px; height: 6px; border: 1px solid var(--green); display: inline-block; }
+.tab.new { color: var(--green); }
+.tab .pill.bad { color: var(--bad); }
+.tab .pill.run, .chip.run { color: var(--fg); display: inline-flex; gap: 5px; align-items: center; }
+.tab .pill.run i, .chip.run i { width: 6px; height: 6px; background: var(--green); display: inline-block; animation: blink 1s ease-in-out infinite; }
+@keyframes blink { 50% { opacity: 0.25; } }
+.presets { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; margin-bottom: var(--s4); }
+.presets .label { margin-right: var(--s2); }
+.presets .btn[aria-pressed="true"] { border-color: var(--green); color: var(--green); }
+.btn.ghost { background: none; }
+.newgrid { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: var(--s4); align-items: start; }
+.faults { display: grid; gap: var(--s4); min-width: 0; }
+.fault.on { box-shadow: inset 2px 0 0 var(--green); }
+.fault .ftog { display: inline-flex; gap: 8px; align-items: center; font: 600 15px/1.2 var(--f-display); letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; }
+.fault .ftog input { accent-color: var(--green); width: 16px; height: 16px; margin: 0; }
+.fault .ow { color: var(--green); }
+.fault .fd { margin: 0 0 var(--s3); font-size: 13.5px; color: var(--muted); max-width: 70ch; }
+.fault .form { max-width: none; }
+.stripvis { width: 100%; max-width: 520px; font-size: 12px; height: auto; display: block; margin-bottom: var(--s3); }
+.side-col { display: grid; gap: var(--s4); position: sticky; top: var(--s4); }
+.agentview p { margin: 0 0 var(--s2); font-size: 13.5px; color: var(--muted); }
+.agentview p b { color: var(--fg); font-weight: 600; }
+.agentview ul { margin: 0 0 var(--s3); padding-left: 18px; font-size: 13.5px; color: var(--fg); display: grid; gap: 4px; }
+.runbox .hid { margin: 0 0 var(--s3); font-size: 14px; }
+.btn.big { width: 100%; padding: 14px; font-size: 15px; }
+.nb-live { display: flex; gap: var(--s3); align-items: center; padding: var(--s3) var(--s4); border-bottom: 1px solid var(--line); background: rgba(118, 185, 0, 0.06); }
+.nb-live b { display: block; font: 600 15px/1.2 var(--f-display); letter-spacing: 0.04em; color: var(--green); }
+.nb-live span { font-size: 13px; color: var(--muted); }
+.spin { width: 18px; height: 18px; flex: none; border: 2px solid var(--line); border-top-color: var(--green); border-radius: 50%; animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
 @media (max-width: 1180px) {
-  .grid, .grid-a, .grid-b, .gb { grid-template-columns: minmax(0, 1fr); }
+  .grid, .grid-a, .grid-b, .gb, .newgrid { grid-template-columns: minmax(0, 1fr); }
+  .side-col { position: static; }
   .tl, .grid-b .tl { max-height: 420px; }
 }
 @media (max-width: 720px) {
@@ -309,8 +343,9 @@ td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
   .tab { padding: 10px 12px; }
   .tgroup + .tgroup { border-left: 0; border-top: 1px solid var(--line-soft); flex-basis: 100%; }
   .gb td.num { white-space: nowrap; }
+  .form .row { grid-template-columns: 110px minmax(0, 1fr) 84px; }
 }
-@media (prefers-reduced-motion: reduce) { .tl li.live .ico { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .tl li.live .ico, .spin, .tab .pill.run i, .chip.run i { animation: none; } }
 </style>
 
 <div class="wrap">
@@ -759,7 +794,7 @@ function boot(B, LIVE) {
     return `${(+v).toFixed(d)}${u && u !== "-" ? (u === "x" ? "×" : " " + u) : ""}`;
   };
   const defTab = () => { for (const id of ["three-faults", "wet-strip"]) { const i = B.runs.findIndex((r) => r.id === id); if (i >= 0) return i; } const o = B.runs.findIndex((r) => r.open); return o >= 0 ? o : B.runs.length ? 0 : "new"; };
-  const S = { tab: defTab(), iter: null, sel: null, reveal: false, shown: null, timer: null, form: null, err: "" };
+  const S = { tab: defTab(), iter: null, sel: null, reveal: false, shown: null, timer: null, form: null, err: "", preset: null, title: null };
 
   const STEP = { train: ["T", "Train"], measure: ["M", "Measure"], diagnose: ["D", "Diagnose"], plan: ["P", "Plan"], done: ["✓", "Goal"] };
 
@@ -770,20 +805,41 @@ function boot(B, LIVE) {
     ["", LIVE ? (LIVE.model ? `Nemotron (${LIVE.model})` : "TrajectoryDiagnoser · cube tracking") : B.stack.diagnoser.replace(" (cube tracking, offline)", " · cube tracking")],
     prov === "tokenfactory" ? ["", "Nebius Token Factory"] : prov === "local" ? ["pending", "Local Nemotron · Token Factory run pending"] : ["pending", "Nemotron · Token Factory: key pending"],
   ].map(([c, t]) => `<span class="chip ${c}"><i></i>${esc(t)}</span>`).join("");
-  $("#foot").innerHTML = `<span>Task: ${esc(B.task.name)} · ${B.task.n_targets} targets 0.20–0.60 m · success = stop within ±${B.task.success_tol_m * 100} cm</span>
+  const renderFoot = () => $("#foot").innerHTML = `<span>Task: ${esc(B.task.name)} · ${B.task.n_targets} targets 0.20–0.60 m · success = stop within ±${B.task.success_tol_m * 100} cm</span>
     <span>All success rates measured by rollout in NVIDIA Newton. Hidden “real” physics is never shown to the agent.</span>
     <span>${LIVE ? `Live server · ${LIVE.runs_per_hour} runs/hour per visitor · ${LIVE.llm_calls_left} LLM calls left` : `Recorded ${esc(B.generated.replace("T", " ").replace("+00:00", " UTC"))}`}</span>`;
+  renderFoot();
 
+  const isLive = (r) => String(r.id).startsWith("live-");
+  const realTrials = (r) => (r.baselines && r.baselines.real_trials != null) ? r.baselines.real_trials
+    : r.events.filter((e) => e.type === "measure").reduce((n, e) => n + e.real.trials.length, 0);
+  // which diagnoser actually ran: "tool" (Nemotron tool agent), "mixed" (fell back on some iterations), "rule"
+  const agentKind = (r) => {
+    const ds = r.events.filter((e) => e.type === "diagnose");
+    if (!ds.length) return r.agent || null;
+    const tool = ds.filter((e) => !/Diagnoser$|fallback/.test(e.agent || "")).length;
+    return tool === ds.length ? "tool" : tool ? "mixed" : "rule";
+  };
   function renderTabs() {
     const pill = (r) => r.final_success == null ? `<span class="pill">${r.error ? "error" : "live"}</span>` : `<span class="pill ${r.final_success >= 0.9 ? "ok" : ""}">${pct(r.final_success)}</span>`;
     const tab = (r, i) => `<button class="tab" role="tab" aria-selected="${S.tab === i}" data-tab="${i}">${esc(r.title)}${pill(r)}</button>`;
-    const open = [], closed = [], more = [];
-    B.runs.forEach((r, i) => (r.open ? open : closed).push(tab(r, i)));
+    // "Your worlds": did the agent close it, and with how many real trials?
+    const badge = (r) => {
+      if (r.error) return `<span class="pill bad">error</span>`;
+      if (r.final_success == null) return `<span class="pill run"><i></i>${r.events.some((e) => e.type === "done") ? "baselines" : "running"}</span>`;
+      const ok = r.final_success >= 0.9;
+      return `<span class="pill ${ok ? "ok" : "bad"}" title="${ok ? "gap closed" : "gap not closed"}: ${pct(r.final_success)} real success, ${realTrials(r)} real trials">${ok ? "✓" : "✕"} ${pct(r.final_success)} · ${realTrials(r)} trials</span>`;
+    };
+    const open = [], closed = [], mine = [], more = [];
+    B.runs.forEach((r, i) => (isLive(r) ? mine.push(`<button class="tab" role="tab" aria-selected="${S.tab === i}" data-tab="${i}">${esc(r.title)}${badge(r)}</button>`) : (r.open ? open : closed).push(tab(r, i))));
     if (B.open_benchmark) more.push(`<button class="tab" role="tab" aria-selected="${S.tab === "gapbench"}" data-tab="gapbench">Gap-Bench<span class="pill ok">${B.open_benchmark.rows.length} worlds</span></button>`);
     if (B.benchmark) more.push(`<button class="tab" role="tab" aria-selected="${S.tab === "bench"}" data-tab="bench">Tier-0 bench<span class="pill">${B.benchmark.rows.length}</span></button>`);
-    if (LIVE) closed.push(`<button class="tab" role="tab" aria-selected="${S.tab === "new"}" data-tab="new">+ New run</button>`);
-    const grp = (cls, label, items) => items.length ? `<div class="tgroup ${cls}"><span class="label">${cls === "open" ? "<i></i>" : ""}${label}</span><div class="tabs" role="tablist">${items.join("")}</div></div>` : "";
-    $("#tabs").innerHTML = grp("open", "Open world · faults outside the rule book", open) + grp("closed", "Closed world · rule-solvable", closed) + grp("bench", "Benchmarks", more);
+    if (LIVE) mine.push(`<button class="tab new" role="tab" aria-selected="${S.tab === "new"}" data-tab="new">+ Stump the agent</button>`);
+    const fin = B.runs.filter((r) => isLive(r) && r.final_success != null);
+    const score = fin.length ? ` · closed ${fin.filter((r) => r.final_success >= 0.9).length}/${fin.length}` : "";
+    const grp = (cls, label, items) => items.length ? `<div class="tgroup ${cls}"><span class="label">${cls === "open" || cls === "mine" ? "<i></i>" : ""}${label}</span><div class="tabs" role="tablist">${items.join("")}</div></div>` : "";
+    $("#tabs").innerHTML = grp("open", "Open world · faults outside the rule book", open) + grp("closed", "Closed world · rule-solvable", closed)
+      + grp("mine", `Your worlds${score}`, mine) + grp("bench", "Benchmarks", more);
   }
   $("#tabs").addEventListener("click", (e) => {
     const b = e.target.closest("[data-tab]"); if (!b) return;
@@ -828,6 +884,12 @@ function boot(B, LIVE) {
     }
     return "";
   }
+  // live run: a pulsing placeholder for the diagnosis being worked out right now
+  function thinking(run) {
+    const ti = thinkingIter(run); if (ti == null) return "";
+    const n = (run.pending || []).length;
+    return `<li class="live" data-iter="${ti}"><span class="ico">D</span><div><div class="h"><b>Diagnose · it ${ti}</b><span>now</span></div><div class="txt">${run.agent === "tool" ? `Nemotron is experimenting: ${n} tool call${n === 1 ? "" : "s"} so far. Follow it in the lab notebook.` : "Rule-based diagnoser is fitting."}</div></div></li>`;
+  }
   function renderTimeline(run, shown) {
     const ev = run.events.slice(0, shown);
     return `<section class="pane" aria-label="Agent timeline"><header><span class="label">Agent timeline</span><span class="label mono">${ev.length}/${run.events.length} steps</span></header>
@@ -836,7 +898,7 @@ function boot(B, LIVE) {
         const live = S.timer && i === ev.length - 1;
         const sel = S.iter === e.iter && (e.type === "measure");
         return `<li class="${live ? "live" : ""} ${sel ? "sel" : ""}" data-iter="${e.iter}"><span class="ico">${ic}</span><div><div class="h"><b>${nm} · it ${e.iter}</b><span>${e.t.toFixed(1)} s</span></div>${eventText(e, run)}</div></li>`;
-      }).join("")}</ol></section>`;
+      }).join("")}${thinking(run)}</ol></section>`;
   }
 
   // ---------- evidence ----------
@@ -897,7 +959,7 @@ function boot(B, LIVE) {
     g += `<polyline points="${real}" fill="none" stroke="#76b900" stroke-width="2"/>`;
     g += its.map((x, i) => `<circle cx="${xs(i)}" cy="${ys(x.measure.real.success_rate)}" r="${i === its.length - 1 ? 5 : 3.5}" fill="#76b900"/>`).join("");
     const last = its[its.length - 1].measure.real.success_rate;
-    g += `<text x="${xs(its.length - 1) - 10}" y="${last > 0.85 ? ys(last) + 16 : ys(last) - 10}" text-anchor="end" fill="#eee">${pct(last)}</text>`;
+    g += `<text x="${xs(its.length - 1) + (its.length > 1 ? -10 : 10)}" y="${last > 0.85 ? ys(last) + 16 : ys(last) - 10}" text-anchor="${its.length > 1 ? "end" : "start"}" fill="#eee">${pct(last)}</text>`;
     return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Real success per iteration">${g}</svg>
       <div class="legend" style="margin-top:8px"><span><i class="sw" style="background:#76b900"></i>real (measured)</span><span><i class="sw" style="border:1px dashed #999"></i>sim</span>${run.baselines ? (run.open ? `<span><i class="sw" style="background:#d9a13b"></i>rule-based ${pct(run.baselines.rule)}</span><span><i class="sw" style="background:#ccc"></i>system ID ${pct(run.baselines.sysid)}</span>` : `<span><i class="sw" style="background:#d9a13b"></i>outcome-only agent ${pct(run.baselines.outcome_only)}</span>`) + `<span>· · nominal ${pct(run.baselines.nominal)} / full DR ${pct(run.baselines.full_dr)}</span>` : `<span>baselines run after the agent finishes</span>`}</div>`;
   }
@@ -1068,7 +1130,8 @@ function boot(B, LIVE) {
         const rows = F.filter(([k, , d, sc]) => v(old[k], d, sc) !== v(m[k], d, sc)).map(([k, n, d, sc]) => `${n.padEnd(17)} <span class="old">${v(old[k], d, sc)}</span> → <span class="new">${v(m[k], d, sc)}</span>`);
         cap = `Retrain the policy in this simulator.`;
         body = `${rows.length ? `<div class="diff">${rows.join("\n")}</div>` : ""}${s.args && s.args.explanation ? `<blockquote class="why">${esc(s.args.explanation)}</blockquote>` : ""}`;
-      } else { verb = "Note"; cap = `<span style="color:var(--muted)">${esc(s.text || JSON.stringify(s).slice(0, 200))}</span>`; }
+      } else if (s.tool === "text") { verb = "Note"; cap = `<span style="color:var(--muted)">${s.text && s.text.trim() ? esc(s.text) : "Replied without calling a tool; reminded to use the tools and finish with commit."}</span>`; }
+      else { verb = "Note"; cap = `<span style="color:var(--muted)">${esc(JSON.stringify(s).slice(0, 200))}</span>`; }
       return `<li class="k-${kind}"><div><div class="sh"><span class="verb">${verb}</span><span class="tool">${esc(s.tool)}()</span></div><div class="cap">${cap}</div>${body}</div></li>`;
     }).join("");
     const ladder = fits.length ? `<div class="ladder"><span class="label" style="margin-right:4px">Stop residual</span>${fits.map((f, i) => `${i ? `<span class="ar">→</span>` : ""}<span class="r ${f.ok ? "ok" : "bad"}" title="${esc(f.label)}">H${i + 1} ${f.stop != null ? cm(f.stop) + " cm" : "?"} ${f.ok ? "✓" : "✕"}</span>`).join("")}</div>` : "";
@@ -1077,14 +1140,32 @@ function boot(B, LIVE) {
       <ol class="nb">${items}</ol>
       <details class="raw"><summary class="label">Raw tool trace · JSON</summary><pre>${esc(JSON.stringify(trace, null, 1))}</pre></details>`;
   }
+  // live run: iteration the agent is diagnosing right now (its measurement is in, its diagnosis is not)
+  function thinkingIter(run) {
+    if (run.final_success != null || run.error || S.shown != null) return null;
+    const last = run.events[run.events.length - 1];
+    return last && last.type === "measure" ? last.iter : null;
+  }
+  const shortModel = (model) => /super/i.test(String(model)) ? "Nemotron 3 Super" : String(model).split("/").pop();
   function renderNotebook(run, shownEvents, it) {
-    const diags = shownEvents.filter((e) => e.type === "diagnose" && e.trace && e.trace.length);
-    const d = diags.filter((e) => e.iter <= it).pop() || diags[diags.length - 1];
+    const ti = thinkingIter(run);
+    const diags = shownEvents.filter((e) => e.type === "diagnose");
+    let d = diags.filter((e) => e.iter <= it).pop() || diags[diags.length - 1];
+    if (ti != null && it === ti) d = { iter: ti, trace: run.pending || [], pending: true, model: LIVE && LIVE.model };
     const model = (d && d.model) || "Nemotron tool agent";
-    const short = /super/i.test(String(model)) ? "Nemotron 3 Super" : String(model).split("/").pop();
     const meas = d ? shownEvents.find((e) => e.type === "measure" && e.iter === d.iter) : null;
-    return `<section class="pane" aria-label="Agent lab notebook"><header><span class="label">Agent lab notebook${d ? ` · it ${d.iter}` : ""}</span><span class="label">${esc(short)} · tool use</span></header>
-      ${d ? notebook(run, d, meas) : `<div class="nb-empty">The agent opens its notebook after the first real measurement: it inspects the evidence, proposes simulator structures, fits them, and runs experiments on the real robot when the data cannot decide.</div>`}</section>`;
+    const tool = agentKind(run) !== "rule" || (d && d.pending && run.agent === "tool");
+    let body;
+    if (!d) body = `<div class="nb-empty">The agent opens its notebook after the first real measurement: it inspects the evidence, proposes simulator structures, fits them, and runs experiments on the real robot when the data cannot decide.</div>`;
+    else if (d.pending) {
+      const n = d.trace.length, last = d.trace[n - 1];
+      const who = run.agent === "tool" ? `${esc(shortModel(model))} is experimenting` : "Rule-based diagnoser is fitting";
+      body = `<div class="nb-live" role="status"><span class="spin" aria-hidden="true"></span><div><b>${who}…</b><span>${run.agent === "tool"
+        ? (n ? `${n} tool call${n > 1 ? "s" : ""} so far, last <span class="mono">${esc(last.tool)}()</span>. Each step appears as soon as its result is back.` : "Reading the evidence of iteration " + ti + ". Steps appear here as soon as each tool call returns.")
+        : "Closed-world rules only; no notebook for this diagnoser."}</span></div></div>${n ? notebook(run, d, meas) : ""}`;
+    } else if (d.trace && d.trace.length) body = notebook(run, d, meas);
+    else body = `<div class="nb-empty"><b style="color:var(--fg)">No notebook for it ${d.iter}.</b> ${esc(d.agent || "")} diagnosed this iteration (${esc(d.summary)}). ${/fallback|Diagnoser$/.test(d.agent || "") ? "The rule book has no parameter for a friction strip or a lens, so it can only average them away." : ""}</div>`;
+    return `<section class="pane" aria-label="Agent lab notebook"><header><span class="label">Agent lab notebook${d ? ` · it ${d.iter}` : ""}</span><span class="label">${tool ? `${esc(shortModel(model))} · tool use` : "rule-based fallback"}</span></header>${body}</section>`;
   }
 
   // ---------- open-world Gap-Bench ----------
@@ -1145,7 +1226,7 @@ function boot(B, LIVE) {
     const first = fullIts.length ? fullIts[0].measure.real.success_rate : null, last = fullIts.length ? fullIts[fullIts.length - 1].measure.real.success_rate : null;
     const probes = run.events.filter((e) => e.type === "diagnose").reduce((n, e) => n + (e.trace || []).filter((s) => s.tool === "probe_real").reduce((m, s) => m + ((s.result && s.result.results) || []).length, 0), 0);
     return `<div class="kpis">
-        <div class="kpi hero"><span class="label">Before → after · Nemotron agent</span><span class="v">${P_(first)} <small>→</small> ${P_(partial || live ? null : last)}</span><span class="d">real success: sim-trained policy → after the fix</span></div>
+        <div class="kpi hero"><span class="label">Before → after · ${{ rule: "rule-based fallback", mixed: "Nemotron agent + fallback" }[agentKind(run)] || "Nemotron agent"}</span><span class="v">${P_(first)} <small>→</small> ${P_(partial || live ? null : last)}</span><span class="d">real success: sim-trained policy → after the fix</span></div>
         <div class="kpi"><span class="label">Rule-based agent</span><span class="v">${P_(bl.rule)}</span><span class="d">closed-world rules${bl.rule_trials ? ` · ${bl.rule_trials} real trials` : ""}</span></div>
         <div class="kpi"><span class="label">System-ID baseline</span><span class="v">${P_(bl.sysid)}</span><span class="d">fixed structure library${bl.sysid_trials ? ` · ${bl.sysid_trials} trials` : ""}</span></div>
         <div class="kpi"><span class="label">Domain randomization</span><span class="v">${P_(bl.full_dr)}</span><span class="d">all ${Object.keys(P).length} params, full range</span></div>
@@ -1165,8 +1246,8 @@ function boot(B, LIVE) {
     const bl = run.baselines || {};
     const P_ = (x) => (x == null ? "…" : pct(x));
     const hidden = Object.entries(run.truth).map(([k, v]) => `${k}`).join(", ");
-    return `<div class="scn"><div><span class="label">${run.open ? "Open-world scenario" : "Scenario"} · hidden change in ${Object.keys(run.truth).length} parameters</span><h2>${esc(run.title)}</h2><p>${esc(BLURB[run.id] || (run.hidden ? "Custom world: " + Object.entries(run.hidden).map(([k, v]) => `${k} = ${fmt(k, v)}`).join(", ") + "." : ""))}</p>${run.error ? `<p class="bad-t">${esc(run.error)}</p>` : ""}</div>
-        <div class="controls">${live ? `<span class="chip"><i></i>agent running…</span>` : `<button class="btn primary" id="play">${S.timer ? "Pause" : "Replay run"}</button><button class="btn" id="end">Show result</button>`}</div></div>
+    return `<div class="scn"><div><span class="label">${isLive(run) ? `Your world · ${faultsOf(run.hidden || {}).length} hidden fault${faultsOf(run.hidden || {}).length === 1 ? "" : "s"} · ${agentKind(run) === "rule" ? "rule-based diagnoser" : "Nemotron tool agent"}` : `${run.open ? "Open-world scenario" : "Scenario"} · hidden change in ${Object.keys(run.truth).length} parameters`}</span><h2>${esc(run.title)}</h2><p>${BLURB[run.id] && !isLive(run) ? esc(BLURB[run.id]) : run.hidden ? `${isLive(run) ? "Your hidden world" : "Custom world"}: ${describeHidden(run.hidden)}. ${isLive(run) ? "The agent never saw these values." : ""}` : ""}</p>${run.error ? `<p class="bad-t">${esc(run.error)}</p>` : ""}</div>
+        <div class="controls">${live ? `<span class="chip run"><i></i>${run.events.some((e) => e.type === "done") ? "running baselines (rule-based, system ID)…" : thinkingIter(run) != null && run.agent === "tool" ? "Nemotron is experimenting…" : "agent running…"}</span>` : `<button class="btn primary" id="play">${S.timer ? "Pause" : "Replay run"}</button><button class="btn" id="end">Show result</button>`}</div></div>
       ${run.open ? openKpis(run, fullIts, partial, live) : `<div class="kpis">
         <div class="kpi"><span class="label">Before</span><span class="v">${P_(first)}</span><span class="d">real success, sim-trained policy</span></div>
         <div class="kpi hero"><span class="label">After GapCloser</span><span class="v">${P_(live || partial ? null : last)}</span><span class="d">${(live || partial) && shownLast != null ? `latest ${pct(shownLast)}, still working` : "measured in hidden physics"}</span></div>
@@ -1220,67 +1301,143 @@ function boot(B, LIVE) {
     if (slot && S.v3) window.GCViewer.get().mount(slot, S.v3.replay, S.v3.key, { ...S.v3.meta, reveal: S.reveal });
   }
 
-  // ---------- live: new run ----------
+  // ---------- live: stump the agent ----------
+  const OPEN_KEYS = ["patch_y0", "patch_mu", "lens_k"], STRIP_OFF = 0.999;
+  const nominalForm = () => Object.fromEntries(Object.keys(P).map((k) => [k, P[k].nominal]));
+  const moved = (f, k) => Math.abs(f[k] - P[k].nominal) > 1e-9;
+  const muEff = (h) => ((h.object_mu ?? P.object_mu.nominal) + (h.table_mu ?? P.table_mu.nominal)) / 2;
+  // the hidden world the server will run: changed params; a strip always carries its friction
+  function hiddenOf(f) {
+    const h = Object.fromEntries(Object.keys(P).filter((k) => moved(f, k)).map((k) => [k, +f[k]]));
+    if (h.patch_y0 != null) h.patch_mu = +f.patch_mu; else delete h.patch_mu;
+    return h;
+  }
+  const faultsOf = (h) => [...new Set(Object.keys(h).map((k) => (k === "patch_y0" || k === "patch_mu" ? "strip" : k)))];
+  function describeHidden(h) {
+    const parts = [];
+    if (h.patch_y0 != null && h.patch_y0 < STRIP_OFF) {
+      const pm = h.patch_mu ?? P.patch_mu.nominal, base = muEff(h);
+      parts.push(`a ${pm < base ? "slick" : "rough"} strip from ${(+h.patch_y0).toFixed(2)} m (μ ${base.toFixed(2)} → ${(+pm).toFixed(2)})`);
+    }
+    if (h.lens_k != null) parts.push(`lens distortion k ${(+h.lens_k).toFixed(2)}/m`);
+    Object.entries(h).filter(([k]) => !OPEN_KEYS.includes(k)).forEach(([k, v]) => parts.push(`${k} ${fmt(k, v)}`));
+    return esc(parts.join(", "));
+  }
+  // top view of the push axis: where the strip lies relative to the targets
+  function stripDiagram(f) {
+    const W = 520, H = 56, L = 1, R = 1, X = 0.7, xs = (y) => L + (y / X) * (W - L - R);
+    const on = f.patch_y0 < STRIP_OFF, base = muEff(f), col = f.patch_mu < base ? "#5b8fb3" : "#b3895b";
+    let g = `<rect x="${xs(0)}" y="8" width="${xs(X) - xs(0)}" height="22" fill="#1a1a1a" stroke="#333"/>`;
+    if (on) g += `<rect x="${xs(f.patch_y0)}" y="8" width="${xs(X) - xs(f.patch_y0)}" height="22" fill="${col}" fill-opacity="0.35"/><line x1="${xs(f.patch_y0)}" x2="${xs(f.patch_y0)}" y1="4" y2="34" stroke="${col}" stroke-width="2"/>`
+      + `<text x="${(xs(f.patch_y0) + xs(X)) / 2}" y="23" text-anchor="middle" fill="#eee">μ ${(+f.patch_mu).toFixed(2)}</text>`;
+    g += `<text x="${(xs(0) + xs(on ? f.patch_y0 : X)) / 2}" y="23" text-anchor="middle">μ ${base.toFixed(2)}</text>`;
+    g += `<rect x="${xs(0.2)}" y="34" width="${xs(0.6) - xs(0.2)}" height="3" fill="#76b900"/><text x="${xs(0.4)}" y="50" text-anchor="middle">targets 0.20–0.60 m</text>`;
+    g += `<text x="${xs(0)}" y="50">robot</text><text x="${xs(X)}" y="50" text-anchor="end">${X} m</text>`;
+    return `<svg class="stripvis" viewBox="0 0 ${W} ${H}" role="img" aria-label="Table seen from above: friction strip position">${g}</svg>`;
+  }
   function renderNew() {
-    const f = (S.form ||= Object.fromEntries(Object.keys(P).map((k) => [k, P[k].nominal])));
-    const changed = Object.keys(P).filter((k) => Math.abs(f[k] - P[k].nominal) > 1e-9);
-    const rows = Object.keys(P).map((k) => {
-      const p = P[k], step = (p.high - p.low) / 100, on = changed.includes(k);
-      return `<div class="row ${on ? "moved" : ""}"><label class="nm" for="p-${k}">${k}</label>
-        <input type="range" id="p-${k}" data-p="${k}" min="${p.low}" max="${p.high}" step="${step}" value="${f[k]}">
+    const f = (S.form ||= nominalForm());
+    const hidden = hiddenOf(f), nF = faultsOf(hidden).length, max = LIVE.max_hidden, over = nF > max;
+    const strip = f.patch_y0 < STRIP_OFF, muMax = LIVE.patch_mu_max || 0.95;
+    const slider = (k, label, lo = P[k].low, hi = P[k].high, step = (P[k].high - P[k].low) / 100) =>
+      `<div class="row ${moved(f, k) ? "moved" : ""}"><label class="nm" for="p-${k}">${label}</label>
+        <input type="range" id="p-${k}" data-p="${k}" min="${lo}" max="${hi}" step="${step}" value="${f[k]}">
         <span class="mono val">${fmt(k, f[k])}</span></div>`;
-    }).join("");
-    const max = LIVE.max_hidden, over = changed.length > max;
-    return `<div class="scn"><div><span class="label">Live run · NVIDIA Newton${LIVE.model ? " · " + esc(LIVE.model) : ""}</span><h2>Hide some physics, watch the agent find it</h2>
-        <p>Move up to ${max} sliders away from nominal. The agent never sees these values; it trains a policy, measures it in this hidden world, and repairs its simulator. A run takes about a minute.</p></div></div>
-      <section class="pane"><header><span class="label">Hidden “real” world · ${changed.length}/${max} changed</span>
-        <div class="controls"><button class="btn" id="rand">Randomize</button><button class="btn" id="reset">Reset</button><button class="btn primary" id="go" ${!changed.length || over || LIVE.busy ? "disabled" : ""}>Run agent</button></div></header>
-        <div class="body"><div class="form">${rows}</div>
-        <p class="note">${over ? `<span class="bad-t">Change at most ${max} parameters.</span> ` : ""}${S.err ? `<span class="bad-t">${esc(S.err)}</span> ` : ""}Density, size, restitution, light and camera height do not change the outcome: good tests of whether the agent blames the wrong thing.</p></div></section>`;
+    const presets = (LIVE.presets || []).map((p) => `<button class="btn" data-preset="${esc(p.id)}" aria-pressed="${S.preset === p.id}">${esc(p.title)}</button>`).join("")
+      + `<button class="btn" data-surprise aria-pressed="${S.preset === "surprise"}">Surprise me</button><button class="btn ghost" id="reset">Reset</button>`;
+    const tool = LIVE.agent === "tool";
+    const closedKeys = Object.keys(P).filter((k) => !OPEN_KEYS.includes(k));
+    return `<div class="scn"><div><span class="label">Stump the agent · live in NVIDIA Newton${LIVE.model ? " · " + esc(LIVE.model) : ""}</span><h2>Hide some physics. Watch ${tool ? "Nemotron" : "the agent"} find it.</h2>
+        <p>Pick a preset or build a world, including faults the rule book has no parameter for. The agent trains a policy in its simulator, measures it in your hidden world, and repairs the simulator until the policy works. A run takes a few minutes.</p></div></div>
+      <div class="presets" role="group" aria-label="Presets"><span class="label">Presets</span>${presets}</div>
+      <div class="newgrid">
+        <div class="faults">
+          <section class="pane fault ${strip ? "on" : ""}"><header><label class="ftog"><input type="checkbox" data-strip ${strip ? "checked" : ""}> Friction strip</label><span class="label ow">open world</span></header>
+            <div class="body"><p class="fd">Beyond a line on the table the friction changes (wet or rough). One friction number cannot describe it.</p>
+              ${stripDiagram(f)}
+              <div class="form">${strip ? slider("patch_y0", "strip starts", 0.25, 0.55, 0.01) + slider("patch_mu", "strip μ", 0.2, muMax, 0.01) : `<p class="note" style="margin:0">Off. Tick the box to add a strip.</p>`}</div></div></section>
+          <section class="pane fault ${moved(f, "lens_k") ? "on" : ""}"><header><span class="ftog">Lens distortion</span><span class="label ow">open world</span></header>
+            <div class="body"><p class="fd">The camera misjudges distance by k · d²: ${Math.abs(f.lens_k) < 1e-9 ? "with k &lt; 0 far targets look closer than they are, with k &gt; 0 farther" : `far targets look <b>${f.lens_k < 0 ? "closer" : "farther"}</b> than they are`}. Rules only know a shifted or tilted camera.</p>
+              <div class="form">${slider("lens_k", "lens k", -0.3, 0.3, 0.01)}</div></div></section>
+          <section class="pane fault"><header><span class="ftog">Closed-world parameters</span><span class="label">rule book knows these</span></header>
+            <div class="body"><div class="form">${closedKeys.map((k) => slider(k, k)).join("")}</div>
+              <p class="note">Density, size, restitution, light and camera height do not change the outcome: good tests of whether the agent blames the wrong thing.</p></div></section>
+        </div>
+        <aside class="side-col">
+          <section class="pane agentview"><header><span class="label">How the agent sees it</span></header><div class="body">
+            <p><b>It never sees the values you set.</b> Each iteration it gets only what a real robot would log:</p>
+            <ul><li>20 real pushes: perceived target, command, where the cube stopped</li><li>camera tracks of each sliding cube</li><li>up to ${12} extra real pushes it may spend on its own experiments</li></ul>
+            <p>${tool ? "Nemotron inspects the evidence, proposes simulator structures, fits them by least squares, probes the robot when the data cannot decide, and commits a simulator. The policy is retrained in it and measured again in your world." : "No LLM is configured on this server, so the rule-based diagnoser runs. It has no parameter for a strip or a lens and can only average them away."}</p>
+          </div></section>
+          <section class="pane runbox"><header><span class="label">Your hidden world · ${nF}/${max} faults</span></header><div class="body">
+            <p class="hid">${nF ? describeHidden(hidden) : `<span style="color:var(--dim)">Nothing hidden yet: pick a preset or move a slider.</span>`}</p>
+            <button class="btn primary big" id="go" ${!nF || over || LIVE.busy ? "disabled" : ""}>Run agent</button>
+            <p class="note">${over ? `<span class="bad-t">Hide at most ${max} faults (a strip counts as one).</span> ` : ""}${S.err ? `<span class="bad-t">${esc(S.err)}</span> ` : ""}${LIVE.busy ? "Another run is in progress; watch it under Your worlds. " : ""}${tool ? `Up to ${LIVE.max_turns_per_run} agent turns per run · ${LIVE.llm_calls_left} LLM calls left on this server; past either, the rule-based diagnoser takes over.` : ""}</p>
+          </div></section>
+        </aside>
+      </div>`;
+  }
+  function refreshStatus() {
+    fetch("api/status").then((r) => r.json()).then((st) => { Object.assign(LIVE, st); renderFoot(); if (S.tab === "new") render(); }).catch(() => {});
   }
   function stream(run) {
     const es = new EventSource(`api/runs/${run.id}/events`);
     es.onmessage = (msg) => {
       const e = JSON.parse(msg.data);
-      if (e.type === "start") { run.truth = e.truth; }
-      else if (e.type === "end") { Object.assign(run, e.run, { events: run.events }); es.close(); LIVE.busy = false; }
-      else if (e.type === "error") { run.error = e.message; es.close(); LIVE.busy = false; }
-      else { run.events.push(e); if (e.type === "measure" && B.runs[S.tab] === run) S.iter = null; }
-      if (B.runs[S.tab] === run || S.tab === "new") { render(); const tl = $("#tl"); if (tl) tl.scrollTop = tl.scrollHeight; }
+      if (e.type === "start") { run.truth = e.truth; if (e.open != null) run.open = e.open; }
+      else if (e.type === "agent_step") { if (run.pendingIter !== e.iter) { run.pending = []; run.pendingIter = e.iter; } run.pending.push(e.step); }
+      else if (e.type === "end") { Object.assign(run, e.run, { events: run.events, title: run.title }); es.close(); LIVE.busy = false; refreshStatus(); }
+      else if (e.type === "error") { run.error = e.message; es.close(); LIVE.busy = false; refreshStatus(); }
+      else {
+        run.events.push(e);
+        if (e.type === "diagnose") { run.pending = null; run.pendingIter = null; }
+        if (e.type === "measure" && B.runs[S.tab] === run) S.iter = null;
+      }
+      if (B.runs[S.tab] === run) { render(); const tl = $("#tl"); if (tl) tl.scrollTop = tl.scrollHeight; }
+      else renderTabs();
     };
-    es.onerror = () => { if (run.final_success == null && !run.error) { run.error = "Connection lost. Reload to see the finished run."; } es.close(); render(); };
+    es.onerror = () => { if (run.final_success == null && !run.error) { run.error = "Connection lost. Reload to see the finished run."; } es.close(); LIVE.busy = false; render(); };
   }
   async function startRun() {
-    const hidden = Object.fromEntries(Object.keys(P).filter((k) => Math.abs(S.form[k] - P[k].nominal) > 1e-9).map((k) => [k, +S.form[k]]));
+    const hidden = hiddenOf(S.form), base = S.title || "Custom world";
     S.err = "";
     try {
-      const r = await fetch("api/runs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ hidden, title: "Custom world" }) });
+      const r = await fetch("api/runs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ hidden, title: base }) });
       const data = await r.json();
-      if (!r.ok) { S.err = data.detail || "The run could not start."; render(); return; }
-      const run = { id: data.id, title: `Custom #${B.runs.filter((x) => x.hidden && x.id.startsWith("live-")).length + 1}`, hidden, events: [], truth: {}, baselines: null, final_success: null };
+      if (!r.ok) { S.err = typeof data.detail === "string" ? data.detail : "The run could not start."; render(); return; }
+      const same = B.runs.filter((x) => isLive(x) && String(x.title).replace(/ #\d+$/, "") === base).length;
+      const run = { id: data.id, title: same ? `${base} #${same + 1}` : base, hidden, events: [], truth: {}, baselines: null, final_success: null,
+        open: data.open, agent: data.agent, pending: null };
       B.runs.push(run); LIVE.busy = true;
       S.tab = B.runs.length - 1; S.iter = null; S.shown = null; S.reveal = false;
       render(); stream(run);
     } catch (_) { S.err = "The server is not reachable."; render(); }
   }
+  const setForm = (hidden, id, title) => { S.form = { ...nominalForm(), ...hidden }; S.preset = id; S.title = title; S.err = ""; render(); };
   $("#main").addEventListener("input", (e) => {
     const k = e.target.dataset && e.target.dataset.p; if (!k) return;
     S.form[k] = +e.target.value;
     const val = e.target.parentElement.querySelector(".val"); if (val) val.textContent = fmt(k, S.form[k]);
   });
-  $("#main").addEventListener("change", (e) => { if (e.target.dataset && e.target.dataset.p) render(); });
+  $("#main").addEventListener("change", (e) => {
+    const d = e.target.dataset || {};
+    if (d.strip != null) {
+      if (e.target.checked) { S.form.patch_y0 = 0.35; S.form.patch_mu = 0.4; } else { S.form.patch_y0 = P.patch_y0.nominal; S.form.patch_mu = P.patch_mu.nominal; }
+    }
+    if (d.p || d.strip != null) { S.preset = null; S.title = null; render(); }
+  });
   $("#main").addEventListener("click", (e) => {
     const t = e.target;
     if (t.closest("#play")) { if (S.timer) { stopReplay(); render(); } else startReplay(); return; }
     if (t.closest("#end")) { stopReplay(); S.shown = null; S.iter = null; render(); return; }
     if (t.closest("#reveal") || t.closest("[data-reveal]")) { S.reveal = !S.reveal; render(); return; }
     if (t.closest("#go")) { startRun(); return; }
-    if (t.closest("#reset")) { S.form = null; S.err = ""; render(); return; }
-    if (t.closest("#rand")) {
-      const pick = ["object_mu", "table_mu", "actuator_gain", "camera_dx", "camera_pitch_deg", "light_intensity", "restitution"].sort(() => Math.random() - 0.5).slice(0, 2);
-      S.form = Object.fromEntries(Object.keys(P).map((k) => [k, P[k].nominal]));
-      pick.forEach((k) => { const p = P[k]; const u = Math.random(); S.form[k] = +(p.low + (p.high - p.low) * (u < 0.5 ? u * 0.6 : 0.4 + u * 0.6)).toFixed(4); });
-      render(); return;
+    if (t.closest("#reset")) { setForm({}, null, null); return; }
+    const pb = t.closest("[data-preset]");
+    if (pb) { const p = LIVE.presets.find((x) => x.id === pb.dataset.preset); if (p) setForm(p.hidden, p.id, p.title); return; }
+    if (t.closest("[data-surprise]")) {
+      fetch("api/surprise").then((r) => r.json()).then((w) => setForm(w.hidden, "surprise", w.title)).catch(() => { S.err = "The server is not reachable."; render(); });
+      return;
     }
     const ib = t.closest("[data-iter]");
     if (ib) { S.iter = +ib.dataset.iter; render(); }
@@ -1311,7 +1468,7 @@ else Promise.all([
 ]).then(([b, st, past]) => {
   const B = b || EMPTY;
   if (!B.params && st) B.params = st.params;
-  past.forEach((r, i) => B.runs.push({ ...r, title: `Custom #${i + 1}` }));
+  past.forEach((r, i) => B.runs.push({ ...r, title: r.title || `Custom #${i + 1}` }));
   boot(B, st);
 });
 })();
