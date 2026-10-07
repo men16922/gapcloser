@@ -208,9 +208,85 @@ td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
 .clipbox > summary { cursor: pointer; padding: var(--s2) var(--s3); list-style-position: inside; }
 .clipbox > .clips { padding: 0 var(--s3) var(--s3); }
 
+/* scenario picker: grouped tab rows */
+.picker { display: flex; flex-wrap: wrap; gap: 0; border-bottom: 1px solid var(--line); }
+.tgroup { min-width: 0; flex: 0 1 auto; display: grid; align-content: start; padding-top: var(--s3); }
+.tgroup > .label { padding-inline: var(--s4); display: flex; gap: 6px; align-items: center; }
+.tgroup.open > .label { color: var(--fg); }
+.tgroup.open > .label i { width: 6px; height: 6px; background: var(--green); display: inline-block; }
+.tgroup .tabs { border-bottom: 0; }
+.tgroup + .tgroup { border-left: 1px solid var(--line-soft); }
+
+/* open-run layout: notebook | evidence, then timeline | outcome | belief */
+.grid-a { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr); gap: var(--s4); align-items: start; margin-bottom: var(--s4); }
+.grid-b { display: grid; grid-template-columns: 340px minmax(0, 1fr) minmax(0, 1fr); gap: var(--s4); align-items: start; }
+.grid-b .tl { max-height: 560px; }
+
+/* lab notebook */
+.nb-head { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; padding: var(--s3) var(--s4); border-bottom: 1px solid var(--line); background: var(--raised); }
+.nb-head .q { font-size: 13.5px; color: var(--muted); flex: 1 1 100%; }
+.ladder { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; font: 500 12px/1 var(--f-mono); }
+.ladder .r { padding: 4px 6px; border: 1px solid var(--line); }
+.ladder .r.ok { border-color: var(--green); color: var(--green); } .ladder .r.bad { border-color: var(--bad); color: var(--bad); }
+.ladder .ar { color: var(--dim); }
+.nb { list-style: none; margin: 0; padding: 0 var(--s4); counter-reset: nb; }
+.nb > li { position: relative; display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: var(--s3); padding: var(--s3) 0; border-bottom: 1px solid var(--line-soft); }
+.nb > li:last-child { border-bottom: 0; }
+.nb > li::before { counter-increment: nb; content: counter(nb); width: 24px; height: 24px; display: grid; place-items: center; border: 1px solid var(--line); font: 600 11px/1 var(--f-mono); color: var(--muted); background: var(--panel); position: relative; z-index: 1; }
+.nb > li:not(:last-child)::after { content: ""; position: absolute; left: 12px; top: 36px; bottom: -12px; width: 1px; background: var(--line); }
+.nb > li.k-probe::before { border-color: var(--warn); color: var(--warn); }
+.nb > li.k-commit::before { border-color: var(--green); color: #000; background: var(--green); }
+.nb .sh { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; }
+.nb .verb { font: 600 11px/1 var(--f-display); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.nb .k-probe .verb { color: var(--warn); } .nb .k-commit .verb { color: var(--green); }
+.nb .tool { font: 500 11px/1 var(--f-mono); color: var(--dim); }
+.nb .cap { font-size: 14px; color: var(--fg); margin-top: 4px; overflow-wrap: anywhere; }
+.nb .cap b { font-weight: 600; }
+.nb .vis { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: var(--s3); align-items: center; margin-top: 8px; }
+.nb .vis svg { width: 100%; height: auto; display: block; }
+.nb .side { font: 400 12px/1.5 var(--f-mono); color: var(--muted); }
+.structs { display: flex; flex-wrap: wrap; gap: 4px; }
+.structs span { font: 500 11px/1 var(--f-mono); padding: 4px 6px; border: 1px dashed var(--line); color: var(--dim); }
+.structs span.on { border: 1px solid var(--fg); color: var(--fg); }
+.structs span.new { border-color: var(--green); color: var(--green); }
+.fitcard { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px var(--s3); align-items: center; margin-top: 8px; padding: 8px 10px; border: 1px solid var(--line); background: #0a0a0a; }
+.fitcard.ok { box-shadow: inset 2px 0 0 var(--green); } .fitcard.bad { box-shadow: inset 2px 0 0 var(--bad); }
+.fitcard .vals { font: 400 12px/1.5 var(--f-mono); color: var(--muted); overflow-wrap: anywhere; }
+.fitcard .vals b { color: var(--fg); font-weight: 500; }
+.fitcard .res { text-align: right; display: grid; gap: 2px; }
+.fitcard .res .n { font: 600 22px/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.fitcard .res .n small { font-size: 13px; color: var(--muted); }
+.fitcard.ok .res .n { color: var(--green); } .fitcard.bad .res .n { color: var(--bad); }
+.fitcard .res .vd { font: 600 11px/1 var(--f-display); letter-spacing: 0.12em; text-transform: uppercase; }
+.fitcard.ok .vd { color: var(--green); } .fitcard.bad .vd { color: var(--bad); }
+.fitcard .sub { grid-column: 1 / -1; font-size: 12px; color: var(--dim); }
+.rbar { grid-column: 1 / -1; position: relative; height: 6px; background: var(--line-soft); }
+.rbar span { position: absolute; inset: 0 auto 0 0; }
+.rbar i { position: absolute; top: -3px; bottom: -3px; width: 1px; background: var(--muted); }
+.probes { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.probes span { font: 500 12px/1 var(--f-mono); padding: 6px 8px; border: 1px solid var(--warn); color: var(--fg); background: rgba(217, 161, 59, 0.08); }
+.probes span.budget { border-color: var(--line); color: var(--muted); background: none; }
+.raw { margin: var(--s2) var(--s4) var(--s4); border: 1px solid var(--line-soft); }
+.raw > summary { cursor: pointer; padding: var(--s2) var(--s3); }
+.raw pre { margin: 0; padding: var(--s3); max-height: 360px; overflow: auto; font: 400 11.5px/1.45 var(--f-mono); color: var(--muted); border-top: 1px solid var(--line-soft); white-space: pre-wrap; overflow-wrap: anywhere; }
+.nb-empty { padding: var(--s4); color: var(--muted); font-size: 13.5px; }
+
+/* Gap-Bench */
+.gb { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: var(--s4); align-items: start; }
+.gb .tbl-wrap table { min-width: 520px; }
+.gb td.agent, .gb th.agent { box-shadow: inset 2px 0 0 var(--green); }
+.ci { color: var(--dim); font-size: 11.5px; }
+.honest { margin: var(--s4) 0 0; padding: var(--s3) var(--s4); border: 1px solid var(--line); border-left: 2px solid var(--warn); background: var(--panel); font-size: 13.5px; color: var(--fg); }
+.cost { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s5); padding: var(--s3) var(--s4); border: 1px solid var(--line); border-top: 0; background: var(--panel); font: 400 12.5px/1.4 var(--f-mono); color: var(--muted); }
+.cost b { color: var(--fg); font-weight: 500; }
+.v3 .tag.strip { background: rgba(0,0,0,0.7); color: var(--fg); border: 1px solid #5b8fb3; }
+.v3 .tag.strip.rough { border-color: #b3895b; }
+.v3 .tag.strip.belief { border-style: dashed; }
+.v3 .bar .toggle { height: 32px; }
+
 @media (max-width: 1180px) {
-  .grid { grid-template-columns: minmax(0, 1fr); }
-  .tl { max-height: 420px; }
+  .grid, .grid-a, .grid-b, .gb { grid-template-columns: minmax(0, 1fr); }
+  .tl, .grid-b .tl { max-height: 420px; }
 }
 @media (max-width: 720px) {
   .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -227,6 +303,12 @@ td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
   .v3 .readout > div + div { border-left: 0; border-top: 1px solid var(--line); }
   .v3 .time { min-width: 0; }
   .v3 .hud .src { display: none; }
+  .nb .vis { grid-template-columns: minmax(0, 1fr); }
+  .fitcard { grid-template-columns: minmax(0, 1fr); }
+  .fitcard .res { text-align: left; grid-auto-flow: column; justify-content: start; gap: 10px; align-items: baseline; }
+  .tab { padding: 10px 12px; }
+  .tgroup + .tgroup { border-left: 0; border-top: 1px solid var(--line-soft); flex-basis: 100%; }
+  .gb td.num { white-space: nowrap; }
 }
 @media (prefers-reduced-motion: reduce) { .tl li.live .ico { animation: none; } }
 </style>
@@ -236,7 +318,7 @@ td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
     <div class="brand"><h1>Gap<b>Closer</b></h1><span class="sub">Sim2Real agent console</span></div>
     <div class="stack" id="stack"></div>
   </div>
-  <nav class="tabs" id="tabs" role="tablist" aria-label="Scenarios"></nav>
+  <nav class="picker" id="tabs" aria-label="Scenarios"></nav>
   <main id="main"></main>
   <div class="foot" id="foot"></div>
 </div>
@@ -305,7 +387,7 @@ window.GCViewer = (function () {
     root.innerHTML = `<div class="stage"><canvas aria-label="3D replay of the push simulated in NVIDIA Newton"></canvas>
         <div class="hud"><span class="it"></span><span class="src">NVIDIA Newton · per-frame poses</span></div>
         <span class="vpl top">Sim · agent’s model</span><span class="vpl bot">Real · hidden physics</span><div class="divider"></div>
-        <span class="tag sim"></span><span class="tag real"></span>
+        <span class="tag sim"></span><span class="tag real"></span><span class="tag strip" data-s="sim"></span><span class="tag strip" data-s="real"></span>
         <span class="hint">${matchMedia("(pointer: coarse)").matches ? "drag to orbit · pinch to zoom" : "drag to orbit · shift-drag to pan · click, then wheel to zoom"}</span></div>
       <div class="bar">
         <button class="ib play" data-a="play" aria-label="Pause">${ICON.pause}</button>
@@ -314,6 +396,7 @@ window.GCViewer = (function () {
         <div class="seg" data-g="speed" role="group" aria-label="Playback speed"><button data-v="0.25">¼×</button><button data-v="0.5" aria-pressed="true">½×</button><button data-v="1">1×</button></div>
         <div class="seg" data-g="mode" role="group" aria-label="Layout"><button data-v="overlay" aria-pressed="true">Ghost</button><button data-v="split">Split</button></div>
         <div class="seg" data-g="view" role="group" aria-label="Camera"><button data-v="wide" aria-pressed="true">Wide</button><button data-v="lane">Lane</button></div>
+        <button class="toggle" data-reveal hidden aria-pressed="false">Reveal truth</button>
       </div>
       <div class="readout">
         <div data-k="real"><span class="k label"><i class="sw" style="background:#dcdcdc"></i>Real · hidden physics</span><span class="y"></span></div>
@@ -322,6 +405,8 @@ window.GCViewer = (function () {
     const $ = (s) => root.querySelector(s);
     const stage = $(".stage"), canvas = $("canvas"), scrub = $(".scrub"), timeEl = $(".time"), playBtn = $('[data-a="play"]');
     const tags = { real: $(".tag.real"), sim: $(".tag.sim") };
+    const stripTags = { real: $('.tag.strip[data-s="real"]'), sim: $('.tag.strip[data-s="sim"]') };
+    const revealBtn = $("[data-reveal]");
     const outs = { real: root.querySelector('[data-k="real"] .y'), sim: root.querySelector('[data-k="sim"] .y') };
 
     const renderer = new T.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: false });
@@ -342,7 +427,7 @@ window.GCViewer = (function () {
     scene.add(sun, sun.target);
     const fill = new T.DirectionalLight(0xffffff, 0.45); fill.position.set(-1.2, 0.8, 0.9); scene.add(fill);
 
-    const S = { data: null, key: null, t: 0, hold: 0, playing: true, speed: 0.5, mode: "overlay", view: { ...VIEWS.wide }, w: 0, h: 0, meta: {}, touched: false, last: 0 };
+    const S = { reveal: false, data: null, key: null, t: 0, hold: 0, playing: true, speed: 0.5, mode: "overlay", view: { ...VIEWS.wide }, w: 0, h: 0, meta: {}, touched: false, last: 0 };
     let world = null;  // per-replay scene objects
 
     // ---------- static scene (table, grid, ruler, target) ----------
@@ -396,6 +481,32 @@ window.GCViewer = (function () {
       m.visible = false; return m;
     }
 
+    // a table region with different friction (open-world fault): hatched tint from y0 to the far edge
+    let HATCH = null;
+    function hatch() {
+      if (HATCH) return HATCH;
+      const c = document.createElement("canvas"); c.width = c.height = 64;
+      const g = c.getContext("2d"); g.fillStyle = "#ffffff"; g.globalAlpha = 0.55; g.fillRect(0, 0, 64, 64);
+      g.globalAlpha = 1; g.strokeStyle = "#ffffff"; g.lineWidth = 6;
+      for (let o = -64; o <= 64; o += 21) { g.beginPath(); g.moveTo(o, 64); g.lineTo(o + 64, 0); g.stroke(); }
+      HATCH = new T.CanvasTexture(c); HATCH.wrapS = HATCH.wrapT = T.RepeatWrapping;
+      return HATCH;
+    }
+    function buildStrip(sc, patch, belief) {
+      if (!patch) return null;
+      const [sx, sy] = sc.table.size, [cx, cy] = sc.table.center, y1 = cy + sy / 2, len = y1 - patch.y0;
+      if (len <= 0) return null;
+      const rough = patch.mu_far > patch.mu_near, col = rough ? 0xb3895b : 0x5b8fb3;
+      const tex = hatch().clone(); tex.needsUpdate = true; tex.repeat.set(sx / 0.06, len / 0.06);
+      const grp = new T.Group();
+      const m = new T.Mesh(new T.PlaneGeometry(sx, len), new T.MeshBasicMaterial({ color: col, map: tex, transparent: true, opacity: belief ? 0.16 : 0.24, depthWrite: false }));
+      m.position.set(cx, patch.y0 + len / 2, 0.0005); grp.add(m);
+      const x0 = cx - sx / 2, x1 = cx + sx / 2, z = 0.0011;
+      grp.add(lineSegs([x0, patch.y0, z, x1, patch.y0, z], col, 0.95));
+      grp.userData = { patch, rough, anchors: [[0.36, 0.3], [-0.24, 0.17], [0.3, 0.16], [-0.06, 0.08], [0.0, 0.03]].map(([x, dy]) => new T.Vector3(x, patch.y0 + dy, 0)) };
+      grp.visible = false;
+      return grp;
+    }
     function load(data) {
       if (world) { scene.remove(world.group); }
       const sc = data.scene, grp = new T.Group();
@@ -407,14 +518,18 @@ window.GCViewer = (function () {
       const marks = { real: stopMark(verdict("real") === "ok" ? COL.green : COL.bad), sim: stopMark(0xbbbbbb) };
       marks.real.position.set(0.11, tr.real.slide, 0.001); marks.sim.position.set(-0.11, tr.sim.slide, 0.001);
       grp.add(real.group, sim.group, cubes.real, cubes.sim, marks.real, marks.sim);
+      const strips = { real: buildStrip(sc, tr.real.patch, false), sim: buildStrip(sc, tr.sim.patch, true) };
+      ["real", "sim"].forEach((k) => { if (strips[k]) grp.add(strips[k]); });
+      revealBtn.hidden = !(strips.real || strips.sim);
       scene.add(grp);
       const n = Math.max(tr.real.cube.length, tr.sim.cube.length);
       // frame at which the cube comes to rest (recording continues a little past it)
       const rest = (rows) => { const L = rows[rows.length - 1]; let i = rows.length - 1;
         while (i > data.strike_frame && Math.abs(rows[i - 1][1] - L[1]) < 5e-4 && Math.abs(rows[i - 1][2] - L[2]) < 5e-4) i--; return i; };
       const stop = { real: rest(tr.real.cube), sim: rest(tr.sim.cube) };
-      world = { group: grp, arms: { real, sim }, cubes, marks, n, stop, dur: (n - 1) / data.fps, verdict };
+      world = { group: grp, arms: { real, sim }, cubes, marks, strips, n, stop, dur: (n - 1) / data.fps, verdict };
       S.t = 0; S.hold = 0;
+      if (window.GC_V3_INIT && window.GC_V3_INIT.t != null) { S.t = Math.min(window.GC_V3_INIT.t, world.dur); S.pauseAtLoad = true; delete window.GC_V3_INIT.t; }
     }
 
     // ---------- pose interpolation ----------
@@ -458,6 +573,24 @@ window.GCViewer = (function () {
       el.style.transform = `translate(${Math.round(sx)}px, ${Math.round(sy)}px) translate(-50%, ${k === "real" ? "-100%" : "10px"})`;
     }
 
+    function placeStrip(k, on, x0, y0, w, h) {
+      const st = world.strips[k], el = stripTags[k];
+      if (!st || !on) { el.style.display = "none"; return; }
+      // first anchor that lands well inside the viewport (label beside the lane, never on the cubes)
+      const vis = st.userData.anchors.some((a) => { tmp.copy(a).project(cam); return tmp.z < 1 && Math.abs(tmp.x) < 0.98 && Math.abs(tmp.y) < 0.85; });
+      el.style.display = vis ? "" : "none";
+      if (!vis) return;
+      const p = st.userData.patch;
+      const txt = `${k === "real" ? "Real" : "Agent’s belief"} · μ ${p.mu_near.toFixed(2)} → ${p.mu_far.toFixed(2)} from ${p.y0.toFixed(2)} m`;
+      if (el.textContent !== txt) el.textContent = txt;
+      const cls = `tag strip${st.userData.rough ? " rough" : ""}${k === "sim" ? " belief" : ""}`;
+      if (el.className !== cls) el.className = cls;
+      // label starts at the anchor and runs away from the start line (onto the strip), clamped inside the stage
+      const sx = Math.max(6, Math.min(w - el.offsetWidth - 6, x0 + (tmp.x + 1) / 2 * w - 12)), sy = y0 + (1 - tmp.y) / 2 * h;
+      el.style.transform = `translate(${Math.round(sx)}px, ${Math.round(sy)}px) translate(0, -50%)`;
+    }
+    const showStrip = (k, on) => { if (world.strips[k]) world.strips[k].visible = on; };
+
     // ---------- draw ----------
     function resize() {
       const w = stage.clientWidth, h = stage.clientHeight;
@@ -473,9 +606,13 @@ window.GCViewer = (function () {
         renderer.setViewport(0, 0, w, h);
         world.arms.real.group.visible = true; world.arms.sim.group.visible = false;
         world.cubes.real.visible = world.cubes.sim.visible = true;
+        // ghost view: the agent's belief, or the real strip once the truth is revealed
+        const sk = S.reveal && world.strips.real ? "real" : "sim";
+        showStrip("real", sk === "real"); showStrip("sim", sk === "sim");
         placeCamera(w / h);
         renderer.render(scene, cam);
         placeTag("real", 0, 0, w, h); placeTag("sim", 0, 0, w, h);
+        placeStrip("real", sk === "real", 0, 0, w, h); placeStrip("sim", sk === "sim", 0, 0, w, h);
         return;
       }
       renderer.setScissorTest(true);
@@ -485,12 +622,14 @@ window.GCViewer = (function () {
         world.arms[k].group.visible = true; world.arms[other].group.visible = false;
         world.cubes[k].visible = true; world.cubes[other].visible = false;
         const mk = world.marks[other].visible; world.marks[other].visible = false;
+        showStrip(k, true); showStrip(other, false);
         const yGL = h - y0css - hh;
         renderer.setViewport(0, yGL, w, hh); renderer.setScissor(0, yGL, w, hh);
         placeCamera(w / hh);
         renderer.render(scene, cam);
         world.marks[other].visible = mk;
         placeTag(k, 0, y0css, w, hh);
+        placeStrip(k, true, 0, y0css, w, hh);
       };
       pass("sim", 0); pass("real", h - hh);
     }
@@ -507,7 +646,10 @@ window.GCViewer = (function () {
         const trial = tr[k], i = Math.min(Math.round(fi), trial.cube.length - 1), y = trial.cube[i][1], err = y - sc.target;
         const stopped = fi >= world.stop[k], struck = fi >= S.data.strike_frame;
         const v = world.verdict(k);
-        const state = !struck ? `<span class="wait">waiting for strike</span>` : !stopped ? `<span class="wait">sliding · ${fmtErr(err)} to target</span>`
+        const j = Math.min(i + 1, trial.cube.length - 1), spd = Math.abs(trial.cube[j][1] - y) * fps;
+        const pt = trial.patch, known = k === "sim" || S.reveal;
+        const mu = pt && known && y >= pt.y0 ? ` · on strip μ ${pt.mu_far.toFixed(2)}` : "";
+        const state = !struck ? `<span class="wait">waiting for strike</span>` : !stopped ? `<span class="wait">sliding ${spd.toFixed(2)} m/s · ${fmtErr(err)} to target${mu}</span>`
           : `<span class="${v}">${fmtErr(err)} · ${v === "ok" ? "on line" : err > 0 ? "overshoot" : "short"}${trial.tipped ? " · tipped" : ""}</span>`;
         const html = `<b>y ${y.toFixed(3)} m</b> <span class="wait">/ target ${sc.target.toFixed(2)}</span><br>${state}`;
         if (shownTxt[k] !== html) { outs[k].innerHTML = html; shownTxt[k] = html; }
@@ -531,6 +673,9 @@ window.GCViewer = (function () {
       if (g === "view") S.view = { ...VIEWS[b.dataset.v] };
       if (g === "mode") { S.mode = b.dataset.v; root.classList.toggle("split", S.mode === "split"); }
     });
+    // initial layout/camera from the page's deep link (#run.split.lane)
+    const init = window.GC_V3_INIT || {};
+    [["mode", init.mode], ["view", init.view]].forEach(([g, v]) => { const b = v && root.querySelector(`[data-g="${g}"] [data-v="${v}"]`); if (b) b.click(); });
     scrub.addEventListener("input", () => { if (!world) return; setPlaying(false); S.t = (+scrub.value / 1000) * world.dur; S.hold = 0; });
 
     // orbit / pan / zoom (pointer events; vertical touch swipes still scroll the page)
@@ -584,9 +729,11 @@ window.GCViewer = (function () {
         if (root.parentNode !== slot) slot.appendChild(root);
         const it = $(".hud .it");
         it.textContent = meta.label; it.className = `it ${meta.ok ? "ok" : "bad"}`;
+        S.reveal = !!meta.reveal; shownTxt = {};
+        revealBtn.setAttribute("aria-pressed", String(S.reveal)); revealBtn.textContent = S.reveal ? "Hide truth" : "Reveal truth";
         if (key === S.key) return;
         S.key = key;
-        const go = (d) => { if (S.key !== key) return; S.data = d; load(d); setPlaying(true); shownTxt = {}; };
+        const go = (d) => { if (S.key !== key) return; S.data = d; S.pauseAtLoad = false; load(d); setPlaying(!S.pauseAtLoad); shownTxt = {}; };
         if (typeof replay === "string") {
           if (cache[replay]) go(cache[replay]);
           else fetch(replay).then((r) => r.json()).then((d) => { cache[replay] = d; go(d); }).catch(() => {});
@@ -611,7 +758,8 @@ function boot(B, LIVE) {
     const d = Math.abs(v) < 0.1 ? 3 : 2;
     return `${(+v).toFixed(d)}${u && u !== "-" ? (u === "x" ? "×" : " " + u) : ""}`;
   };
-  const S = { tab: B.runs.length ? 0 : "new", iter: null, sel: null, reveal: false, shown: null, timer: null, form: null, err: "" };
+  const defTab = () => { for (const id of ["three-faults", "wet-strip"]) { const i = B.runs.findIndex((r) => r.id === id); if (i >= 0) return i; } const o = B.runs.findIndex((r) => r.open); return o >= 0 ? o : B.runs.length ? 0 : "new"; };
+  const S = { tab: defTab(), iter: null, sel: null, reveal: false, shown: null, timer: null, form: null, err: "" };
 
   const STEP = { train: ["T", "Train"], measure: ["M", "Measure"], diagnose: ["D", "Diagnose"], plan: ["P", "Plan"], done: ["✓", "Goal"] };
 
@@ -628,15 +776,19 @@ function boot(B, LIVE) {
 
   function renderTabs() {
     const pill = (r) => r.final_success == null ? `<span class="pill">${r.error ? "error" : "live"}</span>` : `<span class="pill ${r.final_success >= 0.9 ? "ok" : ""}">${pct(r.final_success)}</span>`;
-    const tabs = B.runs.map((r, i) => `<button class="tab" role="tab" aria-selected="${S.tab === i}" data-tab="${i}">${esc(r.title)}${pill(r)}</button>`);
-    if (B.benchmark) tabs.push(`<button class="tab" role="tab" aria-selected="${S.tab === "bench"}" data-tab="bench">Benchmark<span class="pill ok">${B.benchmark.rows.length} worlds</span></button>`);
-    if (LIVE) tabs.push(`<button class="tab" role="tab" aria-selected="${S.tab === "new"}" data-tab="new">+ New run</button>`);
-    $("#tabs").innerHTML = tabs.join("");
+    const tab = (r, i) => `<button class="tab" role="tab" aria-selected="${S.tab === i}" data-tab="${i}">${esc(r.title)}${pill(r)}</button>`;
+    const open = [], closed = [], more = [];
+    B.runs.forEach((r, i) => (r.open ? open : closed).push(tab(r, i)));
+    if (B.open_benchmark) more.push(`<button class="tab" role="tab" aria-selected="${S.tab === "gapbench"}" data-tab="gapbench">Gap-Bench<span class="pill ok">${B.open_benchmark.rows.length} worlds</span></button>`);
+    if (B.benchmark) more.push(`<button class="tab" role="tab" aria-selected="${S.tab === "bench"}" data-tab="bench">Tier-0 bench<span class="pill">${B.benchmark.rows.length}</span></button>`);
+    if (LIVE) closed.push(`<button class="tab" role="tab" aria-selected="${S.tab === "new"}" data-tab="new">+ New run</button>`);
+    const grp = (cls, label, items) => items.length ? `<div class="tgroup ${cls}"><span class="label">${cls === "open" ? "<i></i>" : ""}${label}</span><div class="tabs" role="tablist">${items.join("")}</div></div>` : "";
+    $("#tabs").innerHTML = grp("open", "Open world · faults outside the rule book", open) + grp("closed", "Closed world · rule-solvable", closed) + grp("bench", "Benchmarks", more);
   }
   $("#tabs").addEventListener("click", (e) => {
     const b = e.target.closest("[data-tab]"); if (!b) return;
     stopReplay();
-    S.tab = ["bench", "new"].includes(b.dataset.tab) ? b.dataset.tab : +b.dataset.tab; S.iter = null; S.sel = null; S.shown = null; S.reveal = false;
+    S.tab = ["bench", "new", "gapbench"].includes(b.dataset.tab) ? b.dataset.tab : +b.dataset.tab; S.iter = null; S.sel = null; S.shown = null; S.reveal = false;
     render();
   });
 
@@ -664,7 +816,8 @@ function boot(B, LIVE) {
     }
     if (e.type === "diagnose") {
       const why = e.reasoning ? `<blockquote class="why">${esc(e.reasoning)}</blockquote>` : "";
-      return `<div class="who">${esc(e.agent)}</div><div class="txt">${esc(e.summary)}</div>${why}${e.suspects.length ? `<div class="sus">${e.suspects.slice(0, 5).map((s) => `<div><span>${esc(s.name)} ${s.direction === "up" ? "↑" : s.direction === "down" ? "↓" : "?"}</span><span class="bar"><span style="width:${s.confidence * 100}%"></span></span><span>${s.estimate != null ? fmt(s.name, s.estimate) : "—"}</span></div>`).join("")}</div>` : `<div class="txt" style="color:var(--muted)">No significant gap left.</div>`}`;
+      const nbHint = run.open && e.trace && e.trace.length ? `<div class="txt" style="color:var(--muted)">Full reasoning in the lab notebook.</div>` : "";
+      return `<div class="who">${esc(e.agent)}</div><div class="txt">${esc(e.summary)}</div>${why}${nbHint}${e.suspects.length ? `<div class="sus">${e.suspects.slice(0, 5).map((s) => `<div><span>${esc(s.name)} ${s.direction === "up" ? "↑" : s.direction === "down" ? "↓" : "?"}</span><span class="bar"><span style="width:${s.confidence * 100}%"></span></span><span>${s.estimate != null ? fmt(s.name, s.estimate) : "—"}</span></div>`).join("")}</div>` : `<div class="txt" style="color:var(--muted)">No significant gap left.</div>`}`;
     }
     if (e.type === "plan") {
       const rows = Object.entries(e.set_ranges).map(([k, [lo, hi]]) => `${k.padEnd(16)} <span class="new">${fmt(k, (lo + hi) / 2)} ± ${fmt(k, (hi - lo) / 2)}</span>`);
@@ -735,7 +888,7 @@ function boot(B, LIVE) {
     const ys = (v) => T + (1 - v) * (H - T - Bm);
     let g = [0, 0.5, 1].map((v) => `<line x1="${L}" x2="${W - R}" y1="${ys(v)}" y2="${ys(v)}" stroke="#222"/><text x="${L - 6}" y="${ys(v) + 4}" text-anchor="end">${pct(v)}</text>`).join("");
     g += Array.from({ length: n }, (_, i) => `<text x="${xs(i)}" y="${H - 8}" text-anchor="middle">it ${i}</text>`).join("");
-    const refs = [["nominal", "#666", "4 3"], ["full_dr", "#666", "1 3"], ["outcome_only", "#d9a13b", "6 3"]];
+    const refs = [["nominal", "#666", "4 3"], ["full_dr", "#666", "1 3"], ["outcome_only", "#d9a13b", "6 3"], ["rule", "#d9a13b", "6 3"], ["sysid", "#cccccc", "2 2"]];
     g += refs.filter(([k]) => run.baselines && run.baselines[k] != null).map(([k, c, d]) => `<line x1="${L}" x2="${W - R}" y1="${ys(run.baselines[k])}" y2="${ys(run.baselines[k])}" stroke="${c}" stroke-dasharray="${d}"/>`).join("");
     const sim = its.map((x, i) => `${xs(i)},${ys(x.measure.sim.success_rate)}`).join(" ");
     const real = its.map((x, i) => `${xs(i)},${ys(x.measure.real.success_rate)}`).join(" ");
@@ -746,7 +899,7 @@ function boot(B, LIVE) {
     const last = its[its.length - 1].measure.real.success_rate;
     g += `<text x="${xs(its.length - 1) - 10}" y="${last > 0.85 ? ys(last) + 16 : ys(last) - 10}" text-anchor="end" fill="#eee">${pct(last)}</text>`;
     return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Real success per iteration">${g}</svg>
-      <div class="legend" style="margin-top:8px"><span><i class="sw" style="background:#76b900"></i>real (measured)</span><span><i class="sw" style="border:1px dashed #999"></i>sim</span>${run.baselines ? `<span><i class="sw" style="background:#d9a13b"></i>outcome-only agent ${pct(run.baselines.outcome_only)}</span><span>· · nominal ${pct(run.baselines.nominal)} / full DR ${pct(run.baselines.full_dr)}</span>` : `<span>baselines run after the agent finishes</span>`}</div>`;
+      <div class="legend" style="margin-top:8px"><span><i class="sw" style="background:#76b900"></i>real (measured)</span><span><i class="sw" style="border:1px dashed #999"></i>sim</span>${run.baselines ? (run.open ? `<span><i class="sw" style="background:#d9a13b"></i>rule-based ${pct(run.baselines.rule)}</span><span><i class="sw" style="background:#ccc"></i>system ID ${pct(run.baselines.sysid)}</span>` : `<span><i class="sw" style="background:#d9a13b"></i>outcome-only agent ${pct(run.baselines.outcome_only)}</span>`) + `<span>· · nominal ${pct(run.baselines.nominal)} / full DR ${pct(run.baselines.full_dr)}</span>` : `<span>baselines run after the agent finishes</span>`}</div>`;
   }
   function belief(run, its, it) {
     const tr = its[it].train;
@@ -755,7 +908,7 @@ function boot(B, LIVE) {
     const rows = Object.keys(P).map((k) => {
       const p = P[k], span = p.high - p.low || 1;
       const x = (v) => `${((v - p.low) / span) * 100}%`;
-      const [lo, hi] = ranges[k];
+      const [lo, hi] = ranges[k] || [p.nominal, p.nominal];  // older runs predate the open-world params
       const moved = Math.abs(lo - p.nominal) > 1e-9 || Math.abs(hi - p.nominal) > 1e-9;
       const tv = truth[k] ? truth[k].hidden : p.nominal;
       const hit = tv >= lo - 1e-9 && tv <= hi + 1e-9 || (!moved && !truth[k]);
@@ -765,15 +918,214 @@ function boot(B, LIVE) {
         ${S.reveal ? `<span class="truth ${hit ? "" : "miss"}" style="left:${x(tv)}"></span>` : ""}</div></div>`;
     }).join("");
     const nTruth = Object.keys(truth).length;
-    const found = Object.keys(truth).filter((k) => { const [lo, hi] = ranges[k]; return truth[k].hidden >= lo - 1e-9 && truth[k].hidden <= hi + 1e-9; }).length;
+    const found = Object.keys(truth).filter((k) => { const [lo, hi] = ranges[k] || [P[k].nominal, P[k].nominal]; return truth[k].hidden >= lo - 1e-9 && truth[k].hidden <= hi + 1e-9; }).length;
     return `<div class="bel">${rows}</div>
       <div class="bel-legend"><span><i class="sw" style="background:var(--green-wash);border:1px solid var(--green)"></i>sim belief (it ${it})</span><span><i class="sw" style="width:1px;background:var(--dim)"></i>nominal</span>${S.reveal ? `<span>▼ hidden truth</span>` : ""}</div>
       ${S.reveal ? `<p class="note">${found}/${nTruth} hidden changes are inside the agent’s belief at it ${it}. Changes the outcome cannot reveal (light, restitution) are left at nominal by design.</p>` : `<p class="note">Truth stays hidden from the agent. Reveal it to grade the diagnosis.</p>`}`;
   }
-  function renderRight(run, its, it) {
-    return `<div style="display:grid;gap:16px;min-width:0">
+  function renderRight(run, its, it, flat) {
+    return `${flat ? "" : `<div style="display:grid;gap:16px;min-width:0">`}
       <section class="pane" aria-label="Outcome"><header><span class="label">Real success per iteration</span></header><div class="body">${successChart(run, its)}</div></section>
-      <section class="pane" aria-label="Belief vs truth"><header><span class="label">Sim parameters · belief vs truth</span><button class="toggle" id="reveal" aria-pressed="${S.reveal}">${S.reveal ? "Hide truth" : "Reveal truth"}</button></header><div class="body">${belief(run, its, it)}</div></section></div>`;
+      <section class="pane" aria-label="Belief vs truth"><header><span class="label">Sim parameters · belief vs truth</span><button class="toggle" id="reveal" aria-pressed="${S.reveal}">${S.reveal ? "Hide truth" : "Reveal truth"}</button></header><div class="body">${belief(run, its, it)}</div></section>${flat ? "" : "</div>"}`;
+  }
+
+  // ---------- open world: agent lab notebook ----------
+  const cm = (m) => (m * 100).toFixed(m < 0.0995 ? 2 : 1);  // metres -> cm text
+  const STOP_OK = 0.01, PERC_OK = 0.005;  // same acceptance rule as the System-ID baseline
+  const STRUCT = [["friction", "friction"], ["gain", "gain"], ["strip", "strip"], ["camera", "camera"], ["lens", "lens"]];
+  function structOf(model, free) {
+    const f = new Set(free || []), m = model || {};
+    const on = (keys, nonNom) => keys.some((k) => f.has(k)) || nonNom;
+    return {
+      friction: true,
+      gain: on(["actuator_gain"], m.actuator_gain != null && Math.abs(m.actuator_gain - 1) > 1e-3),
+      strip: on(["patch_y0", "patch_mu"], m.patch_y0 != null && m.patch_mu != null),
+      camera: on(["camera_dx", "camera_pitch_deg"], Math.abs(m.camera_dx || 0) > 1e-4 || Math.abs(m.camera_pitch_deg || 0) > 1e-3),
+      lens: on(["lens_k"], Math.abs(m.lens_k || 0) > 1e-4),
+    };
+  }
+  function structLabel(st, m) {
+    const parts = [st.strip ? "friction" : "uniform friction"];
+    if (st.gain) parts.push("gain");
+    if (st.camera) parts.push("camera offset");
+    if (st.lens) parts.push("lens");
+    if (st.strip) parts.push(m && m.patch_y0 != null ? `friction strip @${(+m.patch_y0).toFixed(2)} m` : "friction strip");
+    return parts.join(" + ");
+  }
+  function modelVals(st, m) {
+    const v = [`μ <b>${(+m.mu_eff).toFixed(2)}</b>`];
+    if (st.gain) v.push(`gain <b>${(+m.actuator_gain).toFixed(3)}</b>`);
+    if (st.strip && m.patch_y0 != null) v.push(`strip μ <b>${(+m.patch_mu).toFixed(2)}</b> from <b>${(+m.patch_y0).toFixed(2)} m</b>`);
+    if (st.camera) v.push(`cam dx <b>${(m.camera_dx * 100).toFixed(2)} cm</b>, pitch <b>${(+m.camera_pitch_deg).toFixed(1)}°</b>`);
+    if (st.lens) v.push(`lens k <b>${(+m.lens_k).toFixed(2)}/m</b>`);
+    return v.join(" · ");
+  }
+  const verdictOf = (r) => r && r.stop_residual_rms_m != null && r.stop_residual_rms_m <= STOP_OK + 1e-9 && (r.perception_residual_rms_m || 0) <= PERC_OK + 1e-9;
+  const parseBins = (rows) => (rows || []).filter((r) => r.y_m).map((r) => { const [a, b] = r.y_m.split("-").map(Number); return { a, b, g: r.decel_g, n: r.n }; });
+  function decelChart(bins, strip) {
+    const W = 300, H = 110, L = 30, R = 8, T = 8, Bm = 22;
+    const xmax = Math.max(0.7, ...bins.map((b) => b.b)), ymax = Math.max(1, ...bins.map((b) => b.g * 1.1));
+    const xs = (x) => L + (x / xmax) * (W - L - R), ys = (v) => T + (1 - v / ymax) * (H - T - Bm);
+    const cover = bins.length ? Math.max(...bins.map((b) => b.b)) : 0;
+    let g = `<rect x="${xs(0.2)}" y="${H - Bm + 3}" width="${xs(0.6) - xs(0.2)}" height="4" fill="rgba(118,185,0,0.45)"><title>target range 0.20–0.60 m</title></rect>`;
+    if (cover < 0.6) g += `<rect x="${xs(cover)}" y="${T}" width="${xs(0.7) - xs(cover)}" height="${ys(0) - T}" fill="url(#nodata)"/><text x="${(xs(cover) + xs(0.7)) / 2}" y="${T + 14}" text-anchor="middle" fill="#999">no data</text>`;
+    g += [0, 0.5, 1].filter((v) => v <= ymax).map((v) => `<line x1="${L}" x2="${W - R}" y1="${ys(v)}" y2="${ys(v)}" stroke="${v ? "#222" : "#555"}"/><text x="${L - 4}" y="${ys(v) + 4}" text-anchor="end">${v}</text>`).join("");
+    g += [0, 0.2, 0.4, 0.6].map((v) => `<text x="${xs(v)}" y="${H - 4}" text-anchor="middle">${v.toFixed(1)}</text>`).join("");
+    g += `<text x="${W - R}" y="${H - 4}" text-anchor="end">m</text><text x="2" y="${T + 4}">g</text>`;
+    g += bins.map((b) => {
+      const after = strip && b.a >= strip.at - 1e-6, col = after ? (strip.rough ? "#b3895b" : "#5b8fb3") : "#8c8c8c";
+      return `<rect x="${xs(b.a) + 1}" y="${ys(b.g)}" width="${Math.max(1, xs(b.b) - xs(b.a) - 2)}" height="${ys(0) - ys(b.g)}" fill="${col}"><title>${b.a.toFixed(2)}–${b.b.toFixed(2)} m: ${b.g.toFixed(2)} g (n=${b.n})</title></rect>`;
+    }).join("");
+    if (strip) g += `<line x1="${xs(strip.at)}" x2="${xs(strip.at)}" y1="${T}" y2="${ys(0)}" stroke="#eee" stroke-dasharray="3 3"/>`;
+    return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Deceleration of the real cube by position"><defs><pattern id="nodata" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#2a2a2a" stroke-width="3"/></pattern></defs>${g}</svg>`;
+  }
+  function decelStep(res) {
+    const bins = parseBins(res);
+    if (!bins.length) return { cap: "No usable camera tracks.", vis: "" };
+    let jump = null;
+    for (let i = 1; i < bins.length; i++) {
+      const d = bins[i].g - bins[i - 1].g;
+      if (bins[i].n >= 3 && bins[i - 1].n >= 3 && Math.abs(d) > 0.08 && (!jump || Math.abs(d) > Math.abs(jump.d))) jump = { i, d, at: bins[i].a };
+    }
+    const cover = Math.max(...bins.map((b) => b.b));
+    let cap, strip = null;
+    if (jump) {
+      const before = bins.slice(0, Math.max(1, jump.i - 1)), after = bins.slice(jump.i + 1);
+      const g0 = before.reduce((s, b) => s + b.g, 0) / before.length, g1 = after.length ? after.reduce((s, b) => s + b.g, 0) / after.length : bins[jump.i].g;
+      strip = { at: jump.at, rough: jump.d > 0 };
+      cap = `Deceleration ${jump.d > 0 ? "jumps" : "drops"} at <b>≈${jump.at.toFixed(2)} m</b>: ${g0.toFixed(2)} g → ${g1.toFixed(2)} g. One friction number cannot explain this.`;
+    } else {
+      const m = bins.reduce((s, b) => s + b.g, 0) / bins.length;
+      cap = `Uniform deceleration <b>≈${m.toFixed(2)} g</b>${cover < 0.6 ? `, but tracks only reach <b>${cover.toFixed(2)} m</b> and targets go to 0.60 m` : ""}.`;
+    }
+    return { cap, vis: `<div class="vis">${decelChart(bins, strip)}<div class="side">real cube deceleration (g) by position, from camera tracks, 5 cm bins${strip ? `<br><span style="color:${strip.rough ? "#b3895b" : "#5b8fb3"}">■</span> beyond the change` : ""}<br><span style="color:#76b900">▬</span> target range</div></div>` };
+  }
+  function percStep(res) {
+    const pts = (res || []).filter((r) => r.true_m != null).sort((a, b) => a.true_m - b.true_m);
+    if (!pts.length) return { cap: "No perception data.", vis: "" };
+    const err = pts.map((p) => p.perceived_m - p.true_m), mx = Math.max(...err.map(Math.abs));
+    const near = err[0], far = err[err.length - 1];
+    const cap = mx < 0.003 ? `Camera reads true: perceived = actual within <b>${(mx * 1000).toFixed(0)} mm</b>. Perception is not the problem.`
+      : `Camera reads <b>${far < 0 ? "short" : "long"}</b>: ${cm(Math.abs(near))} cm at ${pts[0].true_m.toFixed(2)} m, <b>${cm(Math.abs(far))} cm</b> at ${pts[pts.length - 1].true_m.toFixed(2)} m${Math.abs(far) > 2 * Math.abs(near) + 0.003 ? ", growing with distance" : ""}.`;
+    const W = 300, H = 110, L = 30, R = 8, T = 8, Bm = 22, lo = 0.15, hi = 0.65;
+    const xs = (x) => L + ((x - lo) / (hi - lo)) * (W - L - R), ys = (v) => T + (1 - (v - lo) / (hi - lo)) * (H - T - Bm);
+    let g = [0.2, 0.4, 0.6].map((v) => `<line x1="${L}" x2="${W - R}" y1="${ys(v)}" y2="${ys(v)}" stroke="#222"/><text x="${L - 4}" y="${ys(v) + 4}" text-anchor="end">${v.toFixed(1)}</text><text x="${xs(v)}" y="${H - 4}" text-anchor="middle">${v.toFixed(1)}</text>`).join("");
+    g += `<line x1="${xs(lo)}" y1="${ys(lo)}" x2="${xs(hi)}" y2="${ys(hi)}" stroke="#666" stroke-dasharray="4 3"/>`;
+    g += pts.map((p) => `<line x1="${xs(p.true_m)}" x2="${xs(p.true_m)}" y1="${ys(p.true_m)}" y2="${ys(p.perceived_m)}" stroke="#e2574c" stroke-width="1.5"/>`).join("");
+    g += pts.map((p) => `<circle cx="${xs(p.true_m)}" cy="${ys(p.perceived_m)}" r="4" fill="#eee" stroke="#111" stroke-width="1.5"><title>true ${p.true_m.toFixed(3)} m → perceived ${p.perceived_m.toFixed(3)} m</title></circle>`).join("");
+    return { cap, vis: `<div class="vis"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Perceived vs true target position">${g}</svg><div class="side">perceived vs true target (m)<br>on the dashed line = perfect camera${mx >= 0.003 ? `<br><span style="color:#e2574c">|</span> perception error` : ""}</div></div>` };
+  }
+  function fitStep(s, prevSt) {
+    const r = s.result || {}, m = r.fitted_model || (s.args && s.args.model) || {};
+    const st = structOf(m, s.tool === "fit_hypothesis" ? (s.args && s.args.free) : null);
+    const ok = verdictOf(r), stop = r.stop_residual_rms_m, perc = r.perception_residual_rms_m || 0;
+    const pills = STRUCT.map(([k, n]) => `<span class="${st[k] ? "on" : ""} ${st[k] && prevSt && !prevSt[k] ? "new" : ""}">${st[k] ? "+ " : ""}${n}</span>`).join("");
+    const w = r.worst_stop_residuals_cmd_m && r.worst_stop_residuals_cmd_m[0];
+    const why = stop == null ? "" : stop > STOP_OK ? `Rejected: predicted stops miss by up to ${cm(Math.abs(w ? w[1] : stop))} cm${w ? ` (command ${w[0]})` : ""}.`
+      : perc > PERC_OK ? `Rejected: stops fit, but camera readings are off by ${cm(perc)} cm rms.` : `Accepted: every real stop within ${cm(Math.abs(w ? w[1] : stop))} cm${perc > 1e-4 ? `, camera within ${cm(perc)} cm` : ""}.`;
+    const pos = (x) => `${Math.min(100, Math.sqrt(Math.max(0, x) / 0.06) * 100)}%`;
+    const card = stop == null ? `<div class="fitcard"><div class="vals">${esc(JSON.stringify(r).slice(0, 200))}</div></div>`
+      : `<div class="fitcard ${ok ? "ok" : "bad"}"><div class="vals">${modelVals(st, m)}</div>
+        <div class="res"><span class="n">${cm(stop)}<small> cm</small></span><span class="vd">${ok ? "✓ accepted" : "✕ rejected"}</span></div>
+        <div class="rbar" title="stop residual (rms), square-root scale to 6 cm; tick = 1 cm"><span style="width:${pos(stop)};background:${ok ? "var(--green)" : "var(--bad)"}"></span><i style="left:${pos(STOP_OK)}"></i></div>
+        <div class="sub">${why}</div></div>`;
+    return { st, ok, stop, label: structLabel(st, m), html: `<div class="structs" style="margin-top:8px">${pills}</div>${card}` };
+  }
+  function notebook(run, diag, meas) {
+    const trace = diag.trace || [];
+    const sp = (meas && meas.sim_params) || {};
+    let prevSt = null, used = 0;
+    const fits = [];
+    const cover0 = meas ? Math.max(0, ...meas.real.trials.filter((t) => !t.tipped).map((t) => t.slide)) : 0;
+    const items = trace.map((s) => {
+      let verb = "", cap = "", body = "", kind = "look";
+      if (s.tool === "decel_profile") { const d = decelStep(s.result); verb = "Look · dynamics"; cap = d.cap; body = d.vis; }
+      else if (s.tool === "perception_check") { const d = percStep(s.result); verb = "Look · camera"; cap = d.cap; body = d.vis; }
+      else if (s.tool === "fit_hypothesis" || s.tool === "test_hypothesis") {
+        const f = fitStep(s, prevSt); prevSt = f.st; kind = "fit";
+        fits.push(f);
+        verb = `Hypothesis H${fits.length} · ${s.tool === "fit_hypothesis" ? "fit" : "test"}`;
+        cap = `<b>${esc(f.label)}</b>${s.tool === "fit_hypothesis" ? " · numbers fitted by least squares to every real push" : " · replayed against every real push"}`;
+        body = f.html;
+      } else if (s.tool === "probe_real") {
+        kind = "probe"; verb = "Experiment · real robot";
+        const r = s.result || {}, rs = r.results || [];
+        if (!rs.length) { cap = esc(r.error || "No probe run."); }
+        else {
+          used += rs.length;
+          const far = Math.max(0, ...rs.filter((x) => !x.tipped).map((x) => x.stop_m));
+          cap = `<b>Designs an experiment:</b> ${rs.length} real push${rs.length > 1 ? "es" : ""} aimed past the tracked range. Coverage <b>0–${cover0.toFixed(2)} m → 0–${Math.max(cover0, far).toFixed(2)} m</b>.`;
+          body = `<div class="probes">${rs.map((x) => `<span>cmd ${(+x.command).toFixed(1)} → ${x.tipped ? "tipped" : (+x.stop_m).toFixed(2) + " m"}</span>`).join("")}<span class="budget">${r.probe_budget_left} of ${r.probe_budget_left + used} probes left</span></div>`;
+        }
+      } else if (s.tool === "commit") {
+        kind = "commit"; verb = "Commit · new simulator";
+        const m = (s.args && s.args.model) || {};
+        const hasP = sp.patch_y0 != null && sp.patch_y0 < 0.999;
+        const old = { mu_eff: ((sp.object_mu ?? 0.8) + (sp.table_mu ?? 0.8)) / 2, actuator_gain: sp.actuator_gain ?? 1, patch_y0: hasP ? sp.patch_y0 : null,
+          patch_mu: hasP ? sp.patch_mu : null, camera_dx: sp.camera_dx ?? 0, camera_pitch_deg: sp.camera_pitch_deg ?? 0, lens_k: sp.lens_k ?? 0 };
+        const F = [["mu_eff", "friction μ", 2], ["actuator_gain", "actuator gain", 3], ["patch_y0", "strip from (m)", 2], ["patch_mu", "strip μ", 2], ["camera_dx", "camera dx (cm)", 2, 100], ["camera_pitch_deg", "camera pitch (°)", 1], ["lens_k", "lens k (1/m)", 2]];
+        const v = (x, d, sc) => (x == null ? "none" : (+x * (sc || 1)).toFixed(d));
+        const rows = F.filter(([k, , d, sc]) => v(old[k], d, sc) !== v(m[k], d, sc)).map(([k, n, d, sc]) => `${n.padEnd(17)} <span class="old">${v(old[k], d, sc)}</span> → <span class="new">${v(m[k], d, sc)}</span>`);
+        cap = `Retrain the policy in this simulator.`;
+        body = `${rows.length ? `<div class="diff">${rows.join("\n")}</div>` : ""}${s.args && s.args.explanation ? `<blockquote class="why">${esc(s.args.explanation)}</blockquote>` : ""}`;
+      } else { verb = "Note"; cap = `<span style="color:var(--muted)">${esc(s.text || JSON.stringify(s).slice(0, 200))}</span>`; }
+      return `<li class="k-${kind}"><div><div class="sh"><span class="verb">${verb}</span><span class="tool">${esc(s.tool)}()</span></div><div class="cap">${cap}</div>${body}</div></li>`;
+    }).join("");
+    const ladder = fits.length ? `<div class="ladder"><span class="label" style="margin-right:4px">Stop residual</span>${fits.map((f, i) => `${i ? `<span class="ar">→</span>` : ""}<span class="r ${f.ok ? "ok" : "bad"}" title="${esc(f.label)}">H${i + 1} ${f.stop != null ? cm(f.stop) + " cm" : "?"} ${f.ok ? "✓" : "✕"}</span>`).join("")}</div>` : "";
+    const n = meas ? meas.real.trials.length : 0, ok = meas ? meas.real.trials.filter((t) => t.success).length : 0, sok = meas ? meas.sim.trials.filter((t) => t.success).length : 0;
+    return `<div class="nb-head"><span class="q">${meas ? `Why did the sim-trained policy land <b style="color:var(--fg)">${ok}/${n}</b> real pushes when the sim predicted ${sok}/${n}? ` : ""}${trace.length} tool calls · ${used} real probe push${used === 1 ? "" : "es"}.</span>${ladder}</div>
+      <ol class="nb">${items}</ol>
+      <details class="raw"><summary class="label">Raw tool trace · JSON</summary><pre>${esc(JSON.stringify(trace, null, 1))}</pre></details>`;
+  }
+  function renderNotebook(run, shownEvents, it) {
+    const diags = shownEvents.filter((e) => e.type === "diagnose" && e.trace && e.trace.length);
+    const d = diags.filter((e) => e.iter <= it).pop() || diags[diags.length - 1];
+    const model = (d && d.model) || "Nemotron tool agent";
+    const short = /super/i.test(String(model)) ? "Nemotron 3 Super" : String(model).split("/").pop();
+    const meas = d ? shownEvents.find((e) => e.type === "measure" && e.iter === d.iter) : null;
+    return `<section class="pane" aria-label="Agent lab notebook"><header><span class="label">Agent lab notebook${d ? ` · it ${d.iter}` : ""}</span><span class="label">${esc(short)} · tool use</span></header>
+      ${d ? notebook(run, d, meas) : `<div class="nb-empty">The agent opens its notebook after the first real measurement: it inspects the evidence, proposes simulator structures, fits them, and runs experiments on the real robot when the data cannot decide.</div>`}</section>`;
+  }
+
+  // ---------- open-world Gap-Bench ----------
+  const GB_M = [["nominal", "Nominal sim", "#555555"], ["full_dr", "Domain rand.", "#808080"], ["rule", "Rule-based", "#d9a13b"], ["sysid", "System ID", "#cccccc"], ["agent", "Nemotron agent", "#76b900"]];
+  const TIER_TXT = { closed: ["Closed", "2 of the original 10 params"], open: ["Open", "strip or lens + 1 param"], compound: ["Compound", "strip + lens + 1 param"] };
+  function gbChart(sm, tiers) {
+    const narrow = matchMedia("(max-width: 720px)").matches, W = narrow ? 360 : 640, H = narrow ? 230 : 270, L = 40, R = 10, T = 16, Bm = narrow ? 26 : 40;
+    const gw = (W - L - R) / tiers.length, bw = Math.min(24, (gw - 28) / GB_M.length - 2);
+    const ys = (v) => T + (1 - v) * (H - T - Bm);
+    let g = [0, 0.25, 0.5, 0.75, 1].map((v) => `<line x1="${L}" x2="${W - R}" y1="${ys(v)}" y2="${ys(v)}" stroke="${v ? "#222" : "#555"}"/><text x="${L - 6}" y="${ys(v) + 4}" text-anchor="end">${pct(v)}</text>`).join("");
+    tiers.forEach((t, ti) => {
+      const x0 = L + ti * gw + (gw - bw * GB_M.length - 2 * (GB_M.length - 1)) / 2;
+      GB_M.forEach(([k, n, c], mi) => {
+        const s = sm[t][k]; if (!s) return;
+        const x = x0 + mi * (bw + 2), y = ys(s.mean), lo = ys(Math.max(0, s.mean - s.ci95)), hi = ys(Math.min(1, s.mean + s.ci95));
+        g += `<g><title>${n} · ${TIER_TXT[t] ? TIER_TXT[t][0] : t}: ${pct(s.mean)} ± ${pct(s.ci95)} (95% CI) · ${s.real_trials.toFixed(0)} real trials</title>
+          <rect x="${x}" y="${Math.min(y, ys(0) - 1)}" width="${bw}" height="${Math.max(1, ys(0) - y)}" fill="${c}"/>
+          ${s.ci95 > 1e-6 ? `<line x1="${x + bw / 2}" x2="${x + bw / 2}" y1="${lo}" y2="${hi}" stroke="#eee"/><line x1="${x + bw / 2 - 3}" x2="${x + bw / 2 + 3}" y1="${lo}" y2="${lo}" stroke="#eee"/><line x1="${x + bw / 2 - 3}" x2="${x + bw / 2 + 3}" y1="${hi}" y2="${hi}" stroke="#eee"/>` : ""}
+          ${k === "agent" || k === "rule" ? `<text x="${x + bw / 2}" y="${Math.min(hi, y) - 5}" text-anchor="middle" fill="#eee">${Math.round(s.mean * 100)}</text>` : ""}</g>`;
+      });
+      g += `<text x="${L + ti * gw + gw / 2}" y="${H - (narrow ? 8 : 20)}" text-anchor="middle" fill="#eee" style="font-size:12px">${TIER_TXT[t] ? TIER_TXT[t][0] : t}</text>${narrow ? "" : `<text x="${L + ti * gw + gw / 2}" y="${H - 6}" text-anchor="middle">${TIER_TXT[t] ? TIER_TXT[t][1] : ""}</text>`}`;
+    });
+    return `<div class="legend" style="margin-bottom:8px">${GB_M.map(([, n, c]) => `<span><i class="sw" style="background:${c}"></i>${n}</span>`).join("")}<span>whisker = 95% CI</span></div>
+      <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Mean real success per tier and method">${g}</svg>`;
+  }
+  function renderGapBench() {
+    const ob = B.open_benchmark, sm = ob.summary, tiers = Object.keys(sm);
+    const nT = (t) => ob.rows.filter((r) => r.tier === t).length;
+    const head = `<tr><th>Tier</th>${GB_M.map(([k, n]) => `<th class="${k === "agent" ? "agent" : ""}">${n}</th>`).join("")}</tr>`;
+    const rows = tiers.map((t) => {
+      const best = Math.max(...GB_M.map(([k]) => (sm[t][k] ? sm[t][k].mean : 0)));
+      return `<tr><td>${TIER_TXT[t] ? TIER_TXT[t][0] : t} <span class="ci">n=${nT(t)}</span></td>${GB_M.map(([k]) => { const s = sm[t][k]; return s ? `<td class="num ${k === "agent" ? "agent" : ""}"><b style="font-weight:500;color:${s.mean >= best - 1e-9 ? "var(--green)" : "var(--fg)"}">${pct(s.mean)}</b> <span class="ci">±${Math.round(s.ci95 * 100)}</span><br><span class="ci">${s.real_trials.toFixed(0)} trials</span></td>` : `<td>—</td>`; }).join("")}</tr>`;
+    }).join("");
+    const u = ob.usage || {}, cost = ((u.prompt_tokens || 0) * 0.3 + (u.completion_tokens || 0) * 0.9) / 1e6;
+    const nAgent = ob.rows.filter((r) => r.success && r.success.agent != null).length || 1;
+    return `<div class="scn"><div><span class="label">Gap-Bench · ${ob.rows.length} hidden worlds in ${tiers.length} tiers · mean real success ± 95% CI</span><h2>Rules break outside their map. Who closes the gap?</h2>
+        <p>Closed worlds change parameters the rule-based agent knows. Open worlds add a friction strip or lens distortion it has no parameter for; compound worlds add both. Every method trains the same inverse policy, so it is exactly as good as its simulator. Real trials = evaluations + probe pushes.</p></div></div>
+      <div class="gb"><section class="pane"><header><span class="label">Mean real success by tier</span></header><div class="body">${gbChart(sm, tiers)}</div></section>
+        <div><div class="tbl-wrap"><table><thead>${head}</thead><tbody>${rows}</tbody></table></div>
+          <div class="cost"><span>Nemotron 3 Super · Nebius Token Factory</span><span><b>${u.calls || 0}</b> calls</span><span><b>${((u.prompt_tokens || 0) / 1000).toFixed(0)}k</b> in / <b>${((u.completion_tokens || 0) / 1000).toFixed(1)}k</b> out tokens</span><span><b>$${cost.toFixed(3)}</b> total · $${(cost / nAgent).toFixed(4)} per world</span><span>at $0.30 / $0.90 per 1M</span></div>
+          <p class="honest"><b>Honest note:</b> the System-ID baseline uses the same least-squares fitter with a hand-ordered structure library and matches the agent here. The agent’s edge is that it decides which structures and which real experiments to try, and explains them.</p></div></div>`;
   }
 
   // ---------- scenario page ----------
@@ -783,7 +1135,23 @@ function boot(B, LIVE) {
     "sticky-table": "The real table grips harder than the sim surface, so every push falls short.",
     "tipping-edge": "The table grips so hard that many cubes tip over instead of sliding. Tipping is outside the agent’s sliding model; this run shows where the method stops working.",
     "weak-motor": "The arm delivers less speed than commanded. From end positions alone this looks exactly like extra friction; the tracked launch speed tells them apart.",
+    "wet-strip": "Beyond 0.35 m the real table is wet and friction halves. The rule book has no parameter for a region of the table, so rules can only average it away.",
+    "rough-strip": "The real table is slick near the robot and rough beyond 0.30 m: two frictions on one table, outside the rule book.",
+    "fisheye": "The real camera has lens distortion: far targets look much closer than they are. The rule book only knows a shifted or tilted camera.",
+    "three-faults": "A weak motor, a slippery strip from 0.40 m and a distorted lens at once. The strip starts beyond where the first pushes stop, so the agent must design an experiment to find it.",
   };
+  function openKpis(run, fullIts, partial, live) {
+    const bl = run.baselines || {}, P_ = (x) => (x == null ? "…" : pct(x));
+    const first = fullIts.length ? fullIts[0].measure.real.success_rate : null, last = fullIts.length ? fullIts[fullIts.length - 1].measure.real.success_rate : null;
+    const probes = run.events.filter((e) => e.type === "diagnose").reduce((n, e) => n + (e.trace || []).filter((s) => s.tool === "probe_real").reduce((m, s) => m + ((s.result && s.result.results) || []).length, 0), 0);
+    return `<div class="kpis">
+        <div class="kpi hero"><span class="label">Before → after · Nemotron agent</span><span class="v">${P_(first)} <small>→</small> ${P_(partial || live ? null : last)}</span><span class="d">real success: sim-trained policy → after the fix</span></div>
+        <div class="kpi"><span class="label">Rule-based agent</span><span class="v">${P_(bl.rule)}</span><span class="d">closed-world rules${bl.rule_trials ? ` · ${bl.rule_trials} real trials` : ""}</span></div>
+        <div class="kpi"><span class="label">System-ID baseline</span><span class="v">${P_(bl.sysid)}</span><span class="d">fixed structure library${bl.sysid_trials ? ` · ${bl.sysid_trials} trials` : ""}</span></div>
+        <div class="kpi"><span class="label">Domain randomization</span><span class="v">${P_(bl.full_dr)}</span><span class="d">all ${Object.keys(P).length} params, full range</span></div>
+        <div class="kpi"><span class="label">Real trials used</span><span class="v">${bl.real_trials ?? "…"}</span><span class="d">agent: evaluations + ${probes} probe push${probes === 1 ? "" : "es"}</span></div>
+      </div>`;
+  }
   function renderRun(run) {
     const shown = S.shown ?? run.events.length;
     const its = iterations(run, shown).filter((x) => x.measure);
@@ -797,16 +1165,16 @@ function boot(B, LIVE) {
     const bl = run.baselines || {};
     const P_ = (x) => (x == null ? "…" : pct(x));
     const hidden = Object.entries(run.truth).map(([k, v]) => `${k}`).join(", ");
-    return `<div class="scn"><div><span class="label">Scenario · hidden change in ${Object.keys(run.truth).length} parameters</span><h2>${esc(run.title)}</h2><p>${esc(BLURB[run.id] || (run.hidden ? "Custom world: " + Object.entries(run.hidden).map(([k, v]) => `${k} = ${fmt(k, v)}`).join(", ") + "." : ""))}</p>${run.error ? `<p class="bad-t">${esc(run.error)}</p>` : ""}</div>
+    return `<div class="scn"><div><span class="label">${run.open ? "Open-world scenario" : "Scenario"} · hidden change in ${Object.keys(run.truth).length} parameters</span><h2>${esc(run.title)}</h2><p>${esc(BLURB[run.id] || (run.hidden ? "Custom world: " + Object.entries(run.hidden).map(([k, v]) => `${k} = ${fmt(k, v)}`).join(", ") + "." : ""))}</p>${run.error ? `<p class="bad-t">${esc(run.error)}</p>` : ""}</div>
         <div class="controls">${live ? `<span class="chip"><i></i>agent running…</span>` : `<button class="btn primary" id="play">${S.timer ? "Pause" : "Replay run"}</button><button class="btn" id="end">Show result</button>`}</div></div>
-      <div class="kpis">
+      ${run.open ? openKpis(run, fullIts, partial, live) : `<div class="kpis">
         <div class="kpi"><span class="label">Before</span><span class="v">${P_(first)}</span><span class="d">real success, sim-trained policy</span></div>
         <div class="kpi hero"><span class="label">After GapCloser</span><span class="v">${P_(live || partial ? null : last)}</span><span class="d">${(live || partial) && shownLast != null ? `latest ${pct(shownLast)}, still working` : "measured in hidden physics"}</span></div>
         <div class="kpi"><span class="label">Agent loops</span><span class="v">${Math.max(0, (partial ? its : fullIts).length - 1)}<small> fixes</small></span><span class="d">${(partial ? its : fullIts).length} trainings${partial ? " so far" : " total"}</span></div>
         <div class="kpi"><span class="label">Outcome-only agent</span><span class="v">${P_(bl.outcome_only)}</span><span class="d">same loop, sees end positions only</span></div>
         <div class="kpi"><span class="label">Domain randomization</span><span class="v">${P_(bl.full_dr)}</span><span class="d">all 10 params, full range</span></div>
-      </div>
-      <div class="grid">${renderTimeline(run, shown)}${its.length ? renderEvidence(run, its, it) + renderRight(run, its, it) : `<section class="pane"><div class="body"><p class="note">Training the first policy in simulation, then measuring it in the hidden world…</p></div></section>`}</div>`;
+      </div>`}
+      ${run.open && its.length ? `<div class="grid-a">${renderNotebook(run, run.events.slice(0, shown), it)}${renderEvidence(run, its, it)}</div><div class="grid-b">${renderTimeline(run, shown)}${renderRight(run, its, it, true)}</div>` : `<div class="grid">${renderTimeline(run, shown)}${its.length ? renderEvidence(run, its, it) + renderRight(run, its, it) : `<section class="pane"><div class="body"><p class="note">Training the first policy in simulation, then measuring it in the hidden world…</p></div></section>`}</div>`}`;
   }
 
   // ---------- benchmark ----------
@@ -847,9 +1215,9 @@ function boot(B, LIVE) {
   function render() {
     renderTabs();
     S.v3 = null;
-    $("#main").innerHTML = S.tab === "bench" ? renderBench() : S.tab === "new" ? renderNew() : renderRun(B.runs[S.tab]);
+    $("#main").innerHTML = S.tab === "bench" ? renderBench() : S.tab === "gapbench" ? renderGapBench() : S.tab === "new" ? renderNew() : renderRun(B.runs[S.tab]);
     const slot = $("#v3slot");
-    if (slot && S.v3) window.GCViewer.get().mount(slot, S.v3.replay, S.v3.key, S.v3.meta);
+    if (slot && S.v3) window.GCViewer.get().mount(slot, S.v3.replay, S.v3.key, { ...S.v3.meta, reveal: S.reveal });
   }
 
   // ---------- live: new run ----------
@@ -905,7 +1273,7 @@ function boot(B, LIVE) {
     const t = e.target;
     if (t.closest("#play")) { if (S.timer) { stopReplay(); render(); } else startReplay(); return; }
     if (t.closest("#end")) { stopReplay(); S.shown = null; S.iter = null; render(); return; }
-    if (t.closest("#reveal")) { S.reveal = !S.reveal; render(); return; }
+    if (t.closest("#reveal") || t.closest("[data-reveal]")) { S.reveal = !S.reveal; render(); return; }
     if (t.closest("#go")) { startRun(); return; }
     if (t.closest("#reset")) { S.form = null; S.err = ""; render(); return; }
     if (t.closest("#rand")) {
@@ -917,16 +1285,19 @@ function boot(B, LIVE) {
     const ib = t.closest("[data-iter]");
     if (ib) { S.iter = +ib.dataset.iter; render(); }
   });
-  // deep link: #<run-id>[.s<steps shown>][.i<iteration>][.reveal]  e.g. #weak-motor.s3.i0.reveal
+  // deep link: #<run-id>[.s<steps shown>][.i<iteration>][.reveal][.split][.lane][.t<sec, e.g. t0_8>]  e.g. #weak-motor.s3.i0.reveal
   try {
     const [h, ...opts] = location.hash.slice(1).split(".");
     if (h === "new" && LIVE) S.tab = "new";
     else if (h === "benchmark") S.tab = "bench";
+    else if (h === "gap-bench") S.tab = "gapbench";
     else { const i = B.runs.findIndex((r) => r.id === h); if (i >= 0) S.tab = i; }
     opts.forEach((o) => {
       if (/^s\d+$/.test(o)) S.shown = +o.slice(1);
       else if (/^i\d+$/.test(o)) S.iter = +o.slice(1);
       else if (o === "reveal") S.reveal = true;
+      else if (/^t\d+(_\d+)?$/.test(o)) window.GC_V3_INIT = { ...(window.GC_V3_INIT || {}), t: +o.slice(1).replace("_", ".") };
+      else if (o === "split" || o === "lane") window.GC_V3_INIT = { ...(window.GC_V3_INIT || {}), [o === "split" ? "mode" : "view"]: o };
     });
   } catch (_) {}
   render();
