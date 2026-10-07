@@ -1,6 +1,6 @@
 # Status
 
-Last Updated: 2026-10-07
+Last Updated: 2026-10-08
 
 ## Current Baseline
 
@@ -8,8 +8,10 @@ Last Updated: 2026-10-07
 - Public repo: https://github.com/men16922/gapcloser
 - Open world: params `patch_y0`/`patch_mu` (friction strip, seam-free Newton kernel) and `lens_k`; `InverseTrainer` (policy inverts the sim); `agent/tool_agent.py` (Nemotron tool agent: decel_profile, perception_check, fit/test_hypothesis, probe_real, commit).
 - Gap-Bench Newton 15/tier (Super, $0.30): closed 100 all; open rule 83±9 / sysID 100 / agent 100; compound rule 54±15 / sysID 97±4 / agent 96±6. Agent ≈ sysID, both ≫ rule. (The 6/tier edge 99 vs 93 was noise.)
-- 3D viewer (three.js replay of Newton poses) in dashboard.
-- `make check` green: 50 tests (was 33 (incl. live server, Newton env, tipping, recorded real Nemotron response replay, vision-role request shape).
+- Dashboard v3 (artifact https://claude.ai/artifact/WVBNfVMAzeNg71kDSFqYAf): agent lab notebook, 3D viewer with friction strips, Gap-Bench panel, Cosmos eyes strip, live "Stump the agent" (`make serve`).
+- Cosmos Reason 2 8B local (llama.cpp, `agent/cosmos_eyes.py`): second opinion on tipping, 21/21 agree on demo clips; held-out tip recall ~50%.
+- Nemotron family (open+compound, 6 each): Super 100/99, Lightning 100/95, Ultra 100/83, Nano 97/53.
+- `make check` green: 67 tests (was 33 (incl. live server, Newton env, tipping, recorded real Nemotron response replay, vision-role request shape).
 - Agent: LLMDiagnoser (Nemotron) → fallback TrajectoryDiagnoser; HeuristicPlanner applies estimates. Tipped trials excluded from fits.
 - Benchmark (Newton, 10 worlds): full DR 18% / nominal 24% / outcome-only 89% / tracking 94%; Nemotron 30B 99% (run 1) / 93% (run 2), P 0.89/0.94, R 1.00.
 - Live server: `make serve` / Docker image (CPU) — verified with Token Factory in a container; deploy guide `docs/deploy/DEPLOY.md`.
@@ -25,6 +27,6 @@ Authority: `docs/NEXT_PLAN.md`.
 ## Open Risks
 
 - Honest caveat: passive sysID with the same fitter matches the agent on clean (analytic) data; no measurable edge on Newton either at n=15. The agent's value is matching sysID without a hand-ordered structure library, choosing probes, and explaining fixes.
-- Token Factory spend so far ≈ $1 of $25 (Super ≈ $0.0013 per diagnosis). Nano Omni not offered on Token Factory.
+- Token Factory spend so far ≈ $2 of $25 (Super ≈ $0.0013 per diagnosis). Nano Omni not offered on Token Factory.
 - Tipping regime (μ_eff ≳ 0.95): model-based diagnosis refuses to explain it; outcome-only fitting does better there.
 - Local 30B can run away without max_tokens (fixed: cap 2048, timeout 180 s).

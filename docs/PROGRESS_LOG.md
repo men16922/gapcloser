@@ -4,6 +4,12 @@ Last Updated: 2026-10-05
 
 This file maintains only recent incremental summaries (newest 3-5 items, ≤120 lines). Older entries are archived to `docs/archive/progress-YYYY-MM.md` via `/tidy-docs`.
 
+## 2026-10-08 — Dashboard v3, live Stump the agent, Cosmos eyes, README/Devpost rewrite
+- Status: Award-plan core done except video. Artifact republished (v3).
+- Changed: lab notebook + strip rendering + Gap-Bench panel (subagent); live server open-world path with streaming agent steps, presets, Surprise me (subagent); `agent/cosmos_eyes.py` + recorder `--eyes`, eyes strip (subagent); tipped flag uses peak tilt; README and DEVPOST rewritten with honest System-ID comparison; Nemotron family bench.
+- Verified: `make check` 67 passed; demo clips Cosmos vs physics 21/21; mobile 390 px no page overflow (CDP emulation).
+- Next: video v2, optional deploy.
+
 ## 2026-10-07 — Open world, Nemotron tool agent, Gap-Bench, 3D viewer
 - Status: Repo public (github.com/men16922/gapcloser). Award plan written; open-world faults break the rule-based agent and the Nemotron tool agent closes them in NVIDIA Newton.
 - Changed: open params (friction strip via seam-free Warp kernel, lens distortion), full tracks, `InverseTrainer`, `RealWorld.push` probes; `agent/tool_agent.py` + `LLM.chat` tool calling with record/replay; `eval/open_bench.py` (tiers, sysID baseline, CIs); recorder `--open-only`/`--attach-bench`; 4 open scenarios recorded on Token Factory; three.js 3D replay viewer (subagent, merged).

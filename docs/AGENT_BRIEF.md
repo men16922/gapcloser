@@ -1,8 +1,8 @@
 # Agent Brief
 
-Last Updated: 2026-10-07
+Last Updated: 2026-10-08
 
-> ▶ NEXT SESSION: `docs/plans/2026-10-07-award-plan.md` — integrate dashboard v3 (agent lab notebook) + Gap-Bench n=15 results, then S4 Cosmos eyes.
+> ▶ NEXT SESSION: video v2 storyboard around the Three faults notebook + 3D viewer + Gap-Bench (`docs/submission/VIDEO_STORYBOARD.md`, `make video`), then optional HF Space deploy.
 
 ## Snapshot
 
