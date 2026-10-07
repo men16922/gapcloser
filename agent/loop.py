@@ -258,8 +258,11 @@ def run_loop(
         sim_p = center(rand)
         real_ro = real.rollout(policy, targets)
         sim_ro = env.rollout(sim_p, policy, targets)
-        send({"type": "measure", "iter": it, "real": real_ro.to_json(), "sim": sim_ro.to_json(),
-              "sim_params": sim_p.values, "policy_c": policy.c})
+        ev = {"type": "measure", "iter": it, "real": real_ro.to_json(), "sim": sim_ro.to_json(),
+              "sim_params": sim_p.values, "policy_c": policy.c}
+        if hasattr(policy, "commands"):  # TablePolicy: the lookup itself, so recorders can replay exact commands
+            ev["policy_table"] = {"observed": list(policy.observed), "commands": [round(c, 5) for c in policy.commands]}
+        send(ev)
         if real_ro.success_rate >= goal or it == max_iter - 1:
             logs.append(IterationLog(it, real_ro.success_rate, sim_ro.success_rate, None, None))
             send({"type": "done", "iter": it, "final_success": real_ro.success_rate, "reached_goal": real_ro.success_rate >= goal})

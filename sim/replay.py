@@ -20,7 +20,9 @@ from pathlib import Path
 
 import numpy as np
 
-from sim.newton_push import ARM_BASE_Y, FPS, MAX_SECONDS, STRIKE_FRAME, SUBSTEPS, TIP_DEG, _arm_targets, _solve_arm, tilt_deg
+from sim.newton_push import (ARM_BASE_Y, FPS, MAX_SECONDS, STRIKE_FRAME, SUBSTEPS, TIP_DEG, _arm_targets, _patch_setup,
+                              _solve_arm, tilt_deg)
+from sim.push_task import frictions
 from sim.params import ParamSet
 
 SCHEMA = "gapcloser.replay/1"
@@ -59,7 +61,7 @@ def record_trial(params: ParamSet, command: float, target: float) -> dict:
     cfg = newton.ModelBuilder.ShapeConfig(mu=params["object_mu"], density=params["object_density"], restitution=params["restitution"])
     cube = b.add_body(xform=wp.transform(p=wp.vec3(0.0, 0.0, hs), q=wp.quat_identity()))
     b.add_shape_box(cube, hx=hs, hy=hs, hz=hs, cfg=cfg)
-    b.add_ground_plane(cfg=newton.ModelBuilder.ShapeConfig(mu=params["table_mu"]))
+    ground = b.add_ground_plane(cfg=newton.ModelBuilder.ShapeConfig(mu=params["table_mu"]))
     model = b.finalize()
     labels = list(getattr(arm_builder, "body_label", None) or arm_builder.body_key)
     arm_ids = np.arange(arm_start, arm_start + n_arm)
@@ -76,12 +78,15 @@ def record_trial(params: ParamSet, command: float, target: float) -> dict:
         q = state.body_q.numpy(); q[arm_ids] = arm_poses[f]; state.body_q.assign(q)
         qd = state.body_qd.numpy(); qd[arm_ids] = 0.0; state.body_qd.assign(qd)
 
+    patch = _patch_setup(model, params, [cube], ground)
     cube_frames, arm_frames = [], []
     for f in range(n_frames):
         if f == STRIKE_FRAME:
             qd = s0.body_qd.numpy(); qd[cube, :] = 0.0; qd[cube, 1] = command * params["actuator_gain"]; s0.body_qd.assign(qd)
         for _ in range(SUBSTEPS):
             set_arm(s0, f)
+            if patch is not None:
+                patch(s0)
             s0.clear_forces()
             pipeline.collide(s0, contacts)
             solver.step(s0, s1, control, contacts, dt)
@@ -101,12 +106,19 @@ def record_trial(params: ParamSet, command: float, target: float) -> dict:
         "command": round(float(command), 4),
         "launch_speed": round(float(command * params["actuator_gain"]), 4),
         "half_size": round(float(hs), 4),
+        "patch": _patch_info(params),
         "params": {k: round(float(params[k]), 4) for k in SHOWN_PARAMS},
         "slide": round(float(cube_q[-1, 1]), 4),
         "tipped": bool(tilt_deg(cube_q[-1:, 3:7])[0] > TIP_DEG),
         "cube": _r(cube_q),
         "arm": arm[:last].tolist(),
     }
+
+
+def _patch_info(params: ParamSet) -> dict | None:
+    """Table region with different friction in this world (drawn as a strip by the viewer), or None."""
+    mu1, mu2, y0 = frictions(params)
+    return None if mu2 is None else {"y0": round(float(y0), 4), "mu_near": round(mu1, 3), "mu_far": round(mu2, 3)}
 
 
 def record_pair(sim_params: ParamSet, sim_command: float, real_params: ParamSet, real_command: float,

@@ -21,7 +21,7 @@ from eval.compare import summarize
 from sim.newton_push import NewtonPushEnv, render_trial_arm as render_trial
 from sim.params import PARAM_SPACE, ParamSet, Randomization
 from sim.replay import record_pair, write_replay
-from sim.push_task import SUCCESS_TOL, AnalyticPushEnv, GridTrainer, eval_targets
+from sim.push_task import SUCCESS_TOL, AnalyticPushEnv, GridTrainer, InverseTrainer, eval_targets
 
 SCENARIOS = [
     {"id": "slippery-cube", "title": "Slippery cube", "hidden": {"object_mu": 0.25, "restitution": 0.15}},
@@ -30,11 +30,19 @@ SCENARIOS = [
     {"id": "weak-motor", "title": "Weak motor", "hidden": {"actuator_gain": 0.76, "restitution": 0.15}},
     {"id": "tipping-edge", "title": "Tipping edge", "hidden": {"table_mu": 1.18}},
 ]
+# open-world faults outside the rule-based diagnoser's map; trained with InverseTrainer, diagnosed by the tool agent
+OPEN_SCENARIOS = [
+    {"id": "wet-strip", "title": "Wet strip", "open": True, "hidden": {"patch_y0": 0.35, "patch_mu": 0.4}},
+    {"id": "rough-strip", "title": "Rough strip", "open": True, "hidden": {"table_mu": 0.5, "patch_y0": 0.3, "patch_mu": 0.9}},
+    {"id": "fisheye", "title": "Lens distortion", "open": True, "hidden": {"lens_k": 0.25, "light_intensity": 0.7}},
+    {"id": "three-faults", "title": "Three faults", "open": True,
+     "hidden": {"actuator_gain": 0.85, "patch_y0": 0.4, "patch_mu": 0.5, "lens_k": -0.15}},
+]
 CLIP_TARGET = 0.45
 
 
 def record_scenario(sc: dict, out: Path, targets: list[float], diagnoser=None, *, env=None, render: bool = True,
-                    on_event=None, max_iter: int = 5) -> dict:
+                    on_event=None, max_iter: int = 5, make_diagnoser=None) -> dict:
     """Run the agent on one hidden world, render clips, compute baselines.
 
     on_event(event) is called as each agent step happens (the live server streams these); events are
@@ -53,7 +61,7 @@ def record_scenario(sc: dict, out: Path, targets: list[float], diagnoser=None, *
         e = {"t": round(time.perf_counter() - t0, 3), **e}
         if e["type"] == "measure" and render:
             it = e["iter"]
-            cmd = _cmd(e["policy_c"], CLIP_TARGET, hidden)
+            cmd = _cmd(e, CLIP_TARGET, hidden)
             real_clip = f"clips/{sc['id']}-it{it}-real.webp"
             sim_clip = f"clips/{sc['id']}-it{it}-sim.webp"
             sim_p = ParamSet(e["sim_params"])
@@ -62,19 +70,35 @@ def record_scenario(sc: dict, out: Path, targets: list[float], diagnoser=None, *
                 "real": real_clip,
                 "real_slide": render_trial(hidden, cmd, CLIP_TARGET, out / real_clip),
                 "sim": sim_clip,
-                "sim_slide": render_trial(sim_p, _cmd(e["policy_c"], CLIP_TARGET, sim_p), CLIP_TARGET, out / sim_clip),
+                "sim_slide": render_trial(sim_p, _cmd(e, CLIP_TARGET, sim_p), CLIP_TARGET, out / sim_clip),
             }
-            e["clip"]["replay"] = save_replay(out, sc["id"], it, e["policy_c"], CLIP_TARGET, sim_p, hidden)
+            e["clip"]["replay"] = save_replay(out, sc["id"], it, e, CLIP_TARGET, sim_p, hidden)
         events.append(e)
         send(e)
 
-    res = run_loop(real, GridTrainer(AnalyticPushEnv()), diagnoser or TrajectoryDiagnoser(), HeuristicPlanner(), targets,
-                   sim_env=world_env, emit=emit, max_iter=max_iter)
-    outcome_only = run_loop(real, GridTrainer(AnalyticPushEnv()), HeuristicDiagnoser(), HeuristicPlanner(), targets,
-                            sim_env=world_env, max_iter=max_iter)
-    baselines = {"outcome_only": outcome_only.final_success}
-    for name, rand in (("full_dr", Randomization.full()), ("nominal", Randomization.none())):
-        baselines[name] = real.rollout(GridTrainer(AnalyticPushEnv()).train(rand), targets).success_rate
+    diag = make_diagnoser(real) if make_diagnoser else (diagnoser or TrajectoryDiagnoser())
+    if sc.get("open"):
+        from eval.open_bench import SysIdDiagnoser
+        from sim.params import CLOSED_PARAMS, OPEN_PARAMS
+
+        res = run_loop(real, InverseTrainer(), diag, HeuristicPlanner(half_width_frac=0.01), targets,
+                       sim_env=world_env, emit=emit, max_iter=max_iter)
+        baselines = {"real_trials": real.trials_used}
+        for name, d in (("rule", TrajectoryDiagnoser()), ("sysid", SysIdDiagnoser())):
+            r = RealWorld(world_env, hidden)
+            baselines[name] = run_loop(r, InverseTrainer(), d, HeuristicPlanner(half_width_frac=0.01), targets,
+                                       sim_env=world_env, max_iter=max_iter).final_success
+            baselines[name + "_trials"] = r.trials_used
+        for name, rand in (("full_dr", Randomization.full(CLOSED_PARAMS + OPEN_PARAMS)), ("nominal", Randomization.none())):
+            baselines[name] = real.rollout(InverseTrainer().train(rand), targets).success_rate
+    else:
+        res = run_loop(real, GridTrainer(AnalyticPushEnv()), diag, HeuristicPlanner(), targets,
+                       sim_env=world_env, emit=emit, max_iter=max_iter)
+        outcome_only = run_loop(real, GridTrainer(AnalyticPushEnv()), HeuristicDiagnoser(), HeuristicPlanner(), targets,
+                                sim_env=world_env, max_iter=max_iter)
+        baselines = {"outcome_only": outcome_only.final_success}
+        for name, rand in (("full_dr", Randomization.full()), ("nominal", Randomization.none())):
+            baselines[name] = real.rollout(GridTrainer(AnalyticPushEnv()).train(rand), targets).success_rate
     run = {**sc, "events": events, "final_success": res.final_success, "iterations": res.iterations,
            "baselines": baselines, "truth": truth}
     send({"type": "end", "t": round(time.perf_counter() - t0, 3), "run": {k: v for k, v in run.items() if k != "events"}})
@@ -92,17 +116,17 @@ def rerender_clips(out: Path) -> None:
             if not clip:
                 continue
             sim_p = ParamSet(e["sim_params"])
-            clip["real_slide"] = render_trial(hidden, _cmd(e["policy_c"], clip["target"], hidden), clip["target"], out / clip["real"])
-            clip["sim_slide"] = render_trial(sim_p, _cmd(e["policy_c"], clip["target"], sim_p), clip["target"], out / clip["sim"])
+            clip["real_slide"] = render_trial(hidden, _cmd(e, clip["target"], hidden), clip["target"], out / clip["real"])
+            clip["sim_slide"] = render_trial(sim_p, _cmd(e, clip["target"], sim_p), clip["target"], out / clip["sim"])
         print(f"re-rendered {run['id']}")
     bundle["stack"]["clips"] = "Franka FR3 (kinematic, IK) strikes; cube physics in NVIDIA Newton"
     path.write_text(json.dumps(bundle, indent=1))
 
 
-def save_replay(out: Path, run_id: str, it: int, policy_c: float, target: float, sim_p: ParamSet, hidden: ParamSet) -> str:
+def save_replay(out: Path, run_id: str, it: int, ev: dict, target: float, sim_p: ParamSet, hidden: ParamSet) -> str:
     """Per-frame Newton poses (cube + Franka links) for the dashboard's 3D viewer; returns the bundle-relative path."""
     rel = f"replay/{run_id}-it{it}.json"
-    data = record_pair(sim_p, _cmd(policy_c, target, sim_p), hidden, _cmd(policy_c, target, hidden), target, SUCCESS_TOL)
+    data = record_pair(sim_p, _cmd(ev, target, sim_p), hidden, _cmd(ev, target, hidden), target, SUCCESS_TOL)
     write_replay(data, out / rel)
     return rel
 
@@ -117,7 +141,7 @@ def rerender_replays(out: Path) -> None:
             clip = e.get("clip")
             if not clip:
                 continue
-            clip["replay"] = save_replay(out, run["id"], e["iter"], e["policy_c"], clip["target"], ParamSet(e["sim_params"]), hidden)
+            clip["replay"] = save_replay(out, run["id"], e["iter"], e, clip["target"], ParamSet(e["sim_params"]), hidden)
             rp = json.loads((out / clip["replay"]).read_text())["trials"]
             drift = max(abs(rp["real"]["slide"] - clip["real_slide"]), abs(rp["sim"]["slide"] - clip["sim_slide"]))
             print(f"  {clip['replay']}  real {rp['real']['slide']:.3f} m  sim {rp['sim']['slide']:.3f} m  (clip drift {drift * 1000:.2f} mm)")
@@ -142,10 +166,13 @@ def extract_frames(clip: Path, out_dir: Path, n: int = 3) -> list[Path]:
     return paths
 
 
-def _cmd(c: float, target: float, p: ParamSet) -> float:
-    from sim.push_task import Policy, observe
+def _cmd(ev: dict, target: float, p: ParamSet) -> float:
+    """Command the policy of a measure event issues for `target` in world p (TablePolicy when recorded)."""
+    from sim.push_task import Policy, TablePolicy, observe
 
-    return Policy(c).command(observe(target, p))
+    tab = ev.get("policy_table")
+    pol = TablePolicy(tuple(tab["observed"]), tuple(tab["commands"])) if tab else Policy(ev["policy_c"])
+    return pol.command(observe(target, p))
 
 
 def main() -> None:
@@ -158,7 +185,17 @@ def main() -> None:
     ap.add_argument("--clips-only", action="store_true", help="re-render every clip of the existing bundle (no LLM, no reruns)")
     ap.add_argument("--replays-only", action="store_true", help="record 3D-viewer replays for the existing bundle (no LLM, no reruns)")
     ap.add_argument("--only", nargs="+", default=None, help="re-record only these scenario ids, keep the rest and the benchmark")
+    ap.add_argument("--open-only", action="store_true",
+                    help="record the open-world scenarios (tool agent with --llm) into the existing bundle, keep the rest")
+    ap.add_argument("--attach-bench", type=Path, default=None, help="embed a Gap-Bench JSON (eval.open_bench --out) in the bundle")
     a = ap.parse_args()
+    if a.attach_bench and not a.open_only:
+        path = a.out / "bundle.json"
+        bundle = json.loads(path.read_text())
+        bundle["open_benchmark"] = json.loads(a.attach_bench.read_text())
+        path.write_text(json.dumps(bundle, indent=1))
+        print(f"attached {a.attach_bench} to {path}")
+        return
     if a.clips_only:
         rerender_clips(a.out)
         rerender_replays(a.out)
@@ -177,6 +214,34 @@ def main() -> None:
     a.out.mkdir(parents=True, exist_ok=True)
     targets = eval_targets(20, 1000)
     runs = []
+    if a.open_only:
+        from agent.tool_agent import ToolAgentDiagnoser
+
+        path = a.out / "bundle.json"
+        bundle = json.loads(path.read_text())
+        todo = [sc for sc in OPEN_SCENARIOS if not a.only or sc["id"] in a.only]
+        for sc in todo:
+            t = time.perf_counter()
+            mk = (lambda real: ToolAgentDiagnoser(llm, real)) if llm is not None else None
+            r = record_scenario(sc, a.out, targets, make_diagnoser=mk, max_iter=4)
+            b = r["baselines"]
+            print(f"{sc['id']:15s} final {r['final_success']:.0%} in {r['iterations']} iters, {b['real_trials']} real trials "
+                  f"(rule {b['rule']:.0%}, sysid {b['sysid']:.0%}, full_dr {b['full_dr']:.0%}, nominal {b['nominal']:.0%})  "
+                  f"{time.perf_counter() - t:.1f}s")
+            runs.append(r)
+        fresh = {r["id"]: r for r in runs}
+        kept = [fresh.pop(r["id"], r) for r in bundle["runs"]]
+        bundle["runs"] = kept + list(fresh.values())
+        bundle["params"] = {k: {"nominal": p.nominal, "low": p.low, "high": p.high, "unit": p.unit, "kind": p.kind, "hint": p.hint}
+                            for k, p in PARAM_SPACE.items()}
+        if llm is not None:
+            bundle["stack"]["open_agent"] = f"Nemotron tool agent ({llm.model_for('diagnose')}) via {a.llm}"
+            bundle["stack"]["llm_usage_open"] = vars(llm.usage)
+        if a.attach_bench:
+            bundle["open_benchmark"] = json.loads(a.attach_bench.read_text())
+        path.write_text(json.dumps(bundle, indent=1))
+        print(f"updated {path} ({', '.join(r['id'] for r in runs)})")
+        return
     old = json.loads((a.out / "bundle.json").read_text()) if (a.bench_only or a.only) else None
     todo = [] if a.bench_only else [sc for sc in SCENARIOS if not a.only or sc["id"] in a.only]
     for sc in todo:
