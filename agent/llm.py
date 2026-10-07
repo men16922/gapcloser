@@ -56,6 +56,23 @@ class LLMResponse:
     completion_tokens: int = 0
 
 
+@dataclass
+class ChatTurn:
+    """One assistant turn of a tool-calling conversation. tool_calls: [{"id", "name", "arguments"(JSON str)}]."""
+
+    content: str
+    tool_calls: list[dict]
+    model: str
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+
+    def message(self) -> dict:
+        """The assistant message to append to the conversation."""
+        return {"role": "assistant", "content": self.content or "",
+                "tool_calls": [{"id": c["id"], "type": "function", "function": {"name": c["name"], "arguments": c["arguments"]}}
+                               for c in self.tool_calls]}
+
+
 class LLM(Protocol):
     def complete(self, role: str, messages: list[dict], schema: dict | None = None) -> LLMResponse: ...
 
@@ -67,7 +84,7 @@ class Usage:
     completion_tokens: int = 0
     by_model: dict[str, int] = field(default_factory=dict)
 
-    def add(self, r: LLMResponse) -> None:
+    def add(self, r: LLMResponse | ChatTurn) -> None:
         self.calls += 1
         self.prompt_tokens += r.prompt_tokens
         self.completion_tokens += r.completion_tokens
@@ -133,6 +150,22 @@ class OpenAICompatLLM:
         return resp
 
 
+    def chat(self, role: str, messages: list[dict], tools: list[dict], tool_choice: str | None = None) -> ChatTurn:
+        """Tool-calling turn. tool_choice: None (model decides) or the name of a tool it must call."""
+        kwargs = {}
+        if tool_choice:
+            kwargs["tool_choice"] = {"type": "function", "function": {"name": tool_choice}}
+        model = self.model_for(role)
+        r = self.client.chat.completions.create(model=model, messages=messages, tools=tools, temperature=self.temperature,
+                                                max_tokens=self.max_tokens, **kwargs)
+        m, u = r.choices[0].message, r.usage
+        turn = ChatTurn(m.content or "", [{"id": c.id, "name": c.function.name, "arguments": c.function.arguments or "{}"}
+                                          for c in (m.tool_calls or [])], model,
+                        getattr(u, "prompt_tokens", 0) or 0, getattr(u, "completion_tokens", 0) or 0)
+        self.usage.add(turn)
+        return turn
+
+
 TokenFactoryLLM = OpenAICompatLLM.tokenfactory
 
 
@@ -166,6 +199,15 @@ class RecordedLLM:
         self.usage.add(resp)
         return resp
 
+    def chat(self, role: str, messages: list[dict], tools: list[dict], tool_choice: str | None = None) -> ChatTurn:
+        self.calls.append((role, messages))
+        q = self._queues.get("chat:" + role)
+        if not q:
+            raise RuntimeError(f"RecordedLLM: no recorded chat turn left for role '{role}'")
+        turn = ChatTurn(**q.pop(0))
+        self.usage.add(turn)
+        return turn
+
 
 class RecordingLLM:
     """Wraps a live LLM and appends every response to a fixture file usable by RecordedLLM."""
@@ -177,10 +219,18 @@ class RecordingLLM:
 
     def complete(self, role: str, messages: list[dict], schema: dict | None = None) -> LLMResponse:
         r = self.inner.complete(role, messages, schema)
-        self.data.setdefault(role, []).append(asdict(r))
+        self._save(role, r)
+        return r
+
+    def chat(self, role: str, messages: list[dict], tools: list[dict], tool_choice: str | None = None) -> ChatTurn:
+        t = self.inner.chat(role, messages, tools, tool_choice)
+        self._save("chat:" + role, t)
+        return t
+
+    def _save(self, key: str, r) -> None:
+        self.data.setdefault(key, []).append(asdict(r))
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.path.write_text(json.dumps(self.data, indent=1))
-        return r
 
 
 def main() -> None:

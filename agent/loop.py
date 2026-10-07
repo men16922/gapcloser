@@ -51,6 +51,7 @@ class Diagnosis:
     suspects: list[Suspect] = field(default_factory=list)
     reasoning: str = ""  # natural-language rationale (LLM diagnosers)
     model: str = ""  # model id that produced it, empty for rule-based
+    trace: list = field(default_factory=list)  # tool calls of agentic diagnosers (tool, args, result)
 
 
 class Diagnoser(Protocol):
