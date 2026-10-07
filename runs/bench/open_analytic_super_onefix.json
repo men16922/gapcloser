@@ -1,0 +1,970 @@
+{
+ "rows": [
+  {
+   "tier": "compound",
+   "world": 0,
+   "hidden": {
+    "object_density": 899.0885830767115,
+    "patch_y0": 0.261,
+    "patch_mu": 0.38,
+    "lens_k": 0.264
+   },
+   "success": {
+    "nominal": 0.0,
+    "full_dr": 0.25,
+    "rule": 0.3,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 40,
+    "agent": 40
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "compound",
+   "world": 1,
+   "hidden": {
+    "camera_dz": 0.02759742958411038,
+    "patch_y0": 0.268,
+    "patch_mu": 0.429,
+    "lens_k": -0.132
+   },
+   "success": {
+    "nominal": 0.25,
+    "full_dr": 0.3,
+    "rule": 0.4,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 40,
+    "agent": 40
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "compound",
+   "world": 2,
+   "hidden": {
+    "object_mu": 0.43131156320715197,
+    "patch_y0": 0.465,
+    "patch_mu": 0.25,
+    "lens_k": 0.198
+   },
+   "success": {
+    "nominal": 0.0,
+    "full_dr": 0.0,
+    "rule": 0.5,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 40,
+    "agent": 40
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "compound",
+   "world": 3,
+   "hidden": {
+    "table_mu": 1.1650071443214005,
+    "patch_y0": 0.258,
+    "patch_mu": 0.68,
+    "lens_k": -0.158
+   },
+   "success": {
+    "nominal": 0.0,
+    "full_dr": 0.0,
+    "rule": 0.45,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 40,
+    "agent": 43
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "compound",
+   "world": 4,
+   "hidden": {
+    "table_mu": 1.1744726779779,
+    "patch_y0": 0.33,
+    "patch_mu": 0.688,
+    "lens_k": 0.275
+   },
+   "success": {
+    "nominal": 0.35,
+    "full_dr": 0.0,
+    "rule": 0.3,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 40,
+    "agent": 40
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "compound",
+   "world": 5,
+   "hidden": {
+    "object_half_size": 0.01910791166056719,
+    "patch_y0": 0.497,
+    "patch_mu": 0.413,
+    "lens_k": -0.199
+   },
+   "success": {
+    "nominal": 0.4,
+    "full_dr": 0.0,
+    "rule": 1.0,
+    "sysid": 0.85,
+    "agent": 0.85
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 40,
+    "agent": 40
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "compound",
+   "world": 6,
+   "hidden": {
+    "camera_dx": 0.021449242642706735,
+    "patch_y0": 0.457,
+    "patch_mu": 0.527,
+    "lens_k": 0.261
+   },
+   "success": {
+    "nominal": 0.0,
+    "full_dr": 0.7,
+    "rule": 0.5,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 40,
+    "agent": 40
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "compound",
+   "world": 7,
+   "hidden": {
+    "object_density": 300.7630973007337,
+    "patch_y0": 0.438,
+    "patch_mu": 0.95,
+    "lens_k": -0.2
+   },
+   "success": {
+    "nominal": 0.4,
+    "full_dr": 0.0,
+    "rule": 0.7,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 40,
+    "agent": 43
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "compound",
+   "world": 8,
+   "hidden": {
+    "camera_dx": 0.02137102800247777,
+    "patch_y0": 0.414,
+    "patch_mu": 0.95,
+    "lens_k": -0.151
+   },
+   "success": {
+    "nominal": 0.7,
+    "full_dr": 0.1,
+    "rule": 1.0,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 40,
+    "agent": 42
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "compound",
+   "world": 9,
+   "hidden": {
+    "camera_dz": -0.01766251970042549,
+    "patch_y0": 0.267,
+    "patch_mu": 0.452,
+    "lens_k": 0.222
+   },
+   "success": {
+    "nominal": 0.1,
+    "full_dr": 0.3,
+    "rule": 0.35,
+    "sysid": 1.0,
+    "agent": 0.65
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 40,
+    "agent": 40
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "compound",
+   "world": 10,
+   "hidden": {
+    "light_intensity": 0.64196697645634,
+    "patch_y0": 0.281,
+    "patch_mu": 0.373,
+    "lens_k": 0.208
+   },
+   "success": {
+    "nominal": 0.15,
+    "full_dr": 0.3,
+    "rule": 0.35,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 40,
+    "agent": 40
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "compound",
+   "world": 11,
+   "hidden": {
+    "restitution": 0.308409217820223,
+    "patch_y0": 0.31,
+    "patch_mu": 0.95,
+    "lens_k": -0.153
+   },
+   "success": {
+    "nominal": 0.4,
+    "full_dr": 0.0,
+    "rule": 0.5,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 40,
+    "agent": 43
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "compound",
+   "world": 12,
+   "hidden": {
+    "actuator_gain": 1.2794546452104476,
+    "patch_y0": 0.354,
+    "patch_mu": 0.95,
+    "lens_k": -0.268
+   },
+   "success": {
+    "nominal": 0.0,
+    "full_dr": 0.0,
+    "rule": 0.6,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 40,
+    "agent": 40
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "compound",
+   "world": 13,
+   "hidden": {
+    "object_half_size": 0.03315774022208409,
+    "patch_y0": 0.498,
+    "patch_mu": 0.95,
+    "lens_k": -0.135
+   },
+   "success": {
+    "nominal": 0.55,
+    "full_dr": 0.0,
+    "rule": 1.0,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 40,
+    "agent": 40
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "compound",
+   "world": 14,
+   "hidden": {
+    "actuator_gain": 0.741416703874078,
+    "patch_y0": 0.342,
+    "patch_mu": 0.95,
+    "lens_k": 0.199
+   },
+   "success": {
+    "nominal": 0.0,
+    "full_dr": 0.0,
+    "rule": 1.0,
+    "sysid": 0.85,
+    "agent": 0.85
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 40,
+    "agent": 44
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "open",
+   "world": 0,
+   "hidden": {
+    "object_density": 923.1316371371511,
+    "patch_y0": 0.435,
+    "patch_mu": 0.423
+   },
+   "success": {
+    "nominal": 0.55,
+    "full_dr": 0.05,
+    "rule": 0.55,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 40,
+    "agent": 40
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "open",
+   "world": 1,
+   "hidden": {
+    "camera_pitch_deg": 3.0896365727018393,
+    "lens_k": -0.281
+   },
+   "success": {
+    "nominal": 0.5,
+    "full_dr": 0.0,
+    "rule": 1.0,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 40,
+    "agent": 46
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "open",
+   "world": 2,
+   "hidden": {
+    "object_mu": 1.1058364278095274,
+    "lens_k": 0.149
+   },
+   "success": {
+    "nominal": 0.0,
+    "full_dr": 0.0,
+    "rule": 1.0,
+    "sysid": 1.0,
+    "agent": 0.85
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 40,
+    "agent": 43
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "open",
+   "world": 3,
+   "hidden": {
+    "table_mu": 0.3477623140034424,
+    "lens_k": 0.286
+   },
+   "success": {
+    "nominal": 0.0,
+    "full_dr": 0.0,
+    "rule": 0.55,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 40,
+    "agent": 40
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "open",
+   "world": 4,
+   "hidden": {
+    "object_half_size": 0.019679959144243215,
+    "patch_y0": 0.458,
+    "patch_mu": 0.513
+   },
+   "success": {
+    "nominal": 0.7,
+    "full_dr": 0.0,
+    "rule": 0.7,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 40,
+    "agent": 40
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "open",
+   "world": 5,
+   "hidden": {
+    "table_mu": 0.9732083875273968,
+    "lens_k": 0.263
+   },
+   "success": {
+    "nominal": 1.0,
+    "full_dr": 0.0,
+    "rule": 1.0,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 20,
+    "sysid": 20,
+    "agent": 20
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 1,
+    "sysid": 1,
+    "agent": 1
+   }
+  },
+  {
+   "tier": "open",
+   "world": 6,
+   "hidden": {
+    "actuator_gain": 1.260305069973822,
+    "patch_y0": 0.338,
+    "patch_mu": 0.95
+   },
+   "success": {
+    "nominal": 0.0,
+    "full_dr": 0.0,
+    "rule": 1.0,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 40,
+    "agent": 40
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "open",
+   "world": 7,
+   "hidden": {
+    "camera_dz": -0.024379184368995842,
+    "patch_y0": 0.499,
+    "patch_mu": 0.373
+   },
+   "success": {
+    "nominal": 0.8,
+    "full_dr": 0.0,
+    "rule": 0.8,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 40,
+    "agent": 40
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "open",
+   "world": 8,
+   "hidden": {
+    "camera_dx": -0.015392963894441499,
+    "patch_y0": 0.446,
+    "patch_mu": 0.95
+   },
+   "success": {
+    "nominal": 0.85,
+    "full_dr": 0.0,
+    "rule": 1.0,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 40,
+    "agent": 43
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "open",
+   "world": 9,
+   "hidden": {
+    "object_mu": 0.9765517904477309,
+    "patch_y0": 0.345,
+    "patch_mu": 0.95
+   },
+   "success": {
+    "nominal": 0.25,
+    "full_dr": 0.0,
+    "rule": 1.0,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 40,
+    "agent": 43
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "open",
+   "world": 10,
+   "hidden": {
+    "camera_pitch_deg": -4.433079592857423,
+    "patch_y0": 0.393,
+    "patch_mu": 0.95
+   },
+   "success": {
+    "nominal": 0.4,
+    "full_dr": 0.0,
+    "rule": 0.95,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 40,
+    "agent": 46
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "open",
+   "world": 11,
+   "hidden": {
+    "light_intensity": 0.46502140657880764,
+    "patch_y0": 0.492,
+    "patch_mu": 0.364
+   },
+   "success": {
+    "nominal": 0.75,
+    "full_dr": 0.0,
+    "rule": 0.75,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 40,
+    "agent": 40
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "open",
+   "world": 12,
+   "hidden": {
+    "object_mu": 0.26165464635304725,
+    "patch_y0": 0.443,
+    "patch_mu": 0.25
+   },
+   "success": {
+    "nominal": 0.0,
+    "full_dr": 0.0,
+    "rule": 0.55,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 40,
+    "agent": 40
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "open",
+   "world": 13,
+   "hidden": {
+    "object_mu": 0.2732389823507473,
+    "patch_y0": 0.45,
+    "patch_mu": 0.25
+   },
+   "success": {
+    "nominal": 0.0,
+    "full_dr": 0.0,
+    "rule": 0.55,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 40,
+    "agent": 40
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "open",
+   "world": 14,
+   "hidden": {
+    "camera_pitch_deg": 3.2645221044829964,
+    "lens_k": 0.242
+   },
+   "success": {
+    "nominal": 0.0,
+    "full_dr": 0.9,
+    "rule": 0.55,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 40,
+    "agent": 40
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 2,
+    "agent": 2
+   }
+  }
+ ],
+ "summary": {
+  "compound": {
+   "nominal": {
+    "mean": 0.22,
+    "ci95": 0.11822058478398195,
+    "real_trials": 20.0
+   },
+   "full_dr": {
+    "mean": 0.13,
+    "ci95": 0.10291666531713899,
+    "real_trials": 20.0
+   },
+   "rule": {
+    "mean": 0.5966666666666666,
+    "ci95": 0.13841682620901902,
+    "real_trials": 40.0
+   },
+   "sysid": {
+    "mean": 0.98,
+    "ci95": 0.026710297639674477,
+    "real_trials": 40.0
+   },
+   "agent": {
+    "mean": 0.9566666666666667,
+    "ci95": 0.05048634578884781,
+    "real_trials": 41.0
+   }
+  },
+  "open": {
+   "nominal": {
+    "mean": 0.38666666666666666,
+    "ci95": 0.18874113960071814,
+    "real_trials": 20.0
+   },
+   "full_dr": {
+    "mean": 0.06333333333333334,
+    "ci95": 0.11731446818037597,
+    "real_trials": 20.0
+   },
+   "rule": {
+    "mean": 0.7966666666666666,
+    "ci95": 0.10365464024559846,
+    "real_trials": 38.666666666666664
+   },
+   "sysid": {
+    "mean": 1.0,
+    "ci95": 0.0,
+    "real_trials": 38.666666666666664
+   },
+   "agent": {
+    "mean": 0.99,
+    "ci95": 0.0196,
+    "real_trials": 40.06666666666667
+   }
+  }
+ }
+}

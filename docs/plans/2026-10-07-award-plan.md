@@ -57,3 +57,9 @@ Out of scope: GR00T, Isaac Lab, Cosmos Transfer (GPU cost) → roadmap only.
 - ~17k in + 2k out tokens per world with Super ≈ $0.007.
 - Dropped faults: deadzone (rule-fit + inverse policy already reaches 100%), saturation (unfixable by sim).
 - Honest caveat: exhaustive model-library fitting (S3) can likely match on these; compare real trials, sim calls, explanation.
+
+## Decision after Gap-Bench (2026-10-07 evening)
+
+- Newton n=15/tier: compound rule 54% / sysID 97% / agent 96%; analytic one-fix budget: sysID 98% / agent 96%. Active probing gives no edge here because iteration-0 data already covers the target range.
+- Do not engineer worlds to make the LLM beat sysID. Claim: the Nemotron agent reaches hand-built system-ID accuracy on its own (no hand-ordered structure library or thresholds), designs probes, explains every fix, ~$0.02/world; rule-based tuning stays at 54–83%.
+- Spend remaining effort on: dashboard v3 notebook, Cosmos eyes (S4), live "stump the agent" demo (B3), video.
