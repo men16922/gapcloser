@@ -2,7 +2,8 @@
 
 Every success rate here is measured by rolling out in NVIDIA Newton (sim and hidden "real").
 Policy search uses the analytic surrogate (matches Newton within ~5 mm, see tests).
-Run: .venv/bin/python -m eval.record_demo   ->  runs/demo/bundle.json + clips/*.webp
+Run: .venv/bin/python -m eval.record_demo   ->  runs/demo/bundle.json + clips/*.webp + replay/*.json
+     .venv/bin/python -m eval.record_demo --replays-only   (3D viewer replays for the existing bundle, no LLM)
 """
 
 from __future__ import annotations
@@ -19,6 +20,7 @@ from eval.compare import run as compare_run
 from eval.compare import summarize
 from sim.newton_push import NewtonPushEnv, render_trial_arm as render_trial
 from sim.params import PARAM_SPACE, ParamSet, Randomization
+from sim.replay import record_pair, write_replay
 from sim.push_task import SUCCESS_TOL, AnalyticPushEnv, GridTrainer, eval_targets
 
 SCENARIOS = [
@@ -62,6 +64,7 @@ def record_scenario(sc: dict, out: Path, targets: list[float], diagnoser=None, *
                 "sim": sim_clip,
                 "sim_slide": render_trial(sim_p, _cmd(e["policy_c"], CLIP_TARGET, sim_p), CLIP_TARGET, out / sim_clip),
             }
+            e["clip"]["replay"] = save_replay(out, sc["id"], it, e["policy_c"], CLIP_TARGET, sim_p, hidden)
         events.append(e)
         send(e)
 
@@ -96,6 +99,32 @@ def rerender_clips(out: Path) -> None:
     path.write_text(json.dumps(bundle, indent=1))
 
 
+def save_replay(out: Path, run_id: str, it: int, policy_c: float, target: float, sim_p: ParamSet, hidden: ParamSet) -> str:
+    """Per-frame Newton poses (cube + Franka links) for the dashboard's 3D viewer; returns the bundle-relative path."""
+    rel = f"replay/{run_id}-it{it}.json"
+    data = record_pair(sim_p, _cmd(policy_c, target, sim_p), hidden, _cmd(policy_c, target, hidden), target, SUCCESS_TOL)
+    write_replay(data, out / rel)
+    return rel
+
+
+def rerender_replays(out: Path) -> None:
+    """Record 3D-viewer replays for every clip of an existing bundle (deterministic, no LLM, no reruns)."""
+    path = out / "bundle.json"
+    bundle = json.loads(path.read_text())
+    for run in bundle["runs"]:
+        hidden = ParamSet.nominal().with_(**run["hidden"])
+        for e in run["events"]:
+            clip = e.get("clip")
+            if not clip:
+                continue
+            clip["replay"] = save_replay(out, run["id"], e["iter"], e["policy_c"], clip["target"], ParamSet(e["sim_params"]), hidden)
+            rp = json.loads((out / clip["replay"]).read_text())["trials"]
+            drift = max(abs(rp["real"]["slide"] - clip["real_slide"]), abs(rp["sim"]["slide"] - clip["sim_slide"]))
+            print(f"  {clip['replay']}  real {rp['real']['slide']:.3f} m  sim {rp['sim']['slide']:.3f} m  (clip drift {drift * 1000:.2f} mm)")
+        print(f"replays {run['id']}")
+    path.write_text(json.dumps(bundle, indent=1))
+
+
 def extract_frames(clip: Path, out_dir: Path, n: int = 3) -> list[Path]:
     """First, middle and last frame of an animated clip as PNGs (input for a multimodal diagnoser)."""
     from PIL import Image
@@ -127,10 +156,15 @@ def main() -> None:
     ap.add_argument("--model", default=None, help="model hint override for the diagnose role")
     ap.add_argument("--bench-only", action="store_true", help="keep recorded scenarios, recompute only the benchmark")
     ap.add_argument("--clips-only", action="store_true", help="re-render every clip of the existing bundle (no LLM, no reruns)")
+    ap.add_argument("--replays-only", action="store_true", help="record 3D-viewer replays for the existing bundle (no LLM, no reruns)")
     ap.add_argument("--only", nargs="+", default=None, help="re-record only these scenario ids, keep the rest and the benchmark")
     a = ap.parse_args()
     if a.clips_only:
         rerender_clips(a.out)
+        rerender_replays(a.out)
+        return
+    if a.replays_only:
+        rerender_replays(a.out)
         return
     llm = None
     if a.llm != "none":

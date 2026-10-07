@@ -893,7 +893,8 @@
       "real": "clips/slippery-cube-it0-real.webp",
       "real_slide": 0.6809159517288208,
       "sim": "clips/slippery-cube-it0-sim.webp",
-      "sim_slide": 0.44530802965164185
+      "sim_slide": 0.44530802965164185,
+      "replay": "replay/slippery-cube-it0.json"
      }
     },
     {
@@ -1698,7 +1699,8 @@
       "real": "clips/slippery-cube-it1-real.webp",
       "real_slide": 0.44765332341194153,
       "sim": "clips/slippery-cube-it1-sim.webp",
-      "sim_slide": 0.44765332341194153
+      "sim_slide": 0.44765332341194153,
+      "replay": "replay/slippery-cube-it1.json"
      }
     },
     {
@@ -2495,7 +2497,8 @@
       "real": "clips/camera-offset-it0-real.webp",
       "real_slide": 0.4174642562866211,
       "sim": "clips/camera-offset-it0-sim.webp",
-      "sim_slide": 0.44530802965164185
+      "sim_slide": 0.44530802965164185,
+      "replay": "replay/camera-offset-it0.json"
      }
     },
     {
@@ -3290,7 +3293,8 @@
       "real": "clips/camera-offset-it1-real.webp",
       "real_slide": 0.44328010082244873,
       "sim": "clips/camera-offset-it1-sim.webp",
-      "sim_slide": 0.4438069462776184
+      "sim_slide": 0.4438069462776184,
+      "replay": "replay/camera-offset-it1.json"
      }
     },
     {
@@ -4087,7 +4091,8 @@
       "real": "clips/sticky-table-it0-real.webp",
       "real_slide": 0.3844935894012451,
       "sim": "clips/sticky-table-it0-sim.webp",
-      "sim_slide": 0.44530802965164185
+      "sim_slide": 0.44530802965164185,
+      "replay": "replay/sticky-table-it0.json"
      }
     },
     {
@@ -4892,7 +4897,8 @@
       "real": "clips/sticky-table-it1-real.webp",
       "real_slide": 0.4467635154724121,
       "sim": "clips/sticky-table-it1-sim.webp",
-      "sim_slide": 0.44676369428634644
+      "sim_slide": 0.44676369428634644,
+      "replay": "replay/sticky-table-it1.json"
      }
     },
     {
@@ -5689,7 +5695,8 @@
       "real": "clips/weak-motor-it0-real.webp",
       "real_slide": 0.2563968002796173,
       "sim": "clips/weak-motor-it0-sim.webp",
-      "sim_slide": 0.44530802965164185
+      "sim_slide": 0.44530802965164185,
+      "replay": "replay/weak-motor-it0.json"
      }
     },
     {
@@ -6484,7 +6491,8 @@
       "real": "clips/weak-motor-it1-real.webp",
       "real_slide": 0.4490620493888855,
       "sim": "clips/weak-motor-it1-sim.webp",
-      "sim_slide": 0.4466886520385742
+      "sim_slide": 0.4466886520385742,
+      "replay": "replay/weak-motor-it1.json"
      }
     },
     {
@@ -7280,7 +7288,8 @@
       "real": "clips/tipping-edge-it0-real.webp",
       "real_slide": 0.4052048623561859,
       "sim": "clips/tipping-edge-it0-sim.webp",
-      "sim_slide": 0.44530802965164185
+      "sim_slide": 0.44530802965164185,
+      "replay": "replay/tipping-edge-it0.json"
      }
     },
     {
@@ -8095,7 +8104,8 @@
       "real": "clips/tipping-edge-it1-real.webp",
       "real_slide": 0.45975738763809204,
       "sim": "clips/tipping-edge-it1-sim.webp",
-      "sim_slide": 0.4507405757904053
+      "sim_slide": 0.4507405757904053,
+      "replay": "replay/tipping-edge-it1.json"
      }
     },
     {
@@ -8900,7 +8910,8 @@
       "real": "clips/tipping-edge-it2-real.webp",
       "real_slide": 0.4375438988208771,
       "sim": "clips/tipping-edge-it2-sim.webp",
-      "sim_slide": 0.4476434886455536
+      "sim_slide": 0.4476434886455536,
+      "replay": "replay/tipping-edge-it2.json"
      }
     },
     {
@@ -9705,7 +9716,8 @@
       "real": "clips/tipping-edge-it3-real.webp",
       "real_slide": 0.5153163075447083,
       "sim": "clips/tipping-edge-it3-sim.webp",
-      "sim_slide": 0.4510016143321991
+      "sim_slide": 0.4510016143321991,
+      "replay": "replay/tipping-edge-it3.json"
      }
     },
     {
@@ -10510,7 +10522,8 @@
       "real": "clips/tipping-edge-it4-real.webp",
       "real_slide": 0.4426133632659912,
       "sim": "clips/tipping-edge-it4-sim.webp",
-      "sim_slide": 0.4501776397228241
+      "sim_slide": 0.4501776397228241,
+      "replay": "replay/tipping-edge-it4.json"
      }
     },
     {

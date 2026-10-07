@@ -1,6 +1,6 @@
 # GapCloser — Sim2Real self-closing agent (Nebius x NVIDIA hackathon)
 # Gate must stay OFFLINE + DETERMINISTIC: no GPU, no network, no Nebius/Token Factory calls.
-.PHONY: check test lint smoke-local demo dashboard serve docker site video
+.PHONY: check test lint smoke-local demo dashboard replays franka-mesh serve docker site video
 
 PY := $(shell [ -x .venv/bin/python ] && echo .venv/bin/python || echo python3)
 
@@ -24,6 +24,15 @@ demo:
 
 dashboard:
 	$(PY) -m dashboard.build
+
+# 3D viewer data for the recorded bundle (Newton on CPU, no LLM, no network), then rebuild the dashboard
+replays:
+	$(PY) -m eval.record_demo --replays-only
+	$(PY) -m dashboard.build
+
+# regenerate dashboard/assets/franka_fr3.json from the Newton Franka asset (decimated visual meshes)
+franka-mesh:
+	$(PY) -m dashboard.franka_mesh
 
 # live server on http://localhost:8000 (GAPCLOSER_LLM=local|tokenfactory|none)
 serve: dashboard

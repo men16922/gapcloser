@@ -1,6 +1,7 @@
-"""Build a self-contained dashboard: inline runs/demo/bundle.json and its clips as data URIs.
+"""Build a self-contained dashboard: inline runs/demo/bundle.json, its clips (data URIs) and 3D replays.
 
-Run: .venv/bin/python -m dashboard.build  ->  dashboard/dist/gapcloser.html (open directly in a browser)
+The 3D viewer's three.js build (vendored, MIT) and the decimated Franka FR3 meshes are inlined too, so the
+standalone page works offline. Run: .venv/bin/python -m dashboard.build  ->  dashboard/dist/gapcloser.html
 """
 
 from __future__ import annotations
@@ -11,6 +12,28 @@ import json
 from pathlib import Path
 
 HERE = Path(__file__).parent
+ASSETS = HERE / "assets"
+THREE = ASSETS / "three.min.js"
+FRANKA = ASSETS / "franka_fr3.json"
+HEAD = ('<!doctype html><html lang="en"><head><meta charset="utf-8">'
+        '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">'
+        '</head><body style="margin:0">')
+
+
+def _script_safe(s: str) -> str:
+    return s.replace("</", "<\\/")
+
+
+def _template(bundle_json: str) -> str:
+    """template.html with the bundle, three.js and the Franka meshes substituted."""
+    tpl = (HERE / "template.html").read_text()
+    three = THREE.read_text() if THREE.exists() else ""
+    if three.startswith("console.warn("):  # silence the UMD-deprecation banner, keep the expression valid
+        three = "void(" + three[len("console.warn("):]
+    franka = FRANKA.read_text() if FRANKA.exists() else "null"
+    tpl = tpl.replace("/*__THREE__*/", _script_safe(three), 1)
+    tpl = tpl.replace('"__FRANKA__"', _script_safe(franka), 1)
+    return tpl.replace('"__BUNDLE__"', bundle_json, 1)
 
 
 def build(bundle_path: Path, out: Path) -> Path:
@@ -24,25 +47,23 @@ def build(bundle_path: Path, out: Path) -> Path:
             for k in ("real", "sim"):
                 data = (base / clip[k]).read_bytes()
                 clip[k] = "data:image/webp;base64," + base64.b64encode(data).decode()
-    tpl = (HERE / "template.html").read_text()
-    payload = json.dumps(bundle, separators=(",", ":")).replace("</", "<\\/")
-    html = tpl.replace('"__BUNDLE__"', payload, 1)
+            rp = clip.get("replay")
+            if isinstance(rp, str):
+                path = base / rp
+                clip["replay"] = json.loads(path.read_text()) if path.exists() else None
+    payload = _script_safe(json.dumps(bundle, separators=(",", ":")))
+    html = _template(payload)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(html)  # fragment: the Artifact publisher adds the document skeleton
     standalone = out.with_name(out.stem + ".standalone.html")
-    standalone.write_text('<!doctype html><html lang="en"><head><meta charset="utf-8">'
-                          '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">'
-                          '</head><body style="margin:0">' + html + "</body></html>")
+    standalone.write_text(HEAD + html + "</body></html>")
     return out
 
 
 def build_live(out: Path) -> Path:
     """Server variant: no embedded data; the page loads /api/bundle and /api/status at runtime."""
-    tpl = (HERE / "template.html").read_text().replace('"__BUNDLE__"', "null", 1)
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text('<!doctype html><html lang="en"><head><meta charset="utf-8">'
-                   '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">'
-                   '</head><body style="margin:0">' + tpl + "</body></html>")
+    out.write_text(HEAD + _template("null") + "</body></html>")
     return out
 
 

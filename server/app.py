@@ -6,6 +6,7 @@
   POST /api/runs               {"hidden": {param: value}, "title": str?} -> {"id": ...}
   GET  /api/runs/{id}/events   Server-Sent Events: start, train, measure, diagnose, plan, done, end
   GET  /clips/... , /live/...  rendered clips
+  GET  /replay/...             3D viewer replays (per-frame Newton poses)
 
 Cost guards (public demo, Token Factory credits are finite): one run at a time, per-IP hourly limit,
 a global cap on LLM calls (then the rule-based diagnoser takes over), bounded parameters, max 4 iterations.
@@ -150,8 +151,9 @@ def create_app(llm=None, env_name: str | None = None, render: bool | None = None
 
             def on_event(e: dict) -> None:
                 if e.get("clip"):
-                    for k in ("real", "sim"):
-                        e["clip"][k] = f"live/{run.id}/{e['clip'][k]}"
+                    for k in ("real", "sim", "replay"):
+                        if e["clip"].get(k):
+                            e["clip"][k] = f"live/{run.id}/{e['clip'][k]}"
                 run.push(e)
 
             sc = {"id": run.id, "title": run.title, "hidden": run.hidden}
@@ -266,6 +268,8 @@ def create_app(llm=None, env_name: str | None = None, render: bool | None = None
 
     if (demo / "clips").exists():
         app.mount("/clips", StaticFiles(directory=demo / "clips"), name="clips")
+    if (demo / "replay").exists():  # per-frame Newton poses for the 3D viewer
+        app.mount("/replay", StaticFiles(directory=demo / "replay"), name="replay")
     app.mount("/live", StaticFiles(directory=live), name="live")
     return app
 
