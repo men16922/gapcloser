@@ -34,7 +34,7 @@ SCENARIOS = [
 OPEN_SCENARIOS = [
     {"id": "wet-strip", "title": "Wet strip", "open": True, "hidden": {"patch_y0": 0.35, "patch_mu": 0.4}},
     {"id": "rough-strip", "title": "Rough strip", "open": True, "hidden": {"table_mu": 0.5, "patch_y0": 0.3, "patch_mu": 0.9}},
-    {"id": "fisheye", "title": "Lens distortion", "open": True, "hidden": {"lens_k": 0.25, "light_intensity": 0.7}},
+    {"id": "fisheye", "title": "Lens distortion", "open": True, "hidden": {"lens_k": -0.3, "light_intensity": 0.7}},
     {"id": "three-faults", "title": "Three faults", "open": True,
      "hidden": {"actuator_gain": 0.85, "patch_y0": 0.4, "patch_mu": 0.5, "lens_k": -0.15}},
 ]
