@@ -85,3 +85,43 @@ def test_tipped_trials_do_not_drive_friction_changes():
     for d in (HeuristicDiagnoser(), TrajectoryDiagnoser()):
         names = [s.name for s in d.diagnose(real, sim, ParamSet.nominal()).suspects]
         assert "object_mu" not in names and "table_mu" not in names
+
+
+def test_observe_and_launch_command_have_exact_inverses_in_open_worlds():
+    from sim.push_task import launch_command, observe, slide_distance, unobserve
+
+    p = ParamSet.nominal().with_(patch_y0=0.35, patch_mu=0.3, lens_k=0.2, camera_pitch_deg=2.0, camera_dx=0.01)
+    for t in (0.2, 0.34, 0.36, 0.6):
+        assert abs(unobserve(observe(t, p), p) - t) < 1e-9
+        assert abs(slide_distance(launch_command(t, p), p) - t) < 1e-9
+
+
+def test_analytic_track_follows_patch_deceleration():
+    p = ParamSet.nominal().with_(patch_y0=0.3, patch_mu=0.2)
+    from sim.push_task import launch_command, slide_distance
+
+    c = launch_command(0.6, p)
+    tr = analytic_track(c, p)
+    assert abs(tr[-1] - slide_distance(c, p)) < 1e-9
+    assert all(b >= a for a, b in zip(tr, tr[1:]))
+
+
+def test_inverse_trainer_matches_the_world_it_is_trained_on():
+    from sim.push_task import InverseTrainer
+
+    env = AnalyticPushEnv()
+    for p in (ParamSet.nominal(), ParamSet.nominal().with_(patch_y0=0.35, patch_mu=0.3, lens_k=0.25, actuator_gain=0.85)):
+        fixed = Randomization({k: (v, v) for k, v in p.values.items()})
+        assert env.rollout(p, InverseTrainer().train(fixed), TARGETS).success_rate == 1.0
+    # a policy trained on the nominal sim fails in the patch world: the gap is real
+    patch = ParamSet.nominal().with_(patch_y0=0.35, patch_mu=0.3)
+    assert env.rollout(patch, InverseTrainer().train(Randomization.none()), TARGETS).success_rate < 0.7
+
+
+def test_real_world_counts_probe_and_rollout_trials():
+    from sim.push_task import InverseTrainer
+
+    real = RealWorld(AnalyticPushEnv(), ParamSet.nominal())
+    real.rollout(InverseTrainer().train(Randomization.none()), TARGETS)
+    ro = real.push([1.0, 2.0])
+    assert real.trials_used == len(TARGETS) + 2 and len(ro.trials) == 2

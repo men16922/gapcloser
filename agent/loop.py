@@ -15,7 +15,7 @@ from typing import Callable, Protocol
 
 from sim.params import PARAM_SPACE, ConfigDiff, ParamSet, Randomization, effective_friction
 from sim.params import GRAVITY
-from sim.push_task import FRAME_DT, SUCCESS_TOL, AnalyticPushEnv, GridTrainer, Policy, Rollout
+from sim.push_task import FRAME_DT, SUCCESS_TOL, TRACK_FRAMES, AnalyticPushEnv, GridTrainer, Policy, Rollout
 
 
 class RealWorld:
@@ -23,9 +23,16 @@ class RealWorld:
 
     def __init__(self, env: AnalyticPushEnv, hidden: ParamSet):
         self._env, self._hidden = env, hidden
+        self.trials_used = 0  # every real push counts: policy evaluations and probe experiments
 
     def rollout(self, policy: Policy, targets: list[float]) -> Rollout:
+        self.trials_used += len(targets)
         return self._env.rollout(self._hidden, policy, targets)
+
+    def push(self, commands: list[float]) -> Rollout:
+        """Probe experiment: raw pushes with chosen commands (no target)."""
+        self.trials_used += len(commands)
+        return self._env.push(self._hidden, commands)
 
 
 @dataclass
@@ -107,7 +114,8 @@ def _paired_sliding(real: Rollout, sim: Rollout) -> tuple[Rollout, Rollout]:
 
 
 def fit_launch(track: list[float], dt: float = FRAME_DT) -> tuple[float, float] | None:
-    """Least-squares fit of y = v0*t - a*t^2/2 over the frames where the cube is still moving."""
+    """Least-squares fit of y = v0*t - a*t^2/2 over the first frames (launch phase) while the cube moves."""
+    track = track[:TRACK_FRAMES + 1]
     pts = [(k * dt, y) for k, y in enumerate(track) if k == 0 or y - track[k - 1] > 1e-4]
     if len(pts) < 3:
         return None

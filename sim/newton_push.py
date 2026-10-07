@@ -14,11 +14,51 @@ from pathlib import Path
 import numpy as np
 
 from sim.params import ParamSet
-from sim.push_task import TRACK_FRAMES, Policy, Rollout, Trial, observe
+from sim.push_task import FULL_TRACK_FRAMES, PATCH_OFF, Policy, Rollout, Trial, observe
 
 FPS, SUBSTEPS = 30, 10
 MAX_SECONDS = 2.5
 W, H = 480, 270
+
+
+_patch_kernel = None
+
+
+def _patch_mu_kernel():
+    """Friction patch without geometry seams: XPBD averages the two shapes' mu, so once a cube is past
+    patch_y0 its own mu is set to object_mu + patch_mu - table_mu (effective = (object_mu + patch_mu)/2)."""
+    global _patch_kernel
+    if _patch_kernel is None:
+        import warp as wp
+
+        @wp.kernel
+        def k(body_q: wp.array(dtype=wp.transform), bodies: wp.array(dtype=int), shapes: wp.array(dtype=int),
+              y0: float, mu_near: float, mu_far: float, shape_mu: wp.array(dtype=float)):
+            i = wp.tid()
+            y = wp.transform_get_translation(body_q[bodies[i]])[1]
+            shape_mu[shapes[i]] = wp.where(y >= y0, mu_far, mu_near)
+
+        _patch_kernel = k
+    return _patch_kernel
+
+
+def _patch_setup(model, params: ParamSet, bodies: list[int]):
+    """Returns a callable(state) that updates cube friction for the patch, or None when there is no patch."""
+    if params["patch_y0"] >= PATCH_OFF:
+        return None
+    import warp as wp
+
+    shape_body = model.shape_body.numpy()
+    shapes = [int(np.flatnonzero(shape_body == b)[0]) for b in bodies]
+    b_arr, s_arr = wp.array(bodies, dtype=int), wp.array(shapes, dtype=int)
+    mu_far = max(0.0, params["object_mu"] + params["patch_mu"] - params["table_mu"])
+    kern = _patch_mu_kernel()
+
+    def update(state):
+        wp.launch(kern, dim=len(bodies), inputs=[state.body_q, b_arr, s_arr, float(params["patch_y0"]),
+                                                  float(params["object_mu"]), float(mu_far), model.shape_material_mu])
+
+    return update
 
 
 def _build(params: ParamSet, commands: list[float], targets: list[float]):
@@ -53,7 +93,7 @@ def _build(params: ParamSet, commands: list[float], targets: list[float]):
     return model, state, cubes, ground
 
 
-def _simulate(model, state, frame_cb=None):
+def _simulate(model, state, frame_cb=None, patch=None):
     import newton
 
     solver = newton.solvers.SolverXPBD(model, iterations=10)
@@ -63,6 +103,8 @@ def _simulate(model, state, frame_cb=None):
     dt = 1.0 / FPS / SUBSTEPS
     for f in range(int(MAX_SECONDS * FPS)):
         for _ in range(SUBSTEPS):
+            if patch is not None:
+                patch(s0)
             s0.clear_forces()
             pipeline.collide(s0, contacts)
             solver.step(s0, s1, control, contacts, dt)
@@ -78,19 +120,28 @@ class NewtonPushEnv:
     def rollout(self, params: ParamSet, policy: Policy, targets: list[float]) -> Rollout:
         observed = [observe(d, params) for d in targets]
         commands = [policy.command(o) for o in observed]
-        model, state, cubes, _ = _build(params, commands, targets)
+        return self._run(params, commands, targets, observed)
+
+    def push(self, params: ParamSet, commands: list[float]) -> Rollout:
+        """Raw pushes with chosen commands (probe experiments); target/observed are NaN."""
+        nan = [float("nan")] * len(commands)
+        return self._run(params, list(commands), nan, nan)
+
+    def _run(self, params, commands, targets, observed) -> Rollout:
+        model, state, cubes, _ = _build(params, commands, [0.0 if t != t else t for t in targets])
         tracks = [state.body_q.numpy()[cubes, 1].copy()]
 
-        def track(s):
-            if len(tracks) <= TRACK_FRAMES:
-                tracks.append(s.body_q.numpy()[cubes, 1].copy())
+        def track(s):  # camera tracking of the whole slide (30 fps)
+            tracks.append(s.body_q.numpy()[cubes, 1].copy())
 
-        final = _simulate(model, state, track)
+        final = _simulate(model, state, track, _patch_setup(model, params, cubes))
         q = final.body_q.numpy()[cubes]
         ys = q[:, 1]
         tilt = tilt_deg(q[:, 3:7])
+        tracks = tracks[:FULL_TRACK_FRAMES + 1]
+        tracks += [tracks[-1]] * (FULL_TRACK_FRAMES + 1 - len(tracks))  # at rest after the sim stops early
         tr = np.asarray(tracks)  # (frames, worlds)
-        return Rollout([Trial(d, o, c, float(y), [float(v) for v in tr[:, i]], bool(tilt[i] > TIP_DEG))
+        return Rollout([Trial(d, o, c, float(y), [round(float(v), 5) for v in tr[:, i]], bool(tilt[i] > TIP_DEG))
                         for i, (d, o, c, y) in enumerate(zip(targets, observed, commands, ys))])
 
 
@@ -149,7 +200,7 @@ def render_trial(params: ParamSet, command: float, target: float, out_path: Path
         frames.append(Image.fromarray(np.clip(rgb * exposure, 0, 255).astype(np.uint8)))
 
     grab(state)
-    final = _simulate(model, state, grab)
+    final = _simulate(model, state, grab, _patch_setup(model, params, cubes))
     for _ in range(FPS // 2):  # hold the last frame so the outcome is readable
         frames.append(frames[-1])
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -271,11 +322,14 @@ def render_trial_arm(params: ParamSet, command: float, target: float, out_path: 
         q = state.body_q.numpy(); q[arm_ids] = arm_poses[f]; state.body_q.assign(q)
         qd = state.body_qd.numpy(); qd[arm_ids] = 0.0; state.body_qd.assign(qd)
 
+    patch = _patch_setup(model, params, [cube])
     for f in range(n_frames):
         if f == STRIKE_FRAME:
             qd = s0.body_qd.numpy(); qd[cube, :] = 0.0; qd[cube, 1] = command * params["actuator_gain"]; s0.body_qd.assign(qd)
         for _ in range(SUBSTEPS):
             set_arm(s0, f)
+            if patch is not None:
+                patch(s0)
             s0.clear_forces()
             pipeline.collide(s0, contacts)
             solver.step(s0, s1, control, contacts, dt)

@@ -36,8 +36,15 @@ PARAM_SPACE: dict[str, PhysParam] = {
         PhysParam("camera_dz", 0.0, -0.03, 0.03, "m", "perception", "approach too high/low"),
         PhysParam("camera_pitch_deg", 0.0, -5.0, 5.0, "deg", "perception", "distance misjudged, depth error grows with range"),
         PhysParam("light_intensity", 1.0, 0.4, 1.6, "x", "perception", "object darker/brighter than in sim"),
+        # open-world faults: outside the rule-based diagnoser's map (nominal values switch them off)
+        PhysParam("patch_y0", 1.0, 0.15, 1.0, "m", "dynamics", "table region beyond this distance has different friction"),
+        PhysParam("patch_mu", 0.8, 0.2, 1.2, "-", "dynamics", "friction of the table region beyond patch_y0"),
+        PhysParam("lens_k", 0.0, -0.3, 0.3, "1/m", "perception", "distance error grows with the square of range (lens distortion)"),
     ]
 }
+
+OPEN_PARAMS = ("patch_y0", "patch_mu", "lens_k")
+CLOSED_PARAMS = tuple(k for k in PARAM_SPACE if k not in OPEN_PARAMS)
 
 
 def effective_friction(object_mu: float, table_mu: float) -> float:
@@ -54,6 +61,8 @@ class ParamSet:
         return cls({k: p.nominal for k, p in PARAM_SPACE.items()})
 
     def __getitem__(self, name: str) -> float:
+        if name not in self.values and name in PARAM_SPACE:  # older configs predate the open-world params
+            return PARAM_SPACE[name].nominal
         return self.values[name]
 
     def with_(self, **changes: float) -> ParamSet:
@@ -66,17 +75,18 @@ class ParamSet:
         """Params whose values differ: name -> (self, other)."""
         out = {}
         for k in PARAM_SPACE:
-            a, b = self.values[k], other.values[k]
+            a, b = self[k], other[k]
             if abs(a - b) > rel_tol * max(1.0, abs(a), abs(b)):
                 out[k] = (a, b)
         return out
 
 
-def sample_hidden(rng: random.Random, n_perturbed: int, min_shift: float = 0.3) -> ParamSet:
-    """Hidden "real" world: nominal with n params moved by >= min_shift of their half-range."""
-    if not 0 < n_perturbed <= len(PARAM_SPACE):
+def sample_hidden(rng: random.Random, n_perturbed: int, min_shift: float = 0.3,
+                  names: tuple[str, ...] = CLOSED_PARAMS) -> ParamSet:
+    """Hidden "real" world: nominal with n params (from `names`) moved by >= min_shift of their half-range."""
+    if not 0 < n_perturbed <= len(names):
         raise ValueError("n_perturbed out of range")
-    chosen = rng.sample(sorted(PARAM_SPACE), n_perturbed)
+    chosen = rng.sample(sorted(names), n_perturbed)
     changes = {}
     for name in chosen:
         p = PARAM_SPACE[name]
@@ -99,12 +109,13 @@ class Randomization:
         return cls({k: (p.nominal, p.nominal) for k, p in PARAM_SPACE.items()})
 
     @classmethod
-    def full(cls) -> Randomization:
-        """Baseline A: randomize every parameter over its whole plausible range."""
-        return cls({k: (p.low, p.high) for k, p in PARAM_SPACE.items()})
+    def full(cls, names: tuple[str, ...] = CLOSED_PARAMS) -> Randomization:
+        """Baseline A: randomize every parameter in `names` over its whole plausible range (others nominal)."""
+        return cls({k: ((p.low, p.high) if k in names else (p.nominal, p.nominal)) for k, p in PARAM_SPACE.items()})
 
     def sample(self, rng: random.Random) -> ParamSet:
-        return ParamSet({k: rng.uniform(lo, hi) for k, (lo, hi) in self.ranges.items()})
+        # fixed open-world params draw nothing, so the closed-world random stream (and results) stay unchanged
+        return ParamSet({k: (rng.uniform(lo, hi) if hi > lo or k not in OPEN_PARAMS else lo) for k, (lo, hi) in self.ranges.items()})
 
     def apply(self, diff: ConfigDiff) -> Randomization:
         new = dict(self.ranges)
