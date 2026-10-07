@@ -63,3 +63,14 @@ Out of scope: GR00T, Isaac Lab, Cosmos Transfer (GPU cost) → roadmap only.
 - Newton n=15/tier: compound rule 54% / sysID 97% / agent 96%; analytic one-fix budget: sysID 98% / agent 96%. Active probing gives no edge here because iteration-0 data already covers the target range.
 - Do not engineer worlds to make the LLM beat sysID. Claim: the Nemotron agent reaches hand-built system-ID accuracy on its own (no hand-ordered structure library or thresholds), designs probes, explains every fix, ~$0.02/world; rule-based tuning stays at 54–83%.
 - Spend remaining effort on: dashboard v3 notebook, Cosmos eyes (S4), live "stump the agent" demo (B3), video.
+
+## Nemotron family on Gap-Bench (Newton, open + compound, 6 worlds each, agent only)
+
+| model | open | compound | tokens in/out | cost |
+|---|---|---|---|---|
+| Nemotron 3 Super 120B | 100% | 99% ±2 | (from 18-world run) | ~$0.07 for these 12 |
+| Nemotron 3.5 Lightning | 100% | 95% ±6 | 548k / 17k | ~$0.04 |
+| Nemotron 3 Ultra 550B | 100% | 83% ±21 | 363k / 52k | ~$0.52 |
+| Nemotron 3 Nano 30B | 97% ±7 | 53% ±32 | 737k / 417k | ~$0.14 |
+
+Bigger is not better here; Super stays the default, Lightning is the cost-efficient option. n=6, treat as indicative.

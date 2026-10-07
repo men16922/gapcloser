@@ -1,0 +1,338 @@
+{
+ "rows": [
+  {
+   "tier": "open",
+   "world": 0,
+   "hidden": {
+    "object_density": 923.1316371371511,
+    "patch_y0": 0.435,
+    "patch_mu": 0.423
+   },
+   "success": {
+    "nominal": 0.55,
+    "full_dr": 0.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "agent": 40
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "open",
+   "world": 1,
+   "hidden": {
+    "camera_pitch_deg": 3.0896365727018393,
+    "lens_k": -0.281
+   },
+   "success": {
+    "nominal": 0.45,
+    "full_dr": 0.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "agent": 40
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "open",
+   "world": 2,
+   "hidden": {
+    "object_mu": 1.1058364278095274,
+    "lens_k": 0.149
+   },
+   "success": {
+    "nominal": 0.0,
+    "full_dr": 0.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "agent": 40
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "open",
+   "world": 3,
+   "hidden": {
+    "table_mu": 0.3477623140034424,
+    "lens_k": 0.286
+   },
+   "success": {
+    "nominal": 0.0,
+    "full_dr": 0.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "agent": 60
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "agent": 3
+   }
+  },
+  {
+   "tier": "open",
+   "world": 4,
+   "hidden": {
+    "object_half_size": 0.019679959144243215,
+    "patch_y0": 0.458,
+    "patch_mu": 0.513
+   },
+   "success": {
+    "nominal": 0.8,
+    "full_dr": 0.0,
+    "agent": 0.8
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "agent": 80
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "agent": 4
+   }
+  },
+  {
+   "tier": "open",
+   "world": 5,
+   "hidden": {
+    "table_mu": 0.9732083875273968,
+    "lens_k": 0.263
+   },
+   "success": {
+    "nominal": 1.0,
+    "full_dr": 0.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "agent": 20
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "agent": 1
+   }
+  },
+  {
+   "tier": "compound",
+   "world": 0,
+   "hidden": {
+    "object_density": 899.0885830767115,
+    "patch_y0": 0.261,
+    "patch_mu": 0.38,
+    "lens_k": 0.264
+   },
+   "success": {
+    "nominal": 0.1,
+    "full_dr": 0.25,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "agent": 80
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "agent": 4
+   }
+  },
+  {
+   "tier": "compound",
+   "world": 1,
+   "hidden": {
+    "camera_dz": 0.02759742958411038,
+    "patch_y0": 0.268,
+    "patch_mu": 0.429,
+    "lens_k": -0.132
+   },
+   "success": {
+    "nominal": 0.3,
+    "full_dr": 0.45,
+    "agent": 0.3
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "agent": 80
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "agent": 4
+   }
+  },
+  {
+   "tier": "compound",
+   "world": 2,
+   "hidden": {
+    "object_mu": 0.43131156320715197,
+    "patch_y0": 0.465,
+    "patch_mu": 0.25,
+    "lens_k": 0.198
+   },
+   "success": {
+    "nominal": 0.0,
+    "full_dr": 0.0,
+    "agent": 0.55
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "agent": 80
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "agent": 4
+   }
+  },
+  {
+   "tier": "compound",
+   "world": 3,
+   "hidden": {
+    "table_mu": 1.1650071443214005,
+    "patch_y0": 0.258,
+    "patch_mu": 0.68,
+    "lens_k": -0.158
+   },
+   "success": {
+    "nominal": 0.0,
+    "full_dr": 0.0,
+    "agent": 0.3
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "agent": 80
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "agent": 4
+   }
+  },
+  {
+   "tier": "compound",
+   "world": 4,
+   "hidden": {
+    "table_mu": 1.1744726779779,
+    "patch_y0": 0.33,
+    "patch_mu": 0.688,
+    "lens_k": 0.275
+   },
+   "success": {
+    "nominal": 0.6,
+    "full_dr": 0.0,
+    "agent": 0.05
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "agent": 80
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "agent": 4
+   }
+  },
+  {
+   "tier": "compound",
+   "world": 5,
+   "hidden": {
+    "object_half_size": 0.01910791166056719,
+    "patch_y0": 0.497,
+    "patch_mu": 0.413,
+    "lens_k": -0.199
+   },
+   "success": {
+    "nominal": 0.3,
+    "full_dr": 0.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "agent": 40
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "agent": 2
+   }
+  }
+ ],
+ "summary": {
+  "open": {
+   "nominal": {
+    "mean": 0.46666666666666673,
+    "ci95": 0.32764520106019834,
+    "real_trials": 20.0
+   },
+   "full_dr": {
+    "mean": 0.0,
+    "ci95": 0.0,
+    "real_trials": 20.0
+   },
+   "agent": {
+    "mean": 0.9666666666666667,
+    "ci95": 0.06533333333333331,
+    "real_trials": 46.666666666666664
+   }
+  },
+  "compound": {
+   "nominal": {
+    "mean": 0.21666666666666667,
+    "ci95": 0.1853671431990518,
+    "real_trials": 20.0
+   },
+   "full_dr": {
+    "mean": 0.11666666666666665,
+    "ci95": 0.15322024815423205,
+    "real_trials": 20.0
+   },
+   "agent": {
+    "mean": 0.5333333333333333,
+    "ci95": 0.3157026730608688,
+    "real_trials": 73.33333333333333
+   }
+  }
+ },
+ "usage": {
+  "calls": 233,
+  "prompt_tokens": 736578,
+  "completion_tokens": 416597,
+  "by_model": {
+   "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B": 233
+  }
+ }
+}
