@@ -1,0 +1,122 @@
+[
+ {
+  "clip": "../../../runs/demo/clips/camera-offset-it0-real.webp",
+  "view": "arm",
+  "label": "slid",
+  "label_source": "visual inspection of tracked crops (no per-clip physics flag in bundle.json)"
+ },
+ {
+  "clip": "../../../runs/demo/clips/camera-offset-it1-real.webp",
+  "view": "arm",
+  "label": "slid",
+  "label_source": "visual inspection of tracked crops (no per-clip physics flag in bundle.json)"
+ },
+ {
+  "clip": "../../../runs/demo/clips/camera-offset-it2-real.webp",
+  "view": "side",
+  "label": "slid",
+  "label_source": "visual inspection of tracked crops (no per-clip physics flag in bundle.json)"
+ },
+ {
+  "clip": "../../../runs/demo/clips/slippery-cube-it0-real.webp",
+  "view": "arm",
+  "label": "slid",
+  "label_source": "visual inspection of tracked crops (no per-clip physics flag in bundle.json)"
+ },
+ {
+  "clip": "../../../runs/demo/clips/slippery-cube-it1-real.webp",
+  "view": "arm",
+  "label": "slid",
+  "label_source": "visual inspection of tracked crops (no per-clip physics flag in bundle.json)"
+ },
+ {
+  "clip": "../../../runs/demo/clips/sticky-table-it0-real.webp",
+  "view": "arm",
+  "label": "slid",
+  "label_source": "visual inspection of tracked crops (no per-clip physics flag in bundle.json)"
+ },
+ {
+  "clip": "../../../runs/demo/clips/sticky-table-it1-real.webp",
+  "view": "arm",
+  "label": "slid",
+  "label_source": "visual inspection of tracked crops (no per-clip physics flag in bundle.json)"
+ },
+ {
+  "clip": "../../../runs/demo/clips/sticky-table-it2-real.webp",
+  "view": "side",
+  "label": "tipped",
+  "label_source": "visual inspection of tracked crops (no per-clip physics flag in bundle.json)"
+ },
+ {
+  "clip": "../../../runs/demo/clips/sticky-table-it3-real.webp",
+  "view": "side",
+  "label": "tipped",
+  "label_source": "visual inspection of tracked crops (no per-clip physics flag in bundle.json)"
+ },
+ {
+  "clip": "../../../runs/demo/clips/sticky-table-it4-real.webp",
+  "view": "side",
+  "label": "tipped",
+  "label_source": "visual inspection of tracked crops (no per-clip physics flag in bundle.json)"
+ },
+ {
+  "clip": "../../../runs/demo/clips/tipping-edge-it0-real.webp",
+  "view": "arm",
+  "label": "tipped",
+  "label_source": "visual inspection of tracked crops (no per-clip physics flag in bundle.json)"
+ },
+ {
+  "clip": "../../../runs/demo/clips/tipping-edge-it1-real.webp",
+  "view": "arm",
+  "label": "tipped",
+  "label_source": "visual inspection of tracked crops (no per-clip physics flag in bundle.json)"
+ },
+ {
+  "clip": "../../../runs/demo/clips/tipping-edge-it2-real.webp",
+  "view": "arm",
+  "label": "tipped",
+  "label_source": "visual inspection of tracked crops (no per-clip physics flag in bundle.json)"
+ },
+ {
+  "clip": "../../../runs/demo/clips/tipping-edge-it3-real.webp",
+  "view": "arm",
+  "label": "tipped",
+  "label_source": "visual inspection of tracked crops (no per-clip physics flag in bundle.json)"
+ },
+ {
+  "clip": "../../../runs/demo/clips/tipping-edge-it4-real.webp",
+  "view": "arm",
+  "label": "tipped",
+  "label_source": "visual inspection of tracked crops (no per-clip physics flag in bundle.json)"
+ },
+ {
+  "clip": "../../../runs/demo/clips/weak-motor-it0-real.webp",
+  "view": "arm",
+  "label": "slid",
+  "label_source": "visual inspection of tracked crops (no per-clip physics flag in bundle.json)"
+ },
+ {
+  "clip": "../../../runs/demo/clips/weak-motor-it1-real.webp",
+  "view": "arm",
+  "label": "slid",
+  "label_source": "visual inspection of tracked crops (no per-clip physics flag in bundle.json)"
+ },
+ {
+  "clip": "../../../runs/demo/clips/weak-motor-it2-real.webp",
+  "view": "side",
+  "label": "slid",
+  "label_source": "visual inspection of tracked crops (no per-clip physics flag in bundle.json)"
+ },
+ {
+  "clip": "../../../runs/demo/clips/weak-motor-it3-real.webp",
+  "view": "side",
+  "label": "slid",
+  "label_source": "visual inspection of tracked crops (no per-clip physics flag in bundle.json)"
+ },
+ {
+  "clip": "../../../runs/demo/clips/weak-motor-it4-real.webp",
+  "view": "side",
+  "label": "slid",
+  "label_source": "visual inspection of tracked crops (no per-clip physics flag in bundle.json)"
+ }
+]

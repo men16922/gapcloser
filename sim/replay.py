@@ -109,7 +109,7 @@ def record_trial(params: ParamSet, command: float, target: float) -> dict:
         "patch": _patch_info(params),
         "params": {k: round(float(params[k]), 4) for k in SHOWN_PARAMS},
         "slide": round(float(cube_q[-1, 1]), 4),
-        "tipped": bool(tilt_deg(cube_q[-1:, 3:7])[0] > TIP_DEG),
+        "tipped": bool(tilt_deg(cube_q[:, 3:7]).max() > TIP_DEG),  # peak over frames: a double roll ends upright
         "cube": _r(cube_q),
         "arm": arm[:last].tolist(),
     }

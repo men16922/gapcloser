@@ -133,14 +133,17 @@ class NewtonPushEnv:
     def _run(self, params, commands, targets, observed) -> Rollout:
         model, state, cubes, ground = _build(params, commands, [0.0 if t != t else t for t in targets])
         tracks = [state.body_q.numpy()[cubes, 1].copy()]
+        peak = np.zeros(len(cubes))
 
         def track(s):  # camera tracking of the whole slide (30 fps)
-            tracks.append(s.body_q.numpy()[cubes, 1].copy())
+            q = s.body_q.numpy()[cubes]
+            tracks.append(q[:, 1].copy())
+            np.maximum(peak, tilt_deg(q[:, 3:7]), out=peak)  # peak, not final: a double roll ends upright
 
         final = _simulate(model, state, track, _patch_setup(model, params, cubes, ground))
         q = final.body_q.numpy()[cubes]
         ys = q[:, 1]
-        tilt = tilt_deg(q[:, 3:7])
+        tilt = np.maximum(peak, tilt_deg(q[:, 3:7]))
         tracks = tracks[:FULL_TRACK_FRAMES + 1]
         tracks += [tracks[-1]] * (FULL_TRACK_FRAMES + 1 - len(tracks))  # at rest after the sim stops early
         tr = np.asarray(tracks)  # (frames, worlds)
