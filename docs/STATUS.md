@@ -7,7 +7,7 @@ Last Updated: 2026-10-07
 - Scope: zero cost, no hardware, Tier 0. Local Mac: NVIDIA Newton; Nemotron 3 Super 120B on Nebius Token Factory (key in `.env`, gitignored); Ollama Nano for offline experiments.
 - Public repo: https://github.com/men16922/gapcloser
 - Open world: params `patch_y0`/`patch_mu` (friction strip, seam-free Newton kernel) and `lens_k`; `InverseTrainer` (policy inverts the sim); `agent/tool_agent.py` (Nemotron tool agent: decel_profile, perception_check, fit/test_hypothesis, probe_real, commit).
-- Gap-Bench Newton 6/tier (Super): closed 100 all; open rule 84 / sysID 100 / agent 100; compound rule 41 / sysID 93 / agent 99 (fewer real trials). Analytic: agent = sysID = 100.
+- Gap-Bench Newton 15/tier (Super, $0.30): closed 100 all; open rule 83±9 / sysID 100 / agent 100; compound rule 54±15 / sysID 97±4 / agent 96±6. Agent ≈ sysID, both ≫ rule. (The 6/tier edge 99 vs 93 was noise.)
 - 3D viewer (three.js replay of Newton poses) in dashboard.
 - `make check` green: 50 tests (was 33 (incl. live server, Newton env, tipping, recorded real Nemotron response replay, vision-role request shape).
 - Agent: LLMDiagnoser (Nemotron) → fallback TrajectoryDiagnoser; HeuristicPlanner applies estimates. Tipped trials excluded from fits.
@@ -24,7 +24,7 @@ Authority: `docs/NEXT_PLAN.md`.
 
 ## Open Risks
 
-- Honest caveat: passive sysID with the same fitter matches the agent on clean (analytic) data; edge shows only on Newton compound worlds (n small).
-- Token Factory spend so far ≈ $0.6 of $25 (Super ≈ $0.0013 per diagnosis). Nano Omni not offered on Token Factory.
+- Honest caveat: passive sysID with the same fitter matches the agent on clean (analytic) data; no measurable edge on Newton either at n=15. The agent's value is matching sysID without a hand-ordered structure library, choosing probes, and explaining fixes.
+- Token Factory spend so far ≈ $1 of $25 (Super ≈ $0.0013 per diagnosis). Nano Omni not offered on Token Factory.
 - Tipping regime (μ_eff ≳ 0.95): model-based diagnosis refuses to explain it; outcome-only fitting does better there.
 - Local 30B can run away without max_tokens (fixed: cap 2048, timeout 180 s).

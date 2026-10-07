@@ -8,7 +8,8 @@ This file maintains only recent incremental summaries (newest 3-5 items, ≤120 
 - Status: Repo public (github.com/men16922/gapcloser). Award plan written; open-world faults break the rule-based agent and the Nemotron tool agent closes them in NVIDIA Newton.
 - Changed: open params (friction strip via seam-free Warp kernel, lens distortion), full tracks, `InverseTrainer`, `RealWorld.push` probes; `agent/tool_agent.py` + `LLM.chat` tool calling with record/replay; `eval/open_bench.py` (tiers, sysID baseline, CIs); recorder `--open-only`/`--attach-bench`; 4 open scenarios recorded on Token Factory; three.js 3D replay viewer (subagent, merged).
 - Verified: `make check` 50 passed; closed benchmark JSON identical to before. Gap-Bench Newton 6/tier: compound rule 41% / sysID 93% / agent 99% (50 vs 57 real trials); analytic agent = sysID = 100%. Spend ≈ $0.6 total.
-- Next: dashboard v3 merge, n=15 bench, Cosmos eyes.
+- Correction (n=15/tier): compound rule 54% / sysID 97% / agent 96% — no agent edge over sysID; the 6/tier gap was noise.
+- Next: dashboard v3 merge, Cosmos eyes.
 
 ## 2026-10-05 — Local completion: fresh-clone check, Docker on Token Factory, video, site
 - Status: Everything that can be done locally is done and verified; remaining items are account/publishing actions (`docs/submission/CHECKLIST.md`).

@@ -97,7 +97,7 @@ def make_env(name: str):
 
 
 def run(n_worlds: int = 6, seed: int = 0, env_name: str = "analytic", tiers=TIERS, agent_llm=None, max_iter: int = 4,
-        n_targets: int = 20, log=print) -> list[Row]:
+        n_targets: int = 20, log=print, agent_only: bool = False) -> list[Row]:
     env = make_env(env_name)
     targets = eval_targets(n_targets, seed + 2000)
     rows = []
@@ -112,7 +112,7 @@ def run(n_worlds: int = 6, seed: int = 0, env_name: str = "analytic", tiers=TIER
                 real = RealWorld(env, hidden)
                 success[name] = real.rollout(InverseTrainer().train(rand), targets).success_rate
                 trials[name], iters[name] = real.trials_used, 1
-            methods = {"rule": lambda r: TrajectoryDiagnoser(), "sysid": lambda r: SysIdDiagnoser()}
+            methods = {} if agent_only else {"rule": lambda r: TrajectoryDiagnoser(), "sysid": lambda r: SysIdDiagnoser()}
             if agent_llm is not None:
                 methods["agent"] = lambda r: ToolAgentDiagnoser(agent_llm, r)
             for name, make in methods.items():
@@ -167,6 +167,8 @@ def main() -> None:
     ap.add_argument("--env", choices=["analytic", "newton"], default="analytic")
     ap.add_argument("--llm", choices=["none", "local", "tokenfactory"], default="none")
     ap.add_argument("--tiers", default=",".join(TIERS))
+    ap.add_argument("--model", default=None, help="model hint for the agent (e.g. 'nemotron nano', 'nemotron ultra', 'lightning')")
+    ap.add_argument("--agent-only", action="store_true", help="skip the rule/sysID loops (model comparisons)")
     ap.add_argument("--out", default=None, help="write rows + summary JSON here")
     a = ap.parse_args()
     llm = None
@@ -174,7 +176,9 @@ def main() -> None:
         from agent.llm import make_llm
 
         llm = make_llm(a.llm)
-    rows = run(a.worlds, a.seed, a.env, tuple(a.tiers.split(",")), llm)
+        if a.model:
+            llm.hints["diagnose"] = a.model
+    rows = run(a.worlds, a.seed, a.env, tuple(a.tiers.split(",")), llm, agent_only=a.agent_only)
     print(format_table(rows))
     if llm is not None:
         u = llm.usage
