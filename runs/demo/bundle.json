@@ -43567,7 +43567,7 @@
      "object_density": 201.83818771036897
     },
     "success": {
-     "nominal": 0.2,
+     "nominal": 0.1,
      "full_dr": 0.0,
      "rule": 1.0,
      "sysid": 1.0,
@@ -43596,7 +43596,7 @@
      "camera_pitch_deg": -2.65145518445288
     },
     "success": {
-     "nominal": 1.0,
+     "nominal": 0.85,
      "full_dr": 0.0,
      "rule": 1.0,
      "sysid": 1.0,
@@ -43605,16 +43605,16 @@
     "real_trials": {
      "nominal": 20,
      "full_dr": 20,
-     "rule": 20,
-     "sysid": 20,
-     "agent": 20
+     "rule": 40,
+     "sysid": 40,
+     "agent": 43
     },
     "iterations": {
      "nominal": 1,
      "full_dr": 1,
-     "rule": 1,
-     "sysid": 1,
-     "agent": 1
+     "rule": 2,
+     "sysid": 2,
+     "agent": 2
     }
    },
    {
@@ -43647,6 +43647,267 @@
     }
    },
    {
+    "tier": "closed",
+    "world": 6,
+    "hidden": {
+     "object_half_size": 0.020730587135855107,
+     "actuator_gain": 0.8376088535110982
+    },
+    "success": {
+     "nominal": 0.0,
+     "full_dr": 0.0,
+     "rule": 1.0,
+     "sysid": 1.0,
+     "agent": 1.0
+    },
+    "real_trials": {
+     "nominal": 20,
+     "full_dr": 20,
+     "rule": 40,
+     "sysid": 40,
+     "agent": 44
+    },
+    "iterations": {
+     "nominal": 1,
+     "full_dr": 1,
+     "rule": 2,
+     "sysid": 2,
+     "agent": 2
+    }
+   },
+   {
+    "tier": "closed",
+    "world": 7,
+    "hidden": {
+     "object_mu": 0.9641596733073752,
+     "camera_dx": -0.016435522568484493
+    },
+    "success": {
+     "nominal": 0.0,
+     "full_dr": 0.0,
+     "rule": 1.0,
+     "sysid": 1.0,
+     "agent": 1.0
+    },
+    "real_trials": {
+     "nominal": 20,
+     "full_dr": 20,
+     "rule": 40,
+     "sysid": 40,
+     "agent": 43
+    },
+    "iterations": {
+     "nominal": 1,
+     "full_dr": 1,
+     "rule": 2,
+     "sysid": 2,
+     "agent": 2
+    }
+   },
+   {
+    "tier": "closed",
+    "world": 8,
+    "hidden": {
+     "object_mu": 0.5938222000271943,
+     "table_mu": 1.0215847066798753
+    },
+    "success": {
+     "nominal": 1.0,
+     "full_dr": 0.0,
+     "rule": 1.0,
+     "sysid": 1.0,
+     "agent": 1.0
+    },
+    "real_trials": {
+     "nominal": 20,
+     "full_dr": 20,
+     "rule": 20,
+     "sysid": 20,
+     "agent": 20
+    },
+    "iterations": {
+     "nominal": 1,
+     "full_dr": 1,
+     "rule": 1,
+     "sysid": 1,
+     "agent": 1
+    }
+   },
+   {
+    "tier": "closed",
+    "world": 9,
+    "hidden": {
+     "object_half_size": 0.034838027366420936,
+     "actuator_gain": 1.2799887043488656
+    },
+    "success": {
+     "nominal": 0.0,
+     "full_dr": 0.0,
+     "rule": 1.0,
+     "sysid": 1.0,
+     "agent": 1.0
+    },
+    "real_trials": {
+     "nominal": 20,
+     "full_dr": 20,
+     "rule": 40,
+     "sysid": 40,
+     "agent": 40
+    },
+    "iterations": {
+     "nominal": 1,
+     "full_dr": 1,
+     "rule": 2,
+     "sysid": 2,
+     "agent": 2
+    }
+   },
+   {
+    "tier": "closed",
+    "world": 10,
+    "hidden": {
+     "object_half_size": 0.030207438380056455,
+     "actuator_gain": 0.7204739949104327
+    },
+    "success": {
+     "nominal": 0.0,
+     "full_dr": 0.0,
+     "rule": 1.0,
+     "sysid": 1.0,
+     "agent": 1.0
+    },
+    "real_trials": {
+     "nominal": 20,
+     "full_dr": 20,
+     "rule": 40,
+     "sysid": 40,
+     "agent": 43
+    },
+    "iterations": {
+     "nominal": 1,
+     "full_dr": 1,
+     "rule": 2,
+     "sysid": 2,
+     "agent": 2
+    }
+   },
+   {
+    "tier": "closed",
+    "world": 11,
+    "hidden": {
+     "restitution": 0.37316077307062473,
+     "camera_dz": -0.014456640936518765
+    },
+    "success": {
+     "nominal": 1.0,
+     "full_dr": 0.0,
+     "rule": 1.0,
+     "sysid": 1.0,
+     "agent": 1.0
+    },
+    "real_trials": {
+     "nominal": 20,
+     "full_dr": 20,
+     "rule": 20,
+     "sysid": 20,
+     "agent": 20
+    },
+    "iterations": {
+     "nominal": 1,
+     "full_dr": 1,
+     "rule": 1,
+     "sysid": 1,
+     "agent": 1
+    }
+   },
+   {
+    "tier": "closed",
+    "world": 12,
+    "hidden": {
+     "object_half_size": 0.022285180363300617,
+     "light_intensity": 1.2786883031224978
+    },
+    "success": {
+     "nominal": 1.0,
+     "full_dr": 0.0,
+     "rule": 1.0,
+     "sysid": 1.0,
+     "agent": 1.0
+    },
+    "real_trials": {
+     "nominal": 20,
+     "full_dr": 20,
+     "rule": 20,
+     "sysid": 20,
+     "agent": 20
+    },
+    "iterations": {
+     "nominal": 1,
+     "full_dr": 1,
+     "rule": 1,
+     "sysid": 1,
+     "agent": 1
+    }
+   },
+   {
+    "tier": "closed",
+    "world": 13,
+    "hidden": {
+     "object_density": 387.11147409169416,
+     "camera_dz": -0.01166339521268197
+    },
+    "success": {
+     "nominal": 1.0,
+     "full_dr": 0.0,
+     "rule": 1.0,
+     "sysid": 1.0,
+     "agent": 1.0
+    },
+    "real_trials": {
+     "nominal": 20,
+     "full_dr": 20,
+     "rule": 20,
+     "sysid": 20,
+     "agent": 20
+    },
+    "iterations": {
+     "nominal": 1,
+     "full_dr": 1,
+     "rule": 1,
+     "sysid": 1,
+     "agent": 1
+    }
+   },
+   {
+    "tier": "closed",
+    "world": 14,
+    "hidden": {
+     "table_mu": 1.070935930924749,
+     "object_density": 406.2510696450773
+    },
+    "success": {
+     "nominal": 0.0,
+     "full_dr": 0.0,
+     "rule": 1.0,
+     "sysid": 1.0,
+     "agent": 1.0
+    },
+    "real_trials": {
+     "nominal": 20,
+     "full_dr": 20,
+     "rule": 40,
+     "sysid": 40,
+     "agent": 46
+    },
+    "iterations": {
+     "nominal": 1,
+     "full_dr": 1,
+     "rule": 2,
+     "sysid": 2,
+     "agent": 2
+    }
+   },
+   {
     "tier": "open",
     "world": 0,
     "hidden": {
@@ -43656,7 +43917,7 @@
     },
     "success": {
      "nominal": 0.55,
-     "full_dr": 0.05,
+     "full_dr": 0.0,
      "rule": 0.55,
      "sysid": 1.0,
      "agent": 1.0
@@ -43684,7 +43945,7 @@
      "lens_k": -0.281
     },
     "success": {
-     "nominal": 0.5,
+     "nominal": 0.45,
      "full_dr": 0.0,
      "rule": 1.0,
      "sysid": 1.0,
@@ -43724,7 +43985,7 @@
      "full_dr": 20,
      "rule": 40,
      "sysid": 40,
-     "agent": 43
+     "agent": 46
     },
     "iterations": {
      "nominal": 1,
@@ -43744,7 +44005,7 @@
     "success": {
      "nominal": 0.0,
      "full_dr": 0.0,
-     "rule": 0.55,
+     "rule": 0.7,
      "sysid": 1.0,
      "agent": 1.0
     },
@@ -43753,14 +44014,14 @@
      "full_dr": 20,
      "rule": 80,
      "sysid": 40,
-     "agent": 60
+     "agent": 40
     },
     "iterations": {
      "nominal": 1,
      "full_dr": 1,
      "rule": 4,
      "sysid": 2,
-     "agent": 3
+     "agent": 2
     }
    },
    {
@@ -43772,9 +44033,9 @@
      "patch_mu": 0.513
     },
     "success": {
-     "nominal": 0.7,
+     "nominal": 0.8,
      "full_dr": 0.0,
-     "rule": 0.7,
+     "rule": 0.8,
      "sysid": 1.0,
      "agent": 1.0
     },
@@ -43783,14 +44044,14 @@
      "full_dr": 20,
      "rule": 80,
      "sysid": 40,
-     "agent": 60
+     "agent": 40
     },
     "iterations": {
      "nominal": 1,
      "full_dr": 1,
      "rule": 4,
      "sysid": 2,
-     "agent": 3
+     "agent": 2
     }
    },
    {
@@ -43823,18 +44084,256 @@
     }
    },
    {
-    "tier": "compound",
-    "world": 0,
+    "tier": "open",
+    "world": 6,
     "hidden": {
-     "object_density": 899.0885830767115,
-     "patch_y0": 0.261,
-     "patch_mu": 0.38,
-     "lens_k": 0.264
+     "actuator_gain": 1.260305069973822,
+     "patch_y0": 0.338,
+     "patch_mu": 0.95
     },
     "success": {
      "nominal": 0.0,
-     "full_dr": 0.25,
-     "rule": 0.25,
+     "full_dr": 0.0,
+     "rule": 1.0,
+     "sysid": 1.0,
+     "agent": 1.0
+    },
+    "real_trials": {
+     "nominal": 20,
+     "full_dr": 20,
+     "rule": 40,
+     "sysid": 40,
+     "agent": 40
+    },
+    "iterations": {
+     "nominal": 1,
+     "full_dr": 1,
+     "rule": 2,
+     "sysid": 2,
+     "agent": 2
+    }
+   },
+   {
+    "tier": "open",
+    "world": 7,
+    "hidden": {
+     "camera_dz": -0.024379184368995842,
+     "patch_y0": 0.499,
+     "patch_mu": 0.373
+    },
+    "success": {
+     "nominal": 0.85,
+     "full_dr": 0.0,
+     "rule": 0.85,
+     "sysid": 1.0,
+     "agent": 1.0
+    },
+    "real_trials": {
+     "nominal": 20,
+     "full_dr": 20,
+     "rule": 80,
+     "sysid": 40,
+     "agent": 60
+    },
+    "iterations": {
+     "nominal": 1,
+     "full_dr": 1,
+     "rule": 4,
+     "sysid": 2,
+     "agent": 3
+    }
+   },
+   {
+    "tier": "open",
+    "world": 8,
+    "hidden": {
+     "camera_dx": -0.015392963894441499,
+     "patch_y0": 0.446,
+     "patch_mu": 0.95
+    },
+    "success": {
+     "nominal": 0.85,
+     "full_dr": 0.0,
+     "rule": 1.0,
+     "sysid": 1.0,
+     "agent": 1.0
+    },
+    "real_trials": {
+     "nominal": 20,
+     "full_dr": 20,
+     "rule": 40,
+     "sysid": 40,
+     "agent": 43
+    },
+    "iterations": {
+     "nominal": 1,
+     "full_dr": 1,
+     "rule": 2,
+     "sysid": 2,
+     "agent": 2
+    }
+   },
+   {
+    "tier": "open",
+    "world": 9,
+    "hidden": {
+     "object_mu": 0.9765517904477309,
+     "patch_y0": 0.345,
+     "patch_mu": 0.95
+    },
+    "success": {
+     "nominal": 0.1,
+     "full_dr": 0.0,
+     "rule": 1.0,
+     "sysid": 1.0,
+     "agent": 1.0
+    },
+    "real_trials": {
+     "nominal": 20,
+     "full_dr": 20,
+     "rule": 40,
+     "sysid": 40,
+     "agent": 43
+    },
+    "iterations": {
+     "nominal": 1,
+     "full_dr": 1,
+     "rule": 2,
+     "sysid": 2,
+     "agent": 2
+    }
+   },
+   {
+    "tier": "open",
+    "world": 10,
+    "hidden": {
+     "camera_pitch_deg": -4.433079592857423,
+     "patch_y0": 0.393,
+     "patch_mu": 0.95
+    },
+    "success": {
+     "nominal": 0.3,
+     "full_dr": 0.0,
+     "rule": 0.85,
+     "sysid": 1.0,
+     "agent": 1.0
+    },
+    "real_trials": {
+     "nominal": 20,
+     "full_dr": 20,
+     "rule": 80,
+     "sysid": 40,
+     "agent": 43
+    },
+    "iterations": {
+     "nominal": 1,
+     "full_dr": 1,
+     "rule": 4,
+     "sysid": 2,
+     "agent": 2
+    }
+   },
+   {
+    "tier": "open",
+    "world": 11,
+    "hidden": {
+     "light_intensity": 0.46502140657880764,
+     "patch_y0": 0.492,
+     "patch_mu": 0.364
+    },
+    "success": {
+     "nominal": 0.8,
+     "full_dr": 0.0,
+     "rule": 0.8,
+     "sysid": 1.0,
+     "agent": 1.0
+    },
+    "real_trials": {
+     "nominal": 20,
+     "full_dr": 20,
+     "rule": 80,
+     "sysid": 40,
+     "agent": 40
+    },
+    "iterations": {
+     "nominal": 1,
+     "full_dr": 1,
+     "rule": 4,
+     "sysid": 2,
+     "agent": 2
+    }
+   },
+   {
+    "tier": "open",
+    "world": 12,
+    "hidden": {
+     "object_mu": 0.26165464635304725,
+     "patch_y0": 0.443,
+     "patch_mu": 0.25
+    },
+    "success": {
+     "nominal": 0.0,
+     "full_dr": 0.0,
+     "rule": 0.55,
+     "sysid": 1.0,
+     "agent": 1.0
+    },
+    "real_trials": {
+     "nominal": 20,
+     "full_dr": 20,
+     "rule": 80,
+     "sysid": 40,
+     "agent": 40
+    },
+    "iterations": {
+     "nominal": 1,
+     "full_dr": 1,
+     "rule": 4,
+     "sysid": 2,
+     "agent": 2
+    }
+   },
+   {
+    "tier": "open",
+    "world": 13,
+    "hidden": {
+     "object_mu": 0.2732389823507473,
+     "patch_y0": 0.45,
+     "patch_mu": 0.25
+    },
+    "success": {
+     "nominal": 0.0,
+     "full_dr": 0.0,
+     "rule": 0.55,
+     "sysid": 1.0,
+     "agent": 1.0
+    },
+    "real_trials": {
+     "nominal": 20,
+     "full_dr": 20,
+     "rule": 80,
+     "sysid": 40,
+     "agent": 40
+    },
+    "iterations": {
+     "nominal": 1,
+     "full_dr": 1,
+     "rule": 4,
+     "sysid": 2,
+     "agent": 2
+    }
+   },
+   {
+    "tier": "open",
+    "world": 14,
+    "hidden": {
+     "camera_pitch_deg": 3.2645221044829964,
+     "lens_k": 0.242
+    },
+    "success": {
+     "nominal": 0.1,
+     "full_dr": 0.95,
+     "rule": 0.8,
      "sysid": 1.0,
      "agent": 1.0
     },
@@ -43855,6 +44354,37 @@
    },
    {
     "tier": "compound",
+    "world": 0,
+    "hidden": {
+     "object_density": 899.0885830767115,
+     "patch_y0": 0.261,
+     "patch_mu": 0.38,
+     "lens_k": 0.264
+    },
+    "success": {
+     "nominal": 0.1,
+     "full_dr": 0.25,
+     "rule": 0.25,
+     "sysid": 1.0,
+     "agent": 1.0
+    },
+    "real_trials": {
+     "nominal": 20,
+     "full_dr": 20,
+     "rule": 80,
+     "sysid": 40,
+     "agent": 60
+    },
+    "iterations": {
+     "nominal": 1,
+     "full_dr": 1,
+     "rule": 4,
+     "sysid": 2,
+     "agent": 3
+    }
+   },
+   {
+    "tier": "compound",
     "world": 1,
     "hidden": {
      "camera_dz": 0.02759742958411038,
@@ -43863,9 +44393,9 @@
      "lens_k": -0.132
     },
     "success": {
-     "nominal": 0.25,
-     "full_dr": 0.3,
-     "rule": 0.4,
+     "nominal": 0.3,
+     "full_dr": 0.45,
+     "rule": 0.3,
      "sysid": 1.0,
      "agent": 1.0
     },
@@ -43896,7 +44426,7 @@
     "success": {
      "nominal": 0.0,
      "full_dr": 0.0,
-     "rule": 0.5,
+     "rule": 0.55,
      "sysid": 1.0,
      "agent": 1.0
     },
@@ -43927,7 +44457,131 @@
     "success": {
      "nominal": 0.0,
      "full_dr": 0.0,
+     "rule": 0.3,
+     "sysid": 0.8,
+     "agent": 0.8
+    },
+    "real_trials": {
+     "nominal": 20,
+     "full_dr": 20,
+     "rule": 80,
+     "sysid": 80,
+     "agent": 83
+    },
+    "iterations": {
+     "nominal": 1,
+     "full_dr": 1,
+     "rule": 4,
+     "sysid": 4,
+     "agent": 4
+    }
+   },
+   {
+    "tier": "compound",
+    "world": 4,
+    "hidden": {
+     "table_mu": 1.1744726779779,
+     "patch_y0": 0.33,
+     "patch_mu": 0.688,
+     "lens_k": 0.275
+    },
+    "success": {
+     "nominal": 0.6,
+     "full_dr": 0.0,
+     "rule": 0.05,
+     "sysid": 0.8,
+     "agent": 0.55
+    },
+    "real_trials": {
+     "nominal": 20,
+     "full_dr": 20,
+     "rule": 80,
+     "sysid": 80,
+     "agent": 95
+    },
+    "iterations": {
+     "nominal": 1,
+     "full_dr": 1,
+     "rule": 4,
+     "sysid": 4,
+     "agent": 4
+    }
+   },
+   {
+    "tier": "compound",
+    "world": 5,
+    "hidden": {
+     "object_half_size": 0.01910791166056719,
+     "patch_y0": 0.497,
+     "patch_mu": 0.413,
+     "lens_k": -0.199
+    },
+    "success": {
+     "nominal": 0.3,
+     "full_dr": 0.0,
+     "rule": 1.0,
+     "sysid": 1.0,
+     "agent": 1.0
+    },
+    "real_trials": {
+     "nominal": 20,
+     "full_dr": 20,
+     "rule": 40,
+     "sysid": 60,
+     "agent": 43
+    },
+    "iterations": {
+     "nominal": 1,
+     "full_dr": 1,
+     "rule": 2,
+     "sysid": 3,
+     "agent": 2
+    }
+   },
+   {
+    "tier": "compound",
+    "world": 6,
+    "hidden": {
+     "camera_dx": 0.021449242642706735,
+     "patch_y0": 0.457,
+     "patch_mu": 0.527,
+     "lens_k": 0.261
+    },
+    "success": {
+     "nominal": 0.0,
+     "full_dr": 0.85,
      "rule": 0.5,
+     "sysid": 1.0,
+     "agent": 1.0
+    },
+    "real_trials": {
+     "nominal": 20,
+     "full_dr": 20,
+     "rule": 80,
+     "sysid": 40,
+     "agent": 40
+    },
+    "iterations": {
+     "nominal": 1,
+     "full_dr": 1,
+     "rule": 4,
+     "sysid": 2,
+     "agent": 2
+    }
+   },
+   {
+    "tier": "compound",
+    "world": 7,
+    "hidden": {
+     "object_density": 300.7630973007337,
+     "patch_y0": 0.438,
+     "patch_mu": 0.95,
+     "lens_k": -0.2
+    },
+    "success": {
+     "nominal": 0.3,
+     "full_dr": 0.0,
+     "rule": 0.6,
      "sysid": 1.0,
      "agent": 1.0
     },
@@ -43948,16 +44602,47 @@
    },
    {
     "tier": "compound",
-    "world": 4,
+    "world": 8,
     "hidden": {
-     "table_mu": 1.1744726779779,
-     "patch_y0": 0.33,
-     "patch_mu": 0.688,
-     "lens_k": 0.275
+     "camera_dx": 0.02137102800247777,
+     "patch_y0": 0.414,
+     "patch_mu": 0.95,
+     "lens_k": -0.151
     },
     "success": {
-     "nominal": 0.35,
+     "nominal": 0.6,
      "full_dr": 0.0,
+     "rule": 0.85,
+     "sysid": 1.0,
+     "agent": 1.0
+    },
+    "real_trials": {
+     "nominal": 20,
+     "full_dr": 20,
+     "rule": 80,
+     "sysid": 40,
+     "agent": 46
+    },
+    "iterations": {
+     "nominal": 1,
+     "full_dr": 1,
+     "rule": 4,
+     "sysid": 2,
+     "agent": 2
+    }
+   },
+   {
+    "tier": "compound",
+    "world": 9,
+    "hidden": {
+     "camera_dz": -0.01766251970042549,
+     "patch_y0": 0.267,
+     "patch_mu": 0.452,
+     "lens_k": 0.222
+    },
+    "success": {
+     "nominal": 0.15,
+     "full_dr": 0.3,
      "rule": 0.3,
      "sysid": 1.0,
      "agent": 1.0
@@ -43979,15 +44664,139 @@
    },
    {
     "tier": "compound",
-    "world": 5,
+    "world": 10,
     "hidden": {
-     "object_half_size": 0.01910791166056719,
-     "patch_y0": 0.497,
-     "patch_mu": 0.413,
-     "lens_k": -0.199
+     "light_intensity": 0.64196697645634,
+     "patch_y0": 0.281,
+     "patch_mu": 0.373,
+     "lens_k": 0.208
     },
     "success": {
-     "nominal": 0.4,
+     "nominal": 0.2,
+     "full_dr": 0.3,
+     "rule": 0.3,
+     "sysid": 1.0,
+     "agent": 1.0
+    },
+    "real_trials": {
+     "nominal": 20,
+     "full_dr": 20,
+     "rule": 80,
+     "sysid": 40,
+     "agent": 60
+    },
+    "iterations": {
+     "nominal": 1,
+     "full_dr": 1,
+     "rule": 4,
+     "sysid": 2,
+     "agent": 3
+    }
+   },
+   {
+    "tier": "compound",
+    "world": 11,
+    "hidden": {
+     "restitution": 0.308409217820223,
+     "patch_y0": 0.31,
+     "patch_mu": 0.95,
+     "lens_k": -0.153
+    },
+    "success": {
+     "nominal": 0.3,
+     "full_dr": 0.0,
+     "rule": 0.5,
+     "sysid": 1.0,
+     "agent": 1.0
+    },
+    "real_trials": {
+     "nominal": 20,
+     "full_dr": 20,
+     "rule": 80,
+     "sysid": 40,
+     "agent": 63
+    },
+    "iterations": {
+     "nominal": 1,
+     "full_dr": 1,
+     "rule": 4,
+     "sysid": 2,
+     "agent": 3
+    }
+   },
+   {
+    "tier": "compound",
+    "world": 12,
+    "hidden": {
+     "actuator_gain": 1.2794546452104476,
+     "patch_y0": 0.354,
+     "patch_mu": 0.95,
+     "lens_k": -0.268
+    },
+    "success": {
+     "nominal": 0.0,
+     "full_dr": 0.0,
+     "rule": 0.55,
+     "sysid": 1.0,
+     "agent": 1.0
+    },
+    "real_trials": {
+     "nominal": 20,
+     "full_dr": 20,
+     "rule": 80,
+     "sysid": 40,
+     "agent": 40
+    },
+    "iterations": {
+     "nominal": 1,
+     "full_dr": 1,
+     "rule": 4,
+     "sysid": 2,
+     "agent": 2
+    }
+   },
+   {
+    "tier": "compound",
+    "world": 13,
+    "hidden": {
+     "object_half_size": 0.03315774022208409,
+     "patch_y0": 0.498,
+     "patch_mu": 0.95,
+     "lens_k": -0.135
+    },
+    "success": {
+     "nominal": 0.5,
+     "full_dr": 0.0,
+     "rule": 1.0,
+     "sysid": 1.0,
+     "agent": 1.0
+    },
+    "real_trials": {
+     "nominal": 20,
+     "full_dr": 20,
+     "rule": 40,
+     "sysid": 40,
+     "agent": 43
+    },
+    "iterations": {
+     "nominal": 1,
+     "full_dr": 1,
+     "rule": 2,
+     "sysid": 2,
+     "agent": 2
+    }
+   },
+   {
+    "tier": "compound",
+    "world": 14,
+    "hidden": {
+     "actuator_gain": 0.741416703874078,
+     "patch_y0": 0.342,
+     "patch_mu": 0.95,
+     "lens_k": 0.199
+    },
+    "success": {
+     "nominal": 0.0,
      "full_dr": 0.0,
      "rule": 1.0,
      "sysid": 1.0,
@@ -43998,22 +44807,22 @@
      "full_dr": 20,
      "rule": 40,
      "sysid": 60,
-     "agent": 63
+     "agent": 45
     },
     "iterations": {
      "nominal": 1,
      "full_dr": 1,
      "rule": 2,
      "sysid": 3,
-     "agent": 3
+     "agent": 2
     }
    }
   ],
   "summary": {
    "closed": {
     "nominal": {
-     "mean": 0.5333333333333333,
-     "ci95": 0.41320428092866834,
+     "mean": 0.4633333333333333,
+     "ci95": 0.253480343309781,
      "real_trials": 20.0
     },
     "full_dr": {
@@ -44024,80 +44833,80 @@
     "rule": {
      "mean": 1.0,
      "ci95": 0.0,
-     "real_trials": 30.0
+     "real_trials": 32.0
     },
     "sysid": {
      "mean": 1.0,
      "ci95": 0.0,
-     "real_trials": 30.0
+     "real_trials": 32.0
     },
     "agent": {
      "mean": 1.0,
      "ci95": 0.0,
-     "real_trials": 30.5
+     "real_trials": 33.46666666666667
     }
    },
    "open": {
     "nominal": {
-     "mean": 0.4583333333333333,
-     "ci95": 0.31646228492156503,
+     "mean": 0.38666666666666666,
+     "ci95": 0.1958755160242795,
      "real_trials": 20.0
     },
     "full_dr": {
-     "mean": 0.008333333333333333,
-     "ci95": 0.016333333333333335,
+     "mean": 0.06333333333333332,
+     "ci95": 0.12413333333333332,
      "real_trials": 20.0
     },
     "rule": {
-     "mean": 0.7999999999999999,
-     "ci95": 0.1807030713629406,
-     "real_trials": 56.666666666666664
+     "mean": 0.83,
+     "ci95": 0.08858803530951567,
+     "real_trials": 62.666666666666664
     },
     "sysid": {
      "mean": 1.0,
      "ci95": 0.0,
-     "real_trials": 36.666666666666664
+     "real_trials": 38.666666666666664
     },
     "agent": {
      "mean": 1.0,
      "ci95": 0.0,
-     "real_trials": 44.333333333333336
+     "real_trials": 41.2
     }
    },
    "compound": {
     "nominal": {
-     "mean": 0.16666666666666666,
-     "ci95": 0.15111643781461293,
+     "mean": 0.22333333333333333,
+     "ci95": 0.1094072108125318,
      "real_trials": 20.0
     },
     "full_dr": {
-     "mean": 0.09166666666666667,
-     "ci95": 0.11433333333333333,
+     "mean": 0.14333333333333334,
+     "ci95": 0.12537970773259566,
      "real_trials": 20.0
     },
     "rule": {
-     "mean": 0.4916666666666667,
-     "ci95": 0.21532760570297946,
-     "real_trials": 73.33333333333333
+     "mean": 0.5366666666666667,
+     "ci95": 0.15375657528848788,
+     "real_trials": 72.0
     },
     "sysid": {
-     "mean": 1.0,
-     "ci95": 0.0,
-     "real_trials": 43.333333333333336
+     "mean": 0.9733333333333333,
+     "ci95": 0.03561373018623263,
+     "real_trials": 48.0
     },
     "agent": {
-     "mean": 1.0,
-     "ci95": 0.0,
-     "real_trials": 44.333333333333336
+     "mean": 0.9566666666666667,
+     "ci95": 0.06261685963948616,
+     "real_trials": 52.06666666666667
     }
    }
   },
   "usage": {
-   "calls": 87,
-   "prompt_tokens": 302814,
-   "completion_tokens": 23446,
+   "calls": 235,
+   "prompt_tokens": 803642,
+   "completion_tokens": 60074,
    "by_model": {
-    "nvidia/nemotron-3-super-120b-a12b": 87
+    "nvidia/nemotron-3-super-120b-a12b": 235
    }
   }
  }
