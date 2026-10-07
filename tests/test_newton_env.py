@@ -50,8 +50,9 @@ def test_extract_frames_from_rendered_clip(tmp_path):
 def test_newton_friction_patch_matches_analytic_without_tipping():
     from sim.push_task import slide_distance
 
-    cmds = [1.5, 2.5, 3.0, 3.4]
-    for p in (ParamSet.nominal().with_(patch_y0=0.35, patch_mu=0.3), ParamSet.nominal().with_(patch_y0=0.3, patch_mu=1.1)):
+    cmds = [1.5, 2.2, 2.6, 3.0]
+    for p in (ParamSet.nominal().with_(patch_y0=0.35, patch_mu=0.45), ParamSet.nominal().with_(patch_y0=0.3, patch_mu=0.95),
+              ParamSet.nominal().with_(table_mu=0.5, patch_y0=0.3, patch_mu=0.9)):
         ro = NewtonPushEnv().push(p, cmds)
         assert not any(t.tipped for t in ro.trials)
         assert max(abs(t.slide - slide_distance(c, p)) for t, c in zip(ro.trials, cmds)) < 0.015

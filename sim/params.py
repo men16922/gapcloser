@@ -38,7 +38,7 @@ PARAM_SPACE: dict[str, PhysParam] = {
         PhysParam("light_intensity", 1.0, 0.4, 1.6, "x", "perception", "object darker/brighter than in sim"),
         # open-world faults: outside the rule-based diagnoser's map (nominal values switch them off)
         PhysParam("patch_y0", 1.0, 0.15, 1.0, "m", "dynamics", "table region beyond this distance has different friction"),
-        PhysParam("patch_mu", 0.8, 0.2, 1.2, "-", "dynamics", "friction of the table region beyond patch_y0"),
+        PhysParam("patch_mu", 0.8, 0.2, 1.2, "-", "dynamics", "effective cube-table friction (mu_eff) beyond patch_y0"),
         PhysParam("lens_k", 0.0, -0.3, 0.3, "1/m", "perception", "distance error grows with the square of range (lens distortion)"),
     ]
 }

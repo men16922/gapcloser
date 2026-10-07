@@ -90,7 +90,7 @@ def frictions(p: ParamSet) -> tuple[float, float | None, float]:
     mu1 = effective_friction(p["object_mu"], p["table_mu"])
     if p["patch_y0"] >= PATCH_OFF:
         return mu1, None, float("inf")
-    return mu1, effective_friction(p["object_mu"], p["patch_mu"]), p["patch_y0"]
+    return mu1, p["patch_mu"], p["patch_y0"]
 
 
 def slide_distance(command: float, p: ParamSet) -> float:

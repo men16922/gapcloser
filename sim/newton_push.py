@@ -14,7 +14,7 @@ from pathlib import Path
 import numpy as np
 
 from sim.params import ParamSet
-from sim.push_task import FULL_TRACK_FRAMES, PATCH_OFF, Policy, Rollout, Trial, observe
+from sim.push_task import FULL_TRACK_FRAMES, Policy, Rollout, Trial, frictions, observe
 
 FPS, SUBSTEPS = 30, 10
 MAX_SECONDS = 2.5
@@ -25,8 +25,8 @@ _patch_kernel = None
 
 
 def _patch_mu_kernel():
-    """Friction patch without geometry seams: XPBD averages the two shapes' mu, so once a cube is past
-    patch_y0 its own mu is set to object_mu + patch_mu - table_mu (effective = (object_mu + patch_mu)/2)."""
+    """Friction patch without geometry seams. XPBD averages the two shapes' mu; in patch worlds the ground
+    gets mu 0 and each cube 2 * the effective friction of the region it is in (near or beyond patch_y0)."""
     global _patch_kernel
     if _patch_kernel is None:
         import warp as wp
@@ -42,21 +42,24 @@ def _patch_mu_kernel():
     return _patch_kernel
 
 
-def _patch_setup(model, params: ParamSet, bodies: list[int]):
+def _patch_setup(model, params: ParamSet, bodies: list[int], ground: int):
     """Returns a callable(state) that updates cube friction for the patch, or None when there is no patch."""
-    if params["patch_y0"] >= PATCH_OFF:
+    mu1, mu2, y0 = frictions(params)
+    if mu2 is None:
         return None
     import warp as wp
 
     shape_body = model.shape_body.numpy()
     shapes = [int(np.flatnonzero(shape_body == b)[0]) for b in bodies]
+    mu = model.shape_material_mu.numpy()
+    mu[ground] = 0.0
+    model.shape_material_mu.assign(mu)
     b_arr, s_arr = wp.array(bodies, dtype=int), wp.array(shapes, dtype=int)
-    mu_far = max(0.0, params["object_mu"] + params["patch_mu"] - params["table_mu"])
     kern = _patch_mu_kernel()
 
     def update(state):
-        wp.launch(kern, dim=len(bodies), inputs=[state.body_q, b_arr, s_arr, float(params["patch_y0"]),
-                                                  float(params["object_mu"]), float(mu_far), model.shape_material_mu])
+        wp.launch(kern, dim=len(bodies), inputs=[state.body_q, b_arr, s_arr, float(y0), float(2 * mu1), float(2 * mu2),
+                                                  model.shape_material_mu])
 
     return update
 
@@ -128,13 +131,13 @@ class NewtonPushEnv:
         return self._run(params, list(commands), nan, nan)
 
     def _run(self, params, commands, targets, observed) -> Rollout:
-        model, state, cubes, _ = _build(params, commands, [0.0 if t != t else t for t in targets])
+        model, state, cubes, ground = _build(params, commands, [0.0 if t != t else t for t in targets])
         tracks = [state.body_q.numpy()[cubes, 1].copy()]
 
         def track(s):  # camera tracking of the whole slide (30 fps)
             tracks.append(s.body_q.numpy()[cubes, 1].copy())
 
-        final = _simulate(model, state, track, _patch_setup(model, params, cubes))
+        final = _simulate(model, state, track, _patch_setup(model, params, cubes, ground))
         q = final.body_q.numpy()[cubes]
         ys = q[:, 1]
         tilt = tilt_deg(q[:, 3:7])
@@ -200,7 +203,7 @@ def render_trial(params: ParamSet, command: float, target: float, out_path: Path
         frames.append(Image.fromarray(np.clip(rgb * exposure, 0, 255).astype(np.uint8)))
 
     grab(state)
-    final = _simulate(model, state, grab, _patch_setup(model, params, cubes))
+    final = _simulate(model, state, grab, _patch_setup(model, params, cubes, ground))
     for _ in range(FPS // 2):  # hold the last frame so the outcome is readable
         frames.append(frames[-1])
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -322,7 +325,7 @@ def render_trial_arm(params: ParamSet, command: float, target: float, out_path: 
         q = state.body_q.numpy(); q[arm_ids] = arm_poses[f]; state.body_q.assign(q)
         qd = state.body_qd.numpy(); qd[arm_ids] = 0.0; state.body_qd.assign(qd)
 
-    patch = _patch_setup(model, params, [cube])
+    patch = _patch_setup(model, params, [cube], ground)
     for f in range(n_frames):
         if f == STRIKE_FRAME:
             qd = s0.body_qd.numpy(); qd[cube, :] = 0.0; qd[cube, 1] = command * params["actuator_gain"]; s0.body_qd.assign(qd)
