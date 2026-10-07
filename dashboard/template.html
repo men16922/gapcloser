@@ -165,6 +165,49 @@ td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
 .btn[disabled] { opacity: 0.4; cursor: not-allowed; }
 .foot { margin-top: var(--s5); color: var(--dim); font-size: 12.5px; display: flex; flex-wrap: wrap; gap: var(--s2) var(--s5); border-top: 1px solid var(--line); padding-top: var(--s3); }
 
+/* 3D replay viewer (three.js): Newton poses per frame, real cube solid, sim cube as ghost */
+.v3 { border: 1px solid var(--line); background: #0b0b0b; min-width: 0; }
+.v3 .stage { position: relative; aspect-ratio: 16 / 9; overflow: hidden; touch-action: pan-y; cursor: grab; user-select: none; -webkit-user-select: none; }
+.v3 .stage:active { cursor: grabbing; }
+.v3.split .stage { aspect-ratio: 16 / 12; }
+.v3 canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.v3 .hud { position: absolute; top: 8px; left: 8px; right: 8px; display: flex; flex-wrap: wrap; gap: 6px; pointer-events: none; }
+.v3 .hud span, .v3 .vpl { font: 600 11px/1 var(--f-display); letter-spacing: 0.12em; text-transform: uppercase; padding: 4px 6px; background: rgba(0,0,0,0.72); color: var(--fg); }
+.v3 .hud .it.bad { box-shadow: inset 2px 0 0 var(--bad); } .v3 .hud .it.ok { box-shadow: inset 2px 0 0 var(--green); }
+.v3 .hud .src { color: var(--muted); margin-left: auto; }
+.v3 .vpl { position: absolute; left: 8px; display: none; pointer-events: none; }
+.v3 .vpl.top { top: 36px; } .v3 .vpl.bot { top: calc(50% + 8px); }
+.v3 .divider { position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--line); display: none; }
+.v3.split .vpl, .v3.split .divider { display: block; }
+.v3 .tag { position: absolute; left: 0; top: 0; font: 500 11px/1 var(--f-mono); padding: 3px 5px; white-space: nowrap; pointer-events: none; will-change: transform; }
+.v3 .tag.real { background: var(--fg); color: #000; }
+.v3 .tag.sim { background: rgba(0,0,0,0.65); color: var(--fg); border: 1px dashed var(--muted); }
+.v3 .tag.ok { box-shadow: inset 0 -2px 0 var(--green); } .v3 .tag.bad { box-shadow: inset 0 -2px 0 var(--bad); }
+.v3 .hint { position: absolute; right: 8px; bottom: 8px; font: 400 11px/1.2 var(--f-mono); color: var(--dim); pointer-events: none; transition: opacity 0.4s; }
+.v3 .bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2); padding: var(--s2); border-top: 1px solid var(--line); background: var(--raised); }
+.v3 .ib { width: 32px; height: 32px; display: grid; place-items: center; background: none; border: 1px solid var(--line); cursor: pointer; color: var(--fg); padding: 0; flex: none; }
+.v3 .ib:hover { border-color: var(--dim); }
+.v3 .ib.play { background: var(--green); border-color: var(--green); color: #000; }
+.v3 .ib.play:hover { background: var(--green-hi); }
+.v3 .ib svg { width: 14px; height: 14px; display: block; }
+.v3 .scrub { flex: 1 1 140px; min-width: 100px; accent-color: var(--green); margin: 0; }
+.v3 .time { font: 500 12px/1 var(--f-mono); color: var(--muted); min-width: 92px; text-align: right; font-variant-numeric: tabular-nums; }
+.v3 .seg { display: flex; border: 1px solid var(--line); flex: none; }
+.v3 .seg button { background: none; border: 0; border-right: 1px solid var(--line); padding: 0 9px; height: 30px; cursor: pointer; font: 500 12px/1 var(--f-mono); color: var(--muted); }
+.v3 .seg button:last-child { border-right: 0; }
+.v3 .seg button[aria-pressed="true"] { background: var(--fg); color: #000; }
+.v3 .readout { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid var(--line); background: var(--panel); }
+.v3 .readout > div { padding: var(--s2) var(--s3); display: grid; gap: 4px; min-width: 0; }
+.v3 .readout > div + div { border-left: 1px solid var(--line); }
+.v3 .readout .k { display: flex; gap: 6px; align-items: center; }
+.v3 .readout .sw { width: 10px; height: 10px; flex: none; }
+.v3 .readout .y { font: 500 14px/1.2 var(--f-mono); font-variant-numeric: tabular-nums; }
+.v3 .readout .y b { font-weight: 500; }
+.v3 .readout .ok { color: var(--green); } .v3 .readout .bad { color: var(--bad); } .v3 .readout .wait { color: var(--dim); }
+.clipbox { margin-top: var(--s3); border: 1px solid var(--line); }
+.clipbox > summary { cursor: pointer; padding: var(--s2) var(--s3); list-style-position: inside; }
+.clipbox > .clips { padding: 0 var(--s3) var(--s3); }
+
 @media (max-width: 1180px) {
   .grid { grid-template-columns: minmax(0, 1fr); }
   .tl { max-height: 420px; }
@@ -177,6 +220,13 @@ td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
   .scn { grid-template-columns: minmax(0, 1fr); }
   .scn h2 { font-size: 28px; }
   .stack { margin-left: 0; }
+  .chip { white-space: normal; overflow-wrap: anywhere; }
+  .v3 .stage { aspect-ratio: 4 / 3; }
+  .v3.split .stage { aspect-ratio: 3 / 4; }
+  .v3 .readout { grid-template-columns: minmax(0, 1fr); }
+  .v3 .readout > div + div { border-left: 0; border-top: 1px solid var(--line); }
+  .v3 .time { min-width: 0; }
+  .v3 .hud .src { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { .tl li.live .ico { animation: none; } }
 </style>
@@ -191,6 +241,363 @@ td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
   <div class="foot" id="foot"></div>
 </div>
 
+<script>/*__THREE__*/</script>
+<script>window.FRANKA = "__FRANKA__";</script>
+<script>
+/* GCViewer: three.js replay of recorded NVIDIA Newton trials (schema gapcloser.replay/1).
+   Z-up world, meters. One persistent canvas; the dashboard re-mounts it after every render(). */
+window.GCViewer = (function () {
+  const T = window.THREE;
+  if (!T || typeof T.WebGLRenderer !== "function") return null;
+  try { const c = document.createElement("canvas"); if (!(c.getContext("webgl2") || c.getContext("webgl"))) return null; } catch (_) { return null; }
+  const FR = window.FRANKA && typeof window.FRANKA === "object" ? window.FRANKA : null;
+  const COL = { bg: 0x0b0b0b, table: 0x141414, grid: 0x242424, major: 0x333333, green: 0x76b900, bad: 0xe2574c, real: 0xdcdcdc, sim: 0x8c8c8c };
+  const TOL_DEFAULT = 0.03;
+  const VIEWS = {
+    wide: { az: 0.06, el: 0.36, dist: 1.5, tx: 0.0, ty: 0.05, tz: 0.22 },  // whole scene: arm, lane, target
+    lane: { az: 0.5, el: 0.62, dist: 0.62, tx: 0.0, ty: 0.36, tz: 0.0 },    // close-up of the push lane and target band
+  };
+  const ICON = {
+    play: '<svg viewBox="0 0 14 14"><path d="M3 1.5v11l9-5.5z" fill="currentColor"/></svg>',
+    pause: '<svg viewBox="0 0 14 14"><path d="M3 1.5h3v11H3zM8 1.5h3v11H8z" fill="currentColor"/></svg>',
+  };
+  const b64 = (s, C) => { const bin = atob(s), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return new C(u.buffer); };
+  const fmtErr = (e) => `${e >= 0 ? "+" : "−"}${Math.abs(e * 100).toFixed(1)} cm`;
+
+  // ---------- assets ----------
+  let GEO = null;
+  function frankaGeoms() {
+    if (GEO) return GEO;
+    GEO = {};
+    if (!FR) return GEO;
+    FR.links.forEach((l) => {
+      GEO[l.name] = l.parts.map((p) => {
+        const q = b64(p.v, Uint16Array), pos = new Float32Array(q.length);
+        for (let i = 0; i < q.length; i++) { const a = i % 3; pos[i] = p.lo[a] + (q[i] / 65535) * p.span[a]; }
+        const g = new T.BufferGeometry();
+        g.setAttribute("position", new T.BufferAttribute(pos, 3));
+        g.setIndex(new T.BufferAttribute(b64(p.i, p.i32 ? Uint32Array : Uint16Array), 1));
+        g.computeVertexNormals();
+        return { g, color: p.color };
+      });
+    });
+    return GEO;
+  }
+  const MATS = {};
+  const armMat = (c, ghost) => (MATS[c + ghost] ||= ghost
+    ? new T.MeshStandardMaterial({ color: c, roughness: 0.6, metalness: 0.0, transparent: true, opacity: 0.22, depthWrite: false })
+    : new T.MeshStandardMaterial({ color: c, roughness: 0.48, metalness: 0.12 }));
+  function makeArm(links, ghost) {
+    const G = frankaGeoms(), group = new T.Group();
+    const nodes = links.map((name) => {
+      const parts = G[name]; if (!parts) return null;
+      const o = new T.Group();
+      parts.forEach(({ g, color }) => { const m = new T.Mesh(g, armMat(color, ghost)); m.castShadow = !ghost; m.receiveShadow = !ghost; o.add(m); });
+      group.add(o); return o;
+    });
+    return { group, nodes };
+  }
+
+  // ---------- one viewer instance ----------
+  function create() {
+    const root = document.createElement("div");
+    root.className = "v3";
+    root.innerHTML = `<div class="stage"><canvas aria-label="3D replay of the push simulated in NVIDIA Newton"></canvas>
+        <div class="hud"><span class="it"></span><span class="src">NVIDIA Newton · per-frame poses</span></div>
+        <span class="vpl top">Sim · agent’s model</span><span class="vpl bot">Real · hidden physics</span><div class="divider"></div>
+        <span class="tag sim"></span><span class="tag real"></span>
+        <span class="hint">${matchMedia("(pointer: coarse)").matches ? "drag to orbit · pinch to zoom" : "drag to orbit · shift-drag to pan · click, then wheel to zoom"}</span></div>
+      <div class="bar">
+        <button class="ib play" data-a="play" aria-label="Pause">${ICON.pause}</button>
+        <input class="scrub" type="range" min="0" max="1000" step="1" value="0" aria-label="Scrub time">
+        <span class="time">0.00 / 0.00 s</span>
+        <div class="seg" data-g="speed" role="group" aria-label="Playback speed"><button data-v="0.25">¼×</button><button data-v="0.5" aria-pressed="true">½×</button><button data-v="1">1×</button></div>
+        <div class="seg" data-g="mode" role="group" aria-label="Layout"><button data-v="overlay" aria-pressed="true">Ghost</button><button data-v="split">Split</button></div>
+        <div class="seg" data-g="view" role="group" aria-label="Camera"><button data-v="wide" aria-pressed="true">Wide</button><button data-v="lane">Lane</button></div>
+      </div>
+      <div class="readout">
+        <div data-k="real"><span class="k label"><i class="sw" style="background:#dcdcdc"></i>Real · hidden physics</span><span class="y"></span></div>
+        <div data-k="sim"><span class="k label"><i class="sw" style="border:1px dashed #999"></i>Sim · agent’s model</span><span class="y"></span></div>
+      </div>`;
+    const $ = (s) => root.querySelector(s);
+    const stage = $(".stage"), canvas = $("canvas"), scrub = $(".scrub"), timeEl = $(".time"), playBtn = $('[data-a="play"]');
+    const tags = { real: $(".tag.real"), sim: $(".tag.sim") };
+    const outs = { real: root.querySelector('[data-k="real"] .y'), sim: root.querySelector('[data-k="sim"] .y') };
+
+    const renderer = new T.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: false });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = T.PCFSoftShadowMap;
+    const scene = new T.Scene();
+    scene.background = new T.Color(COL.bg);
+    const cam = new T.PerspectiveCamera(40, 16 / 9, 0.02, 20);
+    cam.up.set(0, 0, 1);
+    scene.add(new T.HemisphereLight(0xffffff, 0x1a1a1a, 1.1));
+    const sun = new T.DirectionalLight(0xffffff, 1.9);
+    sun.position.set(0.9, -0.7, 1.9);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(1536, 1536);
+    Object.assign(sun.shadow.camera, { left: -1, right: 1, top: 1, bottom: -1, near: 0.2, far: 5 });
+    sun.shadow.bias = -0.0004;
+    scene.add(sun, sun.target);
+    const fill = new T.DirectionalLight(0xffffff, 0.45); fill.position.set(-1.2, 0.8, 0.9); scene.add(fill);
+
+    const S = { data: null, key: null, t: 0, hold: 0, playing: true, speed: 0.5, mode: "overlay", view: { ...VIEWS.wide }, w: 0, h: 0, meta: {}, touched: false, last: 0 };
+    let world = null;  // per-replay scene objects
+
+    // ---------- static scene (table, grid, ruler, target) ----------
+    function lineSegs(pts, color, opacity = 1) {
+      const g = new T.BufferGeometry(); g.setAttribute("position", new T.Float32BufferAttribute(pts, 3));
+      return new T.LineSegments(g, new T.LineBasicMaterial({ color, transparent: opacity < 1, opacity }));
+    }
+    function buildTable(sc) {
+      const grp = new T.Group();
+      const [sx, sy] = sc.table.size, [cx, cy] = sc.table.center;
+      const top = new T.Mesh(new T.PlaneGeometry(sx, sy), new T.MeshStandardMaterial({ color: COL.table, roughness: 0.92, metalness: 0 }));
+      top.position.set(cx, cy, 0); top.receiveShadow = true; grp.add(top);
+      const x0 = cx - sx / 2, x1 = cx + sx / 2, y0 = cy - sy / 2, y1 = cy + sy / 2, z = 0.0004;
+      const minor = [], major = [];
+      for (let x = Math.ceil(x0 * 10) / 10; x <= x1 + 1e-6; x += 0.1) (Math.abs(Math.round(x * 10) % 5) === 0 ? major : minor).push(x, y0, z, x, y1, z);
+      for (let y = Math.ceil(y0 * 10) / 10; y <= y1 + 1e-6; y += 0.1) (Math.abs(Math.round(y * 10) % 5) === 0 ? major : minor).push(x0, y, z, x1, y, z);
+      grp.add(lineSegs(minor, COL.grid), lineSegs(major, COL.major));
+      grp.add(lineSegs([x0, y0, z, x1, y0, z, x1, y0, z, x1, y1, z, x1, y1, z, x0, y1, z, x0, y1, z, x0, y0, z], 0x444444));
+      // ruler beside the push lane: ticks every 5 cm, long ticks every 10 cm, from the start line
+      const r = [], rx = 0.15;
+      for (let k = 0; k <= 16; k++) { const y = k * 0.05, L = k % 2 ? 0.012 : 0.028; r.push(rx, y, z * 2, rx + L, y, z * 2); }
+      r.push(rx, 0, z * 2, rx, 0.8, z * 2);
+      grp.add(lineSegs(r, 0x777777, 0.9));
+      // start line (cube rest position)
+      grp.add(lineSegs([-0.06, 0, z * 2, 0.06, 0, z * 2], 0x666666));
+      return grp;
+    }
+    function buildTarget(sc) {
+      const grp = new T.Group(), tol = sc.tol || TOL_DEFAULT, hx = sc.marker.hx;
+      const band = new T.Mesh(new T.PlaneGeometry(2 * hx, 2 * tol), new T.MeshBasicMaterial({ color: COL.green, transparent: true, opacity: 0.13, depthWrite: false }));
+      band.position.set(0, sc.target, 0.0007); grp.add(band);
+      const line = new T.Mesh(new T.BoxGeometry(2 * hx, 2 * sc.marker.hy, 0.001), new T.MeshBasicMaterial({ color: COL.green }));
+      line.position.set(0, sc.target, 0.0009); grp.add(line);
+      grp.add(lineSegs([-hx, sc.target - tol, 0.001, hx, sc.target - tol, 0.001, -hx, sc.target + tol, 0.001, hx, sc.target + tol, 0.001], COL.green, 0.55));
+      return grp;
+    }
+    function makeCube(hs, look) {
+      const g = new T.BoxGeometry(2 * hs, 2 * hs, 2 * hs);
+      const grp = new T.Group();
+      const fillM = look === "real" ? new T.MeshStandardMaterial({ color: COL.real, roughness: 0.55, metalness: 0.02 })
+        : new T.MeshStandardMaterial({ color: 0xffffff, roughness: 0.7, transparent: true, opacity: 0.16, depthWrite: false });
+      const solidSim = new T.MeshStandardMaterial({ color: COL.sim, roughness: 0.6 });
+      const mesh = new T.Mesh(g, fillM); mesh.castShadow = look === "real"; mesh.receiveShadow = true;
+      const edges = new T.LineSegments(new T.EdgesGeometry(g), new T.LineBasicMaterial({ color: look === "real" ? 0x222222 : 0xd0d0d0, transparent: true, opacity: look === "real" ? 0.6 : 0.95 }));
+      grp.add(mesh, edges);
+      grp.userData.setLook = (ghost) => { if (look === "real") return; mesh.material = ghost ? fillM : solidSim; mesh.castShadow = !ghost; edges.material.opacity = ghost ? 0.95 : 0.4; edges.material.color.set(ghost ? 0xd0d0d0 : 0x222222); };
+      return grp;
+    }
+    function stopMark(color) {
+      const m = new T.Mesh(new T.BoxGeometry(0.07, 0.003, 0.0012), new T.MeshBasicMaterial({ color }));
+      m.visible = false; return m;
+    }
+
+    function load(data) {
+      if (world) { scene.remove(world.group); }
+      const sc = data.scene, grp = new T.Group();
+      grp.add(buildTable(sc), buildTarget(sc));
+      const tr = data.trials, tol = sc.tol || TOL_DEFAULT;
+      const real = makeArm(data.links, false), sim = makeArm(data.links, false);
+      const cubes = { real: makeCube(tr.real.half_size, "real"), sim: makeCube(tr.sim.half_size, "sim") };
+      const verdict = (k) => { const e = tr[k].slide - sc.target; return Math.abs(e) <= tol + 1e-9 ? "ok" : "bad"; };
+      const marks = { real: stopMark(verdict("real") === "ok" ? COL.green : COL.bad), sim: stopMark(0xbbbbbb) };
+      marks.real.position.set(0.11, tr.real.slide, 0.001); marks.sim.position.set(-0.11, tr.sim.slide, 0.001);
+      grp.add(real.group, sim.group, cubes.real, cubes.sim, marks.real, marks.sim);
+      scene.add(grp);
+      const n = Math.max(tr.real.cube.length, tr.sim.cube.length);
+      // frame at which the cube comes to rest (recording continues a little past it)
+      const rest = (rows) => { const L = rows[rows.length - 1]; let i = rows.length - 1;
+        while (i > data.strike_frame && Math.abs(rows[i - 1][1] - L[1]) < 5e-4 && Math.abs(rows[i - 1][2] - L[2]) < 5e-4) i--; return i; };
+      const stop = { real: rest(tr.real.cube), sim: rest(tr.sim.cube) };
+      world = { group: grp, arms: { real, sim }, cubes, marks, n, stop, dur: (n - 1) / data.fps, verdict };
+      S.t = 0; S.hold = 0;
+    }
+
+    // ---------- pose interpolation ----------
+    const q0 = new T.Quaternion(), q1 = new T.Quaternion();
+    function setPose(obj, rows, fi, off) {
+      const last = rows.length - 1, i = Math.max(0, Math.min(Math.floor(fi), last)), j = Math.min(i + 1, last), a = Math.max(0, Math.min(1, fi - i));
+      const A = rows[i], B = rows[j];
+      obj.position.set(A[off] + (B[off] - A[off]) * a, A[off + 1] + (B[off + 1] - A[off + 1]) * a, A[off + 2] + (B[off + 2] - A[off + 2]) * a);
+      q0.set(A[off + 3], A[off + 4], A[off + 5], A[off + 6]); q1.set(B[off + 3], B[off + 4], B[off + 5], B[off + 6]);
+      obj.quaternion.slerpQuaternions(q0, q1, a);
+    }
+    function apply() {
+      const fps = S.data.fps, fi = S.t * fps, tr = S.data.trials;
+      ["real", "sim"].forEach((k) => {
+        const trial = tr[k];
+        setPose(world.cubes[k], trial.cube, fi, 0);
+        world.arms[k].nodes.forEach((node, j) => { if (node) setPose(node, trial.arm, fi, j * 7); });
+        world.marks[k].visible = fi >= world.stop[k];
+      });
+    }
+
+    // ---------- camera ----------
+    function placeCamera(aspect) {
+      const v = S.view, d = v.dist * Math.max(1, 1.6 / aspect);  // keep the 1.5 m lane in frame on narrow screens
+      cam.aspect = aspect;
+      cam.position.set(v.tx + d * Math.cos(v.el) * Math.cos(v.az), v.ty + d * Math.cos(v.el) * Math.sin(v.az), v.tz + d * Math.sin(v.el));
+      cam.lookAt(v.tx, v.ty, v.tz);
+      cam.updateProjectionMatrix();
+    }
+    const tmp = new T.Vector3();
+    function placeTag(k, x0, y0, w, h) {
+      const c = world.cubes[k], el = tags[k];
+      // real tag above its cube, sim tag below its ghost: they never collide, even when the cubes coincide
+      tmp.copy(c.position); tmp.z = k === "real" ? tmp.z + S.data.trials[k].half_size * 2 + 0.015 : 0;
+      tmp.project(cam);
+      const vis = tmp.z < 1 && Math.abs(tmp.x) < 1.1 && Math.abs(tmp.y) < 1.1;
+      el.style.display = vis ? "" : "none";
+      if (!vis) return;
+      const half = el.offsetWidth / 2 + 6;  // keep the tag inside the stage
+      const sx = Math.max(half, Math.min(w - half, x0 + (tmp.x + 1) / 2 * w)), sy = y0 + (1 - tmp.y) / 2 * h;
+      el.style.transform = `translate(${Math.round(sx)}px, ${Math.round(sy)}px) translate(-50%, ${k === "real" ? "-100%" : "10px"})`;
+    }
+
+    // ---------- draw ----------
+    function resize() {
+      const w = stage.clientWidth, h = stage.clientHeight;
+      if (w && h && (w !== S.w || h !== S.h)) { S.w = w; S.h = h; renderer.setSize(w, h, false); }
+    }
+    function draw() {
+      const { w, h } = S;
+      if (!w || !h) return;
+      const ov = S.mode === "overlay";
+      world.cubes.sim.userData.setLook(ov);
+      if (ov) {
+        renderer.setScissorTest(false);
+        renderer.setViewport(0, 0, w, h);
+        world.arms.real.group.visible = true; world.arms.sim.group.visible = false;
+        world.cubes.real.visible = world.cubes.sim.visible = true;
+        placeCamera(w / h);
+        renderer.render(scene, cam);
+        placeTag("real", 0, 0, w, h); placeTag("sim", 0, 0, w, h);
+        return;
+      }
+      renderer.setScissorTest(true);
+      const hh = Math.floor(h / 2);
+      const pass = (k, y0css) => {
+        const other = k === "real" ? "sim" : "real";
+        world.arms[k].group.visible = true; world.arms[other].group.visible = false;
+        world.cubes[k].visible = true; world.cubes[other].visible = false;
+        const mk = world.marks[other].visible; world.marks[other].visible = false;
+        const yGL = h - y0css - hh;
+        renderer.setViewport(0, yGL, w, hh); renderer.setScissor(0, yGL, w, hh);
+        placeCamera(w / hh);
+        renderer.render(scene, cam);
+        world.marks[other].visible = mk;
+        placeTag(k, 0, y0css, w, hh);
+      };
+      pass("sim", 0); pass("real", h - hh);
+    }
+
+    // ---------- UI ----------
+    let shownTxt = {};
+    function ui() {
+      const tr = S.data.trials, sc = S.data.scene, fps = S.data.fps, fi = S.t * fps;
+      const pct = world.dur ? S.t / world.dur : 0;
+      if (document.activeElement !== scrub) scrub.value = String(Math.round(pct * 1000));
+      const tt = `${S.t.toFixed(2)} / ${world.dur.toFixed(2)} s`;
+      if (shownTxt.time !== tt) { timeEl.textContent = tt; shownTxt.time = tt; }
+      ["real", "sim"].forEach((k) => {
+        const trial = tr[k], i = Math.min(Math.round(fi), trial.cube.length - 1), y = trial.cube[i][1], err = y - sc.target;
+        const stopped = fi >= world.stop[k], struck = fi >= S.data.strike_frame;
+        const v = world.verdict(k);
+        const state = !struck ? `<span class="wait">waiting for strike</span>` : !stopped ? `<span class="wait">sliding · ${fmtErr(err)} to target</span>`
+          : `<span class="${v}">${fmtErr(err)} · ${v === "ok" ? "on line" : err > 0 ? "overshoot" : "short"}${trial.tipped ? " · tipped" : ""}</span>`;
+        const html = `<b>y ${y.toFixed(3)} m</b> <span class="wait">/ target ${sc.target.toFixed(2)}</span><br>${state}`;
+        if (shownTxt[k] !== html) { outs[k].innerHTML = html; shownTxt[k] = html; }
+        const tag = stopped ? `${k === "real" ? "REAL" : "SIM"} ${fmtErr(err)}` : (k === "real" ? "REAL" : "SIM");
+        const cls = `tag ${k}${stopped ? " " + v : ""}`;
+        if (tags[k].textContent !== tag) tags[k].textContent = tag;
+        if (tags[k].className !== cls) tags[k].className = cls;
+      });
+    }
+    function setPlaying(p) {
+      S.playing = p;
+      playBtn.innerHTML = p ? ICON.pause : ICON.play;
+      playBtn.setAttribute("aria-label", p ? "Pause" : "Play");
+    }
+    root.addEventListener("click", (e) => {
+      const b = e.target.closest("button"); if (!b || !root.contains(b)) return;
+      if (b.dataset.a === "play") { if (!S.playing && world && S.t >= world.dur) S.t = 0; setPlaying(!S.playing); return; }
+      const g = b.parentElement.dataset.g; if (!g) return;
+      b.parentElement.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+      if (g === "speed") S.speed = +b.dataset.v;
+      if (g === "view") S.view = { ...VIEWS[b.dataset.v] };
+      if (g === "mode") { S.mode = b.dataset.v; root.classList.toggle("split", S.mode === "split"); }
+    });
+    scrub.addEventListener("input", () => { if (!world) return; setPlaying(false); S.t = (+scrub.value / 1000) * world.dur; S.hold = 0; });
+
+    // orbit / pan / zoom (pointer events; vertical touch swipes still scroll the page)
+    const ptrs = new Map();
+    let pinch0 = 0, active = false;
+    const touchHint = () => { if (!S.touched) { S.touched = true; $(".hint").style.opacity = "0"; } };
+    stage.addEventListener("pointerdown", (e) => { ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY }); active = true; touchHint();
+      if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch0 = Math.hypot(a.x - b.x, a.y - b.y); }
+      try { stage.setPointerCapture(e.pointerId); } catch (_) {} });
+    stage.addEventListener("pointermove", (e) => {
+      const p = ptrs.get(e.pointerId); if (!p) return;
+      const dx = e.clientX - p.x, dy = e.clientY - p.y; p.x = e.clientX; p.y = e.clientY;
+      const v = S.view;
+      if (ptrs.size === 2) {
+        const [a, b] = [...ptrs.values()], d = Math.hypot(a.x - b.x, a.y - b.y);
+        if (pinch0) v.dist = Math.max(0.35, Math.min(4, v.dist * pinch0 / d)); pinch0 = d; return;
+      }
+      if (e.shiftKey || e.buttons === 2 || e.buttons === 4) {
+        const s = v.dist * 0.0016;  // camera right (in the table plane) = (-sin az, cos az, 0)
+        v.tx += Math.sin(v.az) * dx * s; v.ty -= Math.cos(v.az) * dx * s; v.tz = Math.max(-0.2, Math.min(1, v.tz + dy * s)); return;
+      }
+      v.az -= dx * 0.008; v.el = Math.max(0.04, Math.min(1.5, v.el + dy * 0.006));
+    });
+    const up = (e) => { ptrs.delete(e.pointerId); if (ptrs.size < 2) pinch0 = 0; };
+    stage.addEventListener("pointerup", up); stage.addEventListener("pointercancel", up);
+    stage.addEventListener("pointerleave", () => { active = false; });
+    stage.addEventListener("contextmenu", (e) => e.preventDefault());
+    stage.addEventListener("wheel", (e) => {  // zoom only after the viewer was clicked, so page scrolling is not hijacked
+      if (!active) return;
+      e.preventDefault(); S.view.dist = Math.max(0.35, Math.min(4, S.view.dist * Math.exp(e.deltaY * 0.0012)));
+    }, { passive: false });
+
+    // ---------- loop ----------
+    function frame(now) {
+      requestAnimationFrame(frame);
+      const dt = Math.min(0.1, Math.max(0, (now - (S.last || now)) / 1000)); S.last = now;
+      if (!root.isConnected || !world) return;
+      if (S.playing) {
+        if (S.t >= world.dur) { S.hold += dt; if (S.hold > 1.4) { S.t = 0; S.hold = 0; } }
+        else S.t = Math.min(world.dur, S.t + dt * S.speed);
+      }
+      resize(); apply(); draw(); ui();
+    }
+    requestAnimationFrame(frame);
+
+    const cache = {};
+    return {
+      root,
+      /** mount into slot; replay = data object or URL; key identifies the replay (run + iteration) */
+      mount(slot, replay, key, meta) {
+        if (root.parentNode !== slot) slot.appendChild(root);
+        const it = $(".hud .it");
+        it.textContent = meta.label; it.className = `it ${meta.ok ? "ok" : "bad"}`;
+        if (key === S.key) return;
+        S.key = key;
+        const go = (d) => { if (S.key !== key) return; S.data = d; load(d); setPlaying(true); shownTxt = {}; };
+        if (typeof replay === "string") {
+          if (cache[replay]) go(cache[replay]);
+          else fetch(replay).then((r) => r.json()).then((d) => { cache[replay] = d; go(d); }).catch(() => {});
+        } else go(replay);
+      },
+    };
+  }
+  let inst = null;
+  return { get: () => (inst ||= create()) };
+})();
+</script>
 <script>window.BUNDLE = "__BUNDLE__";</script>
 <script>
 (() => {
@@ -287,13 +694,20 @@ function boot(B, LIVE) {
       const err = clipErr(m, which), ok = Math.abs(err) <= B.task.success_tol_m;
       return `<figure class="clip" style="margin:0"><div class="frame"><img alt="${tag} push rendered in Newton" src="${m.clip[which]}"><span class="tag">${tag}</span><span class="res ${ok ? "ok" : "bad"}">${err >= 0 ? "+" : ""}${(err * 100).toFixed(1)} cm ${ok ? "on line" : err > 0 ? "overshoot" : "short"}</span></div><figcaption class="cap"><span>${p}</span><span class="mono">stop ${m.clip[`${which}_slide`].toFixed(3)} m</span></figcaption></figure>`;
     };
+    const clipsHtml = m.clip ? `<div class="clips">${clip("sim", "Sim · agent’s model", "What the agent expects")}${clip("real", "Real · hidden physics", "What actually happens")}</div>` : "";
+    const viewer = m.clip && m.clip.replay ? window.GCViewer : null;
+    if (viewer) {
+      const realOk = Math.abs(clipErr(m, "real")) <= B.task.success_tol_m, last = it === its.length - 1;
+      S.v3 = { replay: m.clip.replay, key: `${run.id}:${it}`, meta: { ok: realOk,
+        label: it === 0 ? `it 0 · sim-trained policy` : `it ${it} · after fix ${it}${last && realOk ? " · gap closed" : ""}` } };
+    }
     return `<section class="pane" aria-label="Evidence"><header><span class="label">Sim vs real · same policy${m.clip ? `, target ${m.clip.target.toFixed(2)} m` : ""}</span><div class="iters" id="iters">${iterBtns}</div></header>
       <div class="body">
-        ${m.clip ? `<div class="clips">${clip("sim", "Sim · agent’s model", "What the agent expects")}${clip("real", "Real · hidden physics", "What actually happens")}</div>` : ""}
+        ${viewer ? `<div id="v3slot"></div><details class="clipbox"><summary class="label">Camera clips · Newton tiled-camera render</summary>${clipsHtml}</details>` : clipsHtml}
         <div class="evh"><span class="label">Every push this iteration · stop error vs target</span>
           <div class="legend"><span><i class="sw" style="background:var(--green)"></i>real, on line</span><span><i class="sw" style="background:var(--bad)"></i>real, miss</span><span><i class="sw" style="border:1px solid var(--muted)"></i>sim prediction</span></div></div>
         ${trialChart(m)}
-        <p class="note">Shaded band = ±${B.task.success_tol_m * 100} cm tolerance. Real and sim use the identical commands; only the physics differs.${B.stack.clips ? " Clips: the Franka arm is kinematic (IK) and only visualizes the strike; the cube’s motion is simulated in NVIDIA Newton." : ""}</p>
+        <p class="note">Shaded band = ±${B.task.success_tol_m * 100} cm tolerance. Real and sim use the identical commands; only the physics differs.${viewer ? " 3D replay: per-frame cube and Franka link poses recorded from NVIDIA Newton for the target above (sim cube shown as a ghost). The arm is kinematic (IK) and only visualizes the strike; the cube’s motion is simulated." : B.stack.clips ? " Clips: the Franka arm is kinematic (IK) and only visualizes the strike; the cube’s motion is simulated in NVIDIA Newton." : ""}</p>
       </div></section>`;
   }
   function trialChart(m) {
@@ -432,7 +846,10 @@ function boot(B, LIVE) {
   // ---------- render + events ----------
   function render() {
     renderTabs();
+    S.v3 = null;
     $("#main").innerHTML = S.tab === "bench" ? renderBench() : S.tab === "new" ? renderNew() : renderRun(B.runs[S.tab]);
+    const slot = $("#v3slot");
+    if (slot && S.v3) window.GCViewer.get().mount(slot, S.v3.replay, S.v3.key, S.v3.meta);
   }
 
   // ---------- live: new run ----------

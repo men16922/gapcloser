@@ -47,10 +47,13 @@ Local Nemotron 3 Nano 4B also diagnosed all five probe worlds correctly, includi
 
 ```bash
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt pytest httpx
-make check            # offline gate: 33 tests, no network
+make check            # offline gate: 37 tests, no network
 make demo             # record 5 Newton scenarios + build the dashboard (~30 s; add --llm local via eval.record_demo for Nemotron)
 open dashboard/dist/gapcloser.standalone.html
+make replays          # 3D viewer data only: per-frame Newton poses for the recorded bundle (no LLM)
 ```
+
+The dashboard's main visual is a three.js 3D replay of each measured push: per-frame cube and Franka FR3 link poses recorded from NVIDIA Newton, the hidden-physics cube solid and the agent's sim cube as a ghost (or split view), with orbit, scrub, speed, a lane close-up and the stop error vs the target line. three.js and the decimated Franka meshes are inlined, so the standalone page works offline; the WebP camera clips remain as a fallback.
 
 Live demo server (visitors hide physics and watch the agent):
 
@@ -92,10 +95,11 @@ Model ids are resolved at runtime from the provider's model list, so no id is ha
 | `sim/params.py` | the 10-parameter space, hidden-world sampler, randomization ranges |
 | `sim/push_task.py` | analytic surrogate of the push task (policy search, offline tests) |
 | `sim/newton_push.py` | NVIDIA Newton push environment, cube tracking, camera clips |
+| `sim/replay.py` | per-frame Newton poses (cube + Franka links) for the 3D viewer |
 | `agent/loop.py` | the loop, rule-based and trajectory diagnosers, planner, event stream |
 | `agent/llm.py`, `agent/llm_diagnoser.py` | OpenAI-compatible client (Token Factory / Ollama), record/replay, Nemotron diagnoser |
 | `eval/compare.py`, `eval/record_demo.py` | benchmark and demo recorder |
-| `dashboard/` | agent console (template + builder; static and live variants) |
+| `dashboard/` | agent console (template + builder; static and live variants), three.js 3D replay viewer, `assets/` (vendored three.js r160, decimated Franka FR3 meshes) |
 | `server/app.py` | live server: FastAPI, SSE event stream, cost guards |
 | `Dockerfile`, `deploy/`, `docs/deploy/` | container and deployment guides |
 | `video/make_video.py` | demo video builder (numbers in the narration come from the recorded bundle) |
