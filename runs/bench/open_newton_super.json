@@ -1,0 +1,631 @@
+{
+ "rows": [
+  {
+   "tier": "closed",
+   "world": 0,
+   "hidden": {
+    "restitution": 0.15517470624693985,
+    "camera_dz": -0.010349482162031048
+   },
+   "success": {
+    "nominal": 1.0,
+    "full_dr": 0.0,
+    "rule": 1.0,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 20,
+    "sysid": 20,
+    "agent": 20
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 1,
+    "sysid": 1,
+    "agent": 1
+   }
+  },
+  {
+   "tier": "closed",
+   "world": 1,
+   "hidden": {
+    "actuator_gain": 1.297794168167737,
+    "camera_pitch_deg": 3.321013226073441
+   },
+   "success": {
+    "nominal": 0.0,
+    "full_dr": 0.0,
+    "rule": 1.0,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 40,
+    "agent": 40
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "closed",
+   "world": 2,
+   "hidden": {
+    "table_mu": 0.20027176040821626,
+    "light_intensity": 1.297691131675395
+   },
+   "success": {
+    "nominal": 0.0,
+    "full_dr": 0.0,
+    "rule": 1.0,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 40,
+    "agent": 40
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "closed",
+   "world": 3,
+   "hidden": {
+    "table_mu": 0.9802062916015615,
+    "object_density": 201.83818771036897
+   },
+   "success": {
+    "nominal": 0.1,
+    "full_dr": 0.0,
+    "rule": 1.0,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 40,
+    "agent": 46
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "closed",
+   "world": 4,
+   "hidden": {
+    "object_half_size": 0.020929422365063854,
+    "camera_pitch_deg": -2.65145518445288
+   },
+   "success": {
+    "nominal": 0.85,
+    "full_dr": 0.0,
+    "rule": 1.0,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 40,
+    "agent": 43
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "closed",
+   "world": 5,
+   "hidden": {
+    "object_half_size": 0.021946573355619118,
+    "restitution": 0.3274632810627851
+   },
+   "success": {
+    "nominal": 1.0,
+    "full_dr": 0.0,
+    "rule": 1.0,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 20,
+    "sysid": 20,
+    "agent": 20
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 1,
+    "sysid": 1,
+    "agent": 1
+   }
+  },
+  {
+   "tier": "open",
+   "world": 0,
+   "hidden": {
+    "object_density": 923.1316371371511,
+    "patch_y0": 0.435,
+    "patch_mu": 0.423
+   },
+   "success": {
+    "nominal": 0.55,
+    "full_dr": 0.0,
+    "rule": 0.55,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 80,
+    "sysid": 40,
+    "agent": 40
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 4,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "open",
+   "world": 1,
+   "hidden": {
+    "camera_pitch_deg": 3.0896365727018393,
+    "lens_k": -0.281
+   },
+   "success": {
+    "nominal": 0.45,
+    "full_dr": 0.0,
+    "rule": 1.0,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 40,
+    "agent": 43
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "open",
+   "world": 2,
+   "hidden": {
+    "object_mu": 1.1058364278095274,
+    "lens_k": 0.149
+   },
+   "success": {
+    "nominal": 0.0,
+    "full_dr": 0.0,
+    "rule": 1.0,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 40,
+    "agent": 43
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "open",
+   "world": 3,
+   "hidden": {
+    "table_mu": 0.3477623140034424,
+    "lens_k": 0.286
+   },
+   "success": {
+    "nominal": 0.0,
+    "full_dr": 0.0,
+    "rule": 0.7,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 80,
+    "sysid": 40,
+    "agent": 40
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 4,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "open",
+   "world": 4,
+   "hidden": {
+    "object_half_size": 0.019679959144243215,
+    "patch_y0": 0.458,
+    "patch_mu": 0.513
+   },
+   "success": {
+    "nominal": 0.8,
+    "full_dr": 0.0,
+    "rule": 0.8,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 80,
+    "sysid": 40,
+    "agent": 40
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 4,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "open",
+   "world": 5,
+   "hidden": {
+    "table_mu": 0.9732083875273968,
+    "lens_k": 0.263
+   },
+   "success": {
+    "nominal": 1.0,
+    "full_dr": 0.0,
+    "rule": 1.0,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 20,
+    "sysid": 20,
+    "agent": 20
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 1,
+    "sysid": 1,
+    "agent": 1
+   }
+  },
+  {
+   "tier": "compound",
+   "world": 0,
+   "hidden": {
+    "object_density": 899.0885830767115,
+    "patch_y0": 0.261,
+    "patch_mu": 0.38,
+    "lens_k": 0.264
+   },
+   "success": {
+    "nominal": 0.1,
+    "full_dr": 0.25,
+    "rule": 0.25,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 80,
+    "sysid": 40,
+    "agent": 40
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 4,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "compound",
+   "world": 1,
+   "hidden": {
+    "camera_dz": 0.02759742958411038,
+    "patch_y0": 0.268,
+    "patch_mu": 0.429,
+    "lens_k": -0.132
+   },
+   "success": {
+    "nominal": 0.3,
+    "full_dr": 0.45,
+    "rule": 0.3,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 80,
+    "sysid": 40,
+    "agent": 40
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 4,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "compound",
+   "world": 2,
+   "hidden": {
+    "object_mu": 0.43131156320715197,
+    "patch_y0": 0.465,
+    "patch_mu": 0.25,
+    "lens_k": 0.198
+   },
+   "success": {
+    "nominal": 0.0,
+    "full_dr": 0.0,
+    "rule": 0.55,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 80,
+    "sysid": 40,
+    "agent": 40
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 4,
+    "sysid": 2,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "compound",
+   "world": 3,
+   "hidden": {
+    "table_mu": 1.1650071443214005,
+    "patch_y0": 0.258,
+    "patch_mu": 0.68,
+    "lens_k": -0.158
+   },
+   "success": {
+    "nominal": 0.0,
+    "full_dr": 0.0,
+    "rule": 0.3,
+    "sysid": 0.8,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 80,
+    "sysid": 80,
+    "agent": 43
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 4,
+    "sysid": 4,
+    "agent": 2
+   }
+  },
+  {
+   "tier": "compound",
+   "world": 4,
+   "hidden": {
+    "table_mu": 1.1744726779779,
+    "patch_y0": 0.33,
+    "patch_mu": 0.688,
+    "lens_k": 0.275
+   },
+   "success": {
+    "nominal": 0.6,
+    "full_dr": 0.0,
+    "rule": 0.05,
+    "sysid": 0.8,
+    "agent": 0.95
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 80,
+    "sysid": 80,
+    "agent": 95
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 4,
+    "sysid": 4,
+    "agent": 4
+   }
+  },
+  {
+   "tier": "compound",
+   "world": 5,
+   "hidden": {
+    "object_half_size": 0.01910791166056719,
+    "patch_y0": 0.497,
+    "patch_mu": 0.413,
+    "lens_k": -0.199
+   },
+   "success": {
+    "nominal": 0.3,
+    "full_dr": 0.0,
+    "rule": 1.0,
+    "sysid": 1.0,
+    "agent": 1.0
+   },
+   "real_trials": {
+    "nominal": 20,
+    "full_dr": 20,
+    "rule": 40,
+    "sysid": 60,
+    "agent": 43
+   },
+   "iterations": {
+    "nominal": 1,
+    "full_dr": 1,
+    "rule": 2,
+    "sysid": 3,
+    "agent": 2
+   }
+  }
+ ],
+ "summary": {
+  "closed": {
+   "nominal": {
+    "mean": 0.4916666666666667,
+    "ci95": 0.40518519771142236,
+    "real_trials": 20.0
+   },
+   "full_dr": {
+    "mean": 0.0,
+    "ci95": 0.0,
+    "real_trials": 20.0
+   },
+   "rule": {
+    "mean": 1.0,
+    "ci95": 0.0,
+    "real_trials": 33.333333333333336
+   },
+   "sysid": {
+    "mean": 1.0,
+    "ci95": 0.0,
+    "real_trials": 33.333333333333336
+   },
+   "agent": {
+    "mean": 1.0,
+    "ci95": 0.0,
+    "real_trials": 34.833333333333336
+   }
+  },
+  "open": {
+   "nominal": {
+    "mean": 0.46666666666666673,
+    "ci95": 0.32764520106019834,
+    "real_trials": 20.0
+   },
+   "full_dr": {
+    "mean": 0.0,
+    "ci95": 0.0,
+    "real_trials": 20.0
+   },
+   "rule": {
+    "mean": 0.8416666666666667,
+    "ci95": 0.15269701299559787,
+    "real_trials": 56.666666666666664
+   },
+   "sysid": {
+    "mean": 1.0,
+    "ci95": 0.0,
+    "real_trials": 36.666666666666664
+   },
+   "agent": {
+    "mean": 1.0,
+    "ci95": 0.0,
+    "real_trials": 37.666666666666664
+   }
+  },
+  "compound": {
+   "nominal": {
+    "mean": 0.21666666666666667,
+    "ci95": 0.1853671431990518,
+    "real_trials": 20.0
+   },
+   "full_dr": {
+    "mean": 0.11666666666666665,
+    "ci95": 0.15322024815423205,
+    "real_trials": 20.0
+   },
+   "rule": {
+    "mean": 0.4083333333333334,
+    "ci95": 0.26468064614634074,
+    "real_trials": 73.33333333333333
+   },
+   "sysid": {
+    "mean": 0.9333333333333332,
+    "ci95": 0.08264085618573364,
+    "real_trials": 56.666666666666664
+   },
+   "agent": {
+    "mean": 0.9916666666666667,
+    "ci95": 0.01633333333333335,
+    "real_trials": 50.166666666666664
+   }
+  }
+ },
+ "usage": {
+  "calls": 90,
+  "prompt_tokens": 309133,
+  "completion_tokens": 20217,
+  "by_model": {
+   "nvidia/nemotron-3-super-120b-a12b": 90
+  }
+ }
+}
