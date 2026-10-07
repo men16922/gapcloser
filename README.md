@@ -1,53 +1,98 @@
 # GapCloser
 
-An agent that closes the Sim2Real gap on its own. When a robot policy trained in simulation fails in the "real" world, GapCloser looks at what happened, works out which simulator parameters are wrong, fixes the simulator, retrains, and measures again until the policy works.
+**An agent that fixes the simulator when a robot fails in the real world, and can tell you why.**
 
-Built for the Nebius × NVIDIA Global AI Hackathon (Physical AI track). Runs on a laptop at zero cost: physics in **NVIDIA Newton**, diagnosis by **NVIDIA Nemotron 3** (Nebius Token Factory, or locally through Ollama for experiments).
+A policy trained in simulation fails on the real robot because the simulator is wrong in ways nobody wrote down: a slippery strip on the table, a weak motor, a distorted camera lens. GapCloser runs the loop an engineer runs by hand. It measures the failures, works out what is wrong with the simulator, designs extra experiments when the data cannot decide, fixes the simulator, retrains and measures again.
+
+Built for the Nebius × NVIDIA Global AI Hackathon (Physical AI track). Runs on a laptop at near-zero cost:
+
+- Physics: **NVIDIA Newton**
+- Reasoning: **NVIDIA Nemotron 3** on **Nebius Token Factory**
+- Eyes: **NVIDIA Cosmos Reason 2**, running locally (optional)
 
 ## How it works
 
 ```mermaid
 flowchart LR
-  T[Train policy in sim] --> M[Run in hidden-physics 'real' world<br/>NVIDIA Newton, 20 pushes]
+  T[Train policy in sim<br/>inverts the simulator] --> M[Run in hidden-physics 'real' world<br/>NVIDIA Newton, 20 pushes]
   M -->|success ≥ 90%| G[Done]
-  M --> D[Diagnose<br/>Nemotron reads tracked motion,<br/>stop errors, perception fit]
-  D --> P[Plan sim config diff<br/>e.g. actuator_gain 1.00 → 0.76]
+  M --> D[Nemotron tool agent<br/>look · hypothesize · fit · probe · commit]
+  D --> P[New simulator config<br/>e.g. friction strip μ 0.80 → 0.50 from 0.40 m]
   P --> T
+  C[Cosmos Reason 2<br/>watches real clips] -.events.-> D
 ```
 
-- **Task (Tier 0):** push a cube so it stops on a target line (20 targets, 0.2–0.6 m, ±3 cm).
-- **"Real" world:** a second Newton simulator with up to 10 hidden parameter changes: friction (cube, table), density, size, actuator gain, restitution, camera offset / height / pitch, lighting. The agent never sees these values; it only sees rollouts.
-- **Evidence:** end positions, the cube's tracked motion (launch speed and deceleration), and the perceived vs known target positions. Tracking is what separates "the motor is weak" from "the table is sticky", which look identical from end positions alone.
-- **Measured, never estimated:** every success rate comes from rolling out the policy. The LLM proposes causes and values; the rollouts grade them.
+**Task:** a Franka arm pushes a cube so that it stops on a target line. There are 20 targets between 0.2 and 0.6 m, and a push succeeds if the cube stops within ±3 cm.
+
+**The "real" world:** a second Newton world whose physics is hidden from the agent.
+
+- *Closed-world* faults change one of 10 known parameters, such as friction, density, actuator gain or camera pose.
+- *Open-world* faults are effects a rule book has no parameter for:
+  - a **table strip with different friction**, implemented in Newton without geometry seams
+  - **lens distortion**
+  - combinations of these
+
+**The agent never sees the hidden values.** It sees only what a real robot would log: where each cube stopped, camera tracks of the cube, and perceived vs known target positions. It can also pay for extra real pushes.
+
+**Nemotron as a scientist:** Nemotron 3 Super on Token Factory works through tool calls. Each step is shown in the dashboard's lab notebook.
+
+1. `decel_profile` and `perception_check` look at the evidence.
+2. The agent proposes model *structures* (uniform friction, gain, a friction strip, camera offset, lens).
+3. `fit_hypothesis` fits each structure's numbers by least squares. The LLM chooses the structure and the optimizer does the arithmetic.
+4. `probe_real` designs extra real pushes when the data does not cover the target range.
+5. `commit` hands over a simulator to retrain on.
+
+**Measured, never estimated:** every success rate comes from rolling the policy out in the hidden world.
 
 ## Results
 
-Cost on Nebius Token Factory (measured): Nemotron 3 Super is $0.30 / $0.90 per 1M input / output tokens; one diagnosis uses about 1.2k input and 1.0k output tokens (≈ $0.0013). The full 10-world benchmark cost about $0.015 and recording all five demo scenarios plus benchmark about $0.03.
+### Gap-Bench (NVIDIA Newton, 15 hidden worlds per tier, mean real success ± 95% CI)
 
-Nemotron runs at temperature 0.2, so its numbers vary between runs; both runs are shown. The rule-based rows are deterministic.
+| Tier | Nominal sim | Domain rand. | Rule-based agent | System-ID baseline | **Nemotron tool agent** |
+|---|---|---|---|---|---|
+| Closed: 2 of the 10 known params | 46% | 0% | 100% | 100% | **100%** |
+| Open: friction strip or lens + 1 param | 39% | 6% | 83% ±9 | 100% | **100%** |
+| Compound: strip + lens + 1 param | 22% | 14% | 54% ±15 | 97% ±4 | **96% ±6** |
 
-Ten random hidden worlds (two changed parameters each), all rollouts in NVIDIA Newton:
+- **Rule-based tuning breaks outside its map.** The rule-based agent adjusts a fixed set of known parameters from tracked motion, and it stays at 54–83% when the world has effects it has no parameter for.
+- **The Nemotron agent closes those gaps** in about 2 iterations, using about 40–50 real pushes.
+- **Honest comparison:** the System-ID baseline fits a hand-ordered library of model structures with the same least-squares fitter and matches the agent. A smaller 6-worlds-per-tier run showed the agent ahead on compound worlds (99% vs 93%), but that gap disappeared at 15 worlds per tier. So the claim is not "LLM beats system identification". It is that Nemotron reaches system-ID accuracy **on its own**:
+  - it chooses which structures to try
+  - it designs its own experiments
+  - it explains every fix in plain language
+  - it costs about **$0.007 per world** on Token Factory
 
-| Strategy | Real success | Diagnosis precision / recall |
-|---|---|---|
-| Domain randomization (all 10 params, full range) | 18% | — |
-| Nominal sim, no randomization | 24% | — |
-| GapCloser, end positions only (rule-based) | 80% | 0.42 / 1.00 |
-| GapCloser, tracked motion (rule-based) | 96% | 1.00 / 1.00 |
-| GapCloser, Nemotron 3 Nano 30B (local, Ollama) | 93–99% (two runs) | 0.89–0.94 / 1.00 |
-| **GapCloser, Nemotron 3 Super 120B (Nebius Token Factory)** | **93–94%** (two runs) | 0.89–0.94 / 1.00 |
+Nemotron family on the open and compound tiers (Newton, 6 worlds each; indicative):
 
-Recorded scenarios with Nemotron 3 Super 120B on Nebius Token Factory as the diagnoser (dashboard; clips show a Franka FR3 arm, kinematic via IK, striking a cube simulated in Newton): slippery cube 0 → 100%, shifted camera 0 → 100%, sticky table 0 → 100%, weak motor 0 → 100% (the end-position-only agent stays at 0%). Each took one fix.
+| Model (Token Factory) | Open | Compound | Cost for 12 worlds |
+|---|---|---|---|
+| **Nemotron 3 Super 120B** | 100% | 99% | ~$0.07 |
+| Nemotron 3.5 Lightning | 100% | 95% | ~$0.04 |
+| Nemotron 3 Ultra 550B | 100% | 83% | ~$0.52 |
+| Nemotron 3 Nano 30B | 97% | 53% | ~$0.14 |
 
-Local Nemotron 3 Nano 4B also diagnosed all five probe worlds correctly, including two simultaneous changes (`actuator_gain=1.2`, `object_mu=0.4` → estimates 1.2 and μ_eff 0.6), at ~2.4k prompt tokens per diagnosis.
+### Recorded scenarios (dashboard)
 
-**Known limitation:** when effective friction reaches about 1 (the cube's width/height ratio), cubes tip over instead of sliding. The Newton env flags tipped cubes and the diagnosers exclude them, but the agent has no fix for tipping: results on the "Tipping edge" scenario (table μ 1.18) swing between runs: 5–40% with local Nano 30B, 85% with Super 120B on Token Factory, vs 75% for the end-position-only agent, which fits whatever happens.
+All of these were recorded with Nemotron 3 Super on Token Factory and run in Newton.
+
+| Scenario | Hidden change | Before → after | Rule-based | System-ID |
+|---|---|---|---|---|
+| Wet strip | μ 0.80 → 0.40 beyond 0.35 m | 50% → **100%** | 50% | 100% |
+| Rough strip | table μ 0.65, strip 0.90 beyond 0.30 m | 35% → **100%** | 65% | 100% |
+| Lens distortion | k = −0.30 /m | 25% → **100%** | 65% | 100% |
+| Three faults | weak motor, strip, lens | 0% → **100%** | 80% | 100% |
+
+In *Three faults*, the agent's first model fit the data perfectly. But the real pushes only reached 0.40 m, so the agent spent 3 probe pushes past that point. Its model then missed by 5.75 cm, so it added a friction strip at 0.40 m with μ 0.50 and the error dropped to 0.06 cm. The hidden truth was 0.40 m and μ 0.50.
+
+The closed-world scenarios (slippery cube, shifted camera, sticky table, weak motor) also close from 0% to 100%.
+
+**Known limitation:** near effective friction 1, cubes tip over instead of sliding. On the tipping-edge scenario the agent reaches 85%. Cosmos Reason 2 reports the tips from video as a second opinion: it agrees with Newton on 21 of 21 demo clips, but caught only about half of the tips on unseen clips.
 
 ## Quickstart
 
 ```bash
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt pytest httpx
-make check            # offline gate: 37 tests, no network
+make check            # offline gate: 67 tests, no network, no credits
 make demo             # record 5 Newton scenarios + build the dashboard (~30 s; add --llm local via eval.record_demo for Nemotron)
 open dashboard/dist/gapcloser.standalone.html
 make replays          # 3D viewer data only: per-frame Newton poses for the recorded bundle (no LLM)
@@ -71,9 +116,12 @@ make site     # site/index.html, self-contained (recorded runs + clips)
 make video    # video/out/gapcloser_demo.mp4: dashboard captures + Newton clips + narration (Chrome, ffmpeg, macOS say)
 ```
 
-Benchmark:
+Benchmarks:
 
 ```bash
+.venv/bin/python -m eval.open_bench --worlds 15 --env newton --llm tokenfactory   # Gap-Bench (open-world tiers)
+.venv/bin/python -m eval.open_bench --worlds 6 --llm none                         # offline: rule + System-ID only
+.venv/bin/python -m eval.record_demo --open-only --llm tokenfactory               # re-record the open-world scenarios
 .venv/bin/python -m eval.compare --worlds 10 --env newton
 .venv/bin/python -m eval.compare --worlds 10 --llm local          # + Nemotron diagnoser (Ollama)
 .venv/bin/python -m eval.compare --worlds 10 --llm tokenfactory   # + Nemotron on Nebius Token Factory
@@ -122,14 +170,17 @@ only, no weights redistributed).
 
 | Path | Contents |
 |---|---|
-| `sim/params.py` | the 10-parameter space, hidden-world sampler, randomization ranges |
-| `sim/push_task.py` | analytic surrogate of the push task (policy search, offline tests) |
+| `sim/params.py` | 10 closed + 3 open-world parameters, hidden-world sampler, randomization ranges |
+| `sim/push_task.py` | analytic surrogate (friction strip, lens), `InverseTrainer` policy, offline tests |
 | `sim/newton_push.py` | NVIDIA Newton push environment, cube tracking, camera clips |
 | `sim/replay.py` | per-frame Newton poses (cube + Franka links) for the 3D viewer |
 | `agent/loop.py` | the loop, rule-based and trajectory diagnosers, planner, event stream |
+| `agent/tool_agent.py` | Nemotron tool agent: decel profile, perception check, fit/test hypothesis, probe real robot, commit |
 | `agent/cosmos_eyes.py` | optional Cosmos Reason 2 eyes: clip to events via a local llama-server |
 | `agent/llm.py`, `agent/llm_diagnoser.py` | OpenAI-compatible client (Token Factory / Ollama), record/replay, Nemotron diagnoser |
-| `eval/compare.py`, `eval/record_demo.py` | benchmark and demo recorder |
+| `eval/open_bench.py` | Gap-Bench: closed/open/compound tiers, rule and System-ID baselines, CIs |
+| `eval/compare.py`, `eval/record_demo.py` | closed-world benchmark and demo recorder |
+| `runs/bench/` | recorded Gap-Bench results (Token Factory) |
 | `dashboard/` | agent console (template + builder; static and live variants), three.js 3D replay viewer, `assets/` (vendored three.js r160, decimated Franka FR3 meshes) |
 | `server/app.py` | live server: FastAPI, SSE event stream, cost guards |
 | `Dockerfile`, `deploy/`, `docs/deploy/` | container and deployment guides |
