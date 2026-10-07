@@ -1,0 +1,43 @@
+{
+ "chat:diagnose": [
+  {
+   "content": "",
+   "tool_calls": [
+    {
+     "id": "call-0",
+     "name": "decel_profile",
+     "arguments": "{}"
+    }
+   ],
+   "model": "nemotron-3-super-scripted",
+   "prompt_tokens": 0,
+   "completion_tokens": 0
+  },
+  {
+   "content": "",
+   "tool_calls": [
+    {
+     "id": "call-1",
+     "name": "fit_hypothesis",
+     "arguments": "{\"model\": {\"mu_eff\": 0.8, \"actuator_gain\": 1.0, \"patch_y0\": 0.3, \"patch_mu\": 0.8, \"camera_dx\": 0.0, \"camera_pitch_deg\": 0.0, \"lens_k\": 0.0}, \"free\": [\"mu_eff\", \"actuator_gain\", \"patch_y0\", \"patch_mu\"]}"
+    }
+   ],
+   "model": "nemotron-3-super-scripted",
+   "prompt_tokens": 0,
+   "completion_tokens": 0
+  },
+  {
+   "content": "",
+   "tool_calls": [
+    {
+     "id": "call-2",
+     "name": "commit",
+     "arguments": "{\"model\": {\"mu_eff\": 0.8, \"actuator_gain\": 1.0, \"patch_y0\": 0.35, \"patch_mu\": 0.45, \"camera_dx\": 0.0, \"camera_pitch_deg\": 0.0, \"lens_k\": 0.0}, \"explanation\": \"Deceleration drops beyond ~0.35 m: the far table is slicker (mu 0.45). Added a friction strip.\"}"
+    }
+   ],
+   "model": "nemotron-3-super-scripted",
+   "prompt_tokens": 0,
+   "completion_tokens": 0
+  }
+ ]
+}

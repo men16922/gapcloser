@@ -207,8 +207,9 @@ class ToolAgentDiagnoser:
     """`real` is needed for probe experiments; without it probe_real reports an exhausted budget."""
 
     def __init__(self, llm: LLM, real: RealWorld | None = None, role: str = "diagnose", max_steps: int = 10,
-                 probe_budget: int = 12, fallback=None):
+                 probe_budget: int = 12, fallback=None, on_step=None):
         self.llm, self.real, self.role = llm, real, role
+        self.on_step = on_step  # called with each trace entry as it happens (the live server streams these)
         self.max_steps, self.probe_budget = max_steps, probe_budget
         self.fallback = fallback or TrajectoryDiagnoser()
         self.history: list[dict] = []
@@ -227,6 +228,12 @@ class ToolAgentDiagnoser:
         }
         messages = [{"role": "system", "content": SYSTEM}, {"role": "user", "content": "Iteration evidence:\n" + json.dumps(summary)}]
         trace: list[dict] = []
+
+        def log(step: dict) -> None:
+            trace.append(step)
+            if self.on_step is not None:
+                self.on_step(step)
+
         committed, model, err = None, "", ""
         try:
             for step in range(self.max_steps):
@@ -237,7 +244,7 @@ class ToolAgentDiagnoser:
                 model = turn.model
                 messages.append(turn.message())
                 if not turn.tool_calls:
-                    trace.append({"tool": "text", "text": turn.content[:300]})
+                    log({"tool": "text", "text": turn.content[:300]})
                     messages.append({"role": "user", "content": "Use the tools; finish with commit."})
                     continue
                 for c in turn.tool_calls:
@@ -247,10 +254,10 @@ class ToolAgentDiagnoser:
                         args = {}
                     if c["name"] == "commit":
                         committed = args
-                        trace.append({"tool": "commit", "args": args})
+                        log({"tool": "commit", "args": args})
                         break
                     out = wb.call(c["name"], args)
-                    trace.append({"tool": c["name"], "args": args, "result": out})
+                    log({"tool": c["name"], "args": args, "result": out})
                     messages.append({"role": "tool", "tool_call_id": c["id"], "content": json.dumps(out)})
                 if committed:
                     break
