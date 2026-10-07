@@ -1,10 +1,16 @@
 # Next Plan
 
-Last Updated: 2026-10-05
+Last Updated: 2026-10-07
 
 Rolling plan containing open work only. Completed history is in `docs/COMPLETED_SUMMARY.md`.
 
-## Priority 0 — Tier 0 core (10/6–10/12)
+## Priority 0 — Award plan (10/7–10/19), see `docs/plans/2026-10-07-award-plan.md`
+
+- [ ] [manual] Merge dashboard v3 (agent lab notebook, strip in 3D viewer, Gap-Bench panel) and review it.
+- [ ] [manual] Gap-Bench n=15/tier on Newton with Token Factory (running 10-07); attach to bundle (`eval.record_demo --attach-bench`).
+- [ ] [manual] S4 Cosmos Reason 2 local eyes (spike in `spike/cosmos/`): replace the privileged `tipped` flag with video events.
+- [ ] [auto] Tool-agent ablations on analytic env with RecordedLLM fixtures (no probes / no fit tool); Done: offline tests pass.
+- [ ] [manual] A3 tiering: Nano triage / Ultra critic on disagreement; cost shown.
 
 
 - [ ] [manual] Vision: Nano Omni is not on Token Factory (2026-10-05 model list). Candidate: `openbmb/MiniCPM-V-4_5` (not NVIDIA) or skip; if used, check image support then if yes pass `frames=lambda: extract_frames(real_clip, ...)` to `LLMDiagnoser` in `eval/record_demo.py` (extractor and vision role already implemented and tested).

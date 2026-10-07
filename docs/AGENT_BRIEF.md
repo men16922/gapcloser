@@ -1,8 +1,8 @@
 # Agent Brief
 
-Last Updated: 2026-10-05
+Last Updated: 2026-10-07
 
-> ▶ NEXT SESSION: `docs/NEXT_PLAN.md` Priority 0 — `agent/llm.py` Token Factory client + RecordedLLM mock, then `agent/llm_diagnoser.py` over tracks/frames.
+> ▶ NEXT SESSION: `docs/plans/2026-10-07-award-plan.md` — integrate dashboard v3 (agent lab notebook) + Gap-Bench n=15 results, then S4 Cosmos eyes.
 
 ## Snapshot
 
@@ -12,7 +12,7 @@ GapCloser (Nebius × NVIDIA Global AI Hackathon, Physical AI track): an agent cl
 
 Authority: `docs/NEXT_PLAN.md`.
 
-1. Tier 0: Newton env, LLM diagnoser with mocks, compare heuristic vs LLM diagnoser on confounded worlds. Freeze 10-19.
+1. Award plan (`docs/plans/2026-10-07-award-plan.md`): open-world faults (friction strip, lens), Nemotron tool agent (fit/probe/commit), Gap-Bench vs rule + sysID, 3D viewer. Freeze 10-19.
 
 ## Read Order
 
@@ -25,6 +25,8 @@ Authority: `docs/NEXT_PLAN.md`.
 
 - Verification Gate: `make check`  (offline; py_compile + pytest via .venv)
 - Tier 0 table: `.venv/bin/python -m eval.compare --worlds 10`
+- Gap-Bench: `.venv/bin/python -m eval.open_bench --worlds 6 [--env newton] [--llm tokenfactory]`
+- Open scenarios: `.venv/bin/python -m eval.record_demo --open-only --llm tokenfactory`
 - Demo + dashboard: `make demo` → `dashboard/dist/gapcloser.standalone.html` (artifact: https://claude.ai/artifact/WVBNfVMAzeNg71kDSFqYAf)
 
 ## Guardrails
