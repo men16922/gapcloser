@@ -22,7 +22,8 @@ takes over), bounded parameters (at most 3 hidden faults), max 4 iterations.
 
 Config (env): GAPCLOSER_LLM=local|tokenfactory|none, GAPCLOSER_MAX_LLM_CALLS (200),
 GAPCLOSER_MAX_TURNS_PER_RUN (24), GAPCLOSER_RUNS_PER_HOUR (6),
-GAPCLOSER_SERVER_ENV=newton|analytic, GAPCLOSER_RENDER=1|0, GAPCLOSER_DATA (runs/).
+GAPCLOSER_SERVER_ENV=newton|analytic, GAPCLOSER_RENDER=1|0, GAPCLOSER_DATA (runs/),
+GAPCLOSER_EYES=none|cosmos (+ GAPCLOSER_EYES_URL, default http://localhost:8080; local Cosmos Reason 2).
 Run: make serve  ->  http://localhost:8000
 """
 
@@ -175,6 +176,14 @@ class CappedToolAgent:
     def __init__(self, agent, llm: BudgetedLLM, steps: int = AGENT_STEPS):
         self.agent, self.llm, self.steps = agent, llm, steps
 
+    @property
+    def camera_events(self):  # forwarded so record_scenario can hand Cosmos eyes evidence to the inner agent
+        return self.agent.camera_events
+
+    @camera_events.setter
+    def camera_events(self, fn):
+        self.agent.camera_events = fn
+
     def diagnose(self, real, sim, sim_params):
         self.agent.max_steps = max(1, min(self.steps, self.llm.run_left))
         return self.agent.diagnose(real, sim, sim_params)
@@ -226,6 +235,15 @@ def create_app(llm=None, env_name: str | None = None, render: bool | None = None
         except Exception as e:  # noqa: BLE001 - the demo still works with the rule-based diagnoser
             print(f"[gapcloser] LLM unavailable ({e}); using TrajectoryDiagnoser")
             llm = None
+
+    eyes = None
+    if os.environ.get("GAPCLOSER_EYES", "none") == "cosmos":  # optional local Cosmos Reason 2 (llama-server)
+        from agent.cosmos_eyes import CosmosEyes
+
+        eyes = CosmosEyes(os.environ.get("GAPCLOSER_EYES_URL", "http://localhost:8080"))
+        if not eyes.available():
+            print(f"[gapcloser] Cosmos eyes unavailable ({eyes.last_error}); running without them")
+            eyes = None
 
     app = FastAPI(title="GapCloser", docs_url="/api/docs", openapi_url="/api/openapi.json")
     runs: dict[str, Run] = {}
@@ -284,7 +302,8 @@ def create_app(llm=None, env_name: str | None = None, render: bool | None = None
                 on_event(e)
 
             record_scenario(sc, out, targets, TrajectoryDiagnoser(), env=make_env(), render=render,
-                            on_event=save_then_emit, max_iter=MAX_ITER, make_diagnoser=make_diag)
+                            on_event=save_then_emit, max_iter=MAX_ITER, make_diagnoser=make_diag,
+                            eyes=eyes if render else None)
         except Exception as e:  # noqa: BLE001
             run.push({"type": "error", "message": f"{type(e).__name__}: {e}"})
         finally:

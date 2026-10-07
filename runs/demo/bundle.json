@@ -155,7 +155,8 @@
    "by_model": {
     "nvidia/nemotron-3-super-120b-a12b": 6
    }
-  }
+  },
+  "eyes": "nvidia/Cosmos-Reason2-8B (Q4_K_M, llama.cpp, local); Built on NVIDIA Cosmos"
  },
  "runs": [
   {
@@ -927,7 +928,56 @@
       "real_slide": 0.6809159517288208,
       "sim": "clips/slippery-cube-it0-sim.webp",
       "sim_slide": 0.44530802965164185,
-      "replay": "replay/slippery-cube-it0.json"
+      "replay": "replay/slippery-cube-it0.json",
+      "physics": {
+       "tipped": false,
+       "t_tip": null,
+       "peak_tilt_deg": 0.0
+      },
+      "eyes": {
+       "model": "nvidia/Cosmos-Reason2-8B (Q4_K_M, llama.cpp, local)",
+       "events": [
+        {
+         "t": 0.17,
+         "type": "slid"
+        }
+       ],
+       "seconds": 1.64,
+       "frames": [
+        {
+         "t": 0.0,
+         "tilted": false
+        },
+        {
+         "t": 0.165,
+         "tilted": false
+        },
+        {
+         "t": 0.33,
+         "tilted": false
+        },
+        {
+         "t": 0.528,
+         "tilted": false
+        },
+        {
+         "t": 0.693,
+         "tilted": false
+        },
+        {
+         "t": 0.858,
+         "tilted": false
+        },
+        {
+         "t": 1.023,
+         "tilted": false
+        },
+        {
+         "t": 1.188,
+         "tilted": false
+        }
+       ]
+      }
      }
     },
     {
@@ -1733,7 +1783,56 @@
       "real_slide": 0.44765332341194153,
       "sim": "clips/slippery-cube-it1-sim.webp",
       "sim_slide": 0.44765332341194153,
-      "replay": "replay/slippery-cube-it1.json"
+      "replay": "replay/slippery-cube-it1.json",
+      "physics": {
+       "tipped": false,
+       "t_tip": null,
+       "peak_tilt_deg": 0.0
+      },
+      "eyes": {
+       "model": "nvidia/Cosmos-Reason2-8B (Q4_K_M, llama.cpp, local)",
+       "events": [
+        {
+         "t": 0.17,
+         "type": "slid"
+        }
+       ],
+       "seconds": 3.6,
+       "frames": [
+        {
+         "t": 0.0,
+         "tilted": false
+        },
+        {
+         "t": 0.165,
+         "tilted": false
+        },
+        {
+         "t": 0.33,
+         "tilted": false
+        },
+        {
+         "t": 0.528,
+         "tilted": false
+        },
+        {
+         "t": 0.693,
+         "tilted": false
+        },
+        {
+         "t": 0.858,
+         "tilted": false
+        },
+        {
+         "t": 1.023,
+         "tilted": false
+        },
+        {
+         "t": 1.188,
+         "tilted": false
+        }
+       ]
+      }
      }
     },
     {
@@ -2531,7 +2630,56 @@
       "real_slide": 0.4174642562866211,
       "sim": "clips/camera-offset-it0-sim.webp",
       "sim_slide": 0.44530802965164185,
-      "replay": "replay/camera-offset-it0.json"
+      "replay": "replay/camera-offset-it0.json",
+      "physics": {
+       "tipped": false,
+       "t_tip": null,
+       "peak_tilt_deg": 0.1
+      },
+      "eyes": {
+       "model": "nvidia/Cosmos-Reason2-8B (Q4_K_M, llama.cpp, local)",
+       "events": [
+        {
+         "t": 0.17,
+         "type": "slid"
+        }
+       ],
+       "seconds": 4.98,
+       "frames": [
+        {
+         "t": 0.0,
+         "tilted": false
+        },
+        {
+         "t": 0.165,
+         "tilted": false
+        },
+        {
+         "t": 0.33,
+         "tilted": false
+        },
+        {
+         "t": 0.528,
+         "tilted": false
+        },
+        {
+         "t": 0.693,
+         "tilted": false
+        },
+        {
+         "t": 0.858,
+         "tilted": false
+        },
+        {
+         "t": 1.023,
+         "tilted": false
+        },
+        {
+         "t": 1.188,
+         "tilted": false
+        }
+       ]
+      }
      }
     },
     {
@@ -3327,7 +3475,56 @@
       "real_slide": 0.44328010082244873,
       "sim": "clips/camera-offset-it1-sim.webp",
       "sim_slide": 0.4438069462776184,
-      "replay": "replay/camera-offset-it1.json"
+      "replay": "replay/camera-offset-it1.json",
+      "physics": {
+       "tipped": false,
+       "t_tip": null,
+       "peak_tilt_deg": 0.1
+      },
+      "eyes": {
+       "model": "nvidia/Cosmos-Reason2-8B (Q4_K_M, llama.cpp, local)",
+       "events": [
+        {
+         "t": 0.17,
+         "type": "slid"
+        }
+       ],
+       "seconds": 3.99,
+       "frames": [
+        {
+         "t": 0.0,
+         "tilted": false
+        },
+        {
+         "t": 0.165,
+         "tilted": false
+        },
+        {
+         "t": 0.33,
+         "tilted": false
+        },
+        {
+         "t": 0.528,
+         "tilted": false
+        },
+        {
+         "t": 0.693,
+         "tilted": false
+        },
+        {
+         "t": 0.858,
+         "tilted": false
+        },
+        {
+         "t": 1.023,
+         "tilted": false
+        },
+        {
+         "t": 1.188,
+         "tilted": false
+        }
+       ]
+      }
      }
     },
     {
@@ -4125,7 +4322,56 @@
       "real_slide": 0.3844935894012451,
       "sim": "clips/sticky-table-it0-sim.webp",
       "sim_slide": 0.44530802965164185,
-      "replay": "replay/sticky-table-it0.json"
+      "replay": "replay/sticky-table-it0.json",
+      "physics": {
+       "tipped": false,
+       "t_tip": null,
+       "peak_tilt_deg": 0.1
+      },
+      "eyes": {
+       "model": "nvidia/Cosmos-Reason2-8B (Q4_K_M, llama.cpp, local)",
+       "events": [
+        {
+         "t": 0.17,
+         "type": "slid"
+        }
+       ],
+       "seconds": 5.31,
+       "frames": [
+        {
+         "t": 0.0,
+         "tilted": false
+        },
+        {
+         "t": 0.165,
+         "tilted": false
+        },
+        {
+         "t": 0.33,
+         "tilted": false
+        },
+        {
+         "t": 0.528,
+         "tilted": false
+        },
+        {
+         "t": 0.693,
+         "tilted": false
+        },
+        {
+         "t": 0.858,
+         "tilted": false
+        },
+        {
+         "t": 1.023,
+         "tilted": false
+        },
+        {
+         "t": 1.188,
+         "tilted": false
+        }
+       ]
+      }
      }
     },
     {
@@ -4931,7 +5177,56 @@
       "real_slide": 0.4467635154724121,
       "sim": "clips/sticky-table-it1-sim.webp",
       "sim_slide": 0.44676369428634644,
-      "replay": "replay/sticky-table-it1.json"
+      "replay": "replay/sticky-table-it1.json",
+      "physics": {
+       "tipped": false,
+       "t_tip": null,
+       "peak_tilt_deg": 0.1
+      },
+      "eyes": {
+       "model": "nvidia/Cosmos-Reason2-8B (Q4_K_M, llama.cpp, local)",
+       "events": [
+        {
+         "t": 0.17,
+         "type": "slid"
+        }
+       ],
+       "seconds": 4.05,
+       "frames": [
+        {
+         "t": 0.0,
+         "tilted": false
+        },
+        {
+         "t": 0.165,
+         "tilted": false
+        },
+        {
+         "t": 0.33,
+         "tilted": false
+        },
+        {
+         "t": 0.528,
+         "tilted": false
+        },
+        {
+         "t": 0.693,
+         "tilted": false
+        },
+        {
+         "t": 0.858,
+         "tilted": false
+        },
+        {
+         "t": 1.023,
+         "tilted": false
+        },
+        {
+         "t": 1.188,
+         "tilted": false
+        }
+       ]
+      }
      }
     },
     {
@@ -5729,7 +6024,56 @@
       "real_slide": 0.2563968002796173,
       "sim": "clips/weak-motor-it0-sim.webp",
       "sim_slide": 0.44530802965164185,
-      "replay": "replay/weak-motor-it0.json"
+      "replay": "replay/weak-motor-it0.json",
+      "physics": {
+       "tipped": false,
+       "t_tip": null,
+       "peak_tilt_deg": 0.1
+      },
+      "eyes": {
+       "model": "nvidia/Cosmos-Reason2-8B (Q4_K_M, llama.cpp, local)",
+       "events": [
+        {
+         "t": 0.17,
+         "type": "slid"
+        }
+       ],
+       "seconds": 5.37,
+       "frames": [
+        {
+         "t": 0.0,
+         "tilted": false
+        },
+        {
+         "t": 0.165,
+         "tilted": false
+        },
+        {
+         "t": 0.33,
+         "tilted": false
+        },
+        {
+         "t": 0.528,
+         "tilted": false
+        },
+        {
+         "t": 0.693,
+         "tilted": false
+        },
+        {
+         "t": 0.858,
+         "tilted": false
+        },
+        {
+         "t": 1.023,
+         "tilted": false
+        },
+        {
+         "t": 1.188,
+         "tilted": false
+        }
+       ]
+      }
      }
     },
     {
@@ -6525,7 +6869,56 @@
       "real_slide": 0.4490620493888855,
       "sim": "clips/weak-motor-it1-sim.webp",
       "sim_slide": 0.4466886520385742,
-      "replay": "replay/weak-motor-it1.json"
+      "replay": "replay/weak-motor-it1.json",
+      "physics": {
+       "tipped": false,
+       "t_tip": null,
+       "peak_tilt_deg": 0.1
+      },
+      "eyes": {
+       "model": "nvidia/Cosmos-Reason2-8B (Q4_K_M, llama.cpp, local)",
+       "events": [
+        {
+         "t": 0.17,
+         "type": "slid"
+        }
+       ],
+       "seconds": 4.12,
+       "frames": [
+        {
+         "t": 0.0,
+         "tilted": false
+        },
+        {
+         "t": 0.165,
+         "tilted": false
+        },
+        {
+         "t": 0.33,
+         "tilted": false
+        },
+        {
+         "t": 0.528,
+         "tilted": false
+        },
+        {
+         "t": 0.693,
+         "tilted": false
+        },
+        {
+         "t": 0.858,
+         "tilted": false
+        },
+        {
+         "t": 1.023,
+         "tilted": false
+        },
+        {
+         "t": 1.188,
+         "tilted": false
+        }
+       ]
+      }
      }
     },
     {
@@ -7322,7 +7715,60 @@
       "real_slide": 0.4052048623561859,
       "sim": "clips/tipping-edge-it0-sim.webp",
       "sim_slide": 0.44530802965164185,
-      "replay": "replay/tipping-edge-it0.json"
+      "replay": "replay/tipping-edge-it0.json",
+      "physics": {
+       "tipped": true,
+       "t_tip": 0.63,
+       "peak_tilt_deg": 90.0
+      },
+      "eyes": {
+       "model": "nvidia/Cosmos-Reason2-8B (Q4_K_M, llama.cpp, local)",
+       "events": [
+        {
+         "t": 0.17,
+         "type": "slid"
+        },
+        {
+         "t": 0.69,
+         "type": "tipped"
+        }
+       ],
+       "seconds": 4.16,
+       "frames": [
+        {
+         "t": 0.0,
+         "tilted": false
+        },
+        {
+         "t": 0.165,
+         "tilted": false
+        },
+        {
+         "t": 0.33,
+         "tilted": false
+        },
+        {
+         "t": 0.528,
+         "tilted": false
+        },
+        {
+         "t": 0.693,
+         "tilted": true
+        },
+        {
+         "t": 0.858,
+         "tilted": true
+        },
+        {
+         "t": 1.023,
+         "tilted": true
+        },
+        {
+         "t": 1.188,
+         "tilted": true
+        }
+       ]
+      }
      }
     },
     {
@@ -8138,7 +8584,60 @@
       "real_slide": 0.45975738763809204,
       "sim": "clips/tipping-edge-it1-sim.webp",
       "sim_slide": 0.4507405757904053,
-      "replay": "replay/tipping-edge-it1.json"
+      "replay": "replay/tipping-edge-it1.json",
+      "physics": {
+       "tipped": true,
+       "t_tip": 0.63,
+       "peak_tilt_deg": 90.0
+      },
+      "eyes": {
+       "model": "nvidia/Cosmos-Reason2-8B (Q4_K_M, llama.cpp, local)",
+       "events": [
+        {
+         "t": 0.17,
+         "type": "slid"
+        },
+        {
+         "t": 0.69,
+         "type": "tipped"
+        }
+       ],
+       "seconds": 5.56,
+       "frames": [
+        {
+         "t": 0.0,
+         "tilted": false
+        },
+        {
+         "t": 0.165,
+         "tilted": false
+        },
+        {
+         "t": 0.33,
+         "tilted": false
+        },
+        {
+         "t": 0.528,
+         "tilted": false
+        },
+        {
+         "t": 0.693,
+         "tilted": true
+        },
+        {
+         "t": 0.858,
+         "tilted": true
+        },
+        {
+         "t": 1.023,
+         "tilted": true
+        },
+        {
+         "t": 1.188,
+         "tilted": true
+        }
+       ]
+      }
      }
     },
     {
@@ -8944,7 +9443,60 @@
       "real_slide": 0.4375438988208771,
       "sim": "clips/tipping-edge-it2-sim.webp",
       "sim_slide": 0.4476434886455536,
-      "replay": "replay/tipping-edge-it2.json"
+      "replay": "replay/tipping-edge-it2.json",
+      "physics": {
+       "tipped": true,
+       "t_tip": 0.63,
+       "peak_tilt_deg": 90.0
+      },
+      "eyes": {
+       "model": "nvidia/Cosmos-Reason2-8B (Q4_K_M, llama.cpp, local)",
+       "events": [
+        {
+         "t": 0.17,
+         "type": "slid"
+        },
+        {
+         "t": 0.69,
+         "type": "tipped"
+        }
+       ],
+       "seconds": 4.14,
+       "frames": [
+        {
+         "t": 0.0,
+         "tilted": false
+        },
+        {
+         "t": 0.165,
+         "tilted": false
+        },
+        {
+         "t": 0.33,
+         "tilted": false
+        },
+        {
+         "t": 0.528,
+         "tilted": false
+        },
+        {
+         "t": 0.693,
+         "tilted": true
+        },
+        {
+         "t": 0.858,
+         "tilted": true
+        },
+        {
+         "t": 1.023,
+         "tilted": true
+        },
+        {
+         "t": 1.188,
+         "tilted": true
+        }
+       ]
+      }
      }
     },
     {
@@ -9750,7 +10302,60 @@
       "real_slide": 0.5153163075447083,
       "sim": "clips/tipping-edge-it3-sim.webp",
       "sim_slide": 0.4510016143321991,
-      "replay": "replay/tipping-edge-it3.json"
+      "replay": "replay/tipping-edge-it3.json",
+      "physics": {
+       "tipped": true,
+       "t_tip": 0.63,
+       "peak_tilt_deg": 90.0
+      },
+      "eyes": {
+       "model": "nvidia/Cosmos-Reason2-8B (Q4_K_M, llama.cpp, local)",
+       "events": [
+        {
+         "t": 0.17,
+         "type": "slid"
+        },
+        {
+         "t": 0.69,
+         "type": "tipped"
+        }
+       ],
+       "seconds": 4.12,
+       "frames": [
+        {
+         "t": 0.0,
+         "tilted": false
+        },
+        {
+         "t": 0.165,
+         "tilted": false
+        },
+        {
+         "t": 0.33,
+         "tilted": false
+        },
+        {
+         "t": 0.528,
+         "tilted": false
+        },
+        {
+         "t": 0.693,
+         "tilted": true
+        },
+        {
+         "t": 0.858,
+         "tilted": true
+        },
+        {
+         "t": 1.023,
+         "tilted": true
+        },
+        {
+         "t": 1.188,
+         "tilted": true
+        }
+       ]
+      }
      }
     },
     {
@@ -10556,7 +11161,60 @@
       "real_slide": 0.4426133632659912,
       "sim": "clips/tipping-edge-it4-sim.webp",
       "sim_slide": 0.4501776397228241,
-      "replay": "replay/tipping-edge-it4.json"
+      "replay": "replay/tipping-edge-it4.json",
+      "physics": {
+       "tipped": true,
+       "t_tip": 0.63,
+       "peak_tilt_deg": 90.0
+      },
+      "eyes": {
+       "model": "nvidia/Cosmos-Reason2-8B (Q4_K_M, llama.cpp, local)",
+       "events": [
+        {
+         "t": 0.17,
+         "type": "slid"
+        },
+        {
+         "t": 0.69,
+         "type": "tipped"
+        }
+       ],
+       "seconds": 4.13,
+       "frames": [
+        {
+         "t": 0.0,
+         "tilted": false
+        },
+        {
+         "t": 0.165,
+         "tilted": false
+        },
+        {
+         "t": 0.33,
+         "tilted": false
+        },
+        {
+         "t": 0.528,
+         "tilted": false
+        },
+        {
+         "t": 0.693,
+         "tilted": true
+        },
+        {
+         "t": 0.858,
+         "tilted": true
+        },
+        {
+         "t": 1.023,
+         "tilted": true
+        },
+        {
+         "t": 1.188,
+         "tilted": true
+        }
+       ]
+      }
      }
     },
     {
@@ -14474,7 +15132,56 @@
       "real_slide": 0.5402480959892273,
       "sim": "clips/wet-strip-it0-sim.webp",
       "sim_slide": 0.44555166363716125,
-      "replay": "replay/wet-strip-it0.json"
+      "replay": "replay/wet-strip-it0.json",
+      "physics": {
+       "tipped": false,
+       "t_tip": null,
+       "peak_tilt_deg": 0.1
+      },
+      "eyes": {
+       "model": "nvidia/Cosmos-Reason2-8B (Q4_K_M, llama.cpp, local)",
+       "events": [
+        {
+         "t": 0.17,
+         "type": "slid"
+        }
+       ],
+       "seconds": 5.54,
+       "frames": [
+        {
+         "t": 0.0,
+         "tilted": false
+        },
+        {
+         "t": 0.165,
+         "tilted": false
+        },
+        {
+         "t": 0.33,
+         "tilted": false
+        },
+        {
+         "t": 0.528,
+         "tilted": false
+        },
+        {
+         "t": 0.693,
+         "tilted": false
+        },
+        {
+         "t": 0.858,
+         "tilted": false
+        },
+        {
+         "t": 1.023,
+         "tilted": false
+        },
+        {
+         "t": 1.188,
+         "tilted": false
+        }
+       ]
+      }
      }
     },
     {
@@ -18630,7 +19337,56 @@
       "real_slide": 0.4518130123615265,
       "sim": "clips/wet-strip-it1-sim.webp",
       "sim_slide": 0.4425000548362732,
-      "replay": "replay/wet-strip-it1.json"
+      "replay": "replay/wet-strip-it1.json",
+      "physics": {
+       "tipped": false,
+       "t_tip": null,
+       "peak_tilt_deg": 0.1
+      },
+      "eyes": {
+       "model": "nvidia/Cosmos-Reason2-8B (Q4_K_M, llama.cpp, local)",
+       "events": [
+        {
+         "t": 0.17,
+         "type": "slid"
+        }
+       ],
+       "seconds": 4.11,
+       "frames": [
+        {
+         "t": 0.0,
+         "tilted": false
+        },
+        {
+         "t": 0.165,
+         "tilted": false
+        },
+        {
+         "t": 0.33,
+         "tilted": false
+        },
+        {
+         "t": 0.528,
+         "tilted": false
+        },
+        {
+         "t": 0.693,
+         "tilted": false
+        },
+        {
+         "t": 0.858,
+         "tilted": false
+        },
+        {
+         "t": 1.023,
+         "tilted": false
+        },
+        {
+         "t": 1.188,
+         "tilted": false
+        }
+       ]
+      }
      }
     },
     {
@@ -22557,7 +23313,56 @@
       "real_slide": 0.479881227016449,
       "sim": "clips/rough-strip-it0-sim.webp",
       "sim_slide": 0.44555166363716125,
-      "replay": "replay/rough-strip-it0.json"
+      "replay": "replay/rough-strip-it0.json",
+      "physics": {
+       "tipped": false,
+       "t_tip": null,
+       "peak_tilt_deg": 0.1
+      },
+      "eyes": {
+       "model": "nvidia/Cosmos-Reason2-8B (Q4_K_M, llama.cpp, local)",
+       "events": [
+        {
+         "t": 0.17,
+         "type": "slid"
+        }
+       ],
+       "seconds": 4.13,
+       "frames": [
+        {
+         "t": 0.0,
+         "tilted": false
+        },
+        {
+         "t": 0.165,
+         "tilted": false
+        },
+        {
+         "t": 0.33,
+         "tilted": false
+        },
+        {
+         "t": 0.528,
+         "tilted": false
+        },
+        {
+         "t": 0.693,
+         "tilted": false
+        },
+        {
+         "t": 0.858,
+         "tilted": false
+        },
+        {
+         "t": 1.023,
+         "tilted": false
+        },
+        {
+         "t": 1.188,
+         "tilted": false
+        }
+       ]
+      }
      }
     },
     {
@@ -26768,7 +27573,56 @@
       "real_slide": 0.4504486620426178,
       "sim": "clips/rough-strip-it1-sim.webp",
       "sim_slide": 0.4470410645008087,
-      "replay": "replay/rough-strip-it1.json"
+      "replay": "replay/rough-strip-it1.json",
+      "physics": {
+       "tipped": false,
+       "t_tip": null,
+       "peak_tilt_deg": 0.1
+      },
+      "eyes": {
+       "model": "nvidia/Cosmos-Reason2-8B (Q4_K_M, llama.cpp, local)",
+       "events": [
+        {
+         "t": 0.17,
+         "type": "slid"
+        }
+       ],
+       "seconds": 4.1,
+       "frames": [
+        {
+         "t": 0.0,
+         "tilted": false
+        },
+        {
+         "t": 0.165,
+         "tilted": false
+        },
+        {
+         "t": 0.33,
+         "tilted": false
+        },
+        {
+         "t": 0.528,
+         "tilted": false
+        },
+        {
+         "t": 0.693,
+         "tilted": false
+        },
+        {
+         "t": 0.858,
+         "tilted": false
+        },
+        {
+         "t": 1.023,
+         "tilted": false
+        },
+        {
+         "t": 1.188,
+         "tilted": false
+        }
+       ]
+      }
      }
     },
     {
@@ -30698,7 +31552,56 @@
       "real_slide": 0.38510406017303467,
       "sim": "clips/fisheye-it0-sim.webp",
       "sim_slide": 0.44555166363716125,
-      "replay": "replay/fisheye-it0.json"
+      "replay": "replay/fisheye-it0.json",
+      "physics": {
+       "tipped": false,
+       "t_tip": null,
+       "peak_tilt_deg": 0.1
+      },
+      "eyes": {
+       "model": "nvidia/Cosmos-Reason2-8B (Q4_K_M, llama.cpp, local)",
+       "events": [
+        {
+         "t": 0.17,
+         "type": "slid"
+        }
+       ],
+       "seconds": 5.48,
+       "frames": [
+        {
+         "t": 0.0,
+         "tilted": false
+        },
+        {
+         "t": 0.165,
+         "tilted": false
+        },
+        {
+         "t": 0.33,
+         "tilted": false
+        },
+        {
+         "t": 0.528,
+         "tilted": false
+        },
+        {
+         "t": 0.693,
+         "tilted": false
+        },
+        {
+         "t": 0.858,
+         "tilted": false
+        },
+        {
+         "t": 1.023,
+         "tilted": false
+        },
+        {
+         "t": 1.188,
+         "tilted": false
+        }
+       ]
+      }
      }
     },
     {
@@ -34911,7 +35814,56 @@
       "real_slide": 0.4488662779331207,
       "sim": "clips/fisheye-it1-sim.webp",
       "sim_slide": 0.44553136825561523,
-      "replay": "replay/fisheye-it1.json"
+      "replay": "replay/fisheye-it1.json",
+      "physics": {
+       "tipped": false,
+       "t_tip": null,
+       "peak_tilt_deg": 0.1
+      },
+      "eyes": {
+       "model": "nvidia/Cosmos-Reason2-8B (Q4_K_M, llama.cpp, local)",
+       "events": [
+        {
+         "t": 0.17,
+         "type": "slid"
+        }
+       ],
+       "seconds": 4.2,
+       "frames": [
+        {
+         "t": 0.0,
+         "tilted": false
+        },
+        {
+         "t": 0.165,
+         "tilted": false
+        },
+        {
+         "t": 0.33,
+         "tilted": false
+        },
+        {
+         "t": 0.528,
+         "tilted": false
+        },
+        {
+         "t": 0.693,
+         "tilted": false
+        },
+        {
+         "t": 0.858,
+         "tilted": false
+        },
+        {
+         "t": 1.023,
+         "tilted": false
+        },
+        {
+         "t": 1.188,
+         "tilted": false
+        }
+       ]
+      }
      }
     },
     {
@@ -38839,7 +39791,56 @@
       "real_slide": 0.2995203137397766,
       "sim": "clips/three-faults-it0-sim.webp",
       "sim_slide": 0.44555166363716125,
-      "replay": "replay/three-faults-it0.json"
+      "replay": "replay/three-faults-it0.json",
+      "physics": {
+       "tipped": false,
+       "t_tip": null,
+       "peak_tilt_deg": 0.1
+      },
+      "eyes": {
+       "model": "nvidia/Cosmos-Reason2-8B (Q4_K_M, llama.cpp, local)",
+       "events": [
+        {
+         "t": 0.17,
+         "type": "slid"
+        }
+       ],
+       "seconds": 5.53,
+       "frames": [
+        {
+         "t": 0.0,
+         "tilted": false
+        },
+        {
+         "t": 0.165,
+         "tilted": false
+        },
+        {
+         "t": 0.33,
+         "tilted": false
+        },
+        {
+         "t": 0.528,
+         "tilted": false
+        },
+        {
+         "t": 0.693,
+         "tilted": false
+        },
+        {
+         "t": 0.858,
+         "tilted": false
+        },
+        {
+         "t": 1.023,
+         "tilted": false
+        },
+        {
+         "t": 1.188,
+         "tilted": false
+        }
+       ]
+      }
      }
     },
     {
@@ -43085,7 +44086,56 @@
       "real_slide": 0.4496089816093445,
       "sim": "clips/three-faults-it1-sim.webp",
       "sim_slide": 0.44371628761291504,
-      "replay": "replay/three-faults-it1.json"
+      "replay": "replay/three-faults-it1.json",
+      "physics": {
+       "tipped": false,
+       "t_tip": null,
+       "peak_tilt_deg": 0.1
+      },
+      "eyes": {
+       "model": "nvidia/Cosmos-Reason2-8B (Q4_K_M, llama.cpp, local)",
+       "events": [
+        {
+         "t": 0.17,
+         "type": "slid"
+        }
+       ],
+       "seconds": 4.21,
+       "frames": [
+        {
+         "t": 0.0,
+         "tilted": false
+        },
+        {
+         "t": 0.165,
+         "tilted": false
+        },
+        {
+         "t": 0.33,
+         "tilted": false
+        },
+        {
+         "t": 0.528,
+         "tilted": false
+        },
+        {
+         "t": 0.693,
+         "tilted": false
+        },
+        {
+         "t": 0.858,
+         "tilted": false
+        },
+        {
+         "t": 1.023,
+         "tilted": false
+        },
+        {
+         "t": 1.188,
+         "tilted": false
+        }
+       ]
+      }
      }
     },
     {
@@ -44909,5 +45959,14 @@
     "nvidia/nemotron-3-super-120b-a12b": 235
    }
   }
+ },
+ "eyes_summary": {
+  "clips": 21,
+  "agree": 21,
+  "tp": 5,
+  "fn": 0,
+  "fp": 0,
+  "tn": 16,
+  "errors": 0
  }
 }

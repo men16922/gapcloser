@@ -88,6 +88,36 @@ LLM providers (`GAPCLOSER_LLM`):
 
 Model ids are resolved at runtime from the provider's model list, so no id is hard-coded.
 
+## Cosmos eyes (optional, local)
+
+Built on NVIDIA Cosmos. `agent/cosmos_eyes.py` asks **NVIDIA Cosmos Reason 2 8B** what happened in each real clip
+(`slid 0.17 s → tipped 0.69 s`). It runs locally in llama.cpp at no cost, takes about 4 to 6 s per clip on an M4 Max, and uses about 9 GB of unified memory.
+The pipeline tracks the cube, sends 8 close-up crops, asks per frame "is the cube tilted?" at temperature 0 with no `<think>`, and
+builds the events in code. Cosmos is a **second opinion** next to Newton's `tipped` flag and never replaces it. In the spike
+([spike/cosmos/README.md](spike/cosmos/README.md)) it scored 88% slid-vs-tipped overall, but held-out tip recall was only 6/12, and it almost never reports a false tip.
+On the 21 real clips in `runs/demo` it agrees with the physics flag 21/21 (5/5 tips, 0 false tips).
+
+```bash
+brew install llama.cpp
+mkdir -p ~/models/cosmos-reason2-8b && cd ~/models/cosmos-reason2-8b
+B=https://huggingface.co/mradermacher/Cosmos-Reason2-8B-GGUF/resolve/main
+curl -LO $B/Cosmos-Reason2-8B.Q4_K_M.gguf && curl -LO $B/Cosmos-Reason2-8B.mmproj-f16.gguf   # 6.2 GB, no account
+llama-server -m Cosmos-Reason2-8B.Q4_K_M.gguf --mmproj Cosmos-Reason2-8B.mmproj-f16.gguf \
+  -ngl 99 -c 8192 --cache-ram 0 -np 1 --port 8080
+
+# back in the repo
+.venv/bin/python -m eval.record_demo --eyes-only     # annotate the existing bundle's real clips (no LLM, no reruns)
+.venv/bin/python -m eval.record_demo --eyes cosmos   # record with eyes; the tool agent also gets "camera_events"
+GAPCLOSER_EYES=cosmos make serve                     # live server with eyes
+make dashboard
+```
+
+Each real clip gets `clip["eyes"]` (model, events, per-frame flags, seconds) and `clip["physics"]` (Newton's peak-tilt `tipped`
+and first tip time). The dashboard shows an event strip under the 3D viewer with ✓ agrees / ⚠ disagrees against the physics flag. When the server is
+down, `CosmosEyes.available()` is False and `events()` returns `[]`. The default is `--eyes none`, so `make check`, CI and the benchmarks
+never need the model. The model is `nvidia/Cosmos-Reason2-8B` under the NVIDIA Open Model License (community GGUF quantization, local inference
+only, no weights redistributed).
+
 ## Repository
 
 | Path | Contents |
@@ -97,6 +127,7 @@ Model ids are resolved at runtime from the provider's model list, so no id is ha
 | `sim/newton_push.py` | NVIDIA Newton push environment, cube tracking, camera clips |
 | `sim/replay.py` | per-frame Newton poses (cube + Franka links) for the 3D viewer |
 | `agent/loop.py` | the loop, rule-based and trajectory diagnosers, planner, event stream |
+| `agent/cosmos_eyes.py` | optional Cosmos Reason 2 eyes: clip to events via a local llama-server |
 | `agent/llm.py`, `agent/llm_diagnoser.py` | OpenAI-compatible client (Token Factory / Ollama), record/replay, Nemotron diagnoser |
 | `eval/compare.py`, `eval/record_demo.py` | benchmark and demo recorder |
 | `dashboard/` | agent console (template + builder; static and live variants), three.js 3D replay viewer, `assets/` (vendored three.js r160, decimated Franka FR3 meshes) |
@@ -107,6 +138,6 @@ Model ids are resolved at runtime from the provider's model list, so no id is ha
 
 ## Credits
 
-Uses NVIDIA Newton (Apache-2.0), NVIDIA Nemotron 3 open models, Nebius Token Factory and Ollama. This project is not affiliated with or endorsed by NVIDIA or Nebius.
+Uses NVIDIA Newton (Apache-2.0), NVIDIA Nemotron 3 open models, NVIDIA Cosmos Reason 2 (NVIDIA Open Model License; Built on NVIDIA Cosmos), Nebius Token Factory and Ollama. This project is not affiliated with or endorsed by NVIDIA or Nebius.
 
 License: Apache-2.0.

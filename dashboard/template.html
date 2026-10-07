@@ -204,6 +204,28 @@ td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
 .v3 .readout .y { font: 500 14px/1.2 var(--f-mono); font-variant-numeric: tabular-nums; }
 .v3 .readout .y b { font-weight: 500; }
 .v3 .readout .ok { color: var(--green); } .v3 .readout .bad { color: var(--bad); } .v3 .readout .wait { color: var(--dim); }
+/* Cosmos eyes strip: per-frame "tilted?" answers from Cosmos Reason 2 vs Newton's tipped flag */
+.eyes { border: 1px solid var(--line); border-top: 0; background: var(--panel); padding: var(--s2) var(--s3) var(--s3); display: grid; gap: var(--s2); }
+.eyes.solo { border-top: 1px solid var(--line); margin-top: var(--s3); }
+.eyes .row1 { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s1) var(--s3); }
+.eyes .says { font: 500 13px/1.3 var(--f-mono); font-variant-numeric: tabular-nums; color: var(--fg); }
+.eyes .says .arr { color: var(--dim); }
+.eyes .says .tip { color: var(--warn); }
+.eyes .agree { margin-left: auto; font: 500 12px/1.2 var(--f-mono); padding: 3px 6px; border: 1px solid var(--line); white-space: nowrap; }
+.eyes .agree.ok { color: var(--green); border-color: rgba(118, 185, 0, 0.5); }
+.eyes .agree.no { color: var(--warn); border-color: rgba(217, 161, 59, 0.55); }
+.eyes .track { position: relative; height: 34px; margin-top: 12px; }
+.eyes .track .axis { position: absolute; left: 0; right: 0; top: 11px; height: 1px; background: var(--line); }
+.eyes .fr { position: absolute; top: 5px; width: 12px; height: 12px; margin-left: -6px; border: 1px solid var(--muted); background: var(--panel); }
+.eyes .fr.t { background: var(--warn); border-color: var(--warn); }
+.eyes .fr span { position: absolute; top: 16px; left: 50%; transform: translateX(-50%); font: 400 10px/1 var(--f-mono); color: var(--dim); white-space: nowrap; }
+.eyes .phys { position: absolute; top: -4px; width: 0; height: 26px; border-left: 2px solid var(--fg); }
+.eyes .phys span { position: absolute; top: -10px; left: 4px; font: 500 10px/1 var(--f-mono); color: var(--fg); white-space: nowrap; background: var(--panel); padding: 0 2px; }
+.eyes .key { display: flex; flex-wrap: wrap; gap: var(--s1) var(--s4); font-size: 12px; color: var(--dim); }
+.eyes .key i { display: inline-block; width: 9px; height: 9px; margin-right: 5px; vertical-align: -1px; border: 1px solid var(--muted); }
+.eyes .key i.t { background: var(--warn); border-color: var(--warn); }
+.eyes .key i.p { width: 0; height: 11px; border: 0; border-left: 2px solid var(--fg); margin-right: 6px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .clipbox { margin-top: var(--s3); border: 1px solid var(--line); }
 .clipbox > summary { cursor: pointer; padding: var(--s2) var(--s3); list-style-position: inside; }
 .clipbox > .clips { padding: 0 var(--s3) var(--s3); }
@@ -344,6 +366,8 @@ td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
   .tgroup + .tgroup { border-left: 0; border-top: 1px solid var(--line-soft); flex-basis: 100%; }
   .gb td.num { white-space: nowrap; }
   .form .row { grid-template-columns: 110px minmax(0, 1fr) 84px; }
+  .eyes .agree { white-space: normal; margin-left: 0; }
+  .eyes .fr span { font-size: 9px; }
 }
 @media (prefers-reduced-motion: reduce) { .tl li.live .ico, .spin, .tab .pill.run i, .chip.run i { animation: none; } }
 </style>
@@ -804,8 +828,10 @@ function boot(B, LIVE) {
     ["", B.stack.physics],
     ["", LIVE ? (LIVE.model ? `Nemotron (${LIVE.model})` : "TrajectoryDiagnoser · cube tracking") : B.stack.diagnoser.replace(" (cube tracking, offline)", " · cube tracking")],
     prov === "tokenfactory" ? ["", "Nebius Token Factory"] : prov === "local" ? ["pending", "Local Nemotron · Token Factory run pending"] : ["pending", "Nemotron · Token Factory: key pending"],
+    ...(HAS_EYES() ? [["", "Cosmos Reason 2 eyes · local"]] : []),
   ].map(([c, t]) => `<span class="chip ${c}"><i></i>${esc(t)}</span>`).join("");
-  const renderFoot = () => $("#foot").innerHTML = `<span>Task: ${esc(B.task.name)} · ${B.task.n_targets} targets 0.20–0.60 m · success = stop within ±${B.task.success_tol_m * 100} cm</span>
+  function HAS_EYES() { return !!(B.stack.eyes || B.runs.some((r) => r.events.some((e) => e.clip && e.clip.eyes))); }
+  const renderFoot = () => $("#foot").innerHTML = `${HAS_EYES() ? `<span>Built on NVIDIA Cosmos · camera events from Cosmos Reason 2 8B (NVIDIA Open Model License), run locally with llama.cpp</span>` : ""}<span>Task: ${esc(B.task.name)} · ${B.task.n_targets} targets 0.20–0.60 m · success = stop within ±${B.task.success_tol_m * 100} cm</span>
     <span>All success rates measured by rollout in NVIDIA Newton. Hidden “real” physics is never shown to the agent.</span>
     <span>${LIVE ? `Live server · ${LIVE.runs_per_hour} runs/hour per visitor · ${LIVE.llm_calls_left} LLM calls left` : `Recorded ${esc(B.generated.replace("T", " ").replace("+00:00", " UTC"))}`}</span>`;
   renderFoot();
@@ -901,6 +927,34 @@ function boot(B, LIVE) {
       }).join("")}${thinking(run)}</ol></section>`;
   }
 
+  // ---------- Cosmos eyes (optional second opinion on the real clip; Newton's tipped flag stays ground truth) ----------
+  function eyesStrip(m, solo) {
+    const ey = m.clip && m.clip.eyes;
+    if (!ey) return "";
+    const ph = m.clip.physics, evs = ey.events || [], frames = ey.frames || [];
+    const fmt = (e) => `<span class="${e.type === "tipped" ? "tip" : ""}">${esc(e.type)} ${e.t.toFixed(2)} s</span>`;
+    const says = ey.error ? `<span class="tip">no answer (${esc(ey.error.slice(0, 60))})</span>`
+      : evs.length ? evs.map(fmt).join(` <span class="arr">→</span> `) : "nothing";
+    const seen = evs.some((e) => e.type === "tipped");
+    let agree = "";
+    if (ph && !ey.error) {
+      const truth = ph.tipped ? `tipped ${ph.t_tip.toFixed(2)} s` : "no tip";
+      agree = seen === ph.tipped ? `<span class="agree ok" title="Cosmos agrees with the Newton tipped flag">✓ agrees · Newton: ${truth}</span>`
+        : `<span class="agree no" title="Cosmos disagrees with the Newton tipped flag; physics wins">⚠ disagrees · Newton: ${truth}</span>`;
+    }
+    const tMax = Math.max(0.1, ...frames.map((f) => f.t), ph && ph.t_tip ? ph.t_tip : 0) * 1.04;
+    const x = (t) => `${(2 + 94 * t / tMax).toFixed(2)}%`;
+    const track = frames.length ? `<div class="track" aria-hidden="true"><div class="axis"></div>${frames.map((f) =>
+        `<div class="fr ${f.tilted ? "t" : ""}" style="left:${x(f.t)}"><span>${f.t.toFixed(2)}</span></div>`).join("")}${
+        ph && ph.tipped ? `<div class="phys" style="left:${x(ph.t_tip)}"><span>Newton tip</span></div>` : ""}</div>` : "";
+    const sr = frames.length ? `<span class="sr-only">Cosmos marked ${frames.filter((f) => f.tilted).length} of ${frames.length} sampled frames as tilted.</span>` : "";
+    return `<div class="eyes ${solo ? "solo" : ""}" aria-label="Cosmos Reason 2 view of the real clip">
+      <div class="row1"><span class="label">Cosmos Reason 2 · sees</span><span class="says">${says}</span>${agree}</div>
+      ${track}${sr}
+      <div class="key"><span><i></i>frame upright</span><span><i class="t"></i>frame tilted (Cosmos)</span>${ph && ph.tipped ? `<span><i class="p"></i>first tilt &gt; 30° in Newton</span>` : ""}<span>Real clip · ${frames.length} tracked crops · local, ${ey.seconds.toFixed(1)} s · second opinion, physics flag is ground truth</span></div>
+    </div>`;
+  }
+
   // ---------- evidence ----------
   function renderEvidence(run, its, it) {
     const m = its[it].measure;
@@ -918,7 +972,7 @@ function boot(B, LIVE) {
     }
     return `<section class="pane" aria-label="Evidence"><header><span class="label">Sim vs real · same policy${m.clip ? `, target ${m.clip.target.toFixed(2)} m` : ""}</span><div class="iters" id="iters">${iterBtns}</div></header>
       <div class="body">
-        ${viewer ? `<div id="v3slot"></div><details class="clipbox"><summary class="label">Camera clips · Newton tiled-camera render</summary>${clipsHtml}</details>` : clipsHtml}
+        ${viewer ? `<div id="v3slot"></div>${eyesStrip(m, false)}<details class="clipbox"><summary class="label">Camera clips · Newton tiled-camera render</summary>${clipsHtml}</details>` : clipsHtml + eyesStrip(m, true)}
         <div class="evh"><span class="label">Every push this iteration · stop error vs target</span>
           <div class="legend"><span><i class="sw" style="background:var(--green)"></i>real, on line</span><span><i class="sw" style="background:var(--bad)"></i>real, miss</span><span><i class="sw" style="border:1px solid var(--muted)"></i>sim prediction</span></div></div>
         ${trialChart(m)}

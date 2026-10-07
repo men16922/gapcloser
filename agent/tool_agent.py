@@ -207,8 +207,11 @@ class ToolAgentDiagnoser:
     """`real` is needed for probe experiments; without it probe_real reports an exhausted budget."""
 
     def __init__(self, llm: LLM, real: RealWorld | None = None, role: str = "diagnose", max_steps: int = 10,
-                 probe_budget: int = 12, fallback=None, on_step=None):
+                 probe_budget: int = 12, fallback=None, on_step=None, camera_events=None):
         self.llm, self.real, self.role = llm, real, role
+        # optional () -> dict | None: camera evidence for this iteration (e.g. NVIDIA Cosmos Reason 2 events on the
+        # real clip next to the physics tipped count). None (the default, and all benchmarks) leaves the prompt as is.
+        self.camera_events = camera_events
         self.on_step = on_step  # called with each trace entry as it happens (the live server streams these)
         self.max_steps, self.probe_budget = max_steps, probe_budget
         self.fallback = fallback or TrajectoryDiagnoser()
@@ -226,6 +229,9 @@ class ToolAgentDiagnoser:
                         "real_stop_m": round(r.slide, 3), "sim_predicted_stop_m": round(s.slide, 3)}
                        for r, s in list(zip(real.trials, sim.trials))[::2]],
         }
+        cam = self.camera_events() if callable(self.camera_events) else self.camera_events
+        if cam:
+            summary["camera_events"] = cam
         messages = [{"role": "system", "content": SYSTEM}, {"role": "user", "content": "Iteration evidence:\n" + json.dumps(summary)}]
         trace: list[dict] = []
 

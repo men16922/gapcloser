@@ -4,6 +4,8 @@ Every success rate here is measured by rolling out in NVIDIA Newton (sim and hid
 Policy search uses the analytic surrogate (matches Newton within ~5 mm, see tests).
 Run: .venv/bin/python -m eval.record_demo   ->  runs/demo/bundle.json + clips/*.webp + replay/*.json
      .venv/bin/python -m eval.record_demo --replays-only   (3D viewer replays for the existing bundle, no LLM)
+     .venv/bin/python -m eval.record_demo --eyes-only      (Cosmos Reason 2 events for the existing clips, no LLM;
+                                                            needs a local llama-server, see README "Cosmos eyes")
 """
 
 from __future__ import annotations
@@ -42,11 +44,13 @@ CLIP_TARGET = 0.45
 
 
 def record_scenario(sc: dict, out: Path, targets: list[float], diagnoser=None, *, env=None, render: bool = True,
-                    on_event=None, max_iter: int = 5, make_diagnoser=None) -> dict:
+                    on_event=None, max_iter: int = 5, make_diagnoser=None, eyes=None) -> dict:
     """Run the agent on one hidden world, render clips, compute baselines.
 
     on_event(event) is called as each agent step happens (the live server streams these); events are
-    also collected in the returned run dict. env defaults to NVIDIA Newton; render=False skips clips."""
+    also collected in the returned run dict. env defaults to NVIDIA Newton; render=False skips clips.
+    eyes (agent.cosmos_eyes.CosmosEyes) annotates each rendered real clip; a diagnoser with a
+    `camera_events` attribute then sees those events next to the physics tipped count."""
     hidden = ParamSet.nominal().with_(**sc["hidden"])
     world_env = env or NewtonPushEnv()
     real = RealWorld(world_env, hidden)
@@ -73,10 +77,17 @@ def record_scenario(sc: dict, out: Path, targets: list[float], diagnoser=None, *
                 "sim_slide": render_trial(sim_p, _cmd(e, CLIP_TARGET, sim_p), CLIP_TARGET, out / sim_clip),
             }
             e["clip"]["replay"] = save_replay(out, sc["id"], it, e, CLIP_TARGET, sim_p, hidden)
+            e["clip"]["physics"] = clip_physics(out, e["clip"])
+            if eyes is not None:
+                e["clip"]["eyes"] = look(eyes, out / real_clip)
+                camera["latest"] = camera_evidence(e)
         events.append(e)
         send(e)
 
+    camera: dict = {}
     diag = make_diagnoser(real) if make_diagnoser else (diagnoser or TrajectoryDiagnoser())
+    if eyes is not None and hasattr(diag, "camera_events") and diag.camera_events is None:
+        diag.camera_events = lambda: camera.get("latest")
     if sc.get("open"):
         from eval.open_bench import SysIdDiagnoser
         from sim.params import CLOSED_PARAMS, OPEN_PARAMS
@@ -103,6 +114,70 @@ def record_scenario(sc: dict, out: Path, targets: list[float], diagnoser=None, *
            "baselines": baselines, "truth": truth}
     send({"type": "end", "t": round(time.perf_counter() - t0, 3), "run": {k: v for k, v in run.items() if k != "events"}})
     return run
+
+
+def clip_physics(out: Path, clip: dict) -> dict | None:
+    """Newton's own answer for the real clip's push (from its replay): tipped (peak tilt), first tip time."""
+    import numpy as np
+
+    from sim.newton_push import TIP_DEG, tilt_deg
+
+    path = out / clip["replay"] if isinstance(clip.get("replay"), str) else None
+    if path is None or not path.exists():
+        return None
+    rp = json.loads(path.read_text())
+    tilt = tilt_deg(np.asarray(rp["trials"]["real"]["cube"], dtype=float)[:, 3:7])
+    hit = np.nonzero(tilt > TIP_DEG)[0]
+    return {"tipped": bool(len(hit)), "t_tip": round(float(hit[0]) / rp["fps"], 2) if len(hit) else None,
+            "peak_tilt_deg": round(float(tilt.max()), 1)}
+
+
+def look(eyes, clip_path: Path) -> dict:
+    """CosmosEyes on one clip -> the clip["eyes"] record stored in the bundle."""
+    res = eyes.look(clip_path)
+    rec = {"model": eyes.model_name, "events": res["events"], "seconds": res["seconds"],
+           "frames": [{"t": t, "tilted": f} for t, f in zip(res["times"], res["tilted"])]}
+    if res["error"]:
+        rec["error"] = res["error"]
+    return rec
+
+
+def camera_evidence(ev: dict) -> dict:
+    """What the diagnoser sees: Cosmos's events on the clip next to the physics tipped count of the rollout."""
+    clip = ev["clip"]
+    return {"cosmos": clip["eyes"]["events"], "cosmos_clip_target_m": clip["target"],
+            "physics_tipped_count": sum(bool(t.get("tipped")) for t in ev["real"]["trials"]),
+            "n_real_trials": len(ev["real"]["trials"]),
+            "note": "camera events are a second opinion; the physics tipped count is ground truth"}
+
+
+def annotate_eyes(out: Path, eyes) -> dict:
+    """--eyes-only: Cosmos events (and Newton's tip flag) for every real clip of an existing bundle.
+    No LLM, no reruns; returns agreement counts vs the physics flag."""
+    path = out / "bundle.json"
+    bundle = json.loads(path.read_text())
+    stats = {"clips": 0, "agree": 0, "tp": 0, "fn": 0, "fp": 0, "tn": 0, "errors": 0}
+    for run in bundle["runs"]:
+        for e in run["events"]:
+            clip = e.get("clip")
+            if not clip:
+                continue
+            clip["physics"] = clip_physics(out, clip)
+            clip["eyes"] = look(eyes, out / clip["real"])
+            phys = bool(clip["physics"] and clip["physics"]["tipped"])
+            seen = any(x["type"] == "tipped" for x in clip["eyes"]["events"])
+            if clip["eyes"].get("error"):
+                stats["errors"] += 1
+            stats["clips"] += 1
+            stats["agree"] += phys == seen
+            stats[("tp" if seen else "fn") if phys else ("fp" if seen else "tn")] += 1
+            fmt = " -> ".join(f"{x['type']} {x['t']:.2f}s" for x in clip["eyes"]["events"]) or clip["eyes"].get("error", "-")
+            print(f"  {clip['real']:38s} physics {'tipped' if phys else 'slid  '}  cosmos {fmt:28s} "
+                  f"{'agree' if phys == seen else 'DISAGREE'}  {clip['eyes']['seconds']:.1f}s", flush=True)
+    bundle["stack"]["eyes"] = f"{eyes.model_name}; Built on NVIDIA Cosmos"
+    bundle["eyes_summary"] = stats
+    path.write_text(json.dumps(bundle, indent=1))
+    return stats
 
 
 def rerender_clips(out: Path) -> None:
@@ -188,7 +263,23 @@ def main() -> None:
     ap.add_argument("--open-only", action="store_true",
                     help="record the open-world scenarios (tool agent with --llm) into the existing bundle, keep the rest")
     ap.add_argument("--attach-bench", type=Path, default=None, help="embed a Gap-Bench JSON (eval.open_bench --out) in the bundle")
+    ap.add_argument("--eyes", choices=["none", "cosmos"], default="none",
+                    help="annotate real clips with NVIDIA Cosmos Reason 2 events (local llama-server)")
+    ap.add_argument("--eyes-url", default="http://localhost:8080", help="llama-server hosting Cosmos Reason 2")
+    ap.add_argument("--eyes-only", action="store_true", help="Cosmos events for the existing bundle's clips (no LLM, no reruns)")
     a = ap.parse_args()
+    eyes = None
+    if a.eyes == "cosmos" or a.eyes_only:
+        from agent.cosmos_eyes import CosmosEyes
+
+        eyes = CosmosEyes(a.eyes_url)
+        if not eyes.available():
+            raise SystemExit(f"Cosmos eyes: no llama-server at {a.eyes_url} ({eyes.last_error}); see README 'Cosmos eyes'")
+    if a.eyes_only:
+        st = annotate_eyes(a.out, eyes)
+        print(f"Cosmos vs physics tipped flag: {st['agree']}/{st['clips']} agree "
+              f"(tips seen {st['tp']}/{st['tp'] + st['fn']}, false tips {st['fp']}, errors {st['errors']})")
+        return
     if a.attach_bench and not a.open_only:
         path = a.out / "bundle.json"
         bundle = json.loads(path.read_text())
@@ -223,7 +314,7 @@ def main() -> None:
         for sc in todo:
             t = time.perf_counter()
             mk = (lambda real: ToolAgentDiagnoser(llm, real)) if llm is not None else None
-            r = record_scenario(sc, a.out, targets, make_diagnoser=mk, max_iter=4)
+            r = record_scenario(sc, a.out, targets, make_diagnoser=mk, max_iter=4, eyes=eyes)
             b = r["baselines"]
             print(f"{sc['id']:15s} final {r['final_success']:.0%} in {r['iterations']} iters, {b['real_trials']} real trials "
                   f"(rule {b['rule']:.0%}, sysid {b['sysid']:.0%}, full_dr {b['full_dr']:.0%}, nominal {b['nominal']:.0%})  "
@@ -251,7 +342,7 @@ def main() -> None:
             from agent.llm_diagnoser import LLMDiagnoser
 
             diag = LLMDiagnoser(llm)
-        r = record_scenario(sc, a.out, targets, diag)
+        r = record_scenario(sc, a.out, targets, diag, eyes=eyes)
         print(f"{sc['id']:15s} final {r['final_success']:.0%} in {r['iterations']} iters "
               f"(outcome-only {r['baselines']['outcome_only']:.0%}, full_dr {r['baselines']['full_dr']:.0%}, nominal {r['baselines']['nominal']:.0%})  {time.perf_counter() - t:.1f}s")
         runs.append(r)
