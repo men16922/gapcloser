@@ -1,14 +1,35 @@
 # Tether
 
-**An agent that fixes the simulator when a robot fails in the real world, and can tell you why.**
+**Tie your simulator to the real world.** Tether reads how things really slide and stop, from a phone video or the
+log a robot, car or production line already writes. It finds which physics the simulator gets wrong, says how sure
+that is, checks the fix by replaying every run in NVIDIA Newton, and exports configs for NVIDIA Newton, Isaac Lab
+and CARLA.
 
-A policy trained in simulation fails on the real robot because the simulator is wrong in ways nobody wrote down: a slippery strip on the table, a weak motor, a distorted camera lens. Tether runs the loop an engineer runs by hand. It measures the failures, works out what is wrong with the simulator, designs extra experiments when the data cannot decide, fixes the simulator, retrains and measures again.
+One physics model (launched, sliding to a stop; part of the surface differs; the actuator under-delivers; a camera
+judges distance) covers three domains:
+
+| Domain | Scene | What Tether finds | Exports |
+|---|---|---|---|
+| Robot manipulation | an arm pushes a box onto a line | table friction, a wet patch, arm strength, camera tilt | Newton, Isaac Lab |
+| Autonomous vehicles | a car brakes to a stop line (Froude-scaled 1:25, full-size units) | tire-road friction, a wet or icy section, speed control, camera pitch | Newton, CARLA, Isaac Lab |
+| Factory inspection | a pusher slides a part to the inspection camera | part-rail friction, an oily section, pusher strength, camera tilt | Newton, Isaac Lab |
 
 Built for the Nebius × NVIDIA Global AI Hackathon (Physical AI track). Runs on a laptop at near-zero cost:
 
-- Physics: **NVIDIA Newton**
-- Reasoning: **NVIDIA Nemotron 3** on **Nebius Token Factory**
+- Physics and rendering: **NVIDIA Newton** (Warp, CPU)
+- Reasoning: **NVIDIA Nemotron 3 Super** on **Nebius Token Factory**
 - Eyes: **NVIDIA Cosmos Reason 2**, running locally (optional)
+
+`make serve`, then open:
+
+| URL | Page |
+|---|---|
+| http://localhost:8000/ | Overview: the route, the three domains, the evidence |
+| http://localhost:8000/console | Agent console: Nemotron fixing hidden worlds, Gap-Bench |
+| http://localhost:8000/studio | Studio: your data (or a world you simulate) → calibrated simulator → Newton replay → export |
+
+Plain-Korean guides live in `reference/`. Submission text: `docs/submission/DEVPOST.md`. Demo video:
+`python -m video.capture && python -m video.make_video`.
 
 ## Tether Studio: calibrate from your own data
 

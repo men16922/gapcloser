@@ -1240,7 +1240,7 @@ function stepDetail(step) {
   }
   if (step.tool === "probe_real" && r) {
     const q = r.queued_for_human || (r.results || []).map(x => x.command);
-    return `<div class="detail">${r.queued_for_human ? T("Recorded data has no robot attached, so these go to you as next-experiment cards:", "로봇이 연결되어 있지 않아 이 제안은 '다음 실험'으로 표시합니다:") : T("Pushes run:", "실제로 민 결과:")} ${T("commands", "명령값")} <span class="num">${(q || []).map(c => fmt(c, 2)).join(", ")}</span></div>`;
+    return `<div class="detail">${r.queued_for_human ? T("Recorded data has no robot attached, so these go to you as next-experiment cards:", "로봇이 연결되어 있지 않아 이 제안은 '다음 실험'으로 표시합니다:") : T("Pushes run:", "실제로 민 결과:")} ${state.s && state.s.kind === "video" ? T("launch speeds (m/s)", "출발 속도 (m/s)") : T("commands", "명령값")} <span class="num">${(q || []).map(c => fmt(c, 2)).join(", ")}</span></div>`;
   }
   if (step.tool === "commit") return `<blockquote>${esc((step.args || {}).explanation || "")}</blockquote>`;
   if (step.tool === "text") return `<div class="detail">${esc(step.text || "")}</div>`;
@@ -1265,7 +1265,7 @@ function nbHandler(who) {
     if (e.type === "stage" && e.stage === "note") nbItem("warn", "Studio", esc(e.message), "");
     if (e.type === "agent_step") {
       const s = e.step; const un = s.result && s.result.unexplained && s.result.unexplained.length;
-      const title = s.tool === "fit_hypothesis" ? `${T("Fitted", "맞춰 봄")}: ${structureWords(s.args && s.args.free)}` : s.tool === "test_hypothesis" ? `${T("Tested", "검증")}: ${structureWords(Object.keys((s.args || {}).model || {}).filter(k => { const x = s.args.model[k]; return x != null && x !== 0 && !(k === "actuator_gain" && x === 1); }))}` : (LANG === "ko" ? TOOL_WORDS_KO[s.tool] : TOOL_WORDS[s.tool]) || s.tool;
+      const title = s.tool === "fit_hypothesis" ? `${T("Fitted", "맞춰 봄")}: ${structureWords(s.args && s.args.free)}` : s.tool === "test_hypothesis" ? `${T("Tested", "검증")}: ${structureWords(Object.keys((s.args || {}).model || {}).filter(k => { const x = s.args.model[k]; return x != null && x !== 0 && !(k === "actuator_gain" && x === 1); }))}` : s.tool === "probe_real" ? T(`Asked for more ${CS("runsEn")}`, "추가 측정을 요청했습니다") : s.tool === "decel_profile" ? T(`Measured how fast it slows down along the ${CS("surfaceWord")}`, `${CS("surfaceWordKo")} 위치별 감속을 측정했습니다`) : (LANG === "ko" ? TOOL_WORDS_KO[s.tool] : TOOL_WORDS[s.tool]) || s.tool;
       live = nbItem(s.tool === "commit" ? "ok" : un ? "warn" : "live", who, esc(title), stepDetail(s));
     }
     if (e.type === "cross_check") {
@@ -1419,14 +1419,20 @@ function moreAction() {
   }
   if (s.kind !== "video") return LIVE ? `<label class="btn">Add the pushes you ran (CSV/JSON)<input type="file" id="more-log" accept=".csv,.json" hidden></label><span class="small muted">Same columns as your first log; they are merged and you diagnose again.</span>` : "";
   const sample = s.sample && (LIVE ? null : rec.recFor(s.sample));
-  if (s.sample === "flick" && s.videos.length < 2) return `<button class="btn" id="more">Load take 2: the pushes it asked for</button>`;
+  const parts = samplePartsOf(s.sample);
+  if (parts.length > s.videos.length) return `<button class="btn" id="more">${T(`Load take ${s.videos.length + 1}: the ${CS("runsEn")} it asked for`, `${s.videos.length + 1}번째 영상 불러오기: 추천한 실험`)}</button>`;
   if (LIVE && !s.sample) return `<label class="btn">Add a video of these pushes<input type="file" id="more-file" accept="video/*" hidden></label><span class="small muted">Keep the sheet where it was.</span>`;
   return "";
+}
+function samplePartsOf(id) {
+  if (!id) return [];
+  const m = (state.sampleList || []).find(x => x.id === id) || (!LIVE && rec.recFor(id) ? rec.recFor(id).sample : null);
+  return (m && m.parts) || [];
 }
 async function addTake(file) {
   try {
     const f = new FormData();
-    if (file instanceof File) f.set("file", file); else f.set("part", "flick-video-2");
+    if (file instanceof File) f.set("file", file); else f.set("part", samplePartsOf(state.s.sample)[state.s.videos.length]);
     const s = adopt(await be.addVideo(state.s.id, f));
     state.s = s; state.take = s.added; state.result = null; state.truth = null;
     state.done.delete("diag"); state.done.delete("results"); state.done.delete("export");
