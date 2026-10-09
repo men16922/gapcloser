@@ -110,6 +110,19 @@ button, input, select { font: inherit; color: inherit; }
 .drop .pick { margin-top: 16px; }
 .drop.static { opacity: 0.8; }
 
+/* domain tabs (same names as the FlywheelFit workspace): one physics, three jobs */
+.domtabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; margin-top: 20px; border: 1px solid var(--line); }
+.domtabs button { all: unset; box-sizing: border-box; cursor: pointer; padding: 14px 16px 13px; background: var(--panel); border-right: 1px solid var(--line); display: grid; gap: 3px; min-width: 0; }
+.domtabs button:last-child { border-right: 0; }
+.domtabs button b { font: 600 18px/1.15 var(--f-display); color: var(--muted); }
+.domtabs button span { font-size: 13px; color: var(--dim); }
+.domtabs button[aria-selected="true"] { background: var(--raised); box-shadow: inset 0 -3px 0 var(--green); }
+.domtabs button[aria-selected="true"] b { color: var(--fg); }
+.domtabs button:hover b { color: var(--fg); }
+.domtabs button:focus-visible { outline: 2px solid var(--green); outline-offset: -2px; }
+.domnote { margin-top: 10px; color: var(--muted); font-size: 14px; max-width: 78ch; }
+@media (max-width: 640px) { .domtabs { grid-template-columns: 1fr; } .domtabs button { border-right: 0; border-bottom: 1px solid var(--line); } .domtabs button:last-child { border-bottom: 0; } }
+
 /* 30-second explainer */
 .easy { margin-top: 20px; border: 1px solid var(--line); border-left: 3px solid var(--green); background: var(--panel); padding: 16px 20px; }
 .easy h3 { font-size: 18px; margin-bottom: 6px; }
@@ -323,24 +336,26 @@ pre.code .s { color: #e3b867; }
     <section class="panel" id="p-data">
       <h2>Fit your simulator to the real world</h2>
       <p class="lede">Show GapCloser how something actually slides on your table: a phone video, or the push log your robot already writes. You get the physics that differs from your simulator, how sure that is, which pushes would settle the rest, and a config for NVIDIA Newton or Isaac Lab.</p>
-      <section class="easy" aria-label="In 30 seconds" data-ko-html="<h3>30초 설명</h3><ol><li><b>로봇은 가상 세계에서 연습합니다.</b> 진짜 탁자는 조금 달라서(더 미끄럽거나 젖은 곳이 있는 등) 실제로는 자주 빗나갑니다.</li><li><b>실제로 밀어 본 기록을 넣습니다.</b> 폰 영상이나 로봇 기록이면 됩니다. 없으면 아래에서 가상으로 만들 수 있습니다.</li><li><b>AI가 무엇이 다른지 찾아서</b> 가상 세계를 고치고, 다음에 해 볼 실험을 알려 줍니다.</li></ol>"><h3>In 30 seconds</h3><ol><li><b>Robots practise in a virtual world.</b> The real table is a bit different (slipperier, a wet patch), so for real they keep missing.</li><li><b>Give it a record of real pushes.</b> A phone video or a robot log. No data? Make a virtual table below.</li><li><b>The AI finds what is different,</b> fixes the virtual world, and tells you which push to try next.</li></ol></section>
+      <div class="domtabs" role="tablist" aria-label="Domain" id="domtabs"></div>
+      <p class="domnote" id="domnote"></p>
+      <section class="easy" id="easy" aria-label="In 30 seconds" data-ko-html="<h3>30초 설명</h3><ol><li><b>로봇은 가상 세계에서 연습합니다.</b> 진짜 탁자는 조금 달라서(더 미끄럽거나 젖은 곳이 있는 등) 실제로는 자주 빗나갑니다.</li><li><b>실제로 밀어 본 기록을 넣습니다.</b> 폰 영상이나 로봇 기록이면 됩니다. 없으면 아래에서 가상으로 만들 수 있습니다.</li><li><b>AI가 무엇이 다른지 찾아서</b> 가상 세계를 고치고, 다음에 해 볼 실험을 알려 줍니다.</li></ol>"><h3>In 30 seconds</h3><ol><li><b>Robots practise in a virtual world.</b> The real table is a bit different (slipperier, a wet patch), so for real they keep missing.</li><li><b>Give it a record of real pushes.</b> A phone video or a robot log. No data? Make a virtual table below.</li><li><b>The AI finds what is different,</b> fixes the virtual world, and tells you which push to try next.</li></ol></section>
       <section class="simlab" id="simlab" aria-labelledby="sim-h">
         <div class="simform">
           <h3 id="sim-h">No video at hand? Simulate your table</h3>
-          <p class="small muted">Set the physics of the "real" table, and NVIDIA Newton produces the measurements: a phone-style video it renders, or a robot's push log. GapCloser then has to work out your settings from the data alone; you see how close it got at the end.</p>
+          <p class="small muted" id="sim-lede">Set the physics of the "real" table, and NVIDIA Newton produces the measurements: a phone-style video it renders, or a robot's push log. GapCloser then has to work out your settings from the data alone; you see how close it got at the end.</p>
           <div class="seg" role="radiogroup" aria-label="Data to produce">
-            <label><input type="radio" name="simkind" value="video" checked> Phone video</label>
-            <label><input type="radio" name="simkind" value="log"> Robot log</label>
+            <label><input type="radio" name="simkind" value="video" checked> <span id="k-video">Phone video</span></label>
+            <label><input type="radio" name="simkind" value="log"> <span id="k-log">Robot log</span></label>
           </div>
           <div class="sliders">
-            <label>Table friction <output id="o-mu"></output><input type="range" id="s-mu" min="0.2" max="1.0" step="0.01" value="0.45"></label>
-            <label class="chk"><input type="checkbox" id="s-strip" checked> A region with different friction (spill, mat, worn spot)</label>
-            <label class="strip">Region starts at <output id="o-y0"></output><input type="range" id="s-y0" min="0.15" max="0.8" step="0.01" value="0.32"></label>
-            <label class="strip">Friction in the region <output id="o-pm"></output><input type="range" id="s-pm" min="0.2" max="0.95" step="0.01" value="0.25"></label>
-            <label class="logonly">Robot motor strength <output id="o-g"></output><input type="range" id="s-g" min="0.7" max="1.3" step="0.01" value="0.88"></label>
-            <label class="logonly">Robot camera tilt <output id="o-p"></output><input type="range" id="s-p" min="-5" max="5" step="0.1" value="2"></label>
-            <label>Pushes <output id="o-n"></output><input type="range" id="s-n" min="3" max="12" step="1" value="7"></label>
-            <label>Longest push slides <output id="o-r"></output><input type="range" id="s-r" min="0.15" max="0.9" step="0.01" value="0.42"></label>
+            <label><span id="l-mu">Table friction</span> <output id="o-mu"></output><input type="range" id="s-mu" min="0.2" max="1.0" step="0.01" value="0.45"></label>
+            <label class="chk"><input type="checkbox" id="s-strip" checked> <span id="l-strip">A region with different friction (spill, mat, worn spot)</span></label>
+            <label class="strip"><span id="l-y0">Region starts at</span> <output id="o-y0"></output><input type="range" id="s-y0" min="0.15" max="0.8" step="0.01" value="0.32"></label>
+            <label class="strip"><span id="l-pm">Friction in the region</span> <output id="o-pm"></output><input type="range" id="s-pm" min="0.2" max="0.95" step="0.01" value="0.25"></label>
+            <label class="logonly"><span id="l-g">Robot motor strength</span> <output id="o-g"></output><input type="range" id="s-g" min="0.7" max="1.3" step="0.01" value="0.88"></label>
+            <label class="logonly"><span id="l-p">Robot camera tilt</span> <output id="o-p"></output><input type="range" id="s-p" min="-5" max="5" step="0.1" value="2"></label>
+            <label><span id="l-n">Pushes</span> <output id="o-n"></output><input type="range" id="s-n" min="3" max="12" step="1" value="7"></label>
+            <label><span id="l-r">Longest push slides</span> <output id="o-r"></output><input type="range" id="s-r" min="0.15" max="0.9" step="0.01" value="0.42"></label>
           </div>
           <div class="row" style="margin-top:14px"><button class="btn primary" id="sim-run">Run in NVIDIA Newton</button><span class="small muted" id="sim-note"></span></div>
           <p class="err" id="err-sim" role="alert"></p>
@@ -446,6 +461,87 @@ pre.code .s { color: #e3b867; }
 <script>
 const DATA = /*__STUDIO_DATA__*/null;
 const LIVE = DATA === null;
+
+/* ---------------------------------------------------------------- domains (studio/domains.py)
+   Robot manipulation, autonomous vehicles, factory inspection: one physics, three vocabularies. The server works in
+   base units (the robot scale); `toView` turns what it sends into the domain's units right where it arrives, and
+   `toBase` turns values the page sends back (suggested speeds, object height) into base units again. */
+let DOMS = /*__STUDIO_DOMAINS__*/null;
+let DOM = null;
+function setDomain(id) {
+  DOM = (DOMS && (DOMS[id] || DOMS.robot)) || { id: "robot", scale: 1, speed_scale: 1, words: { en: {}, ko: {} }, labels: { en: {}, ko: {} }, name: { en: "", ko: "" } };
+  document.documentElement.dataset.domain = DOM.id;
+}
+const Wd = k => ((DOM.words[LANG] || DOM.words.en) || {})[k] || ((DOM.words.en || {})[k]) || k;
+const LEN_FIELDS = new Set(["patch_y0", "camera_dx"]);
+function scaleModel(m) {
+  if (!m || DOM.scale === 1) return m;
+  const o = { ...m };
+  for (const k of LEN_FIELDS) if (o[k] != null) o[k] = Array.isArray(o[k]) ? o[k].map(x => x * DOM.scale) : o[k] * DOM.scale;
+  if (o.lens_k != null) o.lens_k = Array.isArray(o.lens_k) ? o.lens_k.map(x => x / DOM.scale) : o.lens_k / DOM.scale;
+  return o;
+}
+function scaleText(s) {  // mirrors studio.domains.scale_text
+  if (!s || DOM.scale === 1) return s;
+  return String(s).replace(/(-?\d+(?:\.\d+)?)\s?m\/s/g, (_, v) => `${(v * DOM.speed_scale).toFixed(1)} m/s`)
+    .replace(/(±?)(-?\d+(?:\.\d+)?)\s?(cm|mm|m)\b(?!\/)/g, (_, pm, v, u) => { const x = v * { cm: 0.01, mm: 0.001, m: 1 }[u] * DOM.scale; return `${pm}${Math.abs(x) < 10 ? x.toFixed(2) : x.toFixed(1)} m`; });
+}
+function toView(x) {
+  if (!x || !DOM || DOM.scale === 1) return x;
+  const o = JSON.parse(JSON.stringify(x)), L = DOM.scale, V = DOM.speed_scale;
+  const l = v => v == null ? v : Array.isArray(v) ? v.map(l) : v * L, sp = v => v == null ? v : Array.isArray(v) ? v.map(sp) : v * V;
+  const push = p => { p.stop = l(p.stop); p.start = l(p.start); p.target = l(p.target); p.perceived = l(p.perceived); p.track = l(p.track); p.launch_speed = sp(p.launch_speed); p.command = sp(p.command); };
+  const cal = c => {
+    if (!c) return;
+    c.model = scaleModel(c.model); c.intervals = scaleModel(c.intervals);
+    (c.candidates || []).forEach(k => { k.model = scaleModel(k.model); k.stop_rms_m = l(k.stop_rms_m); k.perception_rms_m = l(k.perception_rms_m); k.launch_rms_mps = sp(k.launch_rms_mps); });
+    const r = c.residuals || {}; r.stop_residual_rms_m = l(r.stop_residual_rms_m); r.perception_residual_rms_m = l(r.perception_residual_rms_m); r.launch_speed_residual_rms_mps = sp(r.launch_speed_residual_rms_mps);
+    r.unexplained = (r.unexplained || []).map(scaleText);
+    const p = c.predicted; if (p) { p.noise_sigma_m = l(p.noise_sigma_m); p.target_range_m = l(p.target_range_m); p.tolerance_m = l(p.tolerance_m); p.measured_reach_m = l(p.measured_reach_m); }
+    (c.gap || []).forEach(g => { const f = LEN_FIELDS.has(g.field) ? l : g.field === "lens_k" ? (v => v == null ? v : v / L) : (v => v); ["sim", "real", "lo", "hi"].forEach(k => g[k] = f(g[k])); });
+    const cu = c.curves || {};
+    if (cu.stops) { cu.stops.points.forEach(q => { q.x = sp(q.x); q.y = l(q.y); }); cu.stops.grid = sp(cu.stops.grid); cu.stops.model = l(cu.stops.model); cu.stops.sim = l(cu.stops.sim); cu.stops.band = l(cu.stops.band); }
+    if (cu.friction) { (cu.friction.measured || []).forEach(q => { q.y0 = l(q.y0); q.y1 = l(q.y1); }); cu.friction.y = l(cu.friction.y); }
+    (cu.perception || []).forEach(q => { q.true = l(q.true); q.perceived = l(q.perceived); });
+  };
+  const nxt = n => { if (!n) return; n.max_disagreement_in_range_m = l(n.max_disagreement_in_range_m); n.coverage_m = l(n.coverage_m);
+    (n.suggestions || []).forEach(s => { s.launch_speed_mps = sp(s.launch_speed_mps); s.predicted_stop_m = l(s.predicted_stop_m); s.disagreement_m = l(s.disagreement_m); s.command = sp(s.command); s.why = scaleText(s.why); });
+    (n.curve || []).forEach(q => { q.v = sp(q.v); q.stop = l(q.stop); q.sd = l(q.sd); });
+    (n.agent_requests || []).forEach(a => { a.command = sp(a.command); }); };
+  const step = s => { if (!s) return; const r = s.result;
+    if (s.tool === "decel_profile" && Array.isArray(r)) r.forEach(b => { if (typeof b.y_m === "string") b.y_m = b.y_m.split("-").map(v => (v * L).toFixed(1)).join("-"); });
+    if (s.tool === "perception_check" && Array.isArray(r)) r.forEach(q => { q.true_m = l(q.true_m); q.perceived_m = l(q.perceived_m); });
+    if (r && typeof r === "object" && !Array.isArray(r)) { if (r.fitted_model) r.fitted_model = scaleModel(r.fitted_model); r.stop_residual_rms_m = l(r.stop_residual_rms_m); r.perception_residual_rms_m = l(r.perception_residual_rms_m); r.unexplained = (r.unexplained || []).map(scaleText);
+      if (r.queued_for_human) r.queued_for_human = sp(r.queued_for_human); (r.results || []).forEach(q => q.command = sp(q.command)); }
+    if (s.args) { if (s.args.model) s.args.model = scaleModel(s.args.model); if (s.args.explanation) s.args.explanation = scaleText(s.args.explanation); if (s.args.commands) s.args.commands = sp(s.args.commands); }
+    if (s.text) s.text = scaleText(s.text); };
+  const sess = s => { if (!s) return; (s.pushes || []).forEach(push); s.notes = (s.notes || []).map(scaleText); };
+  const result = r => { if (!r) return; cal(r.calibration); nxt(r.next_experiment); sess(r.session);
+    if (r.agent) { r.agent.explanation = scaleText(r.agent.explanation); (r.agent.trace || []).forEach(step); if (r.agent.requested_commands) r.agent.requested_commands = sp(r.agent.requested_commands); if (r.agent.cross_check && r.agent.cross_check.reason) r.agent.cross_check.reason = scaleText(r.agent.cross_check.reason); }
+    if (r.overlay) Object.values(r.overlay).forEach(v => { v.reach_m = l(v.reach_m); }); };
+  if (o.calibration && o.next_experiment !== undefined) { result(o); return o; }            // a result
+  if (o.type) {                                                                             // an analysis event
+    if (o.coverage_m) o.coverage_m = l(o.coverage_m);
+    if (o.notes) o.notes = o.notes.map(scaleText);
+    if (o.step) step(o.step);
+    if (o.calibration) cal(o.calibration);
+    if (o.next_experiment) nxt(o.next_experiment);
+    if (o.result) result(o.result);
+    if (o.overlay) Object.values(o.overlay).forEach(v => { v.reach_m = l(v.reach_m); });
+    if (o.cross_check && o.cross_check.reason) o.cross_check.reason = scaleText(o.cross_check.reason);
+    if (o.message) o.message = scaleText(o.message);
+    return o;
+  }
+  if (o.model && !o.videos) { o.model = scaleModel(o.model); if (o.note) o.note = scaleText(o.note); return o; }  // revealed truth
+  sess(o.session); result(o.result);                                                          // a session
+  (o.videos || []).forEach(v => { (v.pushes || []).forEach(p => { p.launch_speed_mps = sp(p.launch_speed_mps); p.start_m = l(p.start_m); p.stop_m = l(p.stop_m); p.slide_m = l(p.slide_m); });
+    if (v.camera) v.camera.height_m = l(v.camera.height_m); if (v.overlay) Object.values(v.overlay).forEach(q => { if (q && q.reach_m != null) q.reach_m = l(q.reach_m); }); });
+  return o;
+}
+const toBaseSpeed = v => v / (DOM ? DOM.speed_scale : 1), toBaseLen = v => v / (DOM ? DOM.scale : 1);
+const dist = m => m == null ? "–" : Math.abs(m) < 1 ? `${fmt(m * 100, 1)} cm` : `${fmt(m, 2)} m`;  // residuals and spreads in either domain
+const tolText = m => m < 0.1 ? `${Math.round(m * 100)} cm` : `${fmt(m, 2)} m`;
+const fmtL = (base, d = 2) => fmt(base * DOM.scale, DOM.scale === 1 ? d : (base * DOM.scale >= 10 ? 1 : d));  // base -> domain metres
 
 /* ---------------------------------------------------------------- language (EN default, KO) */
 let LANG = (() => { const q = new URLSearchParams(location.search).get("lang"); if (q === "ko" || q === "en") return q;
@@ -614,6 +710,7 @@ function setLang(l) {
   document.documentElement.lang = l;
   document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.lang === l)));
   translateTree(document.body);
+  if (DOM) { renderDomainCopy(); renderSamples(); drawSimView(); }
   if (state.s) { const st = state.step; go(st); if (st === "diag") replayNotebook(); } else renderSteps();
   if (typeof renderChat === "function") renderChat();
 }
@@ -661,17 +758,17 @@ const rec = {
     const id = form.get("sample"); const r = this.recFor(id);
     if (!r) throw new Error("Uploads need the live server: run `make serve` and open /studio.");
     const vids = r.sample.kind === "video" ? [{ ...r.videos[0], tracked: false }] : [];
-    return { id: "rec-" + id, sample: id, kind: r.sample.kind, name: r.sample.title, videos: vids,
+    return { id: "rec-" + id, sample: id, kind: r.sample.kind, name: r.sample.title, videos: vids, domain: r.sample.domain || "robot",
              session: r.sample.kind === "log" ? r.stages[0].session : null, result: null };
   },
   async addVideo(sid, form) {
-    const r = this.recFor(sid.slice(4)); const i = Number(state.s.videos.length);
-    return { ...state.s, videos: [...state.s.videos, { ...r.videos[i], tracked: false }], added: i };
+    const r = this.recFor(sid.slice(4)); const i = Number(RAWS.videos.length);
+    return { ...RAWS, videos: [...RAWS.videos, { ...r.videos[i], tracked: false }], added: i };
   },
   async track(sid, i) {
     const r = this.recFor(sid.slice(4)); await sleep(reduce ? 0 : 700);
-    const vids = state.s.videos.map((v, k) => k <= i ? { ...r.videos[k], tracked: true } : v);
-    return { ...state.s, videos: vids, session: r.stages[i].session };
+    const vids = RAWS.videos.map((v, k) => k <= i ? { ...r.videos[k], tracked: true } : v);
+    return { ...RAWS, videos: vids, session: r.stages[i].session };
   },
   async analyze(sid, agent, onEvent) {
     const r = this.recFor(sid.slice(4));
@@ -688,6 +785,8 @@ const rec = {
   media(path) { return DATA.media[path] || path; },
 };
 const be = LIVE ? api : rec;
+let RAWS = null;  // the session as the server sent it (base units); state.s is its view in the domain's units
+function adopt(raw) { setDomain(raw.domain || "robot"); RAWS = raw; return toView(raw); }
 
 /* ---------------------------------------------------------------- state + steps */
 const STEPS = [
@@ -724,6 +823,68 @@ function go(step) {
 function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("on"); setTimeout(() => t.classList.remove("on"), 1800); }
 
 /* ---------------------------------------------------------------- 1 data */
+/* per-domain copy for the data step (the physics and the pipeline are the same in all three) */
+const COPY = {
+  robot: {
+    runsEn: "pushes", surfaceWord: "table", surfaceWordKo: "탁자", targetWord: "line", targetWordKo: "선과", objectWord: "object", objectWordKo: "물체",
+    tab: ["Arm pushes a box to a line", "로봇 팔이 상자를 선까지 밀기"],
+    note: ["A policy learned in simulation pushes boxes on a real table. The table is slicker in places, the arm weaker, the camera tilted.", "시뮬레이션에서 배운 로봇이 실제 탁자에서 상자를 밉니다. 실제 탁자는 일부가 더 미끄럽거나, 팔 힘이 약하거나, 카메라가 기울어 있습니다."],
+    easy: [["Robots practise in a virtual world.", "The real table is a bit different (slipperier, a wet patch), so for real they keep missing."], ["로봇은 가상 세계에서 연습합니다.", "진짜 탁자는 조금 달라서(더 미끄럽거나 젖은 곳이 있는 등) 실제로는 자주 빗나갑니다."]],
+    give: [["Give it a record of real pushes.", "A phone video or a robot log. No data? Make a virtual table below."], ["실제로 밀어 본 기록을 넣습니다.", "폰 영상이나 로봇 기록이면 됩니다. 없으면 아래에서 가상으로 만들 수 있습니다."]],
+    kinds: { video: ["Phone video", "폰 영상"], log: ["Robot log", "로봇 기록"] }, run: ["push", "밀기"], runs: ["Pushes", "밀기 횟수"],
+    simh: ["No video at hand? Simulate your table", "영상이 없다면 가상 탁자로 시작합니다"],
+    lede: ["Set the physics of the “real” table, and NVIDIA Newton produces the measurements: a phone-style video it renders, or a robot's push log. GapCloser then has to work out your settings from the data alone.", "“실제” 탁자의 물리값을 정하면 NVIDIA Newton이 폰 영상이나 로봇 기록을 만듭니다. GapCloser는 그 데이터만 보고 설정값을 알아내야 합니다."],
+    mu: ["Table friction", "탁자 마찰"], strip: ["A region with different friction (spill, mat, worn spot)", "중간에 미끄럽거나 거친 곳 넣기 (엎지른 물, 매트, 닳은 자리 등)"],
+    y0: ["Region starts at", "그 구간이 시작되는 거리"], pm: ["Friction in the region", "그 구간의 마찰"], g: ["Robot arm strength", "로봇 팔 힘"], p: ["Robot camera tilt", "로봇 카메라 기울기"],
+    reach: ["Longest push slides", "가장 멀리 밀 거리"], targetLine: ["target range the robot must hit", "로봇이 맞혀야 하는 범위"], launch: ["launch", "출발"],
+  },
+  driving: {
+    runsEn: "braking runs", surfaceWord: "road", surfaceWordKo: "도로", targetWord: "stop line", targetWordKo: "정지선과", objectWord: "car", objectWordKo: "차량",
+    tab: ["Car brakes to a stop line", "차량이 정지선에 맞춰 제동"],
+    note: ["A braking planner tuned in simulation stops short or long on the real road: part of it is wet or icy, the speed controller under-delivers, the front camera misjudges distance. Lengths and speeds are full size; the fit runs on a 1:25 Froude-scaled model in NVIDIA Newton, which keeps friction unchanged.", "시뮬레이션에서 맞춘 제동 계획이 실제 도로에서는 정지선 앞뒤로 빗나갑니다. 도로 일부가 젖었거나 얼었고, 속도 제어가 약하고, 전방 카메라가 거리를 잘못 봅니다. 거리와 속도는 실제 크기로 표시합니다. 계산은 NVIDIA Newton의 1:25 축소 모델(프루드 상사)로 하며, 마찰은 크기와 관계없이 같습니다."],
+    easy: [["Self-driving stacks are tuned in simulation.", "The real road is different (a wet or icy section, weaker braking), so the car stops before or past the line."], ["자율주행 제동은 시뮬레이션에서 맞춥니다.", "실제 도로는 달라서(젖거나 언 구간, 약한 제동) 차량이 정지선 앞이나 뒤에 섭니다."]],
+    give: [["Give it a record of real braking runs.", "A roadside video or a vehicle log. No data? Make a virtual road below."], ["실제 제동 기록을 넣습니다.", "도로변 영상이나 차량 기록이면 됩니다. 없으면 아래에서 가상 도로를 만들 수 있습니다."]],
+    kinds: { video: ["Roadside video", "도로변 영상"], log: ["Vehicle log", "차량 기록"] }, run: ["braking run", "제동"], runs: ["Braking runs", "제동 횟수"],
+    simh: ["No road data? Simulate your road", "도로 데이터가 없다면 가상 도로로 시작합니다"],
+    lede: ["Set the “real” road, and NVIDIA Newton produces the measurements: a roadside video it renders, or a vehicle log (speed set-point, stop position, front-camera range to the line). GapCloser then has to work out your settings from the data alone.", "“실제” 도로를 정하면 NVIDIA Newton이 도로변 영상이나 차량 기록(속도 명령, 정지 위치, 전방 카메라가 본 정지선 거리)을 만듭니다. GapCloser는 그 데이터만 보고 설정값을 알아내야 합니다."],
+    mu: ["Road friction (dry asphalt ~0.8)", "노면 마찰 (마른 아스팔트 약 0.8)"], strip: ["A wet or icy section", "젖거나 언 구간 넣기"],
+    y0: ["Section starts at", "구간 시작 거리"], pm: ["Friction in the section (wet ~0.4)", "구간 마찰 (젖은 노면 약 0.4)"], g: ["Speed control (actual / set-point)", "속도 제어 (실제/명령)"], p: ["Front camera pitch error", "전방 카메라 기울기 오차"],
+    reach: ["Longest stopping distance", "가장 긴 제동 거리"], targetLine: ["stop-line range the planner must hit", "제동 계획이 맞혀야 하는 정지선 범위"], launch: ["brake point", "제동 시작"],
+  },
+  factory: {
+    runsEn: "strokes", surfaceWord: "rail", surfaceWordKo: "레일", targetWord: "inspection position", targetWordKo: "검사 위치와", objectWord: "part", objectWordKo: "부품",
+    tab: ["Pusher slides a part to inspection", "푸셔가 부품을 검사 위치로 밀기"],
+    note: ["A pusher cell commissioned in simulation sends parts past or short of the inspection window: oil on part of the rail, a pusher that lost pressure, a line camera mounted slightly off. Off-position parts mean blurred or missed inspection images.", "시뮬레이션에서 맞춘 푸셔가 실제 라인에서는 부품을 검사 위치 앞뒤로 보냅니다. 레일 일부에 기름이 묻었거나, 푸셔 압력이 떨어졌거나, 라인 카메라가 조금 어긋나 있습니다. 위치가 틀리면 검사 영상이 흐려지거나 빠집니다."],
+    easy: [["Production cells are commissioned in simulation.", "The real line is different (an oily section, a weaker pusher), so parts stop off the inspection position."], ["생산 설비는 시뮬레이션으로 먼저 맞춥니다.", "실제 라인은 달라서(기름 묻은 구간, 약해진 푸셔) 부품이 검사 위치를 벗어납니다."]],
+    give: [["Give it a record of real pusher strokes.", "A line camera video or a pusher log. No data? Make a virtual line below."], ["실제 푸셔 동작 기록을 넣습니다.", "라인 카메라 영상이나 푸셔 기록이면 됩니다. 없으면 아래에서 가상 라인을 만들 수 있습니다."]],
+    kinds: { video: ["Line camera video", "라인 카메라 영상"], log: ["Pusher log", "푸셔 기록"] }, run: ["stroke", "푸셔 동작"], runs: ["Pusher strokes", "푸셔 동작 횟수"],
+    simh: ["No line data? Simulate your line", "라인 데이터가 없다면 가상 라인으로 시작합니다"],
+    lede: ["Set the “real” rail, and NVIDIA Newton produces the measurements: a line camera video it renders, or a pusher log (command, stop position, the inspection camera's reading). GapCloser then has to work out your settings from the data alone.", "“실제” 레일을 정하면 NVIDIA Newton이 라인 카메라 영상이나 푸셔 기록(명령값, 멈춘 위치, 검사 카메라 측정값)을 만듭니다. GapCloser는 그 데이터만 보고 설정값을 알아내야 합니다."],
+    mu: ["Rail friction", "레일 마찰"], strip: ["An oily section on the rail", "레일에 기름 묻은 구간 넣기"],
+    y0: ["Oily section starts at", "기름 구간 시작 거리"], pm: ["Friction in the oily section", "기름 구간의 마찰"], g: ["Pusher strength (actual / commanded)", "푸셔 힘 (실제/명령)"], p: ["Inspection camera tilt", "검사 카메라 기울기"],
+    reach: ["Longest stroke slides", "가장 멀리 보낼 거리"], targetLine: ["inspection positions the pusher must hit", "푸셔가 맞혀야 하는 검사 위치 범위"], launch: ["pusher", "푸셔"],
+  },
+};
+const Cx = (id, k) => { const v = (COPY[id] || COPY.robot)[k]; return Array.isArray(v) && typeof v[0] === "string" ? T(v[0], v[1]) : v; };
+const C = k => Cx(DATA_DOM, k);                  // data step: the tab the visitor picked
+const CS = k => Cx(DOM ? DOM.id : "robot", k);   // later steps: the session's domain
+const DD = () => (DOMS && DOMS[DATA_DOM]) || { scale: 1, speed_scale: 1 };
+let DATA_DOM = (() => { const h = location.hash.slice(1); if (["robot", "driving", "factory"].includes(h)) return h; try { return localStorage.getItem("gapcloser-domain") || "robot"; } catch (_) { return "robot"; } })();
+function renderDomainCopy() {
+  $("#domtabs").innerHTML = ["robot", "driving", "factory"].map(id => { const d = DOMS ? DOMS[id] : null; const c = COPY[id];
+    return `<button role="tab" data-d="${id}" aria-selected="${id === DATA_DOM}"><b>${esc(d ? d.name[LANG] || d.name.en : id)}</b><span>${esc(T(c.tab[0], c.tab[1]))}</span></button>`; }).join("");
+  $("#domtabs").querySelectorAll("button").forEach(b => b.onclick = () => { DATA_DOM = b.dataset.d; try { localStorage.setItem("gapcloser-domain", DATA_DOM); } catch (_) {} renderDomainCopy(); simDefaults(); renderSamples(); drawSimView(); });
+  $("#domnote").textContent = C("note");
+  const e = C("easy"), g = C("give"), ez = $("#easy");
+  ez.removeAttribute("data-ko-html");
+  ez.innerHTML = `<h3>${T("In 30 seconds", "30초 설명")}</h3><ol><li><b>${esc(T(e[0][0], e[1][0]))}</b> ${esc(T(e[0][1], e[1][1]))}</li><li><b>${esc(T(g[0][0], g[1][0]))}</b> ${esc(T(g[0][1], g[1][1]))}</li><li><b>${T("The AI finds what is different,", "AI가 무엇이 다른지 찾아서")}</b> ${T("fixes the virtual world, and tells you which run to try next.", "가상 세계를 고치고, 다음에 해 볼 실험을 알려 줍니다.")}</li></ol>`;
+  const k = C("kinds");
+  $("#k-video").textContent = T(k.video[0], k.video[1]); $("#k-log").textContent = T(k.log[0], k.log[1]);
+  $("#sim-h").textContent = C("simh"); $("#sim-lede").textContent = C("lede");
+  $("#l-mu").textContent = C("mu"); $("#l-strip").textContent = C("strip"); $("#l-y0").textContent = C("y0"); $("#l-pm").textContent = C("pm");
+  $("#l-g").textContent = C("g"); $("#l-p").textContent = C("p"); $("#l-n").textContent = C("runs"); $("#l-r").textContent = C("reach");
+}
+
 async function initData() {
   state.status = await be.status().catch(() => ({}));
   const e = $("#engine");
@@ -732,11 +893,12 @@ async function initData() {
   e.querySelector("span").textContent = LIVE ? (agentOn ? `Agent: ${prettyModel(state.status.model)}` : "Agent off: offline fitting")
                                              : `Recorded with ${prettyModel(DATA.model)} · NVIDIA Newton`;
   if (!LIVE) { $("#nav-console").href = DATA.console_url || "#"; if (!DATA.console_url) $("#nav-console").remove(); }
-  const list = await be.samples();
-  $("#samples").innerHTML = list.map(s => `<button class="sample" data-id="${s.id}">
-      <div class="thumb" ${s.kind === "video" ? `style="background-image:url('${esc(thumbFor(s))}')"` : ""}>${s.kind === "log" ? logGlyph(s.id) : ""}<span class="kind">${s.kind === "video" ? "Phone video" : "Robot log"}</span></div>
-      <div class="txt"><h3>${esc(s.title)}</h3><p>${esc(s.blurb)}</p></div></button>`).join("");
-  $("#samples").querySelectorAll(".sample").forEach(b => b.onclick = () => startSample(b.dataset.id));
+  if (!DOMS && LIVE) DOMS = Object.fromEntries((await fetch("/api/studio/domains").then(r => r.json()).catch(() => [])).map(d => [d.id, d]));
+  if (!DOM) setDomain("robot");
+  state.sampleList = await be.samples();
+  renderDomainCopy();
+  simDefaults();
+  renderSamples();
   initSimLab();
   const drop = $("#drop");
   if (!LIVE) {
@@ -753,28 +915,44 @@ async function initData() {
   drop.ondragleave = () => drop.classList.remove("over");
   drop.ondrop = ev => { ev.preventDefault(); drop.classList.remove("over"); const f = ev.dataTransfer.files[0]; if (f) startUpload(f); };
 }
+function simDefaults() {  // each domain starts from a typical surface: table, dry asphalt with a wet section, an oily rail
+  const w = (DOMS && DOMS[DATA_DOM] && DOMS[DATA_DOM].world_default) || {};
+  if (w.mu_eff != null) $("#s-mu").value = w.mu_eff;
+  if (w.patch_y0 != null) $("#s-y0").value = w.patch_y0;
+  if (w.patch_mu != null) $("#s-pm").value = w.patch_mu;
+}
+function renderSamples() {
+  const all = state.sampleList || [];
+  const list = all.filter(s => (s.domain || "robot") === DATA_DOM);
+  $("#samples").innerHTML = (list.length ? list : all).map(s => { const k = Cx(s.domain || "robot", "kinds")[s.kind];
+    return `<button class="sample" data-id="${s.id}">
+      <div class="thumb" ${s.kind === "video" ? `style="background-image:url('${esc(thumbFor(s))}')"` : ""}>${s.kind === "log" ? logGlyph(s.id) : ""}<span class="kind">${esc(T(k[0], k[1]))}</span></div>
+      <div class="txt"><h3>${esc(s.title)}</h3><p>${esc(s.blurb)}</p></div></button>`; }).join("");
+  $("#samples").querySelectorAll(".sample").forEach(b => b.onclick = () => startSample(b.dataset.id));
+}
 function simWorld() {
   const kind = document.querySelector('input[name="simkind"]:checked').value;
   const w = { mu_eff: +$("#s-mu").value };
   if ($("#s-strip").checked) { w.patch_y0 = +$("#s-y0").value; w.patch_mu = +$("#s-pm").value; }
   if (kind === "log") { w.actuator_gain = +$("#s-g").value; w.camera_pitch_deg = +$("#s-p").value; }
-  return { kind, world: w, pushes: +$("#s-n").value, reach: +$("#s-r").value };
+  return { kind, domain: DATA_DOM, world: w, pushes: +$("#s-n").value, reach: +$("#s-r").value };
 }
 function drawSimView() {
   const { kind, world: w, pushes, reach } = simWorld();
   const lab = $("#simlab"); lab.dataset.kind = kind; lab.dataset.strip = $("#s-strip").checked ? "on" : "off";
-  $("#o-mu").textContent = (+$("#s-mu").value).toFixed(2); $("#o-y0").textContent = (+$("#s-y0").value).toFixed(2) + " m";
+  const dd = DD(), Lm = v => (v * dd.scale).toFixed(dd.scale === 1 ? 2 : 1) + " m";
+  $("#o-mu").textContent = (+$("#s-mu").value).toFixed(2); $("#o-y0").textContent = Lm(+$("#s-y0").value);
   $("#o-pm").textContent = (+$("#s-pm").value).toFixed(2); $("#o-g").textContent = (+$("#s-g").value).toFixed(2) + "×";
-  $("#o-p").textContent = (+$("#s-p").value).toFixed(1) + "°"; $("#o-n").textContent = pushes; $("#o-r").textContent = reach.toFixed(2) + " m";
+  $("#o-p").textContent = (+$("#s-p").value).toFixed(1) + "°"; $("#o-n").textContent = pushes; $("#o-r").textContent = Lm(reach);
   // top-down table: friction colour along the push path, the stretch the pushes will cover, the target range
   const W = 520, H = 210, x0 = 40, x1 = W - 20, ymax = 0.9, X = y => x0 + y / ymax * (x1 - x0);
   const regs = w.patch_y0 != null ? [[0, w.patch_y0, w.mu_eff], [w.patch_y0, ymax, w.patch_mu]] : [[0, ymax, w.mu_eff]];
   const bands = regs.map(([a, b, mu]) => `<rect x="${X(a)}" y="60" width="${X(b) - X(a)}" height="70" fill="${muColor(mu, 0.5)}" stroke="${muColor(mu)}"/><text x="${(X(a) + X(b)) / 2}" y="101" text-anchor="middle" style="font-family:var(--f-display);font-weight:600;font-size:20px;fill:#fff">μ ${mu.toFixed(2)}</text>`).join("");
-  const ticks = [0, 0.2, 0.4, 0.6, 0.8].map(t => `<text x="${X(t)}" y="${H - 8}" text-anchor="middle">${t.toFixed(1)} m</text>`).join("");
-  const cover = `<line x1="${X(0.1)}" x2="${X(reach)}" y1="146" y2="146" stroke="#eceeef" stroke-width="3"/><text x="${X(0.1)}" y="166" class="lbl">your ${pushes} pushes stop in here</text>`;
-  const tr = `<line x1="${X(0.2)}" x2="${X(0.6)}" y1="40" y2="40" stroke="#76b900" stroke-width="3"/><text x="${X(0.2)}" y="32" class="lbl">target range the robot must hit (0.2–0.6 m)</text>`;
-  const extra = kind === "log" ? `<text x="${x0}" y="${H - 26}" class="lbl">motor ${w.actuator_gain.toFixed(2)}× · camera tilt ${w.camera_pitch_deg.toFixed(1)}°</text>` : "";
-  $("#simview").innerHTML = `<svg viewBox="0 0 ${W} ${H}"><rect width="${W}" height="${H}" fill="#0b0d0f"/>${tr}${bands}${cover}${extra}${ticks}<text x="${X(0) - 4}" y="98" text-anchor="end" class="lbl">launch</text></svg>
+  const ticks = [0, 0.2, 0.4, 0.6, 0.8].map(t => `<text x="${X(t)}" y="${H - 8}" text-anchor="middle">${(t * dd.scale).toFixed(dd.scale === 1 ? 1 : 0)} m</text>`).join("");
+  const cover = `<line x1="${X(0.1)}" x2="${X(reach)}" y1="146" y2="146" stroke="#eceeef" stroke-width="3"/><text x="${X(0.1)}" y="166" class="lbl">${T(`your ${pushes} runs stop in here`, `${pushes}번 모두 이 안에서 멈춤`)}</text>`;
+  const tr = `<line x1="${X(0.2)}" x2="${X(0.6)}" y1="40" y2="40" stroke="#76b900" stroke-width="3"/><text x="${X(0.2)}" y="32" class="lbl">${C("targetLine")} (${Lm(0.2)}–${Lm(0.6)})</text>`;
+  const extra = kind === "log" ? `<text x="${x0}" y="${H - 26}" class="lbl">${C("g").split(" (")[0]} ${w.actuator_gain.toFixed(2)}× · ${C("p")} ${w.camera_pitch_deg.toFixed(1)}°</text>` : "";
+  $("#simview").innerHTML = `<svg viewBox="0 0 ${W} ${H}"><rect width="${W}" height="${H}" fill="#0b0d0f"/>${tr}${bands}${cover}${extra}${ticks}<line x1="${X(0)}" x2="${X(0)}" y1="52" y2="138" stroke="#9ba3aa"/><text x="${X(0)}" y="${H - 26}" class="lbl">${kind === "log" ? "" : C("launch")}</text></svg>
     <p class="small muted" style="margin-top:8px">${T("GapCloser never sees this picture.", "GapCloser는 이 그림을 볼 수 없습니다.")} ${w.patch_y0 != null && reach < w.patch_y0 + 0.03 ? T("Your pushes stop before the region starts: watch it refuse to guess, then ask for longer pushes.", "모든 밀기가 구간 전에 멈춥니다. 짐작 대신 추가 측정을 요청하는지 확인할 수 있습니다.") : w.patch_y0 != null ? T("Few pushes reach the region: expect wide intervals until you run the pushes it asks for.", "구간에 닿는 밀기가 적어 처음에는 오차 범위가 넓습니다. 추천대로 더 밀면 좁아집니다.") : ""}</p>`;
 }
 function initSimLab() {
@@ -784,7 +962,7 @@ function initSimLab() {
   $("#sim-run").onclick = async () => {
     const body = simWorld();
     $("#sim-run").disabled = true; $("#err-sim").textContent = "";
-    $("#sim-note").textContent = body.kind === "video" ? `Newton is simulating ${body.pushes} flicks and rendering the phone video (about 2-3 s per push)…` : `Newton is running ${body.pushes} robot pushes…`;
+    $("#sim-note").textContent = body.kind === "video" ? T(`Newton is simulating ${body.pushes} runs and rendering the video (about 2-3 s per run)…`, `Newton이 ${body.pushes}번을 계산하고 영상을 만드는 중입니다 (1번에 2~3초)…`) : T(`Newton is running ${body.pushes} runs…`, `Newton이 ${body.pushes}번을 계산하는 중입니다…`);
     try {
       await begin(() => call(fetch("/api/studio/simulate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })));
     } catch (e) { $("#err-sim").textContent = e.message; }
@@ -815,7 +993,7 @@ async function startUpload(file) {
 async function begin(fn) {
   $("#err-data").textContent = "";
   try {
-    state.s = await fn();
+    state.s = adopt(await fn());
     state.result = null; state.truth = null; state.take = 0; state.done = new Set(["data"]);
     state.summaries = { data: state.s.name };
     go("measure");
@@ -854,8 +1032,8 @@ function renderMeasure() {
   dragHandles($("#fsvg"), v, (k, x, y) => { if (k === "obj") { if (obj) { obj[0] = x; obj[1] = y; } } else { corners[k][0] = x; corners[k][1] = y; } draw(); });
   $("#frame-note").textContent = v.corners_hint ? (LIVE ? (state.s.simulated ? "Corners pre-placed where the sheet sits in the simulated scene; adjust them if you like." : "Corners pre-placed for this sample; adjust them if you like.") : "Recorded session: corners pre-placed, tracking replays the recorded result.") : "Click-drag the handles. Any corner order works.";
   $("#side").innerHTML = `
-    <label>Sheet<select id="sheet"><option value="a4">A4 (210 × 297 mm)</option><option value="letter">Letter (8.5 × 11 in)</option></select></label>
-    <label>Object height (cm)<input id="oh" type="number" min="1" max="40" step="0.5" value="${state.s.sample === "flick" || state.s.simulated ? 6 : 5}"></label>
+    <label>${T("Reference", "기준 사각형")}<select id="sheet">${DOM.id === "driving" ? `<option value="a4">${T("Painted box (5.25 × 7.43 m)", "도로 위 기준 사각형 (5.25 × 7.43 m)")}</option>` : `<option value="a4">A4 (210 × 297 mm)</option><option value="letter">Letter (8.5 × 11 in)</option>`}</select></label>
+    <label>${T(`Height of the ${CS("objectWord")} (cm)`, `${CS("objectWordKo")} 높이 (cm)`)}<input id="oh" type="number" min="1" max="${DOM.id === "driving" ? 300 : 40}" step="0.5" value="${state.s.sample || state.s.simulated ? Math.round((DOM.object_height_m || 0.06) * 100) : 5}"></label>
     <p class="small muted">The height removes parallax: the camera sees the middle of the object, not its footprint.</p>
     ${obj ? "" : `<p class="small muted">The object is found automatically (the thing that moves). Click it on the frame to choose it yourself.</p>`}
     <button class="btn primary" id="track">Track pushes</button>`;
@@ -865,9 +1043,9 @@ function renderMeasure() {
   $("#track").onclick = async () => {
     $("#track").disabled = true; $("#track").textContent = "Tracking…"; $("#err-measure").textContent = "";
     try {
-      const body = { corners, sheet: $("#sheet").value, object_height_m: Number($("#oh").value) / 100 };
+      const body = { corners, sheet: $("#sheet").value, object_height_m: toBaseLen(Number($("#oh").value) / 100) };
       if (picked) body.object_px = picked;
-      state.s = await be.track(state.s.id, state.take, body);
+      state.s = adopt(await be.track(state.s.id, state.take, body));
       state.result = null;
       state.done.add("measure");
       state.summaries.measure = `${state.s.session.pushes.length} pushes tracked`;
@@ -977,14 +1155,14 @@ function nbItem(cls, who, what, detail) {
 }
 function stepDetail(step) {
   const r = step.result;
-  if (step.tool === "decel_profile" && Array.isArray(r)) return `<div class="detail">Deceleration in g, binned every 5 cm of table.</div>` + miniBars(r.filter(b => b.decel_g != null));
+  if (step.tool === "decel_profile" && Array.isArray(r)) return `<div class="detail">${T(`Deceleration in g, binned every ${tolText(0.05 * DOM.scale)} of ${CS("surfaceWord")}.`, `${CS("surfaceWordKo")} ${tolText(0.05 * DOM.scale)}마다 잰 감속 (g 단위).`)}</div>` + miniBars(r.filter(b => b.decel_g != null));
   if (step.tool === "perception_check" && Array.isArray(r)) return r.length ? `<div class="detail">${T(`${r.length} targets: perceived`, `목표 ${r.length}곳: 실제 거리 → 카메라가 본 거리`)} ${r.slice(0, 3).map(x => T(`<span class="num">${fmt(x.perceived_m, 3)}</span> for <span class="num">${fmt(x.true_m, 3)}</span>`, `<span class="num">${fmt(x.true_m, 3)}</span> → <span class="num">${fmt(x.perceived_m, 3)}</span>`)).join(", ")}…</div>` : `<div class="detail">${T("No aimed pushes in this data: perception cannot be checked.", "목표를 정하고 민 기록이 없어 카메라는 확인할 수 없습니다.")}</div>`;
   if ((step.tool === "fit_hypothesis" || step.tool === "test_hypothesis") && r && typeof r === "object") {
     const free = step.args && step.args.free;
     const m = r.fitted_model || (step.args && step.args.model) || {};
     const vals = Object.entries(m).filter(([k, x]) => x != null && (free ? free.includes(k) : true) && FIELD_WORDS[k]).map(([k, x]) => `${LANG === "ko" ? FIELD_WORDS_KO[k] : FIELD_WORDS[k]} <span class="num">${fmt(x, 3)}</span>`).join(", ");
     const un = (r.unexplained || []).map(u => `<div class="flag">Still unexplained: ${esc(u)}</div>`).join("");
-    return `<div class="detail">${free ? `${T("Free", "찾아본 항목")}: ${structureWords(free)}. ` : ""}${vals}</div><div class="detail">${T("Stops off by", "멈춘 위치 오차")} <span class="num">${fmt((r.stop_residual_rms_m || 0) * 100, 1)} cm</span> rms${r.perception_residual_rms_m ? `, ${T("perception", "카메라")} <span class="num">${fmt(r.perception_residual_rms_m * 1000, 1)} mm</span>` : ""}.</div>${un}`;
+    return `<div class="detail">${free ? `${T("Free", "찾아본 항목")}: ${structureWords(free)}. ` : ""}${vals}</div><div class="detail">${T("Stops off by", "멈춘 위치 오차")} <span class="num">${dist((r.stop_residual_rms_m || 0))}</span> rms${r.perception_residual_rms_m ? `, ${T("perception", "카메라")} <span class="num">${fmt(r.perception_residual_rms_m * 1000, 1)} mm</span>` : ""}.</div>${un}`;
   }
   if (step.tool === "probe_real" && r) {
     const q = r.queued_for_human || (r.results || []).map(x => x.command);
@@ -1008,7 +1186,7 @@ function nbHandler(who) {
   const settle = () => { if (live) { live.classList.remove("live"); live.classList.add("ok"); live = null; } };
   const on = e => {
     settle();
-    if (e.type === "stage" && e.stage === "data") nbItem("ok", "Studio", T(`Read ${e.pushes} pushes`, `${e.pushes}번 민 기록을 읽었습니다`), `<div class="detail">${T(`They reach from <span class="num">${fmt(e.coverage_m[0])}</span> to <span class="num">${fmt(e.coverage_m[1])} m</span> along the table.`, `탁자 위 <span class="num">${fmt(e.coverage_m[0])}</span>–<span class="num">${fmt(e.coverage_m[1])} m</span> 사이에서 멈췄습니다.`)}</div>${(e.notes || []).map(n => `<div class="detail">${esc(tx(n[0].toUpperCase() + n.slice(1)))}.</div>`).join("")}`);
+    if (e.type === "stage" && e.stage === "data") nbItem("ok", "Studio", T(`Read ${e.pushes} ${CS("runsEn")}`, `${e.pushes}번 민 기록을 읽었습니다`), `<div class="detail">${T(`They reach from <span class="num">${fmt(e.coverage_m[0])}</span> to <span class="num">${fmt(e.coverage_m[1])} m</span> along the ${CS("surfaceWord")}.`, `${CS("surfaceWordKo")} 위 <span class="num">${fmt(e.coverage_m[0])}</span>–<span class="num">${fmt(e.coverage_m[1])} m</span> 사이에서 멈췄습니다.`)}</div>${(e.notes || []).map(n => `<div class="detail">${esc(tx(n[0].toUpperCase() + n.slice(1)))}.</div>`).join("")}`);
     if (e.type === "stage" && e.stage === "agent") live = nbItem("live", who, T("Starting the investigation", "원인 찾기를 시작합니다"), "");
     if (e.type === "stage" && e.stage === "note") nbItem("warn", "Studio", esc(e.message), "");
     if (e.type === "agent_step") {
@@ -1022,8 +1200,8 @@ function nbHandler(who) {
         `<div class="detail">${T("Misfit (residuals over their noise floors): agent", "안 맞는 정도 (1 이하면 충분히 맞음): AI")} <span class="num">${fmt(c.agent_misfit)}</span>, ${T("library search", "자동 계산")} <span class="num">${fmt(c.search_misfit)}</span>.${c.reason ? " " + esc(c.reason) : ""}</div>`);
     }
     if (e.type === "stage" && e.stage === "fit") live = nbItem("live", "Studio", T("Fitting the numbers and their uncertainty", "정확한 값과 오차 범위를 계산합니다"), `<div class="detail">${T("Least squares on every push, then the same fit on resampled sets of pushes (bootstrap) for 90% intervals.", "모든 기록에 맞는 값을 구한 뒤, 기록을 바꿔 가며 반복 계산해 오차 범위를 구합니다.")}</div>`);
-    if (e.type === "calibration") { const c = e.calibration; nbItem("ok", "Studio", `${T("Calibrated", "찾은 원인")}: ${structureWords(c.structure)}`, `<div class="detail">${T("Chosen by", "결정 방법")}: ${esc(tx(c.chosen_by))}. ${T("Stops now off by", "남은 오차")} <span class="num">${fmt(c.residuals.stop_residual_rms_m * 100, 1)} cm</span> rms.</div>`); }
-    if (e.type === "next") { const n = e.next_experiment; nbItem(n.settled ? "ok" : "warn", "Studio", n.settled ? T("No further pushes needed", "추가 측정이 필요 없습니다") : T(`Suggested ${n.suggestions.length} more pushes`, `${n.suggestions.length}번 추가 측정을 추천합니다`), `<div class="detail">${T("Largest disagreement between plausible models inside the working range:", "아직 예상이 가장 크게 갈리는 정도:")} <span class="num">±${fmt(n.max_disagreement_in_range_m * 100, 1)} cm</span>.</div>`); }
+    if (e.type === "calibration") { const c = e.calibration; nbItem("ok", "Studio", `${T("Calibrated", "찾은 원인")}: ${structureWords(c.structure)}`, `<div class="detail">${T("Chosen by", "결정 방법")}: ${esc(tx(c.chosen_by))}. ${T("Stops now off by", "남은 오차")} <span class="num">${dist(c.residuals.stop_residual_rms_m)}</span> rms.</div>`); }
+    if (e.type === "next") { const n = e.next_experiment; nbItem(n.settled ? "ok" : "warn", "Studio", n.settled ? T("No further pushes needed", "추가 측정이 필요 없습니다") : T(`Suggested ${n.suggestions.length} more ${CS("runsEn")}`, `${n.suggestions.length}번 추가 측정을 추천합니다`), `<div class="detail">${T("Largest disagreement between plausible models inside the working range:", "아직 예상이 가장 크게 갈리는 정도:")} <span class="num">±${dist(n.max_disagreement_in_range_m)}</span>.</div>`); }
   };
   return { on, settle };
 }
@@ -1046,7 +1224,7 @@ async function runDiagnosis() {
   state.nb = { who, events: [] };
   const h = nbHandler(who);
   try {
-    state.result = await be.analyze(state.s.id, agent, e => { state.nb.events.push(e); h.on(e); });
+    state.result = toView(await be.analyze(state.s.id, agent, e => { e = toView(e); state.nb.events.push(e); h.on(e); }));
     h.settle();
     state.truth = null;
     state.done.add("diag");
@@ -1072,7 +1250,7 @@ function renderResults() {
   state.done.add("results");
   state.summaries.results = [((L) => { const keep = LANG; LANG = L; const w = structureWords(c.structure); LANG = keep; return w; })("en"), ((L) => { const keep = LANG; LANG = L; const w = structureWords(c.structure); LANG = keep; return w; })("ko")];
   renderSteps();
-  $("#r-lede").textContent = T(`${s.session.pushes.length} pushes, ${c.chosen_by}. Stops in the calibrated sim match yours within ${fmt(c.residuals.stop_residual_rms_m * 100, 1)} cm rms.`, `${s.session.pushes.length}번 민 기록을 사용했습니다. 고친 시뮬레이터는 실제 멈춘 위치와 평균 ${fmt(c.residuals.stop_residual_rms_m * 100, 1)} cm 이내로 일치합니다. (${tx(c.chosen_by)})`);
+  $("#r-lede").textContent = T(`${s.session.pushes.length} ${CS("runsEn")}, ${c.chosen_by}. Stops in the calibrated sim match yours within ${dist(c.residuals.stop_residual_rms_m)} rms.`, `${s.session.pushes.length}번 민 기록을 사용했습니다. 고친 시뮬레이터는 실제 멈춘 위치와 평균 ${dist(c.residuals.stop_residual_rms_m)} 이내로 일치합니다. (${tx(c.chosen_by)})`);
   // hero: friction painted on the table
   const ov = r.overlay && r.overlay[String(Math.max(0, s.videos.length - 1))];
   const v = s.videos[s.videos.length - 1];
@@ -1096,11 +1274,11 @@ function renderResults() {
     const k = Math.max(1, Math.min(2.4, v.width / (x1 - x0), v.height / (y1 - y0)));
     const cx = Math.min(Math.max((x0 + x1) / 2 - v.width / (2 * k), 0), v.width - v.width / k), cy = Math.min(Math.max((y0 + y1) / 2 - v.height / (2 * k), 0), v.height - v.height / k);
     const zoom = `transform: scale(${k.toFixed(3)}) translate(${(-cx / v.width * 100).toFixed(3)}%, ${(-cy / v.height * 100).toFixed(3)}%)`;
-    $("#r-map").innerHTML = `<div class="map"><div class="zoom" style="${zoom}">${media}<svg class="ov" viewBox="0 0 ${v.width} ${v.height}" aria-hidden="true"><defs><pattern id="hatch2" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="10" height="10" fill="rgba(0,0,0,0.5)"/><line x1="0" y1="0" x2="0" y2="10" stroke="rgba(255,255,255,0.35)" stroke-width="2"/></pattern></defs><g class="regions">${polys}${unm}${labels}${reach}</g><g id="ghosts"></g></svg></div><div class="cap">Your table, measured</div><div class="scale"><div class="ramp"></div><div class="ends"><span>slick 0.2</span><span>grippy 1.0</span></div></div></div>` +
+    $("#r-map").innerHTML = `<div class="map"><div class="zoom" style="${zoom}">${media}<svg class="ov" viewBox="0 0 ${v.width} ${v.height}" aria-hidden="true"><defs><pattern id="hatch2" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="10" height="10" fill="rgba(0,0,0,0.5)"/><line x1="0" y1="0" x2="0" y2="10" stroke="rgba(255,255,255,0.35)" stroke-width="2"/></pattern></defs><g class="regions">${polys}${unm}${labels}${reach}</g><g id="ghosts"></g></svg></div><div class="cap">${T(`Your ${CS("surfaceWord")}, measured`, `측정한 ${CS("surfaceWordKo")}`)}</div><div class="scale"><div class="ramp"></div><div class="ends"><span>slick 0.2</span><span>grippy 1.0</span></div></div></div>` +
       (hasGhosts ? `<div class="ghostbar"><button class="btn" id="g-play">Pause</button><label><input type="checkbox" id="g-cal" checked> <i class="gk cal"></i>calibrated sim</label><label><input type="checkbox" id="g-cur" checked> <i class="gk cur"></i>your current sim</label><label><input type="checkbox" id="g-map" checked> friction map</label><span class="small dim">Same launch speed and spot as each real push; the boxes are the simulators' predictions.</span></div>` : "");
     if (hasGhosts) ghostPlayer(v, ov);
   } else {
-    $("#r-map").innerHTML = `<div class="map strip1d">${strip1d(c, s)}<div class="cap">The table along the push, measured</div></div>`;
+    $("#r-map").innerHTML = `<div class="map strip1d">${strip1d(c, s)}<div class="cap">${T(`The ${CS("surfaceWord")} along the ${CS("run")}, measured`, `측정한 ${CS("surfaceWordKo")}`)}</div></div>`;
   }
   // verdict
   const p = c.predicted;
@@ -1108,29 +1286,29 @@ function renderResults() {
   const weak = by.findIndex(x => x < 0.9);
   const lo = p.target_range_m[0], hi = p.target_range_m[1];
   const chips = [];
-  chips.push(`<span class="chip ${c.residuals.stop_residual_rms_m < 0.01 ? "g" : "w"}">${T("stops", "위치 오차")} ±${fmt(c.residuals.stop_residual_rms_m * 100, 1)} cm</span>`);
+  chips.push(`<span class="chip ${c.residuals.stop_residual_rms_m < 0.01 * DOM.scale ? "g" : "w"}">${T("stops", "위치 오차")} ±${dist(c.residuals.stop_residual_rms_m)}</span>`);
   if (r.agent && r.agent.cross_check) chips.push(`<span class="chip ${r.agent.cross_check.adopted === "agent" ? "g" : "w"}">${r.agent.cross_check.adopted === "agent" ? "agent model cross-checked" : "agent overruled"}</span>`);
-  if (p.unmeasured_whatif) chips.push(`<span class="chip w">table past ${fmt(p.measured_reach_m)} m unmeasured</span>`);
+  if (p.unmeasured_whatif) chips.push(`<span class="chip w">${T(`${CS("surfaceWord")} past ${fmt(p.measured_reach_m)} m unmeasured`, `${fmt(p.measured_reach_m)} m 너머 미측정`)}</span>`);
   $("#r-verdict").innerHTML = `
-    <div><div class="small muted">A push policy trained in each simulator, landing within ${Math.round(p.tolerance_m * 100)} cm on targets ${lo}–${hi} m of your table</div></div>
+    <div><div class="small muted">${T(`A policy trained in each simulator, stopping within ${tolText(p.tolerance_m)} of the ${CS("targetWord")} for targets ${fmt(lo, 1)}–${fmt(hi, 1)} m`, `각 시뮬레이터로 학습한 정책이 ${fmt(lo, 1)}–${fmt(hi, 1)} m의 목표에서 ${CS("targetWordKo")} ${tolText(p.tolerance_m)} 이내로 멈추는 비율`)}</div></div>
     <div class="pair">
       <div><div class="big">${pct(p.before.median)}</div><div class="what">your current sim</div><div class="range">90%: ${pct(p.before.lo)}–${pct(p.before.hi)}</div></div>
       <div class="arrow" aria-hidden="true">→</div>
-      <div><div class="big after ${p.unmeasured_whatif ? "span" : ""}">${p.unmeasured_whatif && p.after.hi - p.after.lo > 0.1 ? `${Math.round(p.after.lo * 100)}–${pct(p.after.hi)}` : pct(p.after.median)}</div><div class="what">calibrated sim</div><div class="range">${p.unmeasured_whatif ? "depends on the unmeasured table" : `90%: ${pct(p.after.lo)}–${pct(p.after.hi)}`}</div></div>
+      <div><div class="big after ${p.unmeasured_whatif ? "span" : ""}">${p.unmeasured_whatif && p.after.hi - p.after.lo > 0.1 ? `${Math.round(p.after.lo * 100)}–${pct(p.after.hi)}` : pct(p.after.median)}</div><div class="what">calibrated sim</div><div class="range">${p.unmeasured_whatif ? (DOM.id === "robot" ? "depends on the unmeasured table" : T(`depends on the unmeasured ${CS("surfaceWord")}`, "미측정 구간에 따라 달라짐")) : `90%: ${pct(p.after.lo)}–${pct(p.after.hi)}`}</div></div>
     </div>
-    <div class="by">${weak < 0 ? T("Holds across the whole target range.", "목표 범위 전체에서 잘 맞습니다.") : T(`Weakest beyond ${fmt(lo + (hi - lo) * weak / by.length)} m${p.unmeasured_whatif ? ", where no push has measured the table yet" : ""}.`, `${fmt(lo + (hi - lo) * weak / by.length)} m 이후 구간에서 가장 약합니다${p.unmeasured_whatif ? ". 해당 구간은 아직 측정하지 않았습니다" : ""}.`)}</div>
+    <div class="by">${weak < 0 ? T("Holds across the whole target range.", "목표 범위 전체에서 잘 맞습니다.") : T(`Weakest beyond ${fmt(lo + (hi - lo) * weak / by.length)} m${p.unmeasured_whatif ? `, where no run has measured the ${CS("surfaceWord")} yet` : ""}.`, `${fmt(lo + (hi - lo) * weak / by.length)} m 이후 구간에서 가장 약합니다${p.unmeasured_whatif ? ". 해당 구간은 아직 측정하지 않았습니다" : ""}.`)}</div>
     <div class="chips">${chips.join("")}</div>
     <div class="caveat">Model predictions: rollouts of the fitted model across the plausible worlds, with your measured scatter as noise. Verify on the real robot.</div>`;
   // forest
   $("#r-forest").innerHTML = forest(c.gap, state.truth);
   $("#r-truth").innerHTML = (state.s.sample || state.s.simulated) ? (state.truth ? `<span class="small muted">${T(`Hidden physics from ${esc(state.truth.source)} shown as white diamonds${state.truth.note ? `; ${esc(state.truth.note)}` : ""}.`, `흰 마름모가 정답입니다 (${esc(tx(state.truth.source))})${state.truth.note ? `. ${esc(tx(state.truth.note))}` : ""}.`)}</span>` : `<button class="btn" id="reveal">${T("Reveal the hidden physics", "정답 확인하기")}</button><span class="small muted">${state.s.simulated ? T("Your settings were never shown to GapCloser.", "설정한 값은 GapCloser에 전달되지 않았습니다.") : T("This sample came from a world GapCloser never saw.", "이 예시는 GapCloser가 정답을 모르는 상태입니다.")} ${T("Compare after the fact.", "결과와 비교할 수 있습니다.")}</span>`) : "";
-  if ($("#reveal")) $("#reveal").onclick = async () => { state.truth = await be.truth(state.s.id); renderResults(); };
+  if ($("#reveal")) $("#reveal").onclick = async () => { state.truth = toView(await be.truth(state.s.id)); renderResults(); };
   // charts
   $("#r-charts").innerHTML = chartStops(c) + chartFriction(c) + chartSuccess(c);
   // next
   const n = r.next_experiment;
-  let nx = n.settled ? `<div class="settled">The pushes you have settle the model over the whole working range (models agree within ±${fmt(n.max_disagreement_in_range_m * 100, 1)} cm).</div>` :
-    `<div class="next">${n.suggestions.map(x => `<div class="card"><div class="t">${T(`Push to ${fmt(x.predicted_stop_m)} m`, `${fmt(x.predicted_stop_m)} m까지 밀기`)}</div><div class="small num muted">${x.command != null ? `${T("command", "명령값")} ${fmt(x.command)}` : `${T("launch", "출발 속도")} ≈ ${fmt(x.launch_speed_mps, 1)} m/s`}</div><p>${esc(tx(x.why[0].toUpperCase() + x.why.slice(1)))}.</p></div>`).join("")}</div>`;
+  let nx = n.settled ? `<div class="settled">The pushes you have settle the model over the whole working range (models agree within ±${dist(n.max_disagreement_in_range_m)}).</div>` :
+    `<div class="next">${n.suggestions.map(x => `<div class="card"><div class="t">${T(`Stop at ${fmt(x.predicted_stop_m)} m`, `${fmt(x.predicted_stop_m)} m에서 멈추게 하기`)}</div><div class="small num muted">${x.command != null ? (DOM.id === "driving" ? `${T("speed set-point", "속도 명령")} ${fmt(x.command, 1)} m/s (${Math.round(x.command * 3.6)} km/h)` : `${T("command", "명령값")} ${fmt(x.command)}`) : `${T("launch", "출발 속도")} ≈ ${fmt(x.launch_speed_mps, 1)} m/s${DOM.id === "driving" ? ` (${Math.round(x.launch_speed_mps * 3.6)} km/h)` : ""}`}</div><p>${esc(tx(x.why[0].toUpperCase() + x.why.slice(1)))}.</p></div>`).join("")}</div>`;
   if (n.agent_requests && n.agent_requests.length) nx += `<p class="asks">${T("The agent also asked for commands", "AI가 해 보자고 한 명령값")} ${n.agent_requests.map(a => `<span class="num">${fmt(a.command)}</span>${a.useful ? "" : T(" (off the target range)", " (목표 범위 밖)")}`).join(", ")}.</p>`;
   const more = moreAction();
   $("#r-next").innerHTML = nx + (more ? `<div class="row" style="margin-top:14px">${more}</div>` : "") + `<div class="row" style="margin-top:22px"><button class="btn primary" id="to-x">Export the calibrated config</button></div>`;
@@ -1138,11 +1316,11 @@ function renderResults() {
   if ($("#more-sim")) $("#more-sim").onclick = async () => {
     const n = state.result.next_experiment, b = $("#more-sim");
     b.disabled = true; b.textContent = "Newton is running them…";
-    const body = state.s.kind === "video" ? { speeds: n.suggestions.map(x => x.launch_speed_mps) }
-      : { commands: [...n.suggestions.map(x => x.command), ...(n.agent_requests || []).filter(a => a.useful).map(a => a.command)].slice(0, 8) };
+    const body = state.s.kind === "video" ? { speeds: n.suggestions.map(x => toBaseSpeed(x.launch_speed_mps)) }
+      : { commands: [...n.suggestions.map(x => x.command), ...(n.agent_requests || []).filter(a => a.useful).map(a => a.command)].slice(0, 8).map(toBaseSpeed) };
     try {
       const s = await call(fetch(`/api/studio/sessions/${state.s.id}/simulate-more`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }));
-      state.s = s; state.result = null; state.truth = null;
+      state.s = adopt(s); state.result = null; state.truth = null;
       ["diag", "results", "export"].forEach(k => state.done.delete(k));
       if (s.added != null) state.take = s.added;
       toast(s.kind === "video" ? "Take " + (s.added + 1) + " rendered" : `Added ${s.added_pushes} pushes`);
@@ -1152,7 +1330,7 @@ function renderResults() {
   if ($("#more-file")) $("#more-file").onchange = () => addTake($("#more-file").files[0]);
   if ($("#more-log")) $("#more-log").onchange = async () => {
     try { const f = new FormData(); f.set("file", $("#more-log").files[0]);
-      state.s = await call(fetch(`/api/studio/sessions/${state.s.id}/logs`, { method: "POST", body: f }));
+      state.s = adopt(await call(fetch(`/api/studio/sessions/${state.s.id}/logs`, { method: "POST", body: f })));
       state.result = null; state.done.delete("diag"); state.done.delete("results"); state.done.delete("export");
       toast(`Added ${state.s.added_pushes} pushes`); go("measure");
     } catch (e) { toast(e.message); } };
@@ -1175,7 +1353,7 @@ async function addTake(file) {
   try {
     const f = new FormData();
     if (file instanceof File) f.set("file", file); else f.set("part", "flick-video-2");
-    const s = await be.addVideo(state.s.id, f);
+    const s = adopt(await be.addVideo(state.s.id, f));
     state.s = s; state.take = s.added; state.result = null; state.truth = null;
     state.done.delete("diag"); state.done.delete("results"); state.done.delete("export");
     go("measure");
@@ -1209,20 +1387,20 @@ function ghostPlayer(v, ov) {
   if (reduce) { vid.currentTime = (ov.ghosts[0].release_frame + 12) / fps; pb.textContent = "Play"; } else vid.play().catch(() => { pb.textContent = "Play"; });
 }
 function strip1d(c, s) {
-  const W = 900, H = 230, x0 = 40, x1 = W - 20, ymax = 0.9;
-  const X = y => x0 + (y + 0.05) / (ymax + 0.05) * (x1 - x0);
-  const m = c.model, regs = m.patch_y0 != null ? [[-0.05, m.patch_y0, m.mu_eff], [m.patch_y0, ymax, m.patch_mu]] : [[-0.05, ymax, m.mu_eff]];
+  const W = 900, H = 230, x0 = 40, x1 = W - 20, ymax = 0.9 * DOM.scale, y00 = -0.05 * DOM.scale;
+  const X = y => x0 + (y - y00) / (ymax - y00) * (x1 - x0);
+  const m = c.model, regs = m.patch_y0 != null ? [[y00, m.patch_y0, m.mu_eff], [m.patch_y0, ymax, m.patch_mu]] : [[y00, ymax, m.mu_eff]];
   const reach = c.predicted.measured_reach_m;
   const bands = regs.map(([a, b, mu]) => `<rect x="${X(a)}" y="70" width="${X(b) - X(a)}" height="70" fill="${muColor(mu, 0.5)}" stroke="${muColor(mu)}"/><text x="${(X(a) + X(b)) / 2}" y="112" text-anchor="middle" style="font-family:var(--f-display);font-weight:600;font-size:22px;fill:#fff">μ ${fmt(mu)}</text>`).join("");
   const stops = s.session.pushes.map(p => `<line x1="${X(p.start + p.stop)}" x2="${X(p.start + p.stop)}" y1="146" y2="160" stroke="#eceeef" stroke-width="2"/>`).join("");
   const tr = c.predicted.target_range_m;
-  const ticks = [0, 0.2, 0.4, 0.6, 0.8].map(t => `<text x="${X(t)}" y="${H - 12}" text-anchor="middle">${t.toFixed(1)} m</text>`).join("");
+  const ticks = nice(0, ymax * 0.95, 5).map(t => `<text x="${X(t)}" y="${H - 12}" text-anchor="middle">${t} m</text>`).join("");
   const unm = reach < ymax ? `<rect x="${X(reach)}" y="70" width="${X(ymax) - X(reach)}" height="70" fill="url(#hatch)"/><line x1="${X(reach)}" x2="${X(reach)}" y1="58" y2="150" stroke="#fff" stroke-dasharray="5 4"/><text x="${X(reach) + 6}" y="62" class="lbl">${T(`no push got past ${fmt(reach)} m`, `${fmt(reach)} m 너머는 아직 모름`)}</text>` : "";
   return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Friction along the push path">
     <defs><pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="rgba(0,0,0,0.45)"/><line x1="0" y1="0" x2="0" y2="8" stroke="#69717a" stroke-width="2"/></pattern></defs>
     <rect width="${W}" height="${H}" fill="#0b0d0f"/>
-    <text x="${X(0)}" y="40" class="lbl">launch</text><line x1="${X(0)}" x2="${X(0)}" y1="46" y2="150" stroke="#9ba3aa"/>
-    ${bands}${unm}${stops}<text x="${x1}" y="172" text-anchor="end" class="lbl">ticks: where your pushes stopped</text>
+    <text x="${X(0)}" y="40" class="lbl">${CS("launch")}</text><line x1="${X(0)}" x2="${X(0)}" y1="46" y2="150" stroke="#9ba3aa"/>
+    ${bands}${unm}${stops}<text x="${x1}" y="172" text-anchor="end" class="lbl">${T("ticks: where your runs stopped", "눈금: 실제로 멈춘 곳")}</text>
     <line x1="${X(tr[0])}" x2="${X(tr[1])}" y1="190" y2="190" stroke="#76b900" stroke-width="3"/><text x="${X(tr[0])}" y="184" class="lbl">target range</text>${ticks}</svg>`;
 }
 function forest(gap, truth) {
@@ -1239,7 +1417,8 @@ function forest(gap, truth) {
     const u = g.unit && g.unit !== "x" ? " " + g.unit : g.unit === "x" ? "×" : "";
     const d = g.field === "camera_pitch_deg" ? 1 : g.field === "camera_dx" ? 3 : 3;
     const truthCell = tm ? `<td class="v">${tm[g.field] == null ? "none" : fmt(tm[g.field], d) + u}</td>` : "";
-    return `<tr><td>${esc(g.label)}<div class="tag ${g.significant ? "g" : ""}">${g.significant ? "differs from your sim" : "within noise of your sim"}</div></td>
+    const lab = (DOM.labels && (DOM.labels[LANG] || DOM.labels.en) || {})[g.field] || g.label;
+    return `<tr><td>${esc(lab)}<div class="tag ${g.significant ? "g" : ""}">${g.significant ? "differs from your sim" : "within noise of your sim"}</div></td>
       <td class="v dim">${g.sim == null ? "none" : fmt(g.sim, d) + u}</td><td class="v">${fmt(g.real, d)}${u}</td><td class="v dim">${fmt(g.lo, d)}–${fmt(g.hi, d)}</td>${truthCell}<td class="plot">${svg}</td></tr>`;
   }).join("");
   return `<div class="tablewrap" style="max-height:none"><table class="forest"><thead><tr><th>Parameter</th><th>Your sim</th><th>Measured</th><th>90% interval</th>${tm ? "<th>Hidden truth</th>" : ""}<th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
@@ -1256,7 +1435,7 @@ function axes(W, H, m, xs, ys, xl, yl, xt, yt) {
 const nice = (a, b, n) => { const st = Math.pow(10, Math.floor(Math.log10((b - a) / n))); const k = [1, 2, 2.5, 5, 10].find(k => (b - a) / (st * k) <= n) * st; const out = []; for (let t = Math.ceil(a / k) * k; t <= b + 1e-9; t += k) out.push(+t.toFixed(4)); return out; };
 function chartStops(c) {
   const d = c.curves.stops, W = 360, H = 240, m = { l: 40, r: 10, t: 20, b: 34 };
-  const xmax = Math.max(...d.grid), ymax = Math.min(1.2, Math.max(0.3, ...d.points.map(p => p.y), ...d.model) * 1.08);
+  const xmax = Math.max(...d.grid), ymax = Math.min(1.2 * DOM.scale, Math.max(0.3 * DOM.scale, ...d.points.map(p => p.y), ...d.model) * 1.08);
   const A = axes(W, H, m, [0, xmax], [0, ymax], d.x_label, "slide (m)", nice(0, xmax, 5), nice(0, ymax, 5));
   const clip = y => Math.min(ymax, y);
   const band = `<path d="M${d.grid.map((x, i) => `${A.X(x)},${A.Y(clip(d.band[i][1]))}`).join("L")}L${d.grid.map((x, i) => `${A.X(x)},${A.Y(clip(d.band[i][0]))}`).reverse().join("L")}Z" fill="rgba(118,185,0,0.22)"/>`;
@@ -1270,13 +1449,14 @@ function chartFriction(c) {
   const f = c.curves.friction, W = 360, H = 240, m = { l: 40, r: 10, t: 20, b: 34 };
   const meas = f.measured.filter(b => b.n >= 2);
   const ymax = Math.max(1.0, ...meas.map(b => b.mu), ...f.model) * 1.05;
-  const A = axes(W, H, m, [0, 0.9], [0, ymax], "position on the table (m)", "friction μ", [0, 0.2, 0.4, 0.6, 0.8], nice(0, ymax, 4));
+  const yEnd = 0.9 * DOM.scale;
+  const A = axes(W, H, m, [0, yEnd], [0, ymax], T(`position along the ${CS("surfaceWord")} (m)`, `${CS("surfaceWordKo")} 위 위치 (m)`), T("friction μ", "마찰 μ"), nice(0, yEnd * 0.95, 4), nice(0, ymax, 4));
   const bars = meas.map(b => `<rect x="${A.X(Math.max(0, b.y0)) + 1}" y="${A.Y(Math.max(0, b.mu))}" width="${Math.max(0, A.X(b.y1) - A.X(Math.max(0, b.y0)) - 2)}" height="${A.Y(0) - A.Y(Math.max(0, b.mu))}" fill="${muColor(b.mu, 0.55)}"/>`).join("");
   const band = f.model_lo[0] != null ? `<path d="M${f.y.map((y, i) => `${A.X(y)},${A.Y(f.model_hi[i])}`).join("L")}L${f.y.map((y, i) => `${A.X(y)},${A.Y(f.model_lo[i])}`).reverse().join("L")}Z" fill="rgba(118,185,0,0.2)"/>` : "";
   const line = (ys, col, dash) => `<polyline points="${f.y.map((y, i) => `${A.X(y)},${A.Y(ys[i])}`).join(" ")}" fill="none" stroke="${col}" stroke-width="2" ${dash ? 'stroke-dasharray="5 4"' : ""}/>`;
   const reach = c.predicted.measured_reach_m;
-  const unm = reach < 0.9 ? `<rect x="${A.X(reach)}" y="${m.t}" width="${A.X(0.9) - A.X(reach)}" height="${A.Y(0) - m.t}" fill="rgba(5,6,7,0.6)"/><text x="${A.X(reach) + 4}" y="${m.t + 12}" class="lbl">unmeasured</text>` : "";
-  return `<div class="chart"><h4>Friction along the table</h4><p>Deceleration seen in the tracks (bars) and the friction the calibrated sim uses (line, band).</p>
+  const unm = reach < yEnd ? `<rect x="${A.X(reach)}" y="${m.t}" width="${A.X(yEnd) - A.X(reach)}" height="${A.Y(0) - m.t}" fill="rgba(5,6,7,0.6)"/><text x="${A.X(reach) + 4}" y="${m.t + 12}" class="lbl">unmeasured</text>` : "";
+  return `<div class="chart"><h4>${T(`Friction along the ${CS("surfaceWord")}`, `${CS("surfaceWordKo")} 위치별 마찰`)}</h4><p>Deceleration seen in the tracks (bars) and the friction the calibrated sim uses (line, band).</p>
     <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Friction along the table">${A.g}${bars}${band}${line(f.sim, "#69717a", true)}${line(f.model, "#76b900")}${unm}</svg>
     <div class="legend"><span><i style="background:${muColor(0.4)}"></i>measured</span><span><i style="background:#76b900"></i>calibrated</span><span><i style="background:#69717a"></i>current sim</span></div></div>`;
 }
@@ -1287,7 +1467,7 @@ function chartSuccess(c) {
   const bw = (A.X(hi) - A.X(lo)) / n;
   const bars = p.after.by_target.map((v, i) => `<rect x="${A.X(lo) + i * bw + bw * 0.5}" y="${A.Y(v)}" width="${bw * 0.42}" height="${A.Y(0) - A.Y(v)}" fill="#76b900"/>`).join("") +
     p.before.by_target.map((v, i) => `<rect x="${A.X(lo) + i * bw + bw * 0.08}" y="${A.Y(v)}" width="${bw * 0.42}" height="${Math.max(0, A.Y(0) - A.Y(v))}" fill="#69717a"/>`).join("");
-  return `<div class="chart"><h4>Success by target distance</h4><p>Predicted for a policy trained in each sim (within ${Math.round(p.tolerance_m * 100)} cm).</p>
+  return `<div class="chart"><h4>Success by target distance</h4><p>${T(`Predicted for a policy trained in each sim (within ${tolText(p.tolerance_m)}).`, `각 시뮬레이터로 학습했을 때 예상 성공률입니다 (${tolText(p.tolerance_m)} 이내).`)}</p>
     <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Predicted success by target distance">${A.g}${bars}</svg>
     <div class="legend"><span><i style="background:#69717a;height:8px"></i>current sim</span><span><i style="background:#76b900;height:8px"></i>calibrated sim</span></div></div>`;
 }
@@ -1295,6 +1475,7 @@ function chartSuccess(c) {
 /* ---------------------------------------------------------------- 5 export */
 const XTABS = [
   { id: "newton", name: "NVIDIA Newton", file: "newton_calibration.py" },
+  { id: "carla", name: "CARLA", file: "carla_calibration.py", only: true },
   { id: "isaaclab", name: "Isaac Lab", file: "isaaclab_events.py" },
   { id: "markdown", name: "Report", file: "report.md" },
   { id: "json", name: "JSON", file: "calibration.json" },
@@ -1305,7 +1486,7 @@ function exportText(id) {
   return r.exports[id];
 }
 function highlight(text, id) {
-  if (id !== "newton" && id !== "isaaclab") return esc(text);
+  if (id !== "newton" && id !== "isaaclab" && id !== "carla") return esc(text);
   return text.split("\n").map(line => {
     let q = null, cut = -1;  // the comment starts at the first # outside a string literal
     for (let i = 0; i < line.length; i++) { const ch = line[i];
@@ -1317,11 +1498,13 @@ function highlight(text, id) {
 }
 function renderExport() {
   state.done.add("export"); renderSteps();
-  $("#x-tabs").innerHTML = XTABS.map(t => `<button role="tab" aria-selected="${state.exportTab === t.id}" data-id="${t.id}">${t.name}</button>`).join("");
+  const tabs = XTABS.filter(t => !t.only || (state.result.exports || {})[t.id]);
+  if (!tabs.some(t => t.id === state.exportTab)) state.exportTab = "newton";
+  $("#x-tabs").innerHTML = tabs.map(t => `<button role="tab" aria-selected="${state.exportTab === t.id}" data-id="${t.id}">${t.name}</button>`).join("");
   $("#x-tabs").querySelectorAll("button").forEach(b => b.onclick = () => { state.exportTab = b.dataset.id; renderExport(); });
   const t = XTABS.find(x => x.id === state.exportTab), text = exportText(t.id);
   $("#x-code").innerHTML = highlight(text, t.id);
-  $("#x-note").textContent = { newton: "Material values for newton.ModelBuilder.ShapeConfig, plus the measured friction region.", isaaclab: "An EventTermCfg that randomizes the object's material over the measured interval at startup.", markdown: "A one-page report to share.", json: "Everything above, machine-readable (gapcloser.calibration/v1)." }[t.id];
+  $("#x-note").textContent = { newton: "Material values for newton.ModelBuilder.ShapeConfig, plus the measured friction region.", isaaclab: "An EventTermCfg that randomizes the object's material over the measured interval at startup.", carla: T("CARLA 0.9.16: scales your vehicle's tire friction by measured / simulated μ, places a friction trigger on the wet or icy section, and ends with a braking check.", "CARLA 0.9.16: 차량 타이어 마찰을 측정값/시뮬레이션값 비율로 바꾸고, 젖거나 언 구간에 마찰 트리거를 두며, 마지막에 제동 거리 확인식을 넣습니다."), markdown: "A one-page report to share.", json: "Everything above, machine-readable (gapcloser.calibration/v1)." }[t.id];
   $("#x-dl").hidden = !LIVE;  // a shared page cannot start downloads; Copy works everywhere
   $("#x-copy").onclick = async () => { try { await navigator.clipboard.writeText(text); toast("Copied"); }
     catch (_) { const r = document.createRange(); r.selectNodeContents($("#x-code")); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); toast("Selected: press Ctrl/Cmd+C"); } };

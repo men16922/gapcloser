@@ -34,6 +34,10 @@ MU_EFF = 0.55
 HALF = 0.03  # box half size (6 cm box)
 SPEEDS = (1.05, 1.3, 1.55, 1.75, 1.95, 2.15, 1.45)  # first video: hand flicks, m/s (mostly short)
 SPEEDS_2 = (2.3, 2.45, 2.2, 2.55)  # second video: the longer pushes the Studio asks for
+# driving sample (Froude-scaled 1:25): dry asphalt, wet from 9 m on; braking runs from 22-45 km/h
+DRIVING_WORLD = {"mu_eff": 0.75, "patch_y0": 0.36, "patch_mu": 0.30}
+DRIVING_SPEEDS = (1.23, 1.52, 1.81, 2.04, 2.28, 2.51, 1.69)
+DRIVING_SPEEDS_2 = (2.45, 2.6, 2.35, 2.7)
 
 
 def look_at_quat(pos, target):
@@ -67,8 +71,46 @@ def sheet_corners_world() -> np.ndarray:
     return np.array([[cx - hx, cy - hy, 0], [cx + hx, cy - hy, 0], [cx + hx, cy + hy, 0], [cx - hx, cy + hy, 0]], float)
 
 
+LOOK = {  # per domain: object colour, ground colour, reference rectangle colour (physics is identical)
+    "robot": {"object": (0.95, 0.42, 0.08), "ground": (0.33, 0.30, 0.27), "sheet": (0.96, 0.96, 0.94)},
+    "driving": {"object": (0.86, 0.12, 0.10), "ground": (0.17, 0.175, 0.18), "sheet": (0.93, 0.93, 0.90)},
+    "factory": {"object": (0.12, 0.42, 0.86), "ground": (0.47, 0.49, 0.52), "sheet": (0.96, 0.96, 0.94)},
+}
+
+
+def _scenery(b, wp, vis, domain: str, body: int) -> None:
+    """Visual-only dressing (no collision, no mass): it makes the same sliding test read as a road or a line."""
+    def box(parent, p, h, color):
+        b.add_shape_box(parent, xform=wp.transform(p=wp.vec3(*p), q=wp.quat_identity()), hx=h[0], hy=h[1], hz=h[2],
+                        cfg=vis, color=color)
+
+    white, dark = (0.92, 0.92, 0.88), (0.06, 0.06, 0.07)
+    if domain == "driving":  # 1:25 of a car on a lane: dashed lane edges (3 m dashes), a stop line at 12.5 m
+        for x in (-0.075, 0.075):
+            y = -0.30
+            while y < 1.2:
+                box(-1, (x, y + 0.06, 0.0003), (0.003, 0.06, 0.0003), white)
+                y += 0.24
+        box(-1, (0.0, 0.50, 0.0003), (0.072, 0.008, 0.0003), white)
+        box(body, (0.0, 0.0, -0.012), (0.037, 0.09, 0.018), LOOK["driving"]["object"])  # hood and boot
+        box(body, (0.0, 0.004, 0.012), (0.031, 0.034, 0.006), (0.10, 0.13, 0.17))  # glasshouse
+        for x in (-0.037, 0.037):
+            for y in (-0.055, 0.055):
+                box(body, (x, y, -0.018), (0.004, 0.013, 0.012), dark)  # wheels
+    elif domain == "factory":  # a part on a rail: guide strips, the inspection window, the camera post
+        for x in (-0.052, 0.052):
+            box(-1, (x, 0.45, 0.004), (0.006, 0.75, 0.004), (0.16, 0.17, 0.19))
+        green = (0.46, 0.73, 0.0)
+        for y in (0.40, 0.50):
+            box(-1, (0.0, y, 0.0004), (0.046, 0.003, 0.0004), green)
+        for x in (-0.044, 0.044):
+            box(-1, (x, 0.45, 0.0004), (0.003, 0.05, 0.0004), green)
+        box(-1, (-0.13, 0.45, 0.09), (0.012, 0.012, 0.09), (0.22, 0.23, 0.25))  # camera post (far side of the rail)
+        box(-1, (-0.10, 0.45, 0.17), (0.035, 0.014, 0.014), dark)  # camera head
+
+
 def render(out: Path = OUT / "flick-video.mp4", speeds=SPEEDS, seed: int = 3, hard: bool = False,
-           world: dict | None = None, show_strip: bool = True) -> dict:
+           world: dict | None = None, show_strip: bool = True, domain: str = "robot") -> dict:
     """hard: a worse phone. Textured table, hand-held camera shake (1.5 mm, 0.15 deg per frame), motion blur
     (blend with the previous frame), exposure flicker, heavier compression. Used to test the tracker.
     world: the table's hidden physics {"mu_eff", "patch_y0" (None = no region), "patch_mu"}; default = the sample.
@@ -97,15 +139,17 @@ def render(out: Path = OUT / "flick-video.mp4", speeds=SPEEDS, seed: int = 3, ha
         b = newton.ModelBuilder()
         cfg = newton.ModelBuilder.ShapeConfig(mu=mu, density=400.0)
         body = b.add_body(xform=wp.transform(p=wp.vec3(0.0, y_start, HALF), q=wp.quat_identity()))
-        b.add_shape_box(body, hx=HALF, hy=HALF, hz=HALF, cfg=cfg, color=(0.95, 0.42, 0.08))
-        vis = newton.ModelBuilder.ShapeConfig(has_shape_collision=False, has_particle_collision=False)
+        look = LOOK.get(domain, LOOK["robot"])
+        b.add_shape_box(body, hx=HALF, hy=HALF, hz=HALF, cfg=cfg, color=look["object"])
+        vis = newton.ModelBuilder.ShapeConfig(has_shape_collision=False, has_particle_collision=False, density=0.0)
         cx, cy = SHEET["center"]
         b.add_shape_box(-1, xform=wp.transform(p=wp.vec3(cx, cy, 0.0004), q=wp.quat_identity()),
-                        hx=SHEET["size_x"] / 2, hy=SHEET["size_y"] / 2, hz=0.0004, cfg=vis, color=(0.96, 0.96, 0.94))
+                        hx=SHEET["size_x"] / 2, hy=SHEET["size_y"] / 2, hz=0.0004, cfg=vis, color=look["sheet"])
+        _scenery(b, wp, vis, domain, body)
         if strip and show_strip:
             b.add_shape_box(-1, xform=wp.transform(p=wp.vec3(0.0, (strip[0] + 1.2) / 2, 0.0002), q=wp.quat_identity()),
                             hx=0.16, hy=(1.2 - strip[0]) / 2, hz=0.0002, cfg=vis, color=(0.20, 0.24, 0.30))
-        ground = b.add_ground_plane(cfg=newton.ModelBuilder.ShapeConfig(mu=mu), color=(0.33, 0.30, 0.27))
+        ground = b.add_ground_plane(cfg=newton.ModelBuilder.ShapeConfig(mu=mu), color=look["ground"])
         model = b.finalize()
         state = model.state()
         cam = SensorTiledCamera(model=model)
@@ -163,7 +207,7 @@ def render(out: Path = OUT / "flick-video.mp4", speeds=SPEEDS, seed: int = 3, ha
     mu1, mu2, y0 = frictions(params)
     meta = {"video": out.name, "fps": FPS, "size": [W, H], "synthetic": True, "renderer": "NVIDIA Newton SensorTiledCamera",
             "sheet": "a4", "sheet_corners_px": [[round(float(x), 1), round(float(y), 1)] for x, y in corners],
-            "object_height_m": 2 * HALF, "hidden": {"mu_eff": mu1, "patch_y0": None if mu2 is None else y0, "patch_mu": mu2}, "pushes": truth,
+            "object_height_m": 2 * HALF, "domain": domain, "hidden": {"mu_eff": mu1, "patch_y0": None if mu2 is None else y0, "patch_mu": mu2}, "pushes": truth,
             "camera": {"pos": CAM_POS, "look_at": CAM_LOOK, "fov_v_deg": math.degrees(FOV_V)}}
     out.with_suffix(".truth.json").write_text(json.dumps(meta, indent=2))
     return meta
@@ -177,6 +221,12 @@ if __name__ == "__main__":
         m = render(Path(sys.argv[-1]), SPEEDS + SPEEDS_2, 5, hard=True)
         print("hard", len(m["pushes"]), "pushes ->", sys.argv[-1])
         sys.exit(0)
-    for name, speeds, seed in (("flick-video", SPEEDS, 3), ("flick-video-2", SPEEDS_2, 4)):
-        m = render(OUT / f"{name}.mp4", speeds, seed)
+    only = sys.argv[1] if len(sys.argv) > 1 else None
+    jobs = (("flick-video", SPEEDS, 3, None, "robot"), ("flick-video-2", SPEEDS_2, 4, None, "robot"),
+            ("stop-line-video", DRIVING_SPEEDS, 5, DRIVING_WORLD, "driving"),
+            ("stop-line-video-2", DRIVING_SPEEDS_2, 6, DRIVING_WORLD, "driving"))
+    for name, speeds, seed, world, domain in jobs:
+        if only and not name.startswith(only):
+            continue
+        m = render(OUT / f"{name}.mp4", speeds, seed, world=world, domain=domain, show_strip=domain == "robot")
         print(name, json.dumps({k: m[k] for k in ("sheet_corners_px", "hidden")}), len(m["pushes"]), "pushes")

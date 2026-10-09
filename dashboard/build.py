@@ -77,12 +77,15 @@ MIME = {".mp4": "video/mp4", ".jpg": "image/jpeg", ".webm": "video/webm"}
 def build_studio(rec_dir: Path = STUDIO_REC, out_dir: Path = HERE / "dist", console_url: str | None = None) -> list[Path]:
     """Studio pages: studio.live.html (served at /studio, talks to the API) and, when recorded sessions exist,
     studio.standalone.html (sessions + media inlined; replays the recorded Nemotron runs offline)."""
+    from studio.domains import page_data
+
     tpl = (HERE / "studio.html").read_text()
+    tpl = tpl.replace("/*__STUDIO_DOMAINS__*/null", _script_safe(json.dumps(page_data(), separators=(",", ":"))), 1)
     out_dir.mkdir(parents=True, exist_ok=True)
     live = out_dir / "studio.live.html"
     live.write_text(tpl)
     outs = [live]
-    order = ["flick", "lab-bench", "short-reach"]
+    order = ["flick", "lab-bench", "short-reach", "stop-line", "press-line"]
     recs = [json.loads((rec_dir / f"{k}.json").read_text()) for k in order if (rec_dir / f"{k}.json").exists()]
     if not recs:
         return outs

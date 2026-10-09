@@ -1,0 +1,83 @@
+{
+  "video": "stop-line-video-2.mp4",
+  "fps": 30,
+  "size": [
+    960,
+    540
+  ],
+  "synthetic": true,
+  "renderer": "NVIDIA Newton SensorTiledCamera",
+  "sheet": "a4",
+  "sheet_corners_px": [
+    [
+      409.4,
+      368.6
+    ],
+    [
+      536.1,
+      439.1
+    ],
+    [
+      649.1,
+      330.9
+    ],
+    [
+      534.7,
+      287.8
+    ]
+  ],
+  "object_height_m": 0.06,
+  "domain": "driving",
+  "hidden": {
+    "mu_eff": 0.75,
+    "patch_y0": 0.36,
+    "patch_mu": 0.3
+  },
+  "pushes": [
+    {
+      "push": 0,
+      "launch_frame": 12,
+      "launch_speed_mps": 2.45,
+      "start_y_m": 0.0088,
+      "stop_y_m": 0.4916,
+      "slide_m": 0.4828
+    },
+    {
+      "push": 1,
+      "launch_frame": 54,
+      "launch_speed_mps": 2.6,
+      "start_y_m": 0.0097,
+      "stop_y_m": 0.6243,
+      "slide_m": 0.6146
+    },
+    {
+      "push": 2,
+      "launch_frame": 99,
+      "launch_speed_mps": 2.35,
+      "start_y_m": -0.0004,
+      "stop_y_m": 0.3883,
+      "slide_m": 0.3887
+    },
+    {
+      "push": 3,
+      "launch_frame": 138,
+      "launch_speed_mps": 2.7,
+      "start_y_m": -0.0072,
+      "stop_y_m": 0.6699,
+      "slide_m": 0.677
+    }
+  ],
+  "camera": {
+    "pos": [
+      0.62,
+      -0.42,
+      0.48
+    ],
+    "look_at": [
+      0.02,
+      0.3,
+      0.0
+    ],
+    "fov_v_deg": 50.0
+  }
+}

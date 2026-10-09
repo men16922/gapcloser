@@ -73,10 +73,10 @@ def flick_speeds(world: dict, n: int, reach: float, seed: int = 0) -> list[float
     return speeds
 
 
-def render_video(world: dict, speeds: list[float], out: Path, seed: int = 11) -> dict:
+def render_video(world: dict, speeds: list[float], out: Path, seed: int = 11, domain: str = "robot") -> dict:
     from studio.video_sample import project, render, sheet_corners_world
 
-    meta = render(out, speeds, seed, world=world, show_strip=False)
+    meta = render(out, speeds, seed, world=world, show_strip=False, domain=domain)
     meta["sheet_corners_px"] = [[round(float(x), 1), round(float(y), 1)] for x, y in project(sheet_corners_world())]
     return meta
 

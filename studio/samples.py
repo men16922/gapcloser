@@ -3,6 +3,8 @@
   lab-bench   robot log: a policy trained in the nominal sim aims at targets on a bench with a weak actuator, a
               slick strip far out and a pitched camera (the sort of log a robot writes on its first real day)
   short-reach robot log that only pushes short: the far table is unmeasured (shows the next-experiment logic)
+  press-line  factory: a pneumatic pusher aims parts at the inspection window on a rail with an oily section, a
+              pusher that has lost pressure and a line camera mounted slightly tilted
 
 Ground truth is written next to each sample (`*.truth.json`) and only shown after the diagnosis.
 Run: .venv/bin/python -m studio.samples [--env analytic]   (Newton by default, CPU, ~1 min)
@@ -32,6 +34,12 @@ SAMPLES = {
         "title": "Short pushes only (far table unmeasured)",
         "hidden": {"object_mu": 0.6, "table_mu": 0.6, "patch_y0": 0.33, "patch_mu": 0.4},
         "targets": 0, "probes": [1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.75, 1.85],
+    },
+    "press-line": {
+        "title": "Pusher log: parts missing the inspection window",
+        "hidden": {"object_mu": 0.55, "table_mu": 0.55, "actuator_gain": 0.92, "patch_y0": 0.30, "patch_mu": 0.32,
+                   "camera_pitch_deg": -1.5},
+        "targets": 14, "probes": [1.5, 2.0, 2.5, 2.9],
     },
 }
 TRACK_NOISE = 0.0015  # m, camera tracking jitter added to the simulated measurements
@@ -63,6 +71,7 @@ def make(name: str, env) -> tuple[Session, dict]:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--env", default="newton", choices=["newton", "analytic"])
+    ap.add_argument("--only", default=None)
     a = ap.parse_args()
     if a.env == "newton":
         from sim.newton_push import NewtonPushEnv
@@ -72,6 +81,8 @@ def main() -> None:
         env = AnalyticPushEnv()
     OUT.mkdir(parents=True, exist_ok=True)
     for name in SAMPLES:
+        if a.only and name != a.only:
+            continue
         s, truth = make(name, env)
         (OUT / f"{name}.csv").write_text(to_csv(s))
         (OUT / f"{name}.truth.json").write_text(json.dumps({**truth, "title": s.name}, indent=2))

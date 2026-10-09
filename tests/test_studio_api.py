@@ -50,7 +50,8 @@ def test_bad_upload_is_a_plain_422(tmp_path):
 
 def test_sample_truth_only_after_analysis(tmp_path):
     c = client(tmp_path)
-    assert {x["id"] for x in c.get("/api/studio/samples").json()} == {"flick", "lab-bench", "short-reach"}
+    got = {x["id"]: x["domain"] for x in c.get("/api/studio/samples").json()}
+    assert got == {"flick": "robot", "lab-bench": "robot", "short-reach": "robot", "stop-line": "driving", "press-line": "factory"}
     s = c.post("/api/studio/sessions", data={"sample": "short-reach"}).json()
     assert c.get(f"/api/studio/sessions/{s['id']}/truth").status_code == 409
     c.post(f"/api/studio/sessions/{s['id']}/analyze", json={"agent": False})
@@ -133,3 +134,28 @@ def test_chat_without_llm_says_how_to_enable_it(tmp_path):
     c = client(tmp_path)
     r = c.post("/api/studio/chat", json={"messages": [{"role": "user", "content": "hello"}]})
     assert r.status_code == 503 and "GAPCLOSER_LLM" in r.json()["detail"]
+
+
+def test_domains_label_the_same_physics_and_driving_exports_carla(tmp_path):
+    c = client(tmp_path)
+    doms = {d["id"]: d for d in c.get("/api/studio/domains").json()}
+    assert set(doms) == {"robot", "driving", "factory"} and doms["driving"]["scale"] == 25.0
+    assert doms["driving"]["name"]["ko"] == "자율주행 차량" and doms["factory"]["labels"]["en"]["mu_eff"] == "Part-rail friction"
+    s = c.post("/api/studio/sessions", data={"sample": "press-line"}).json()
+    assert s["domain"] == "factory"
+    c.post(f"/api/studio/sessions/{s['id']}/analyze", json={"agent": False})
+    events(c, s["id"])
+    md = c.get(f"/api/studio/sessions/{s['id']}/export/markdown").text
+    assert "Factory inspection" in md and "Part-rail friction" in md and "Oily section starts at" in md
+    r = c.post("/api/studio/simulate", json={"kind": "log", "domain": "driving", "pushes": 8, "reach": 0.5,
+                                            "world": {"mu_eff": 0.7, "patch_y0": 0.3, "patch_mu": 0.3}})
+    s = r.json()
+    assert r.status_code == 200 and s["domain"] == "driving" and s["name"].startswith("Your simulated road")
+    c.post(f"/api/studio/sessions/{s['id']}/analyze", json={"agent": False})
+    events(c, s["id"])
+    carla = c.get(f"/api/studio/sessions/{s['id']}/export/carla").text
+    compile(carla, "carla_calibration.py", "exec")
+    assert "static.trigger.friction" in carla and "tire_friction" in carla and "Braking check" in carla
+    md = c.get(f"/api/studio/sessions/{s['id']}/export/markdown").text
+    assert "Tire-road friction" in md
+    assert " m" in md and "Froude" in md

@@ -46,9 +46,15 @@ class Result:
     def to_json(self) -> dict:
         return {"session": self.session.to_json(), "calibration": self.calibration.to_json(),
                 "next_experiment": self.next_experiment, "agent": self.agent, "seconds": round(self.seconds, 2),
-                "exports": {"newton": export.newton_snippet(self.session, self.calibration),
-                            "isaaclab": export.isaaclab_snippet(self.session, self.calibration),
-                            "markdown": export.markdown(self.session, self.calibration, self.next_experiment, self.agent)}}
+                "exports": self.exports()}
+
+    def exports(self) -> dict:
+        out = {"newton": export.newton_snippet(self.session, self.calibration),
+               "isaaclab": export.isaaclab_snippet(self.session, self.calibration),
+               "markdown": export.markdown(self.session, self.calibration, self.next_experiment, self.agent)}
+        if (self.session.meta or {}).get("domain") == "driving":
+            out["carla"] = export.carla_snippet(self.session, self.calibration)
+        return out
 
 
 def agent_context(session: Session) -> dict:

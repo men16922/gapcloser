@@ -172,3 +172,16 @@ def test_cross_check_overrules_an_agent_that_ignores_the_launch_speed():
     assert cc["adopted"] == "search" and "actuator_gain" in res.calibration.structure
     assert any("launch" in u for u in cc["unexplained"])
     assert abs(res.calibration.model["actuator_gain"] - 0.9) < 0.02
+
+
+def test_domain_units_scale_lengths_and_speeds_but_not_friction():
+    from studio import domains as D
+
+    d = D.get("driving")
+    assert D.model_to_domain(d, {"mu_eff": 0.7, "patch_y0": 0.36, "camera_dx": 0.01, "lens_k": 0.5}) == \
+        {"mu_eff": 0.7, "patch_y0": 9.0, "camera_dx": 0.25, "lens_k": 0.02}
+    assert D.scale_text(d, "stop at 0.36 m, ±1.0 cm, launch 2.0 m/s") == "stop at 9.00 m, ±0.25 m, launch 36 km/h"
+    assert D.scale_text(D.get("factory"), "0.36 m") == "0.36 m" and D.get(None).id == "robot"
+    # Froude: the stop distance of the scaled run, scaled up, equals the full-size one (v^2 / (2 mu g))
+    v, mu = 2.0, 0.7
+    assert abs((v * d.speed_scale) ** 2 / (2 * mu * 9.81) - d.scale * v * v / (2 * mu * 9.81)) < 1e-9

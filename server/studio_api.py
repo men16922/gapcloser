@@ -4,7 +4,7 @@
   GET  /api/studio/samples                       sample sessions (robot logs, phone videos)
   POST /api/studio/sessions                      multipart: file (video | .csv | .json) or sample=<id>; name
   POST /api/studio/sessions/{sid}/videos         multipart: file or sample part -> add another video of the same table
-  POST /api/studio/simulate                      {"kind": "video"|"log", "world": {...}, "pushes", "reach"} -> NVIDIA Newton makes the data
+  POST /api/studio/simulate                      {"kind": "video"|"log", "domain", "world": {...}, "pushes", "reach"} -> NVIDIA Newton makes the data
   POST /api/studio/sessions/{sid}/simulate-more  {"speeds"|"commands": [...]} -> run the next experiment in the same world
   POST /api/studio/sessions/{sid}/logs           multipart: file -> append more pushes to a robot-log session
   POST /api/studio/sessions/{sid}/videos/{i}/track   {"corners": [x,y]*4, "sheet": "a4", "object_px": [x,y]?, "object_height_m"?}
@@ -12,9 +12,13 @@
   POST /api/studio/chat                          {"sid"?, "messages": [...], "lang": "en"|"ko", "step"?} -> {"answer"}
   GET  /api/studio/sessions/{sid}/events         Server-Sent Events: stage, agent_step*, calibration, next, done, overlay, result, end | error
   GET  /api/studio/sessions/{sid}                session, tracked videos, last result
-  GET  /api/studio/sessions/{sid}/export/{fmt}   json | newton | isaaclab | markdown | csv
+  GET  /api/studio/domains                       robot manipulation, autonomous vehicles, factory inspection: names, units, labels
+  GET  /api/studio/sessions/{sid}/export/{fmt}   json | newton | isaaclab | markdown | csv | carla (driving)
   GET  /api/studio/sessions/{sid}/truth          samples only, after an analysis: the hidden physics
   GET  /api/studio/files/{sid}/{name}            uploaded video and its first frame
+
+Domains (studio.domains): robot manipulation, autonomous vehicles, factory inspection. Everything on the wire is in
+base units (the robot scale); the page and the exports convert to the session's domain.
 
 Sessions live in memory and under runs/studio/<sid>/ (uploads, results). Uploads are capped in size and
 duration; the Nemotron agent shares the server's LLM budget and has a per-analysis turn cap.
@@ -44,11 +48,18 @@ VIDEO_EXT = (".mp4", ".mov", ".m4v", ".webm", ".avi", ".mkv")
 SAMPLES = [
     {"id": "flick", "kind": "video", "title": "Phone video: a box on a table", "parts": ["flick-video", "flick-video-2"],
      "blurb": "Seven hand flicks filmed from the side, an A4 sheet for scale. Something about this table is off. "
-              "Synthetic: rendered by NVIDIA Newton from physics the Studio never sees.", "object_height_m": 0.06},
+              "Synthetic: rendered by NVIDIA Newton from physics the Studio never sees.", "object_height_m": 0.06, "domain": "robot"},
     {"id": "lab-bench", "kind": "log", "file": "lab-bench.csv", "title": "Robot log: first day on the real bench",
-     "blurb": "20 pushes (16 aimed at targets, 4 probes) with camera tracks, from a policy trained in the nominal sim."},
+     "blurb": "20 pushes (16 aimed at targets, 4 probes) with camera tracks, from a policy trained in the nominal sim.", "domain": "robot"},
     {"id": "short-reach", "kind": "log", "file": "short-reach.csv", "title": "Robot log: short pushes only",
-     "blurb": "8 short pushes. The far half of the table was never measured: watch the Studio refuse to be certain."},
+     "blurb": "8 short pushes. The far half of the table was never measured: watch the Studio refuse to be certain.", "domain": "robot"},
+    {"id": "stop-line", "kind": "video", "parts": ["stop-line-video", "stop-line-video-2"], "domain": "driving",
+     "title": "Roadside camera: braking to a stop line",
+     "blurb": "Seven braking runs filmed from beside the road, a painted 5.25 × 7.4 m box for scale. Part of the road is wet. "
+              "Synthetic: rendered by NVIDIA Newton (Froude-scaled, friction is scale-free).", "object_height_m": 0.06},
+    {"id": "press-line", "kind": "log", "file": "press-line.csv", "domain": "factory",
+     "title": "Pusher log: parts missing the inspection window",
+     "blurb": "18 pusher strokes aimed at the inspection position, with the line camera's tracks. Parts keep stopping off-position."},
 ]
 
 
@@ -65,6 +76,7 @@ class AnalyzeRequest(BaseModel):
 
 class SimulateRequest(BaseModel):
     kind: str = Field("video", pattern="^(video|log)$")
+    domain: str = Field("robot", pattern="^(robot|driving|factory)$")
     world: dict[str, float | None]
     pushes: int = Field(7, ge=3, le=12)
     reach: float = Field(0.45, ge=0.15, le=0.9)
@@ -98,6 +110,7 @@ class StudioSession:
         self.origin_offset = 0.0  # simulated video: median release of take 1 from the simulator origin
         self.object_height: float | None = None
         self.truth_shown: dict | None = None  # set when the visitor reveals the hidden physics
+        self.domain = "robot"  # studio.domains id: how the page names and scales everything
 
     def push(self, e: dict) -> None:
         with self.cond:
@@ -110,7 +123,7 @@ class StudioSession:
         return {"id": self.id, "name": self.name, "kind": self.kind, "sample": self.sample,
                 "videos": [{k: v for k, v in x.items() if k not in ("path",)} for x in self.videos],
                 "session": self.session.to_json() if self.session else None, "result": self.result,
-                "busy": not self.done, "simulated": self.world is not None,
+                "busy": not self.done, "simulated": self.world is not None, "domain": self.domain,
                 "world_keys": sorted(self.world) if self.world else []}
 
 
@@ -194,7 +207,13 @@ def mount_studio(app: FastAPI, llm, budget, data_dir: Path, budgeted_llm_cls) ->
 
     @app.get("/api/studio/samples")
     def samples():
-        return [{k: v for k, v in x.items() if k in ("id", "kind", "title", "blurb", "parts")} for x in SAMPLES]
+        return [{k: v for k, v in x.items() if k in ("id", "kind", "title", "blurb", "parts", "domain")} for x in SAMPLES]
+
+    @app.get("/api/studio/domains")
+    def domain_list():
+        from studio.domains import page_data
+
+        return list(page_data().values())
 
     @app.post("/api/studio/sessions")
     async def create(file: UploadFile | None = File(None), sample_id: str | None = Form(None, alias="sample"),
@@ -211,6 +230,7 @@ def mount_studio(app: FastAPI, llm, budget, data_dir: Path, budgeted_llm_cls) ->
             if sample_id:
                 m = sample(sample_id)
                 s = StudioSession(sid, m["title"], m["kind"], m["id"], folder)
+                s.domain = m.get("domain", "robot")
                 if m["kind"] == "video":
                     add_video(s, SAMPLE_DIR / f"{m['parts'][0]}.mp4", hint_for(m["parts"][0]))
                 else:
@@ -258,7 +278,7 @@ def mount_studio(app: FastAPI, llm, budget, data_dir: Path, budgeted_llm_cls) ->
         try:
             if req.kind == "video":
                 s = StudioSession(sid, "Your simulated table (phone video)", "video", None, folder)
-                meta = sm.render_video(world, speeds, folder / "video0.mp4", seed=req.seed + 11)
+                meta = sm.render_video(world, speeds, folder / "video0.mp4", seed=req.seed + 11, domain=req.domain)
                 starts = sorted(p["start_y_m"] for p in meta["pushes"])
                 s.origin_offset = starts[len(starts) // 2]
                 s.object_height = meta["object_height_m"]
@@ -273,6 +293,14 @@ def mount_studio(app: FastAPI, llm, budget, data_dir: Path, budgeted_llm_cls) ->
         finally:
             sim_lock.release()
         s.world = world
+        s.domain = req.domain
+        s.name = {"robot": s.name, "driving": "Your simulated road", "factory": "Your simulated line"}[req.domain] + \
+            (" (roadside video)" if req.domain == "driving" and req.kind == "video" else
+             " (vehicle log)" if req.domain == "driving" else
+             " (line camera video)" if req.domain == "factory" and req.kind == "video" else
+             " (pusher log)" if req.domain == "factory" else "")
+        if s.session is not None:
+            s.session.name = s.name
         sessions[sid] = s
         return s.public()
 
@@ -295,7 +323,7 @@ def mount_studio(app: FastAPI, llm, budget, data_dir: Path, budgeted_llm_cls) ->
                 if not speeds:
                     raise HTTPException(422, "Give the launch speeds to run.")
                 i = len(s.videos)
-                meta = sm.render_video(s.world, speeds, s.dir / f"take{i}.mp4", seed=97 + i)
+                meta = sm.render_video(s.world, speeds, s.dir / f"take{i}.mp4", seed=97 + i, domain=s.domain)
                 v = add_video(s, s.dir / f"take{i}.mp4", meta["sheet_corners_px"])
                 (s.dir / f"take{i}.mp4").unlink(missing_ok=True)
                 out = s.public() | {"added": v["index"]}
@@ -438,6 +466,7 @@ def mount_studio(app: FastAPI, llm, budget, data_dir: Path, budgeted_llm_cls) ->
                     ag = budgeted_llm_cls(llm, budget, AGENT_TURNS)
                 else:
                     s.push({"type": "stage", "stage": "note", "message": "agent busy with another session: offline search"})
+            s.session.meta["domain"] = s.domain
             res = analyze(s.session, ag, on_event=s.push)
             doc = res.to_json()
             if s.cams:
@@ -538,8 +567,10 @@ def mount_studio(app: FastAPI, llm, budget, data_dir: Path, budgeted_llm_cls) ->
                  "newton": ("newton_calibration.py", s.result["exports"]["newton"], "text/x-python"),
                  "isaaclab": ("isaaclab_events.py", s.result["exports"]["isaaclab"], "text/x-python"),
                  "markdown": ("report.md", s.result["exports"]["markdown"], "text/markdown")}
+        if "carla" in s.result["exports"]:
+            files["carla"] = ("carla_calibration.py", s.result["exports"]["carla"], "text/x-python")
         if fmt not in files:
-            raise HTTPException(404, "Formats: json, newton, isaaclab, markdown, csv.")
+            raise HTTPException(404, f"Formats: {', '.join(files)}, csv.")
         name, text, mime = files[fmt]
         return PlainTextResponse(text, media_type=mime, headers={"Content-Disposition": f'attachment; filename="{name}"'})
 

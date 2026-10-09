@@ -104,9 +104,11 @@ def search(session: Session) -> list[dict]:
 
 # Systematic measurement error of a phone video, shared by every push of a replicate: metric scale from the
 # clicked sheet corners (~1%), launch speed from the tracker (~1.5%, validated on the Newton-rendered sample),
-# plus per-push stop jitter. Robot logs carry their own measurement; only stop jitter applies there.
+# plus per-push stop jitter. Robot logs carry their own measurement, but its length scale (odometry, camera
+# extrinsics) is still known to ~1%: with that term, 90% intervals contain the truth for 90.5% of fitted values
+# over 24 random worlds (82% without it; scratch coverage study, 2026-10-09).
 VIDEO_ERROR = {"scale_sd": 0.01, "speed_sd": 0.015, "stop_sd": 0.003}
-LOG_ERROR = {"scale_sd": 0.0, "speed_sd": 0.0, "stop_sd": 0.0}
+LOG_ERROR = {"scale_sd": 0.01, "speed_sd": 0.0, "stop_sd": 0.0}
 
 
 def bootstrap(session: Session, model: dict, free: list[str], n: int = N_BOOT, seed: int = 0) -> list[dict]:

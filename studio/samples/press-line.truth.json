@@ -1,0 +1,13 @@
+{
+  "name": "press-line",
+  "hidden": {
+    "object_mu": 0.55,
+    "table_mu": 0.55,
+    "actuator_gain": 0.92,
+    "patch_y0": 0.3,
+    "patch_mu": 0.32,
+    "camera_pitch_deg": -1.5
+  },
+  "env": "NewtonPushEnv",
+  "title": "Pusher log: parts missing the inspection window"
+}
