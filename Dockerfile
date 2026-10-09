@@ -6,7 +6,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends git \
     && rm -rf /var/lib/apt/lists/*
 
 # non-root user (Hugging Face Spaces runs containers as uid 1000)
-RUN useradd -m -u 1000 app
+RUN useradd -m -u 1000 app \
+ && mkdir -p /home/app/gapcloser/runs/live /home/app/gapcloser/runs/studio \
+ && chown -R app:app /home/app/gapcloser  # the legacy builder creates COPY parents as root
 USER app
 ENV HOME=/home/app PATH=/home/app/.local/bin:$PATH PYTHONUNBUFFERED=1
 WORKDIR /home/app/gapcloser

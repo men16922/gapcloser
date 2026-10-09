@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# Deploy GapCloser to a Nebius AI Cloud CPU VM (eu-north1), retrying VM creation until the account allows it
+# Deploy GapCloser to a Nebius AI Cloud CPU VM (eu-west1 by default), retrying VM creation until the account allows it
 # (billing details saved). Then: copy the committed code, build the Docker image on the VM, run it on port 80.
 # Needs: nebius CLI profile (nebius profile create), ~/.ssh/gapcloser_nebius, NEBIUS_API_KEY in .env.
 # Usage: deploy/nebius_vm.sh [max_wait_minutes]      Stop billing afterwards: nebius compute instance delete --id <id>
 set -uo pipefail
 cd "$(dirname "$0")/.."
 NB=~/.nebius/bin/nebius
-P=${NEBIUS_PROJECT:-project-e00hr3x9pr00zxfge57fhd}          # default-project-eu-north1
-SUBNET=${NEBIUS_SUBNET:-vpcsubnet-e00vvqd1y82qmztr7y}
+P=${NEBIUS_PROJECT:-project-e01r9mqhpa00k484wcc2ct}          # default-project-eu-west1 (eu-north1 has 0 non-GPU vCPU quota)
+SUBNET=${NEBIUS_SUBNET:-vpcsubnet-e01ph41k4q7qewq9r4}
 NAME=gapcloser-demo
 KEY=~/.ssh/gapcloser_nebius
 WAIT_MIN=${1:-180}
@@ -32,16 +32,16 @@ ID=$($NB compute instance get-by-name --parent-id $P --name $NAME --format json 
 deadline=$(( $(date +%s) + WAIT_MIN * 60 ))
 while [ -z "$ID" ]; do
   out=$($NB compute instance create --parent-id $P --name $NAME \
-    --resources-platform cpu-e2 --resources-preset 2vcpu-8gb \
+    --resources-platform ${NEBIUS_PLATFORM:-cpu-d3} --resources-preset 2vcpu-8gb \
     --boot-disk-attach-mode read_write --boot-disk-device-id boot \
     --boot-disk-managed-disk-name gapcloser-boot --boot-disk-managed-disk-size-gibibytes 40 \
     --boot-disk-managed-disk-type network_ssd \
     --boot-disk-managed-disk-source-image-family-image-family ubuntu22.04-driverless \
     --network-interfaces "[{\"name\":\"eth0\",\"subnet_id\":\"$SUBNET\",\"ip_address\":{},\"public_ip_address\":{}}]" \
     --cloud-init-user-data "$UD" --format json 2>&1)
-  ID=$(echo "$out" | python3 -c "import sys,json;print(json.load(sys.stdin)['metadata']['id'])" 2>/dev/null)
+  ID=$($NB compute instance get-by-name --parent-id $P --name $NAME --format json 2>/dev/null | python3 -c "import sys,json;print(json.load(sys.stdin)['metadata']['id'])" 2>/dev/null)  # create output can mix warnings into the JSON
   if [ -n "$ID" ]; then log "VM created: $ID"; break; fi
-  reason=$(echo "$out" | grep -m1 -oE "PermissionDenied|Quota[A-Za-z]*|InvalidArgument|NotEnough[A-Za-z]*|ResourceExhausted" || echo "error")
+  reason=$(echo "$out" | grep -m1 -E "desc =" | cut -c1-200)
   log "VM create refused ($reason); waiting for billing to be activated"
   [ "$(date +%s)" -gt "$deadline" ] && { log "GAVE UP after $WAIT_MIN min"; exit 2; }
   sleep 60
