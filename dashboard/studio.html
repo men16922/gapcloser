@@ -801,7 +801,7 @@ function renderResults() {
     <div class="caveat">Model predictions: rollouts of the fitted model across the plausible worlds, with your measured scatter as noise. Verify on the real robot.</div>`;
   // forest
   $("#r-forest").innerHTML = forest(c.gap, state.truth);
-  $("#r-truth").innerHTML = state.s.sample ? (state.truth ? `<span class="small muted">Hidden physics from ${esc(state.truth.source)} shown as white diamonds.</span>` : `<button class="btn" id="reveal">Reveal the hidden physics</button><span class="small muted">This sample came from a world GapCloser never saw. Compare after the fact.</span>`) : "";
+  $("#r-truth").innerHTML = state.s.sample ? (state.truth ? `<span class="small muted">Hidden physics from ${esc(state.truth.source)} shown as white diamonds${state.truth.note ? `; ${esc(state.truth.note)}` : ""}.</span>` : `<button class="btn" id="reveal">Reveal the hidden physics</button><span class="small muted">This sample came from a world GapCloser never saw. Compare after the fact.</span>`) : "";
   if ($("#reveal")) $("#reveal").onclick = async () => { state.truth = await be.truth(state.s.id); renderResults(); };
   // charts
   $("#r-charts").innerHTML = chartStops(c) + chartFriction(c) + chartSuccess(c);

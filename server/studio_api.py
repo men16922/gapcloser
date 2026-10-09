@@ -418,7 +418,15 @@ def mount_studio(app: FastAPI, llm, budget, data_dir: Path, budgeted_llm_cls) ->
         m = sample(s.sample)
         part = m["parts"][0] if m["kind"] == "video" else m["file"].rsplit(".", 1)[0]
         t = json.loads((SAMPLE_DIR / f"{part}.truth.json").read_text())
-        return truth_view(t)
+        out = truth_view(t)
+        if m["kind"] == "video" and out["model"].get("patch_y0") is not None:
+            # Studio measures along the table from the median release point of the first take, not the simulator's
+            # origin: express the hidden region start in that frame so the comparison is like for like
+            starts = sorted(p["start_y_m"] for p in t["pushes"])
+            o = starts[len(starts) // 2]
+            out["model"]["patch_y0"] = round(out["model"]["patch_y0"] - o, 4)
+            out["note"] = f"region start measured from the median release point ({o * 100:+.1f} cm from the simulator origin)"
+        return out
 
     @app.get("/api/studio/files/{sid}/{name}")
     def files(sid: str, name: str):

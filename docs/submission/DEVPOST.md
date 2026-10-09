@@ -38,12 +38,13 @@ The agent loop is useful only if it can face real measurements. **Studio** is th
   the only reference. Or the push log your robot already writes.
 - **Measure:** from four clicked sheet corners, Studio recovers the camera's focal length, height and angle.
   It tracks the object with parallax correction for its height, splits the video into pushes and measures
-  launch speeds and slides in metres. On the Newton-rendered sample this is within 3 mm and 2%.
+  launch speeds and slides in metres. On the Newton-rendered sample this is within 1 mm and 0.6%.
 - **Diagnose:** the same Nemotron tool agent works offline. The pushes it would have run on a robot become
   *next experiment* cards. A cross-check fits a fixed structure library and overrules the agent when its
   model leaves evidence unexplained, for example launch speeds it never fitted.
 - **Calibrated sim:** you get:
-  - the measured physics, each value with a 90% bootstrap interval;
+  - the measured physics, each value with a 90% interval (a bootstrap that also redraws the systematic error of
+    the video). On all samples every hidden value falls inside its interval;
   - the measured friction painted onto your own video frame;
   - *ghost boxes* replaying each real push in your old simulator (it stops short) and in the calibrated one
     (it moves with the real object);

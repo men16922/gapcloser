@@ -7,8 +7,6 @@ Rolling plan containing open work only. Completed history is in `docs/COMPLETED_
 ## Priority 0 — Studio product (plan: `docs/plans/2026-10-09-studio-product.md`)
 
 - [ ] [manual] Film a real phone video (A4 sheet beside the path, 8–10 flicks, phone still) and run it through `/studio`; fix what breaks in tracking (hand occlusion, blur). This is the strongest possible demo evidence.
-- [ ] [manual] Publish the Studio standalone as an artifact and cross-link it with the console artifact (`GAPCLOSER_STUDIO_URL`, `GAPCLOSER_CONSOLE_URL` at build).
-- [ ] [auto] Studio: append more pushes to a log session (CSV re-upload merges) like the second video take; Done: API test.
 - [ ] [manual] Video v2 around Studio: phone video → ghost boxes → next experiment → take 2 → export.
 
 ## Priority 0b — Award plan (10/7–10/19), see `docs/plans/2026-10-07-award-plan.md`

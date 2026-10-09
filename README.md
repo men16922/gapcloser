@@ -44,18 +44,25 @@ from the API with Nemotron 3 Super on Token Factory:
 
 | Sample | Measured (90% interval) | Hidden truth |
 |---|---|---|
-| Phone video, take 1 (7 flicks, reach 0.46 m) | friction 0.55; a slick region from ~0.36 m, interval still wide | 0.55; region from 0.36 m, μ 0.30 |
-| Phone video, + take 2 (the 4 pushes it asked for) | 0.550 (0.541–0.556); region from 0.376 m (0.360–0.400), μ 0.294 (0.268–0.329) | 0.55; 0.36 m; 0.30 |
-| Robot log, lab bench (20 pushes) | friction 0.699, gain 0.872, region 0.372 m / μ 0.445, camera pitch 2.0° | 0.70, 0.88, 0.38 m / 0.45, 2.0° |
-| Robot log, short pushes only (reach 0.29 m) | friction 0.60, gain 0.99. It does **not** invent a region it never measured; it asks for pushes to 0.45–0.62 m | 0.60; region from 0.33 m |
+| Phone video, take 1 (7 flicks, reach 0.46 m) | friction 0.555 (0.530–0.578); slick region from ~0.37 m, still wide (0.27–0.42); headline shown as a range because part of the table is unmeasured | 0.55; region from 0.364 m*, μ 0.30 |
+| Phone video, + take 2 (the 4 longer pushes it asked for) | 0.555 (0.524–0.578); region from 0.376 m (0.363–0.395), μ 0.282 (0.269–0.303) | 0.55; 0.364 m*; 0.30 |
+| Robot log, lab bench (20 pushes) | friction 0.696 (0.682–0.709), gain 0.872 (0.864–0.880), region 0.376 m / μ 0.449, camera pitch 1.9° (1.6–2.2) | 0.70, 0.88, 0.38 m / 0.45, 2.0° |
+| Robot log, short pushes only (reach 0.29 m) | friction 0.604 (0.58–0.65), gain 0.99. It does **not** invent a region it never measured; it asks for pushes to 0.45–0.62 m | 0.60; region from 0.33 m |
+
+\* Measured from the median release point of take 1, which is 0.4 cm behind the simulator origin.
+
+Every hidden value lies inside its 90% interval. The intervals refit on resampled pushes, and for video each
+resample also redraws the systematic error: sheet scale ±1%, tracked speed ±1.5% and stop ±3 mm. Without that
+term the take-2 intervals were too narrow and missed the truth.
+
+Tracking on the sample video: slides are within 1 mm of Newton's and launch speeds within 0.6% rms. Camera
+recovery from the sheet gives 0.481 m height and 579 px focal length (true: 0.48 m, 579 px). Each sample costs
+8–20 Nemotron calls on Token Factory.
 
 **Limits, measured.** A harsher render of the same scene adds a textured table, hand-held shake, motion blur
 and heavy compression, all at 30 fps. On it, stops stay within about 4 cm, but launch speeds read 10–15% low
 and the friction region is not pinned down. Film in slow motion or at 60 fps. A real phone video has not been
 run yet.
-
-Camera recovery from the sheet: 0.481 m height and focal length 579 px (true 0.48 m, 579 px). Tracked slides are
-within 3 mm of Newton's, launch speeds within 2%.
 
 **Does the next-experiment card save real pushes?** (`make studio-bench`) Every method starts from the same 4
 short pushes and adds 2 per round until a policy trained in the calibrated simulator reaches 95% real success:

@@ -102,13 +102,33 @@ def search(session: Session) -> list[dict]:
     return out
 
 
+# Systematic measurement error of a phone video, shared by every push of a replicate: metric scale from the
+# clicked sheet corners (~1%), launch speed from the tracker (~1.5%, validated on the Newton-rendered sample),
+# plus per-push stop jitter. Robot logs carry their own measurement; only stop jitter applies there.
+VIDEO_ERROR = {"scale_sd": 0.01, "speed_sd": 0.015, "stop_sd": 0.003}
+LOG_ERROR = {"scale_sd": 0.0, "speed_sd": 0.0, "stop_sd": 0.0}
+
+
 def bootstrap(session: Session, model: dict, free: list[str], n: int = N_BOOT, seed: int = 0) -> list[dict]:
+    """Refit on resampled pushes, each replicate also redrawing the systematic measurement error, so the
+    intervals cover calibration error as well as scatter between pushes."""
+    from dataclasses import replace
+
     base = fit_base(session)
     pushes = [p for p in session.pushes if not p.tipped]
+    err = session.meta.get("measurement_error") or (VIDEO_ERROR if session.source == "video" else LOG_ERROR)
     rng = random.Random(seed)
     ens = []
     for _ in range(n):
-        sample = [pushes[rng.randrange(len(pushes))] for _ in pushes]
+        es, ev = rng.gauss(0, err["scale_sd"]), rng.gauss(0, err["speed_sd"])
+        sample = []
+        for _ in pushes:
+            p = pushes[rng.randrange(len(pushes))]
+            if err["scale_sd"] or err["speed_sd"] or err["stop_sd"]:
+                k = 1 + es
+                p = replace(p, stop=p.stop * k + rng.gauss(0, err["stop_sd"]), start=p.start * k, track=[y * k for y in p.track],
+                            launch_speed=None if p.launch_speed is None else p.launch_speed * (1 + ev))
+            sample.append(p)
         ro = Rollout([p.to_trial() for p in sample])
         ens.append(_fit(_wb(ro, base), model, free)["fitted_model"])
     return ens

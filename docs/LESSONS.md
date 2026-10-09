@@ -18,6 +18,8 @@ decisions with rationale (`docs/DECISIONS.md`).
 
 ## Entries
 
+- 2026-10-09 intervals: a bootstrap over pushes alone gave video intervals that excluded the truth (systematic tracking/scale error is shared by all pushes); each replicate now redraws scale/speed error too. Applies to: studio/fit.py bootstrap.
+
 - 2026-10-09 fitter: scipy Nelder-Mead's default simplex (5% of x0, 0.00025 at 0) left camera_pitch_deg/lens_k stuck at 0; pass initial_simplex with per-field steps. Applies to: agent/tool_agent.py fit_hypothesis.
 - 2026-10-09 fitter: a friction region started with patch_mu == mu_eff is flat in patch_y0, so the fit never moves; multistart patch_mu at 0.6x/1.4x. Applies to: agent/tool_agent.py.
 - 2026-10-09 real tracks: 1.5 mm camera jitter makes 2-frame finite-difference deceleration useless (±0.3 g) and misled Nemotron; use a 7-frame Savitzky-Golay second derivative and skip windows that reach the stop. Applies to: Workbench.decel_profile.
