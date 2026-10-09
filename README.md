@@ -28,6 +28,19 @@ Built for the Nebius × NVIDIA Global AI Hackathon (Physical AI track). Runs on 
 | http://localhost:8000/console | Agent console: Nemotron fixing hidden worlds, Gap-Bench |
 | http://localhost:8000/studio | Studio: your data (or a world you simulate) → calibrated simulator → retrain in parallel Newton worlds → Newton replay → export |
 
+```mermaid
+flowchart LR
+    D[Video · log · or a world you define] --> M[Measure<br/>auto sheet corners, homography,<br/>parallax-corrected tracking]
+    M --> A[Diagnose<br/>Nemotron 3 Super tool agent<br/>on Nebius Token Factory]
+    A --> F[Calibrate<br/>least squares + bootstrap<br/>90% intervals, next experiment]
+    X[Library search] -. cross-check .-> F
+    F --> V[Verify<br/>replay every run in NVIDIA Newton]
+    F --> R[Retrain<br/>16 parallel Newton worlds:<br/>current / wide DR / Tether ranges]
+    R --> H[Score in the hidden world<br/>+ Newton-rendered rollouts]
+    V --> E[Export<br/>Newton · Isaac Lab · CARLA · report]
+    R --> E
+```
+
 Plain-Korean guides live in `reference/`. Submission text: `docs/submission/DEVPOST.md`.
 `make prove` recomputes every headline number offline in about five minutes (`runs/proof/PROOF.md`);
 `make video` rebuilds the demo video (needs `make serve`).
