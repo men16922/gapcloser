@@ -67,7 +67,9 @@ def sheet_corners_world() -> np.ndarray:
     return np.array([[cx - hx, cy - hy, 0], [cx + hx, cy - hy, 0], [cx + hx, cy + hy, 0], [cx - hx, cy + hy, 0]], float)
 
 
-def render(out: Path = OUT / "flick-video.mp4", speeds=SPEEDS, seed: int = 3) -> dict:
+def render(out: Path = OUT / "flick-video.mp4", speeds=SPEEDS, seed: int = 3, hard: bool = False) -> dict:
+    """hard: a worse phone. Textured table, hand-held camera shake (1.5 mm, 0.15 deg per frame), motion blur
+    (blend with the previous frame), exposure flicker, heavier compression. Used to test the tracker."""
     import warp as wp
 
     import newton
@@ -80,7 +82,7 @@ def render(out: Path = OUT / "flick-video.mp4", speeds=SPEEDS, seed: int = 3) ->
                                       object_half_size=HALF)
     quat, _ = look_at_quat(CAM_POS, CAM_LOOK)
     proc = subprocess.Popen(["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}",
-                             "-r", str(FPS), "-i", "-", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "20", str(out)],
+                             "-r", str(FPS), "-i", "-", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "30" if hard else "20", str(out)],
                             stdin=subprocess.PIPE)
     truth = []
     frame_no = 0
@@ -106,14 +108,29 @@ def render(out: Path = OUT / "flick-video.mp4", speeds=SPEEDS, seed: int = 3) ->
         color = cam.utils.create_color_image_output(W, H, 1)
         xf = wp.array([[wp.transformf(wp.vec3f(*CAM_POS), wp.quatf(*quat))]], dtype=wp.transformf)
         noise = np.random.default_rng(seed * 100 + i)
+        if hard:
+            cam.utils.assign_checkerboard_material(shape_indices=np.asarray([ground], dtype=np.uint32))
+        prev = {"rgb": None}
 
         def grab(s, hold: int = 1):
             nonlocal frame_no
             model.bvh_refit_shapes(s)
-            cam.update(s, xf, rays, color_image=color, clear_data=SensorTiledCamera.GRAY_CLEAR_DATA)
-            rgb = cam.utils.to_rgba_from_color(color).numpy()[0, ..., :3].astype(np.float32)
             for _ in range(hold):  # sensor noise like a phone in indoor light
-                img = np.clip(rgb + noise.normal(0, 3.0, rgb.shape), 0, 255).astype(np.uint8)
+                pose = xf
+                if hard:  # hand-held: the camera wanders a little every frame
+                    pos = np.asarray(CAM_POS) + noise.normal(0, 0.0015, 3)
+                    look = np.asarray(CAM_LOOK) + noise.normal(0, 0.0015, 3) + (pos - np.asarray(CAM_POS))
+                    q, _ = look_at_quat(pos, look)
+                    pose = wp.array([[wp.transformf(wp.vec3f(*pos), wp.quatf(*q))]], dtype=wp.transformf)
+                cam.update(s, pose, rays, color_image=color, clear_data=SensorTiledCamera.GRAY_CLEAR_DATA)
+                rgb = cam.utils.to_rgba_from_color(color).numpy()[0, ..., :3].astype(np.float32)
+                if hard:
+                    rgb = rgb * noise.uniform(0.95, 1.05)
+                    if prev["rgb"] is not None:
+                        rgb, prev["rgb"] = 0.6 * rgb + 0.4 * prev["rgb"], rgb
+                    else:
+                        prev["rgb"] = rgb
+                img = np.clip(rgb + noise.normal(0, 4.0 if hard else 3.0, rgb.shape), 0, 255).astype(np.uint8)
                 proc.stdin.write(img.tobytes())
                 frame_no += 1
 
@@ -146,7 +163,13 @@ def render(out: Path = OUT / "flick-video.mp4", speeds=SPEEDS, seed: int = 3) ->
 
 
 if __name__ == "__main__":
+    import sys
+
     OUT.mkdir(parents=True, exist_ok=True)
+    if "--hard" in sys.argv:  # robustness check, not a Studio sample (written outside the repo's samples)
+        m = render(Path(sys.argv[-1]), SPEEDS + SPEEDS_2, 5, hard=True)
+        print("hard", len(m["pushes"]), "pushes ->", sys.argv[-1])
+        sys.exit(0)
     for name, speeds, seed in (("flick-video", SPEEDS, 3), ("flick-video-2", SPEEDS_2, 4)):
         m = render(OUT / f"{name}.mp4", speeds, seed)
         print(name, json.dumps({k: m[k] for k in ("sheet_corners_px", "hidden")}), len(m["pushes"]), "pushes")

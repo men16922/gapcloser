@@ -103,6 +103,14 @@ def build_studio(rec_dir: Path = STUDIO_REC, out_dir: Path = HERE / "dist", cons
     sa = out_dir / "studio.standalone.html"
     sa.write_text(html)
     outs.append(sa)
+    # Artifact fragment: the publisher adds the document skeleton (doctype, html/head/body, charset, viewport)
+    frag = html
+    for tag in ("<!doctype html>", '<html lang="en">', "<head>", "</head>", "<body>", "</body>", "</html>",
+                '<meta charset="utf-8">', '<meta name="viewport" content="width=device-width, initial-scale=1">'):
+        frag = frag.replace(tag, "", 1)
+    art = out_dir / "studio.html"
+    art.write_text(frag.strip() + "\n")
+    outs.append(art)
     return outs
 
 

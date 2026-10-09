@@ -6,7 +6,7 @@
   "title": "Robot log: short pushes only",
   "blurb": "8 short pushes. The far half of the table was never measured: watch the Studio refuse to be certain."
  },
- "sid": "c2c456e990",
+ "sid": "b8d98e786a",
  "videos": [],
  "stages": [
   {
@@ -803,32 +803,34 @@
        },
        "free": [
         "mu_eff",
-        "actuator_gain"
+        "actuator_gain",
+        "patch_y0",
+        "patch_mu"
        ]
       },
       "result": {
        "fitted_model": {
-        "mu_eff": 0.6038,
-        "actuator_gain": 0.9917,
-        "patch_y0": null,
-        "patch_mu": null,
+        "mu_eff": 0.6079,
+        "actuator_gain": 0.9921,
+        "patch_y0": 0.15,
+        "patch_mu": 0.5966,
         "camera_dx": 0.0,
         "camera_pitch_deg": 0.0,
         "lens_k": 0.0
        },
-       "stop_residual_rms_m": 0.0025,
+       "stop_residual_rms_m": 0.0024,
        "worst_stop_residuals_cmd_m": [
-        [
-         1.85,
-         -0.005
-        ],
         [
          1.6,
          0.004
         ],
         [
-         1.5,
-         0.003
+         1.85,
+         -0.004
+        ],
+        [
+         1.2,
+         -0.002
         ]
        ],
        "launch_speed_residual_rms_mps": 0.0524,
@@ -844,23 +846,17 @@
       "args": {
        "commands": [
         2,
-        2.2,
-        2.4,
-        2.6,
-        2.8,
+        2.5,
         3
        ]
       },
       "result": {
        "queued_for_human": [
         2.0,
-        2.2,
-        2.4,
-        2.6,
-        2.8,
+        2.5,
         3.0
        ],
-       "probe_budget_left": 0,
+       "probe_budget_left": 3,
        "note": "offline session: these pushes are recommended to the user; no new data arrives now. Commit the best model for the existing data."
       }
      }
@@ -871,15 +867,15 @@
       "tool": "commit",
       "args": {
        "model": {
-        "mu_eff": 0.6038,
-        "actuator_gain": 0.9917,
-        "patch_y0": null,
-        "patch_mu": null,
+        "mu_eff": 0.6079,
+        "actuator_gain": 0.9921,
+        "patch_y0": 0.15,
+        "patch_mu": 0.5966,
         "camera_dx": 0,
         "camera_pitch_deg": 0,
         "lens_k": 0
        },
-       "explanation": "Fitted uniform friction and actuator gain to recorded stops; residuals <1\u202fcm. No evidence for friction patch, camera offset, pitch, or lens distortion."
+       "explanation": "Fitted uniform friction mu_eff\u22480.608, actuator gain\u22480.992, and a friction patch starting at 0.15\u202fm with slightly lower friction (mu\u22480.597). This yields stop residuals <1\u202fcm across tested commands."
       }
      }
     },
@@ -1856,7 +1852,7 @@
        },
        "perception": []
       },
-      "chosen_by": "Nemotron agent (nvidia/nemotron-3-super-120b-a12b)",
+      "chosen_by": "Nemotron agent (nvidia/nemotron-3-super-120b-a12b); friction region past 0.29 m dropped (no push measured it)",
       "ensemble_size": 30
      }
     },
@@ -1905,23 +1901,8 @@
         "useful": true
        },
        {
-        "command": 2.2,
-        "predicted_stop_m": 0.402,
-        "useful": true
-       },
-       {
-        "command": 2.4,
-        "predicted_stop_m": 0.478,
-        "useful": true
-       },
-       {
-        "command": 2.6,
-        "predicted_stop_m": 0.561,
-        "useful": true
-       },
-       {
-        "command": 2.8,
-        "predicted_stop_m": 0.651,
+        "command": 2.5,
+        "predicted_stop_m": 0.519,
         "useful": true
        },
        {
@@ -2237,7 +2218,7 @@
     },
     {
      "type": "done",
-     "seconds": 11.74
+     "seconds": 10.97
     },
     {
      "type": "result",
@@ -3923,7 +3904,7 @@
         },
         "perception": []
        },
-       "chosen_by": "Nemotron agent (nvidia/nemotron-3-super-120b-a12b)",
+       "chosen_by": "Nemotron agent (nvidia/nemotron-3-super-120b-a12b); friction region past 0.29 m dropped (no push measured it)",
        "ensemble_size": 30
       },
       "next_experiment": {
@@ -3969,23 +3950,8 @@
          "useful": true
         },
         {
-         "command": 2.2,
-         "predicted_stop_m": 0.402,
-         "useful": true
-        },
-        {
-         "command": 2.4,
-         "predicted_stop_m": 0.478,
-         "useful": true
-        },
-        {
-         "command": 2.6,
-         "predicted_stop_m": 0.561,
-         "useful": true
-        },
-        {
-         "command": 2.8,
-         "predicted_stop_m": 0.651,
+         "command": 2.5,
+         "predicted_stop_m": 0.519,
          "useful": true
         },
         {
@@ -4348,32 +4314,34 @@
           },
           "free": [
            "mu_eff",
-           "actuator_gain"
+           "actuator_gain",
+           "patch_y0",
+           "patch_mu"
           ]
          },
          "result": {
           "fitted_model": {
-           "mu_eff": 0.6038,
-           "actuator_gain": 0.9917,
-           "patch_y0": null,
-           "patch_mu": null,
+           "mu_eff": 0.6079,
+           "actuator_gain": 0.9921,
+           "patch_y0": 0.15,
+           "patch_mu": 0.5966,
            "camera_dx": 0.0,
            "camera_pitch_deg": 0.0,
            "lens_k": 0.0
           },
-          "stop_residual_rms_m": 0.0025,
+          "stop_residual_rms_m": 0.0024,
           "worst_stop_residuals_cmd_m": [
-           [
-            1.85,
-            -0.005
-           ],
            [
             1.6,
             0.004
            ],
            [
-            1.5,
-            0.003
+            1.85,
+            -0.004
+           ],
+           [
+            1.2,
+            -0.002
            ]
           ],
           "launch_speed_residual_rms_mps": 0.0524,
@@ -4386,23 +4354,17 @@
          "args": {
           "commands": [
            2,
-           2.2,
-           2.4,
-           2.6,
-           2.8,
+           2.5,
            3
           ]
          },
          "result": {
           "queued_for_human": [
            2.0,
-           2.2,
-           2.4,
-           2.6,
-           2.8,
+           2.5,
            3.0
           ],
-          "probe_budget_left": 0,
+          "probe_budget_left": 3,
           "note": "offline session: these pushes are recommended to the user; no new data arrives now. Commit the best model for the existing data."
          }
         },
@@ -4410,39 +4372,38 @@
          "tool": "commit",
          "args": {
           "model": {
-           "mu_eff": 0.6038,
-           "actuator_gain": 0.9917,
-           "patch_y0": null,
-           "patch_mu": null,
+           "mu_eff": 0.6079,
+           "actuator_gain": 0.9921,
+           "patch_y0": 0.15,
+           "patch_mu": 0.5966,
            "camera_dx": 0,
            "camera_pitch_deg": 0,
            "lens_k": 0
           },
-          "explanation": "Fitted uniform friction and actuator gain to recorded stops; residuals <1\u202fcm. No evidence for friction patch, camera offset, pitch, or lens distortion."
+          "explanation": "Fitted uniform friction mu_eff\u22480.608, actuator gain\u22480.992, and a friction patch starting at 0.15\u202fm with slightly lower friction (mu\u22480.597). This yields stop residuals <1\u202fcm across tested commands."
          }
         }
        ],
        "requested_commands": [
         2.0,
-        2.2,
-        2.4,
-        2.6,
-        2.8,
+        2.5,
         3.0
        ],
-       "explanation": "Fitted uniform friction and actuator gain to recorded stops; residuals <1\u202fcm. No evidence for friction patch, camera offset, pitch, or lens distortion.",
+       "explanation": "Fitted uniform friction mu_eff\u22480.608, actuator gain\u22480.992, and a friction patch starting at 0.15\u202fm with slightly lower friction (mu\u22480.597). This yields stop residuals <1\u202fcm across tested commands.",
        "committed": {
-        "mu_eff": 0.6038,
-        "actuator_gain": 0.9917,
-        "patch_y0": null,
-        "patch_mu": null,
+        "mu_eff": 0.6079,
+        "actuator_gain": 0.9921,
+        "patch_y0": 0.15,
+        "patch_mu": 0.5966,
         "camera_dx": 0,
         "camera_pitch_deg": 0,
         "lens_k": 0
        },
        "structure": [
         "mu_eff",
-        "actuator_gain"
+        "actuator_gain",
+        "patch_y0",
+        "patch_mu"
        ],
        "cross_check": {
         "agent_misfit": 0.66,
@@ -4455,11 +4416,11 @@
         "adopted": "agent"
        }
       },
-      "seconds": 11.74,
+      "seconds": 10.97,
       "exports": {
        "newton": "# GapCloser calibration for 'Robot log: short pushes only' (8 pushes, 2026-10-09)\n# NVIDIA Newton: XPBD averages the two materials' mu, so set both to the measured pair value.\nimport newton\n\nMU_EFF = 0.6038  # 90% interval 0.5895 - 0.6366 (bootstrap over pushes)\nobject_cfg = newton.ModelBuilder.ShapeConfig(mu=MU_EFF)\ntable_cfg = newton.ModelBuilder.ShapeConfig(mu=MU_EFF)\n# builder.add_shape_box(body, hx=..., hy=..., hz=..., cfg=object_cfg)\n# builder.add_ground_plane(cfg=table_cfg)\n\nACTUATOR_GAIN = 0.9916  # real launch speed / commanded (0.9786 - 1.0185); scale commanded velocities\n",
        "isaaclab": "\"\"\"GapCloser calibrated domain randomization for 'Robot log: short pushes only' (2026-10-09).\nRanges are 90% bootstrap intervals of the measured values, not hand-picked bounds: train on what the real\ntable can plausibly be, nothing wider. PhysX \"average\" friction combine (the default) matches the measurement.\"\"\"\nfrom isaaclab.envs import mdp\nfrom isaaclab.managers import EventTermCfg as EventTerm\nfrom isaaclab.managers import SceneEntityCfg\nfrom isaaclab.utils import configclass\n\n\n@configclass\nclass CalibratedEventCfg:\n    # sliding friction of the object-table pair; static friction is not observed by a sliding test\n    object_material = EventTerm(\n        func=mdp.randomize_rigid_body_material,\n        mode=\"startup\",\n        params={\n            \"asset_cfg\": SceneEntityCfg(\"object\"),\n            \"static_friction_range\": (0.5895, 0.6366),\n            \"dynamic_friction_range\": (0.5895, 0.6366),\n            \"restitution_range\": (0.0, 0.0),\n            \"num_buckets\": 64,\n            \"make_consistent\": True,\n        },\n    )\n\n# Actuator: real launch speed is 0.992x the command (0.979-1.018).\n# Apply it as the action scale of the push primitive (e.g. JointVelocityActionCfg(scale=...)),\n# or randomize the scale over that interval in your action term.\n",
-       "markdown": "# Sim2Real calibration: Robot log: short pushes only\n\n8 pushes (log), structure chosen by Nemotron agent (nvidia/nemotron-3-super-120b-a12b). Stop residual 0.2 cm rms.\n\n## What differs from your simulator\n\n| Parameter | Sim | Real (measured) | 90% interval | |\n|---|---|---|---|---|\n| Cube-table friction | 0.800 | 0.604 | 0.590 \u2013 0.637 | changed |\n| Actuator gain | 1.000x | 0.992x | 0.979x \u2013 1.018x | within noise |\n\n## Predicted effect (model rollouts, not measured)\n\nSuccess within 3 cm over targets 0.2\u20130.6 m, for a policy trained in each simulator:\n\n- current sim: **0%** (90%: 0\u20130%)\n- calibrated sim: **100%** (90%: 45\u2013100%)\n- your pushes reach 0.29 m; beyond that the prediction includes \u00b130% friction what-ifs\n\n## Next experiment\n\n- push so it stops near **0.63 m** (command 2.75): models disagree by \u00b15.7 cm here; your pushes stop by 0.29 m, so the table beyond is unmeasured\n- push so it stops near **0.54 m** (command 2.55): models disagree by \u00b14.2 cm here; your pushes stop by 0.29 m, so the table beyond is unmeasured\n- push so it stops near **0.46 m** (command 2.36): models disagree by \u00b12.8 cm here; your pushes stop by 0.29 m, so the table beyond is unmeasured\n\n## Agent's explanation\n\n> Fitted uniform friction and actuator gain to recorded stops; residuals <1\u202fcm. No evidence for friction patch, camera offset, pitch, or lens distortion.\n\nGenerated by GapCloser Studio (NVIDIA Newton physics, Nemotron agent). Intervals: bootstrap over pushes.\n"
+       "markdown": "# Sim2Real calibration: Robot log: short pushes only\n\n8 pushes (log), structure chosen by Nemotron agent (nvidia/nemotron-3-super-120b-a12b); friction region past 0.29 m dropped (no push measured it). Stop residual 0.2 cm rms.\n\n## What differs from your simulator\n\n| Parameter | Sim | Real (measured) | 90% interval | |\n|---|---|---|---|---|\n| Cube-table friction | 0.800 | 0.604 | 0.590 \u2013 0.637 | changed |\n| Actuator gain | 1.000x | 0.992x | 0.979x \u2013 1.018x | within noise |\n\n## Predicted effect (model rollouts, not measured)\n\nSuccess within 3 cm over targets 0.2\u20130.6 m, for a policy trained in each simulator:\n\n- current sim: **0%** (90%: 0\u20130%)\n- calibrated sim: **45\u2013100%**, depending on the unmeasured table\n- your pushes reach 0.29 m; beyond that the prediction includes \u00b130% friction what-ifs\n\n## Next experiment\n\n- push so it stops near **0.63 m** (command 2.75): models disagree by \u00b15.7 cm here; your pushes stop by 0.29 m, so the table beyond is unmeasured\n- push so it stops near **0.54 m** (command 2.55): models disagree by \u00b14.2 cm here; your pushes stop by 0.29 m, so the table beyond is unmeasured\n- push so it stops near **0.46 m** (command 2.36): models disagree by \u00b12.8 cm here; your pushes stop by 0.29 m, so the table beyond is unmeasured\n\n## Agent's explanation\n\n> Fitted uniform friction mu_eff\u22480.608, actuator gain\u22480.992, and a friction patch starting at 0.15\u202fm with slightly lower friction (mu\u22480.597). This yields stop residuals <1\u202fcm across tested commands.\n\nGenerated by GapCloser Studio (NVIDIA Newton physics, Nemotron agent). Intervals: bootstrap over pushes.\n"
       },
       "report_json": {
        "schema": "gapcloser.calibration/v1",
@@ -5425,7 +5386,7 @@
          },
          "perception": []
         },
-        "chosen_by": "Nemotron agent (nvidia/nemotron-3-super-120b-a12b)",
+        "chosen_by": "Nemotron agent (nvidia/nemotron-3-super-120b-a12b); friction region past 0.29 m dropped (no push measured it)",
         "ensemble_size": 30
        },
        "next_experiment": {
@@ -5471,23 +5432,8 @@
           "useful": true
          },
          {
-          "command": 2.2,
-          "predicted_stop_m": 0.402,
-          "useful": true
-         },
-         {
-          "command": 2.4,
-          "predicted_stop_m": 0.478,
-          "useful": true
-         },
-         {
-          "command": 2.6,
-          "predicted_stop_m": 0.561,
-          "useful": true
-         },
-         {
-          "command": 2.8,
-          "predicted_stop_m": 0.651,
+          "command": 2.5,
+          "predicted_stop_m": 0.519,
           "useful": true
          },
          {
@@ -5850,32 +5796,34 @@
            },
            "free": [
             "mu_eff",
-            "actuator_gain"
+            "actuator_gain",
+            "patch_y0",
+            "patch_mu"
            ]
           },
           "result": {
            "fitted_model": {
-            "mu_eff": 0.6038,
-            "actuator_gain": 0.9917,
-            "patch_y0": null,
-            "patch_mu": null,
+            "mu_eff": 0.6079,
+            "actuator_gain": 0.9921,
+            "patch_y0": 0.15,
+            "patch_mu": 0.5966,
             "camera_dx": 0.0,
             "camera_pitch_deg": 0.0,
             "lens_k": 0.0
            },
-           "stop_residual_rms_m": 0.0025,
+           "stop_residual_rms_m": 0.0024,
            "worst_stop_residuals_cmd_m": [
-            [
-             1.85,
-             -0.005
-            ],
             [
              1.6,
              0.004
             ],
             [
-             1.5,
-             0.003
+             1.85,
+             -0.004
+            ],
+            [
+             1.2,
+             -0.002
             ]
            ],
            "launch_speed_residual_rms_mps": 0.0524,
@@ -5888,23 +5836,17 @@
           "args": {
            "commands": [
             2,
-            2.2,
-            2.4,
-            2.6,
-            2.8,
+            2.5,
             3
            ]
           },
           "result": {
            "queued_for_human": [
             2.0,
-            2.2,
-            2.4,
-            2.6,
-            2.8,
+            2.5,
             3.0
            ],
-           "probe_budget_left": 0,
+           "probe_budget_left": 3,
            "note": "offline session: these pushes are recommended to the user; no new data arrives now. Commit the best model for the existing data."
           }
          },
@@ -5912,39 +5854,38 @@
           "tool": "commit",
           "args": {
            "model": {
-            "mu_eff": 0.6038,
-            "actuator_gain": 0.9917,
-            "patch_y0": null,
-            "patch_mu": null,
+            "mu_eff": 0.6079,
+            "actuator_gain": 0.9921,
+            "patch_y0": 0.15,
+            "patch_mu": 0.5966,
             "camera_dx": 0,
             "camera_pitch_deg": 0,
             "lens_k": 0
            },
-           "explanation": "Fitted uniform friction and actuator gain to recorded stops; residuals <1\u202fcm. No evidence for friction patch, camera offset, pitch, or lens distortion."
+           "explanation": "Fitted uniform friction mu_eff\u22480.608, actuator gain\u22480.992, and a friction patch starting at 0.15\u202fm with slightly lower friction (mu\u22480.597). This yields stop residuals <1\u202fcm across tested commands."
           }
          }
         ],
         "requested_commands": [
          2.0,
-         2.2,
-         2.4,
-         2.6,
-         2.8,
+         2.5,
          3.0
         ],
-        "explanation": "Fitted uniform friction and actuator gain to recorded stops; residuals <1\u202fcm. No evidence for friction patch, camera offset, pitch, or lens distortion.",
+        "explanation": "Fitted uniform friction mu_eff\u22480.608, actuator gain\u22480.992, and a friction patch starting at 0.15\u202fm with slightly lower friction (mu\u22480.597). This yields stop residuals <1\u202fcm across tested commands.",
         "committed": {
-         "mu_eff": 0.6038,
-         "actuator_gain": 0.9917,
-         "patch_y0": null,
-         "patch_mu": null,
+         "mu_eff": 0.6079,
+         "actuator_gain": 0.9921,
+         "patch_y0": 0.15,
+         "patch_mu": 0.5966,
          "camera_dx": 0,
          "camera_pitch_deg": 0,
          "lens_k": 0
         },
         "structure": [
          "mu_eff",
-         "actuator_gain"
+         "actuator_gain",
+         "patch_y0",
+         "patch_mu"
         ],
         "cross_check": {
          "agent_misfit": 0.66,
@@ -7646,7 +7587,7 @@
       },
       "perception": []
      },
-     "chosen_by": "Nemotron agent (nvidia/nemotron-3-super-120b-a12b)",
+     "chosen_by": "Nemotron agent (nvidia/nemotron-3-super-120b-a12b); friction region past 0.29 m dropped (no push measured it)",
      "ensemble_size": 30
     },
     "next_experiment": {
@@ -7692,23 +7633,8 @@
        "useful": true
       },
       {
-       "command": 2.2,
-       "predicted_stop_m": 0.402,
-       "useful": true
-      },
-      {
-       "command": 2.4,
-       "predicted_stop_m": 0.478,
-       "useful": true
-      },
-      {
-       "command": 2.6,
-       "predicted_stop_m": 0.561,
-       "useful": true
-      },
-      {
-       "command": 2.8,
-       "predicted_stop_m": 0.651,
+       "command": 2.5,
+       "predicted_stop_m": 0.519,
        "useful": true
       },
       {
@@ -8071,32 +7997,34 @@
         },
         "free": [
          "mu_eff",
-         "actuator_gain"
+         "actuator_gain",
+         "patch_y0",
+         "patch_mu"
         ]
        },
        "result": {
         "fitted_model": {
-         "mu_eff": 0.6038,
-         "actuator_gain": 0.9917,
-         "patch_y0": null,
-         "patch_mu": null,
+         "mu_eff": 0.6079,
+         "actuator_gain": 0.9921,
+         "patch_y0": 0.15,
+         "patch_mu": 0.5966,
          "camera_dx": 0.0,
          "camera_pitch_deg": 0.0,
          "lens_k": 0.0
         },
-        "stop_residual_rms_m": 0.0025,
+        "stop_residual_rms_m": 0.0024,
         "worst_stop_residuals_cmd_m": [
-         [
-          1.85,
-          -0.005
-         ],
          [
           1.6,
           0.004
          ],
          [
-          1.5,
-          0.003
+          1.85,
+          -0.004
+         ],
+         [
+          1.2,
+          -0.002
          ]
         ],
         "launch_speed_residual_rms_mps": 0.0524,
@@ -8109,23 +8037,17 @@
        "args": {
         "commands": [
          2,
-         2.2,
-         2.4,
-         2.6,
-         2.8,
+         2.5,
          3
         ]
        },
        "result": {
         "queued_for_human": [
          2.0,
-         2.2,
-         2.4,
-         2.6,
-         2.8,
+         2.5,
          3.0
         ],
-        "probe_budget_left": 0,
+        "probe_budget_left": 3,
         "note": "offline session: these pushes are recommended to the user; no new data arrives now. Commit the best model for the existing data."
        }
       },
@@ -8133,39 +8055,38 @@
        "tool": "commit",
        "args": {
         "model": {
-         "mu_eff": 0.6038,
-         "actuator_gain": 0.9917,
-         "patch_y0": null,
-         "patch_mu": null,
+         "mu_eff": 0.6079,
+         "actuator_gain": 0.9921,
+         "patch_y0": 0.15,
+         "patch_mu": 0.5966,
          "camera_dx": 0,
          "camera_pitch_deg": 0,
          "lens_k": 0
         },
-        "explanation": "Fitted uniform friction and actuator gain to recorded stops; residuals <1\u202fcm. No evidence for friction patch, camera offset, pitch, or lens distortion."
+        "explanation": "Fitted uniform friction mu_eff\u22480.608, actuator gain\u22480.992, and a friction patch starting at 0.15\u202fm with slightly lower friction (mu\u22480.597). This yields stop residuals <1\u202fcm across tested commands."
        }
       }
      ],
      "requested_commands": [
       2.0,
-      2.2,
-      2.4,
-      2.6,
-      2.8,
+      2.5,
       3.0
      ],
-     "explanation": "Fitted uniform friction and actuator gain to recorded stops; residuals <1\u202fcm. No evidence for friction patch, camera offset, pitch, or lens distortion.",
+     "explanation": "Fitted uniform friction mu_eff\u22480.608, actuator gain\u22480.992, and a friction patch starting at 0.15\u202fm with slightly lower friction (mu\u22480.597). This yields stop residuals <1\u202fcm across tested commands.",
      "committed": {
-      "mu_eff": 0.6038,
-      "actuator_gain": 0.9917,
-      "patch_y0": null,
-      "patch_mu": null,
+      "mu_eff": 0.6079,
+      "actuator_gain": 0.9921,
+      "patch_y0": 0.15,
+      "patch_mu": 0.5966,
       "camera_dx": 0,
       "camera_pitch_deg": 0,
       "lens_k": 0
      },
      "structure": [
       "mu_eff",
-      "actuator_gain"
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
      ],
      "cross_check": {
       "agent_misfit": 0.66,
@@ -8178,11 +8099,11 @@
       "adopted": "agent"
      }
     },
-    "seconds": 11.74,
+    "seconds": 10.97,
     "exports": {
      "newton": "# GapCloser calibration for 'Robot log: short pushes only' (8 pushes, 2026-10-09)\n# NVIDIA Newton: XPBD averages the two materials' mu, so set both to the measured pair value.\nimport newton\n\nMU_EFF = 0.6038  # 90% interval 0.5895 - 0.6366 (bootstrap over pushes)\nobject_cfg = newton.ModelBuilder.ShapeConfig(mu=MU_EFF)\ntable_cfg = newton.ModelBuilder.ShapeConfig(mu=MU_EFF)\n# builder.add_shape_box(body, hx=..., hy=..., hz=..., cfg=object_cfg)\n# builder.add_ground_plane(cfg=table_cfg)\n\nACTUATOR_GAIN = 0.9916  # real launch speed / commanded (0.9786 - 1.0185); scale commanded velocities\n",
      "isaaclab": "\"\"\"GapCloser calibrated domain randomization for 'Robot log: short pushes only' (2026-10-09).\nRanges are 90% bootstrap intervals of the measured values, not hand-picked bounds: train on what the real\ntable can plausibly be, nothing wider. PhysX \"average\" friction combine (the default) matches the measurement.\"\"\"\nfrom isaaclab.envs import mdp\nfrom isaaclab.managers import EventTermCfg as EventTerm\nfrom isaaclab.managers import SceneEntityCfg\nfrom isaaclab.utils import configclass\n\n\n@configclass\nclass CalibratedEventCfg:\n    # sliding friction of the object-table pair; static friction is not observed by a sliding test\n    object_material = EventTerm(\n        func=mdp.randomize_rigid_body_material,\n        mode=\"startup\",\n        params={\n            \"asset_cfg\": SceneEntityCfg(\"object\"),\n            \"static_friction_range\": (0.5895, 0.6366),\n            \"dynamic_friction_range\": (0.5895, 0.6366),\n            \"restitution_range\": (0.0, 0.0),\n            \"num_buckets\": 64,\n            \"make_consistent\": True,\n        },\n    )\n\n# Actuator: real launch speed is 0.992x the command (0.979-1.018).\n# Apply it as the action scale of the push primitive (e.g. JointVelocityActionCfg(scale=...)),\n# or randomize the scale over that interval in your action term.\n",
-     "markdown": "# Sim2Real calibration: Robot log: short pushes only\n\n8 pushes (log), structure chosen by Nemotron agent (nvidia/nemotron-3-super-120b-a12b). Stop residual 0.2 cm rms.\n\n## What differs from your simulator\n\n| Parameter | Sim | Real (measured) | 90% interval | |\n|---|---|---|---|---|\n| Cube-table friction | 0.800 | 0.604 | 0.590 \u2013 0.637 | changed |\n| Actuator gain | 1.000x | 0.992x | 0.979x \u2013 1.018x | within noise |\n\n## Predicted effect (model rollouts, not measured)\n\nSuccess within 3 cm over targets 0.2\u20130.6 m, for a policy trained in each simulator:\n\n- current sim: **0%** (90%: 0\u20130%)\n- calibrated sim: **100%** (90%: 45\u2013100%)\n- your pushes reach 0.29 m; beyond that the prediction includes \u00b130% friction what-ifs\n\n## Next experiment\n\n- push so it stops near **0.63 m** (command 2.75): models disagree by \u00b15.7 cm here; your pushes stop by 0.29 m, so the table beyond is unmeasured\n- push so it stops near **0.54 m** (command 2.55): models disagree by \u00b14.2 cm here; your pushes stop by 0.29 m, so the table beyond is unmeasured\n- push so it stops near **0.46 m** (command 2.36): models disagree by \u00b12.8 cm here; your pushes stop by 0.29 m, so the table beyond is unmeasured\n\n## Agent's explanation\n\n> Fitted uniform friction and actuator gain to recorded stops; residuals <1\u202fcm. No evidence for friction patch, camera offset, pitch, or lens distortion.\n\nGenerated by GapCloser Studio (NVIDIA Newton physics, Nemotron agent). Intervals: bootstrap over pushes.\n"
+     "markdown": "# Sim2Real calibration: Robot log: short pushes only\n\n8 pushes (log), structure chosen by Nemotron agent (nvidia/nemotron-3-super-120b-a12b); friction region past 0.29 m dropped (no push measured it). Stop residual 0.2 cm rms.\n\n## What differs from your simulator\n\n| Parameter | Sim | Real (measured) | 90% interval | |\n|---|---|---|---|---|\n| Cube-table friction | 0.800 | 0.604 | 0.590 \u2013 0.637 | changed |\n| Actuator gain | 1.000x | 0.992x | 0.979x \u2013 1.018x | within noise |\n\n## Predicted effect (model rollouts, not measured)\n\nSuccess within 3 cm over targets 0.2\u20130.6 m, for a policy trained in each simulator:\n\n- current sim: **0%** (90%: 0\u20130%)\n- calibrated sim: **45\u2013100%**, depending on the unmeasured table\n- your pushes reach 0.29 m; beyond that the prediction includes \u00b130% friction what-ifs\n\n## Next experiment\n\n- push so it stops near **0.63 m** (command 2.75): models disagree by \u00b15.7 cm here; your pushes stop by 0.29 m, so the table beyond is unmeasured\n- push so it stops near **0.54 m** (command 2.55): models disagree by \u00b14.2 cm here; your pushes stop by 0.29 m, so the table beyond is unmeasured\n- push so it stops near **0.46 m** (command 2.36): models disagree by \u00b12.8 cm here; your pushes stop by 0.29 m, so the table beyond is unmeasured\n\n## Agent's explanation\n\n> Fitted uniform friction mu_eff\u22480.608, actuator gain\u22480.992, and a friction patch starting at 0.15\u202fm with slightly lower friction (mu\u22480.597). This yields stop residuals <1\u202fcm across tested commands.\n\nGenerated by GapCloser Studio (NVIDIA Newton physics, Nemotron agent). Intervals: bootstrap over pushes.\n"
     },
     "report_json": {
      "schema": "gapcloser.calibration/v1",
@@ -9148,7 +9069,7 @@
        },
        "perception": []
       },
-      "chosen_by": "Nemotron agent (nvidia/nemotron-3-super-120b-a12b)",
+      "chosen_by": "Nemotron agent (nvidia/nemotron-3-super-120b-a12b); friction region past 0.29 m dropped (no push measured it)",
       "ensemble_size": 30
      },
      "next_experiment": {
@@ -9194,23 +9115,8 @@
         "useful": true
        },
        {
-        "command": 2.2,
-        "predicted_stop_m": 0.402,
-        "useful": true
-       },
-       {
-        "command": 2.4,
-        "predicted_stop_m": 0.478,
-        "useful": true
-       },
-       {
-        "command": 2.6,
-        "predicted_stop_m": 0.561,
-        "useful": true
-       },
-       {
-        "command": 2.8,
-        "predicted_stop_m": 0.651,
+        "command": 2.5,
+        "predicted_stop_m": 0.519,
         "useful": true
        },
        {
@@ -9573,32 +9479,34 @@
          },
          "free": [
           "mu_eff",
-          "actuator_gain"
+          "actuator_gain",
+          "patch_y0",
+          "patch_mu"
          ]
         },
         "result": {
          "fitted_model": {
-          "mu_eff": 0.6038,
-          "actuator_gain": 0.9917,
-          "patch_y0": null,
-          "patch_mu": null,
+          "mu_eff": 0.6079,
+          "actuator_gain": 0.9921,
+          "patch_y0": 0.15,
+          "patch_mu": 0.5966,
           "camera_dx": 0.0,
           "camera_pitch_deg": 0.0,
           "lens_k": 0.0
          },
-         "stop_residual_rms_m": 0.0025,
+         "stop_residual_rms_m": 0.0024,
          "worst_stop_residuals_cmd_m": [
-          [
-           1.85,
-           -0.005
-          ],
           [
            1.6,
            0.004
           ],
           [
-           1.5,
-           0.003
+           1.85,
+           -0.004
+          ],
+          [
+           1.2,
+           -0.002
           ]
          ],
          "launch_speed_residual_rms_mps": 0.0524,
@@ -9611,23 +9519,17 @@
         "args": {
          "commands": [
           2,
-          2.2,
-          2.4,
-          2.6,
-          2.8,
+          2.5,
           3
          ]
         },
         "result": {
          "queued_for_human": [
           2.0,
-          2.2,
-          2.4,
-          2.6,
-          2.8,
+          2.5,
           3.0
          ],
-         "probe_budget_left": 0,
+         "probe_budget_left": 3,
          "note": "offline session: these pushes are recommended to the user; no new data arrives now. Commit the best model for the existing data."
         }
        },
@@ -9635,39 +9537,38 @@
         "tool": "commit",
         "args": {
          "model": {
-          "mu_eff": 0.6038,
-          "actuator_gain": 0.9917,
-          "patch_y0": null,
-          "patch_mu": null,
+          "mu_eff": 0.6079,
+          "actuator_gain": 0.9921,
+          "patch_y0": 0.15,
+          "patch_mu": 0.5966,
           "camera_dx": 0,
           "camera_pitch_deg": 0,
           "lens_k": 0
          },
-         "explanation": "Fitted uniform friction and actuator gain to recorded stops; residuals <1\u202fcm. No evidence for friction patch, camera offset, pitch, or lens distortion."
+         "explanation": "Fitted uniform friction mu_eff\u22480.608, actuator gain\u22480.992, and a friction patch starting at 0.15\u202fm with slightly lower friction (mu\u22480.597). This yields stop residuals <1\u202fcm across tested commands."
         }
        }
       ],
       "requested_commands": [
        2.0,
-       2.2,
-       2.4,
-       2.6,
-       2.8,
+       2.5,
        3.0
       ],
-      "explanation": "Fitted uniform friction and actuator gain to recorded stops; residuals <1\u202fcm. No evidence for friction patch, camera offset, pitch, or lens distortion.",
+      "explanation": "Fitted uniform friction mu_eff\u22480.608, actuator gain\u22480.992, and a friction patch starting at 0.15\u202fm with slightly lower friction (mu\u22480.597). This yields stop residuals <1\u202fcm across tested commands.",
       "committed": {
-       "mu_eff": 0.6038,
-       "actuator_gain": 0.9917,
-       "patch_y0": null,
-       "patch_mu": null,
+       "mu_eff": 0.6079,
+       "actuator_gain": 0.9921,
+       "patch_y0": 0.15,
+       "patch_mu": 0.5966,
        "camera_dx": 0,
        "camera_pitch_deg": 0,
        "lens_k": 0
       },
       "structure": [
        "mu_eff",
-       "actuator_gain"
+       "actuator_gain",
+       "patch_y0",
+       "patch_mu"
       ],
       "cross_check": {
        "agent_misfit": 0.66,
@@ -9693,11 +9594,11 @@
   }
  },
  "usage": {
-  "calls": 20,
-  "prompt_tokens": 59155,
-  "completion_tokens": 4293,
+  "calls": 4,
+  "prompt_tokens": 10418,
+  "completion_tokens": 843,
   "by_model": {
-   "nvidia/nemotron-3-super-120b-a12b": 20
+   "nvidia/nemotron-3-super-120b-a12b": 4
   }
  }
 }

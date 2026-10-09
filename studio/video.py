@@ -230,6 +230,34 @@ def track(frames: list[np.ndarray], obj_px: tuple[float, float], box_px: int) ->
                 best = (mv, np.array([sx0 + ml[0] + off0[0] * scales[i], sy0 + ml[1] + off0[1] * scales[i]]), i)
         return best
 
+    # colour model: object = centre of the first-frame patch, table = its border. When they differ enough, each NCC
+    # hit is refined to the centroid of object-coloured pixels: under motion blur a template match jumps between the
+    # two ghost images, while the colour centroid moves smoothly (it averages over the exposure)
+    hh, ww = tmpl0.shape[:2]
+    core = tmpl0[hh // 4: 3 * hh // 4, ww // 4: 3 * ww // 4].reshape(-1, 3).astype(np.float32)
+    ring = np.concatenate([tmpl0[:2].reshape(-1, 3), tmpl0[-2:].reshape(-1, 3), tmpl0[:, :2].reshape(-1, 3),
+                           tmpl0[:, -2:].reshape(-1, 3)]).astype(np.float32)
+    obj_c, bg_c = np.median(core, axis=0), np.median(ring, axis=0)
+    sep = float(np.linalg.norm(obj_c - bg_c))
+    color = obj_c if sep > 45 else None
+    area0 = float(((np.linalg.norm(tmpl0.astype(np.float32) - obj_c, axis=2)) < sep / 2).sum()) or 1.0
+
+    def refine(fr, c, sc):
+        rad = int(max(hh, ww) * sc)
+        x0_, y0_ = int(max(0, c[0] - rad)), int(max(0, c[1] - rad))
+        roi = fr[y0_:int(min(h_img, c[1] + rad)), x0_:int(min(w_img, c[0] + rad))].astype(np.float32)
+        if roi.size == 0:
+            return c
+        m = (np.linalg.norm(roi - color, axis=2) < sep / 2).astype(np.uint8)
+        n, lab, st, ce = cv2.connectedComponentsWithStats(m)
+        if n <= 1:
+            return c
+        j = 1 + int(np.argmax(st[1:, cv2.CC_STAT_AREA]))
+        a = st[j, cv2.CC_STAT_AREA] / (area0 * sc * sc)
+        if not 0.3 < a < 3.0:
+            return c
+        return np.array([x0_ + ce[j][0], y0_ + ce[j][1]])
+
     for k, fr in enumerate(frames):
         gray = fr
         box = (int(max(0, prev[0] - win)), int(max(0, prev[1] - win)), int(min(w_img, prev[0] + win)), int(min(h_img, prev[1] + win)))
@@ -240,6 +268,8 @@ def track(frames: list[np.ndarray], obj_px: tuple[float, float], box_px: int) ->
                 mv, c, i = g
         if c is None:
             c = prev
+        if color is not None and mv > 0.45:
+            c = refine(fr, c, scales[i])
         out[k], score[k] = c, mv
         prev, si = c, i
     return out, score
@@ -250,6 +280,21 @@ def _smooth(x: np.ndarray, k: int = 3) -> np.ndarray:
         return x
     pad = np.pad(x, (k // 2, k // 2), mode="edge")
     return np.convolve(pad, np.ones(k) / k, mode="valid")
+
+
+def launch_state(s: np.ndarray, r: int, e: int, fps: float, n: int = 6) -> tuple[float, float]:
+    """Position and speed at release (frame r) from a constant-deceleration fit to the next n frames.
+    Using several frames instead of the release frame itself keeps the launch consistent under motion blur
+    and a release detected a frame late: whatever instant is called "release", position and speed refer to it."""
+    ks = [k for k in range(r + 1, min(e, r + n) + 1)]
+    if len(ks) < 3:
+        return float(s[r]), float((s[min(r + 1, len(s) - 1)] - s[r]) * fps)
+    t = np.array([(k - r) / fps for k in ks])
+    A = np.stack([np.ones_like(t), t, -0.5 * t * t], axis=1)
+    c, *_ = np.linalg.lstsq(A, np.asarray([s[k] for k in ks]), rcond=None)
+    if c[2] < 0:  # accelerating fit (noise): fall back to a line
+        c = np.append(np.linalg.lstsq(A[:, :2], np.asarray([s[k] for k in ks]), rcond=None)[0], 0.0)
+    return float(c[0]), float(c[1])
 
 
 def segment(s: np.ndarray, fps: float) -> list[tuple[int, int]]:
@@ -322,12 +367,11 @@ def track_video(path: Path, corners_px, sheet: str = "a4", name: str | None = No
         if not good[r:e + 1].mean() > 0.8:
             continue
         rest = float(np.median(s_abs[e:min(len(s_abs), e + 5)]))
-        tr_native = list(s_abs[r:e + 1] - s_abs[r]) + [rest - s_abs[r]] * 3
-        tr = resample([float(x) for x in tr_native], fps)
-        fit = fit_launch(tr)
-        v0 = fit[0] if fit and fit[0] > 0 else (tr[1] - tr[0]) / FRAME_DT
-        start = float(s_abs[r] - origin)
-        stop = rest - float(s_abs[r])
+        s0, v0 = launch_state(s_abs, r, e, fps)
+        tr_native = [s0] + list(s_abs[r + 1:e + 1]) + [rest] * 3
+        tr = resample([float(x - s0) for x in tr_native], fps)
+        start = float(s0 - origin)
+        stop = rest - float(s0)
         pushes.append(Push(round(stop, 4), None, round(float(v0), 4), None, None, False, [round(x, 4) for x in tr], "video",
                            round(start, 4)))
         debug_pushes.append({"push": i, "release_frame": r, "rest_frame": e, "start_m": round(start, 4), "stop_m": round(stop, 4),

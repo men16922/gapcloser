@@ -279,6 +279,7 @@ pre.code .s { color: #e3b867; }
             <li>Lay a sheet of A4 or Letter paper flat on the table, beside the path.</li>
             <li>Hold the phone still (or prop it up) so the sheet and the whole path are in view.</li>
             <li>Flick the object 6–10 times from the same spot, short and long. Let it stop each time.</li>
+            <li>Use slow motion (120 fps) or 60 fps if your phone has it: motion blur at 30 fps makes launch speeds read low.</li>
           </ol>
           <div class="pick row">
             <label class="btn primary" id="pick-label" tabindex="0">Choose a video or log<input type="file" id="file" accept="video/*,.csv,.json" hidden></label>
@@ -980,7 +981,9 @@ function renderExport() {
   const t = XTABS.find(x => x.id === state.exportTab), text = exportText(t.id);
   $("#x-code").innerHTML = highlight(text, t.id);
   $("#x-note").textContent = { newton: "Material values for newton.ModelBuilder.ShapeConfig, plus the measured friction region.", isaaclab: "An EventTermCfg that randomizes the object's material over the measured interval at startup.", markdown: "A one-page report to share.", json: "Everything above, machine-readable (gapcloser.calibration/v1)." }[t.id];
-  $("#x-copy").onclick = async () => { try { await navigator.clipboard.writeText(text); toast("Copied"); } catch (_) { toast("Copy is blocked here: use Download"); } };
+  $("#x-dl").hidden = !LIVE;  // a shared page cannot start downloads; Copy works everywhere
+  $("#x-copy").onclick = async () => { try { await navigator.clipboard.writeText(text); toast("Copied"); }
+    catch (_) { const r = document.createRange(); r.selectNodeContents($("#x-code")); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); toast("Selected: press Ctrl/Cmd+C"); } };
   $("#x-dl").onclick = () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type: "text/plain" })); a.download = t.file; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); toast("Downloaded " + t.file); };
 }
 

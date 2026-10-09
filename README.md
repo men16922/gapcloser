@@ -49,6 +49,11 @@ from the API with Nemotron 3 Super on Token Factory:
 | Robot log, lab bench (20 pushes) | friction 0.699, gain 0.872, region 0.372 m / μ 0.445, camera pitch 2.0° | 0.70, 0.88, 0.38 m / 0.45, 2.0° |
 | Robot log, short pushes only (reach 0.29 m) | friction 0.60, gain 0.99. It does **not** invent a region it never measured; it asks for pushes to 0.45–0.62 m | 0.60; region from 0.33 m |
 
+**Limits, measured.** A harsher render of the same scene adds a textured table, hand-held shake, motion blur
+and heavy compression, all at 30 fps. On it, stops stay within about 4 cm, but launch speeds read 10–15% low
+and the friction region is not pinned down. Film in slow motion or at 60 fps. A real phone video has not been
+run yet.
+
 Camera recovery from the sheet: 0.481 m height and focal length 579 px (true 0.48 m, 579 px). Tracked slides are
 within 3 mm of Newton's, launch speeds within 2%.
 
