@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>GapCloser Studio</title>
+<title>Tether Studio</title>
 <meta name="description" content="Calibrate a robot simulator from a phone video or a robot log: measured physics with intervals, the next experiment worth running, and configs for NVIDIA Newton and Isaac Lab.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-/* GapCloser Studio. Same tool language as the Console (tokens from nvidia.com CSS, docs/design/REFERENCE.md):
+/* Tether Studio. Same tool language as the Console (tokens from nvidia.com CSS, docs/design/REFERENCE.md):
    dark surfaces, square corners, green only for "calibrated / verified". The one loud element is the
    friction map painted onto the visitor's own table; it uses a slick (cool) to grippy (warm) scale. */
 :root {
@@ -36,6 +36,7 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; background: var(--bg); color: var(--fg); }
 body { font: 15px/1.5 var(--f-body); }
+:lang(ko) body { word-break: keep-all; }
 h1, h2, h3 { font-family: var(--f-display); font-weight: 600; margin: 0; letter-spacing: 0.005em; text-wrap: balance; }
 p { margin: 0; }
 a { color: var(--fg); }
@@ -50,6 +51,15 @@ button, input, select { font: inherit; color: inherit; }
 .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; padding: 14px 20px; border-bottom: 1px solid var(--line); }
 .bar h1 { font-size: 24px; }
 .bar h1 span { color: var(--muted); font-weight: 500; }
+.mark { width: 22px; height: 14px; margin-right: 8px; vertical-align: 1px; display: inline-block; }
+.crumb { font: 600 13px/1 var(--f-display); letter-spacing: 0.03em; color: var(--fg); border: 1px solid var(--line); padding: 5px 9px; background: var(--panel); }
+.crumb:empty { display: none; }
+.bar nav a[href=""] { display: none; }
+.wayout { margin-top: 28px; border-top: 1px solid var(--line); padding-top: 18px; display: grid; gap: 10px; }
+.wayout h3 { font-size: 18px; }
+.wayout .row a { text-decoration: none; }
+.fromnote { margin-top: 14px; border-left: 3px solid var(--green); background: rgba(118,185,0,0.12); padding: 10px 14px; font-size: 14px; }
+.crumb b { color: var(--green); font-weight: 600; }
 .bar nav { display: flex; gap: 18px; font: 600 14px/1 var(--f-display); letter-spacing: 0.03em; }
 .bar nav a { color: var(--muted); text-decoration: none; padding: 6px 0; border-bottom: 2px solid transparent; }
 .bar nav a[aria-current="page"] { color: var(--fg); border-bottom-color: var(--green); }
@@ -273,7 +283,7 @@ pre.code .s { color: #e3b867; }
 .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--raised); border: 1px solid var(--green); padding: 8px 14px; font-size: 13.5px; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
 .toast.on { opacity: 1; }
 
-/* Ask GapCloser */
+/* Ask Tether */
 .askfab { position: fixed; right: 20px; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); z-index: 20; background: var(--green); color: #000; border: 0; padding: 12px 18px; font: 700 15px/1 var(--f-display); letter-spacing: 0.04em; cursor: pointer; box-shadow: 0 6px 24px rgba(0,0,0,0.5); }
 .askfab:hover { background: var(--green-hi); }
 .chat { position: fixed; right: 20px; bottom: calc(76px + env(safe-area-inset-bottom, 0px)); z-index: 21; width: min(420px, calc(100vw - 32px)); max-height: min(640px, calc(100vh - 120px)); display: flex; flex-direction: column; background: var(--panel); border: 1px solid var(--line); box-shadow: 0 12px 48px rgba(0,0,0,0.6); }
@@ -317,11 +327,13 @@ pre.code .s { color: #e3b867; }
 </head>
 <body>
 <header class="bar">
-  <h1>GapCloser <span>Studio</span></h1>
-  <nav aria-label="GapCloser">
-    <a href="/" id="nav-console">Agent console</a>
+  <a href="__HOME_URL__" id="nav-home-brand" style="text-decoration:none;color:inherit"><h1><svg class="mark" viewBox="0 0 22 14" aria-hidden="true"><rect x="0" y="0" width="6" height="6" fill="#69717a"/><rect x="16" y="8" width="6" height="6" fill="#76b900"/><path d="M3 6 L19 8" stroke="#76b900" stroke-width="1.6"/></svg>Tether <span>Studio</span></h1></a>
+  <nav aria-label="Tether">
+    <a href="__HOME_URL__" id="nav-home">Overview</a>
+    <a href="/console" id="nav-console">Agent console</a>
     <a href="#" aria-current="page">Studio</a>
   </nav>
+  <span class="crumb" id="crumb" aria-live="polite"></span>
   <div class="engine" id="engine"><i></i><span>…</span></div>
   <div class="lang" role="group" aria-label="Language"><button type="button" data-lang="en">EN</button><button type="button" data-lang="ko">KO</button></div>
 </header>
@@ -335,14 +347,14 @@ pre.code .s { color: #e3b867; }
     <!-- 1 data -->
     <section class="panel" id="p-data">
       <h2>Fit your simulator to the real world</h2>
-      <p class="lede">Show GapCloser how something actually slides on your table: a phone video, or the push log your robot already writes. You get the physics that differs from your simulator, how sure that is, which pushes would settle the rest, and a config for NVIDIA Newton or Isaac Lab.</p>
+      <p class="lede">Show Tether how something actually slides on your table: a phone video, or the push log your robot already writes. You get the physics that differs from your simulator, how sure that is, which pushes would settle the rest, and a config for NVIDIA Newton or Isaac Lab.</p>
       <div class="domtabs" role="tablist" aria-label="Domain" id="domtabs"></div>
       <p class="domnote" id="domnote"></p>
       <section class="easy" id="easy" aria-label="In 30 seconds" data-ko-html="<h3>30초 설명</h3><ol><li><b>로봇은 가상 세계에서 연습합니다.</b> 진짜 탁자는 조금 달라서(더 미끄럽거나 젖은 곳이 있는 등) 실제로는 자주 빗나갑니다.</li><li><b>실제로 밀어 본 기록을 넣습니다.</b> 폰 영상이나 로봇 기록이면 됩니다. 없으면 아래에서 가상으로 만들 수 있습니다.</li><li><b>AI가 무엇이 다른지 찾아서</b> 가상 세계를 고치고, 다음에 해 볼 실험을 알려 줍니다.</li></ol>"><h3>In 30 seconds</h3><ol><li><b>Robots practise in a virtual world.</b> The real table is a bit different (slipperier, a wet patch), so for real they keep missing.</li><li><b>Give it a record of real pushes.</b> A phone video or a robot log. No data? Make a virtual table below.</li><li><b>The AI finds what is different,</b> fixes the virtual world, and tells you which push to try next.</li></ol></section>
       <section class="simlab" id="simlab" aria-labelledby="sim-h">
         <div class="simform">
           <h3 id="sim-h">No video at hand? Simulate your table</h3>
-          <p class="small muted" id="sim-lede">Set the physics of the "real" table, and NVIDIA Newton produces the measurements: a phone-style video it renders, or a robot's push log. GapCloser then has to work out your settings from the data alone; you see how close it got at the end.</p>
+          <p class="small muted" id="sim-lede">Set the physics of the "real" table, and NVIDIA Newton produces the measurements: a phone-style video it renders, or a robot's push log. Tether then has to work out your settings from the data alone; you see how close it got at the end.</p>
           <div class="seg" role="radiogroup" aria-label="Data to produce">
             <label><input type="radio" name="simkind" value="video" checked> <span id="k-video">Phone video</span></label>
             <label><input type="radio" name="simkind" value="log"> <span id="k-log">Robot log</span></label>
@@ -445,12 +457,13 @@ pre.code .s { color: #e3b867; }
       <div class="tabs" role="tablist" id="x-tabs"></div>
       <pre class="code" id="x-code" tabindex="0"></pre>
       <div class="exportbar"><span class="small muted" id="x-note"></span><div class="row"><button class="btn" id="x-copy">Copy</button><button class="btn primary" id="x-dl">Download</button></div></div>
+      <div class="wayout" id="wayout"></div>
     </section>
   </main>
 </div>
 <button type="button" class="askfab" id="askfab" aria-controls="chat" aria-expanded="false">Ask</button>
-<aside class="chat" id="chat" hidden aria-label="Ask GapCloser">
-  <header><b>Ask GapCloser</b><button type="button" class="x" id="chat-x" aria-label="Close">×</button></header>
+<aside class="chat" id="chat" hidden aria-label="Ask Tether">
+  <header><b>Ask Tether</b><button type="button" class="x" id="chat-x" aria-label="Close">×</button></header>
   <p class="small muted chat-intro" id="chat-intro">Ask about this page or your result. Answers use your current session's numbers.</p>
   <div class="chatlog" id="chatlog" aria-live="polite"></div>
   <div class="sugg" id="chat-sugg"></div>
@@ -549,15 +562,15 @@ let LANG = (() => { const q = new URLSearchParams(location.search).get("lang"); 
 const T = (en, ko) => (LANG === "ko" ? ko : en);
 const KO = {
   // chrome and steps
-  "Agent console": "AI 콘솔", "Studio": "Studio", "Data": "데이터", "Measure": "측정", "Diagnose": "진단", "Calibrated sim": "고친 시뮬레이터",
+  "Agent console": "AI 콘솔", "Overview": "소개", "Studio": "Studio", "Data": "데이터", "Measure": "측정", "Diagnose": "진단", "Calibrated sim": "고친 시뮬레이터",
   "Export": "내보내기", "Video or robot log": "영상 또는 로봇 로그", "Scale and pushes": "크기 재기와 기록", "Agent at work": "AI가 원인 찾기",
   "Physics, intervals, next push": "달라진 값과 다음 실험", "Newton, Isaac Lab, report": "Newton·Isaac Lab 설정, 보고서",
   "Agent off: offline fitting": "AI 없이 계산만 하는 모드",
   // data step
   "Fit your simulator to the real world": "시뮬레이터를 실제 세계에 맞춥니다",
-  "Show GapCloser how something actually slides on your table: a phone video, or the push log your robot already writes. You get the physics that differs from your simulator, how sure that is, which pushes would settle the rest, and a config for NVIDIA Newton or Isaac Lab.": "실제 탁자에서 물건이 미끄러지는 모습을 폰 영상이나 로봇 기록으로 넣으면, 시뮬레이터와 다른 점, 그 확실성, 다음에 해 볼 실험을 알려 주고 NVIDIA Newton·Isaac Lab용 설정을 만들어 줍니다.",
+  "Show Tether how something actually slides on your table: a phone video, or the push log your robot already writes. You get the physics that differs from your simulator, how sure that is, which pushes would settle the rest, and a config for NVIDIA Newton or Isaac Lab.": "실제 탁자에서 물건이 미끄러지는 모습을 폰 영상이나 로봇 기록으로 넣으면, 시뮬레이터와 다른 점, 그 확실성, 다음에 해 볼 실험을 알려 주고 NVIDIA Newton·Isaac Lab용 설정을 만들어 줍니다.",
   "No video at hand? Simulate your table": "영상이 없다면 가상 탁자로 시작합니다",
-  'Set the physics of the "real" table, and NVIDIA Newton produces the measurements: a phone-style video it renders, or a robot\'s push log. GapCloser then has to work out your settings from the data alone; you see how close it got at the end.': "\"진짜 탁자\"의 조건을 정하면 NVIDIA Newton이 물건을 밀어 보고 영상이나 로봇 기록을 만듭니다. GapCloser는 그 데이터만으로 정한 값을 찾아야 하며, 마지막에 정답과 비교합니다.",
+  'Set the physics of the "real" table, and NVIDIA Newton produces the measurements: a phone-style video it renders, or a robot\'s push log. Tether then has to work out your settings from the data alone; you see how close it got at the end.': "\"진짜 탁자\"의 조건을 정하면 NVIDIA Newton이 물건을 밀어 보고 영상이나 로봇 기록을 만듭니다. Tether는 그 데이터만으로 정한 값을 찾아야 하며, 마지막에 정답과 비교합니다.",
   "Phone video": "폰 영상", "Robot log": "로봇 로그", "Table friction": "탁자 마찰",
   "A region with different friction (spill, mat, worn spot)": "중간에 미끄럽거나 거친 곳 넣기 (엎지른 물, 매트, 닳은 자리 등)",
   "Region starts at": "그 구간이 시작되는 거리", "Friction in the region": "그 구간의 마찰", "Robot motor strength": "로봇 모터 힘", "Robot camera tilt": "로봇 카메라 기울기",
@@ -575,6 +588,10 @@ const KO = {
   "Robot log: first day on the real bench": "로봇 기록: 실제 작업대에서의 첫날",
   "20 pushes (16 aimed at targets, 4 probes) with camera tracks, from a policy trained in the nominal sim.": "기본 시뮬레이터에서 연습한 로봇이 20번 민 기록입니다 (목표 16번, 확인용 4번). 카메라로 찍은 움직임이 포함됩니다.",
   "Robot log: short pushes only": "로봇 기록: 짧게만 민 경우",
+  "Roadside camera: braking to a stop line": "도로변 카메라: 정지선 제동",
+  "Seven braking runs filmed from beside the road, a painted 5.25 × 7.4 m box for scale. Part of the road is wet. Synthetic: rendered by NVIDIA Newton (Froude-scaled, friction is scale-free).": "도로 옆에서 찍은 제동 7번입니다. 크기 기준은 도로 위 5.25 × 7.4 m 사각형입니다. 도로 일부가 젖어 있습니다. (NVIDIA Newton으로 만든 가상 영상, 1:25 축소 계산, 마찰은 크기와 무관)",
+  "Pusher log: parts missing the inspection window": "푸셔 기록: 검사 위치를 벗어나는 부품",
+  "18 pusher strokes aimed at the inspection position, with the line camera's tracks. Parts keep stopping off-position.": "검사 위치를 목표로 한 푸셔 동작 18번과 라인 카메라 추적 기록입니다. 부품이 계속 위치를 벗어납니다.",
   "8 short pushes. The far half of the table was never measured: watch the Studio refuse to be certain.": "짧게만 8번 민 기록입니다. 탁자 먼 쪽은 측정한 적이 없습니다. 모르는 부분을 단정하지 않는지 확인할 수 있습니다.",
   // measure
   "Measure the pushes": "민 거리 재기", "Your pushes": "기록 살펴보기", "Sheet": "용지", "Object height (cm)": "물건 높이 (cm)", "Track pushes": "움직임 추적하기",
@@ -591,7 +608,7 @@ const KO = {
   "Recovered from the sheet alone: no calibration pattern, no phone metadata.": "A4 용지만으로 계산했습니다. 별도 장비가 필요 없습니다.",
   "Re-place corners": "모서리 다시 맞추기", "Diagnose these pushes": "이 기록으로 원인 찾기",
   "Each push from release (fastest frame) to rest, along the push direction. Positions share one table frame across takes.": "손을 뗀 순간부터 멈출 때까지의 거리입니다. 영상이 여러 개여도 같은 탁자 기준으로 잽니다.",
-  "The log as GapCloser read it. Tipped pushes are left out of the fit.": "올린 기록입니다. 넘어진 경우는 계산에서 제외합니다.",
+  "The log as Tether read it. Tipped pushes are left out of the fit.": "올린 기록입니다. 넘어진 경우는 계산에서 제외합니다.",
   "Push": "밀기", "Launch speed": "출발 속도", "Command": "명령값", "Slide (m)": "간 거리 (m)", "Released at (m)": "출발 위치 (m)",
   "Target (m)": "목표 지점 (m)", "Perceived (m)": "카메라가 본 거리 (m)", "tipped": "넘어짐",
   // diagnose
@@ -633,9 +650,9 @@ const KO = {
   "Report": "보고서", "Copy": "복사", "Download": "다운로드",
   "Material values for newton.ModelBuilder.ShapeConfig, plus the measured friction region.": "NVIDIA Newton용 마찰 값과 구간 정보입니다.",
   "An EventTermCfg that randomizes the object's material over the measured interval at startup.": "Isaac Lab에서 마찰을 찾아낸 범위 안에서 바꾸는 설정입니다.",
-  "A one-page report to share.": "공유용 한 장짜리 보고서입니다.", "Everything above, machine-readable (gapcloser.calibration/v1).": "위 내용을 모두 담은 데이터 파일입니다 (gapcloser.calibration/v1).",
+  "A one-page report to share.": "공유용 한 장짜리 보고서입니다.", "Everything above, machine-readable (tether.calibration/v1).": "위 내용을 모두 담은 데이터 파일입니다 (tether.calibration/v1).",
   // chat
-  "Ask": "질문", "Ask GapCloser": "GapCloser에게 물어보기", "Send": "보내기", "Thinking…": "답변 준비 중…", "Close": "닫기",
+  "Ask": "질문", "Ask Tether": "Tether에게 물어보기", "Send": "보내기", "Thinking…": "답변 준비 중…", "Close": "닫기",
   "Ask about this page or your result. Answers use your current session's numbers.": "이 화면이나 결과에 대해 질문할 수 있습니다. 현재 결과를 바탕으로 답합니다.",
   "Ask needs the live server with a language model (make serve with GAPCLOSER_LLM=tokenfactory).": "질문 기능은 AI가 연결된 서버에서만 사용할 수 있습니다 (GAPCLOSER_LLM=tokenfactory로 make serve).",
 };
@@ -809,8 +826,13 @@ function renderSteps() {
   }).join("");
   $("#steps").querySelectorAll("button").forEach(b => b.onclick = () => go(b.dataset.step));
 }
+function renderCrumb() {
+  const id = state.s ? (DOM && DOM.id) : DATA_DOM, d = DOMS && DOMS[id];
+  $("#crumb").innerHTML = d ? `<b>●</b> ${esc(d.name[LANG] || d.name.en)}${state.s ? ` · ${esc(T("session", "세션"))} ${esc(state.s.id.replace(/^rec-/, ""))}` : ""}` : "";
+}
 function go(step) {
   state.step = step;
+  renderCrumb();
   for (const s of STEPS) $("#p-" + s.id).hidden = s.id !== step;
   renderSteps();
   if (step === "measure") renderMeasure();
@@ -833,7 +855,7 @@ const COPY = {
     give: [["Give it a record of real pushes.", "A phone video or a robot log. No data? Make a virtual table below."], ["실제로 밀어 본 기록을 넣습니다.", "폰 영상이나 로봇 기록이면 됩니다. 없으면 아래에서 가상으로 만들 수 있습니다."]],
     kinds: { video: ["Phone video", "폰 영상"], log: ["Robot log", "로봇 기록"] }, run: ["push", "밀기"], runs: ["Pushes", "밀기 횟수"],
     simh: ["No video at hand? Simulate your table", "영상이 없다면 가상 탁자로 시작합니다"],
-    lede: ["Set the physics of the “real” table, and NVIDIA Newton produces the measurements: a phone-style video it renders, or a robot's push log. GapCloser then has to work out your settings from the data alone.", "“실제” 탁자의 물리값을 정하면 NVIDIA Newton이 폰 영상이나 로봇 기록을 만듭니다. GapCloser는 그 데이터만 보고 설정값을 알아내야 합니다."],
+    lede: ["Set the physics of the “real” table, and NVIDIA Newton produces the measurements: a phone-style video it renders, or a robot's push log. Tether then has to work out your settings from the data alone.", "“실제” 탁자의 물리값을 정하면 NVIDIA Newton이 폰 영상이나 로봇 기록을 만듭니다. Tether는 그 데이터만 보고 설정값을 알아내야 합니다."],
     mu: ["Table friction", "탁자 마찰"], strip: ["A region with different friction (spill, mat, worn spot)", "중간에 미끄럽거나 거친 곳 넣기 (엎지른 물, 매트, 닳은 자리 등)"],
     y0: ["Region starts at", "그 구간이 시작되는 거리"], pm: ["Friction in the region", "그 구간의 마찰"], g: ["Robot arm strength", "로봇 팔 힘"], p: ["Robot camera tilt", "로봇 카메라 기울기"],
     reach: ["Longest push slides", "가장 멀리 밀 거리"], targetLine: ["target range the robot must hit", "로봇이 맞혀야 하는 범위"], launch: ["launch", "출발"],
@@ -846,7 +868,7 @@ const COPY = {
     give: [["Give it a record of real braking runs.", "A roadside video or a vehicle log. No data? Make a virtual road below."], ["실제 제동 기록을 넣습니다.", "도로변 영상이나 차량 기록이면 됩니다. 없으면 아래에서 가상 도로를 만들 수 있습니다."]],
     kinds: { video: ["Roadside video", "도로변 영상"], log: ["Vehicle log", "차량 기록"] }, run: ["braking run", "제동"], runs: ["Braking runs", "제동 횟수"],
     simh: ["No road data? Simulate your road", "도로 데이터가 없다면 가상 도로로 시작합니다"],
-    lede: ["Set the “real” road, and NVIDIA Newton produces the measurements: a roadside video it renders, or a vehicle log (speed set-point, stop position, front-camera range to the line). GapCloser then has to work out your settings from the data alone.", "“실제” 도로를 정하면 NVIDIA Newton이 도로변 영상이나 차량 기록(속도 명령, 정지 위치, 전방 카메라가 본 정지선 거리)을 만듭니다. GapCloser는 그 데이터만 보고 설정값을 알아내야 합니다."],
+    lede: ["Set the “real” road, and NVIDIA Newton produces the measurements: a roadside video it renders, or a vehicle log (speed set-point, stop position, front-camera range to the line). Tether then has to work out your settings from the data alone.", "“실제” 도로를 정하면 NVIDIA Newton이 도로변 영상이나 차량 기록(속도 명령, 정지 위치, 전방 카메라가 본 정지선 거리)을 만듭니다. Tether는 그 데이터만 보고 설정값을 알아내야 합니다."],
     mu: ["Road friction (dry asphalt ~0.8)", "노면 마찰 (마른 아스팔트 약 0.8)"], strip: ["A wet or icy section", "젖거나 언 구간 넣기"],
     y0: ["Section starts at", "구간 시작 거리"], pm: ["Friction in the section (wet ~0.4)", "구간 마찰 (젖은 노면 약 0.4)"], g: ["Speed control (actual / set-point)", "속도 제어 (실제/명령)"], p: ["Front camera pitch error", "전방 카메라 기울기 오차"],
     reach: ["Longest stopping distance", "가장 긴 제동 거리"], targetLine: ["stop-line range the planner must hit", "제동 계획이 맞혀야 하는 정지선 범위"], launch: ["brake point", "제동 시작"],
@@ -859,7 +881,7 @@ const COPY = {
     give: [["Give it a record of real pusher strokes.", "A line camera video or a pusher log. No data? Make a virtual line below."], ["실제 푸셔 동작 기록을 넣습니다.", "라인 카메라 영상이나 푸셔 기록이면 됩니다. 없으면 아래에서 가상 라인을 만들 수 있습니다."]],
     kinds: { video: ["Line camera video", "라인 카메라 영상"], log: ["Pusher log", "푸셔 기록"] }, run: ["stroke", "푸셔 동작"], runs: ["Pusher strokes", "푸셔 동작 횟수"],
     simh: ["No line data? Simulate your line", "라인 데이터가 없다면 가상 라인으로 시작합니다"],
-    lede: ["Set the “real” rail, and NVIDIA Newton produces the measurements: a line camera video it renders, or a pusher log (command, stop position, the inspection camera's reading). GapCloser then has to work out your settings from the data alone.", "“실제” 레일을 정하면 NVIDIA Newton이 라인 카메라 영상이나 푸셔 기록(명령값, 멈춘 위치, 검사 카메라 측정값)을 만듭니다. GapCloser는 그 데이터만 보고 설정값을 알아내야 합니다."],
+    lede: ["Set the “real” rail, and NVIDIA Newton produces the measurements: a line camera video it renders, or a pusher log (command, stop position, the inspection camera's reading). Tether then has to work out your settings from the data alone.", "“실제” 레일을 정하면 NVIDIA Newton이 라인 카메라 영상이나 푸셔 기록(명령값, 멈춘 위치, 검사 카메라 측정값)을 만듭니다. Tether는 그 데이터만 보고 설정값을 알아내야 합니다."],
     mu: ["Rail friction", "레일 마찰"], strip: ["An oily section on the rail", "레일에 기름 묻은 구간 넣기"],
     y0: ["Oily section starts at", "기름 구간 시작 거리"], pm: ["Friction in the oily section", "기름 구간의 마찰"], g: ["Pusher strength (actual / commanded)", "푸셔 힘 (실제/명령)"], p: ["Inspection camera tilt", "검사 카메라 기울기"],
     reach: ["Longest stroke slides", "가장 멀리 보낼 거리"], targetLine: ["inspection positions the pusher must hit", "푸셔가 맞혀야 하는 검사 위치 범위"], launch: ["pusher", "푸셔"],
@@ -875,6 +897,7 @@ function renderDomainCopy() {
     return `<button role="tab" data-d="${id}" aria-selected="${id === DATA_DOM}"><b>${esc(d ? d.name[LANG] || d.name.en : id)}</b><span>${esc(T(c.tab[0], c.tab[1]))}</span></button>`; }).join("");
   $("#domtabs").querySelectorAll("button").forEach(b => b.onclick = () => { DATA_DOM = b.dataset.d; try { localStorage.setItem("gapcloser-domain", DATA_DOM); } catch (_) {} renderDomainCopy(); simDefaults(); renderSamples(); drawSimView(); });
   $("#domnote").textContent = C("note");
+  if (typeof renderCrumb === "function") renderCrumb();
   const e = C("easy"), g = C("give"), ez = $("#easy");
   ez.removeAttribute("data-ko-html");
   ez.innerHTML = `<h3>${T("In 30 seconds", "30초 설명")}</h3><ol><li><b>${esc(T(e[0][0], e[1][0]))}</b> ${esc(T(e[0][1], e[1][1]))}</li><li><b>${esc(T(g[0][0], g[1][0]))}</b> ${esc(T(g[0][1], g[1][1]))}</li><li><b>${T("The AI finds what is different,", "AI가 무엇이 다른지 찾아서")}</b> ${T("fixes the virtual world, and tells you which run to try next.", "가상 세계를 고치고, 다음에 해 볼 실험을 알려 줍니다.")}</li></ol>`;
@@ -900,6 +923,7 @@ async function initData() {
   simDefaults();
   renderSamples();
   initSimLab();
+  applyQuery();
   const drop = $("#drop");
   if (!LIVE) {
     drop.classList.add("static");
@@ -920,6 +944,28 @@ function simDefaults() {  // each domain starts from a typical surface: table, d
   if (w.mu_eff != null) $("#s-mu").value = w.mu_eff;
   if (w.patch_y0 != null) $("#s-y0").value = w.patch_y0;
   if (w.patch_mu != null) $("#s-pm").value = w.patch_mu;
+}
+/* Deep links from the overview and the console: ?sample=<id> opens an example; ?mu=&y0=&pm=&g=&kind=&from= fills the
+   virtual table with a console scenario's hidden physics (same names as the Studio sliders, in base units). */
+function applyQuery() {
+  const q = new URLSearchParams(location.search);
+  const clean = () => { try { history.replaceState(null, "", location.pathname + (LANG === "ko" ? "?lang=ko" : "") + location.hash); } catch (_) {} };
+  if (q.get("sample") && (state.sampleList || []).some(s => s.id === q.get("sample"))) { clean(); startSample(q.get("sample")); return; }
+  if (!q.get("mu") || !LIVE) return;
+  clean();
+  const set = (id, v) => { if (v != null && v !== "") $(id).value = v; };
+  set("#s-mu", q.get("mu"));
+  $("#s-strip").checked = q.get("y0") != null;
+  set("#s-y0", q.get("y0")); set("#s-pm", q.get("pm")); set("#s-g", q.get("g"));
+  const kind = q.get("kind") === "log" ? "log" : "video";
+  document.querySelector(`input[name="simkind"][value="${kind}"]`).checked = true;
+  drawSimView();
+  const from = q.get("from");
+  const note = document.createElement("p"); note.className = "fromnote";
+  note.textContent = T(`Loaded from the console${from ? `: “${from}”` : ""}. The same hidden physics is set below; press Run in NVIDIA Newton to make the data, then diagnose it yourself.`,
+                       `콘솔${from ? `의 “${from}”` : ""} 상황을 불러왔습니다. 아래에 같은 숨은 값이 들어 있습니다. “NVIDIA Newton으로 만들기”를 누르면 데이터가 만들어지고, 직접 진단할 수 있습니다.`);
+  $("#simlab .simform").prepend(note);
+  setTimeout(() => $("#simlab").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }), 300);
 }
 function renderSamples() {
   const all = state.sampleList || [];
@@ -953,7 +999,7 @@ function drawSimView() {
   const tr = `<line x1="${X(0.2)}" x2="${X(0.6)}" y1="40" y2="40" stroke="#76b900" stroke-width="3"/><text x="${X(0.2)}" y="32" class="lbl">${C("targetLine")} (${Lm(0.2)}–${Lm(0.6)})</text>`;
   const extra = kind === "log" ? `<text x="${x0}" y="${H - 26}" class="lbl">${C("g").split(" (")[0]} ${w.actuator_gain.toFixed(2)}× · ${C("p")} ${w.camera_pitch_deg.toFixed(1)}°</text>` : "";
   $("#simview").innerHTML = `<svg viewBox="0 0 ${W} ${H}"><rect width="${W}" height="${H}" fill="#0b0d0f"/>${tr}${bands}${cover}${extra}${ticks}<line x1="${X(0)}" x2="${X(0)}" y1="52" y2="138" stroke="#9ba3aa"/><text x="${X(0)}" y="${H - 26}" class="lbl">${kind === "log" ? "" : C("launch")}</text></svg>
-    <p class="small muted" style="margin-top:8px">${T("GapCloser never sees this picture.", "GapCloser는 이 그림을 볼 수 없습니다.")} ${w.patch_y0 != null && reach < w.patch_y0 + 0.03 ? T("Your pushes stop before the region starts: watch it refuse to guess, then ask for longer pushes.", "모든 밀기가 구간 전에 멈춥니다. 짐작 대신 추가 측정을 요청하는지 확인할 수 있습니다.") : w.patch_y0 != null ? T("Few pushes reach the region: expect wide intervals until you run the pushes it asks for.", "구간에 닿는 밀기가 적어 처음에는 오차 범위가 넓습니다. 추천대로 더 밀면 좁아집니다.") : ""}</p>`;
+    <p class="small muted" style="margin-top:8px">${T("Tether never sees this picture.", "Tether는 이 그림을 볼 수 없습니다.")} ${w.patch_y0 != null && reach < w.patch_y0 + 0.03 ? T("Your pushes stop before the region starts: watch it refuse to guess, then ask for longer pushes.", "모든 밀기가 구간 전에 멈춥니다. 짐작 대신 추가 측정을 요청하는지 확인할 수 있습니다.") : w.patch_y0 != null ? T("Few pushes reach the region: expect wide intervals until you run the pushes it asks for.", "구간에 닿는 밀기가 적어 처음에는 오차 범위가 넓습니다. 추천대로 더 밀면 좁아집니다.") : ""}</p>`;
 }
 function initSimLab() {
   if (!LIVE) { $("#simlab").querySelectorAll("input,button").forEach(e => e.disabled = true); $("#sim-note").textContent = "Simulation runs on the live server (make serve, then /studio)."; drawSimView(); return; }
@@ -1006,7 +1052,7 @@ function renderMeasure() {
   $("#err-measure").textContent = "";
   if (s.kind === "log") {
     $("#m-title").textContent = "Your pushes";
-    $("#m-lede").textContent = "The log as GapCloser read it. Tipped pushes are left out of the fit.";
+    $("#m-lede").textContent = "The log as Tether read it. Tipped pushes are left out of the fit.";
     $("#takes").innerHTML = ""; $("#frame").parentElement.parentElement.style.display = "none";
     $("#m-pushes").innerHTML = pushTable(s.session.pushes, false) + `<div class="row" style="margin-top:16px"><button class="btn primary" id="to-diag">Diagnose these pushes</button></div>`;
     $("#to-diag").onclick = () => { state.done.add("measure"); state.summaries.measure = `${s.session.pushes.length} pushes`; go("diag"); };
@@ -1014,7 +1060,9 @@ function renderMeasure() {
   }
   $("#frame").parentElement.parentElement.style.display = "";
   $("#m-title").textContent = "Measure the pushes";
-  $("#m-lede").textContent = "Drag the four green handles onto the corners of the sheet: its known size gives scale, and its perspective gives the camera's height and angle. The orange ring marks the object.";
+  $("#m-lede").textContent = DOM.id === "driving"
+    ? T("Drag the four green handles onto the corners of the painted reference box (5.25 × 7.43 m): its known size gives scale, and its perspective gives the camera's height and angle.", "초록 점 4개를 도로 위 기준 사각형(5.25 × 7.43 m) 모서리에 맞춥니다. 사각형 크기로 실제 거리와 카메라 높이·각도를 계산합니다.")
+    : "Drag the four green handles onto the corners of the sheet: its known size gives scale, and its perspective gives the camera's height and angle. The orange ring marks the object.";
   const v = s.videos[state.take];
   $("#takes").innerHTML = s.videos.length > 1 ? s.videos.map((x, i) => `<button role="tab" aria-selected="${i === state.take}" data-i="${i}">Take ${i + 1}${x.tracked ? " ✓" : ""}</button>`).join("") : "";
   $("#takes").querySelectorAll("button").forEach(b => b.onclick = () => { state.take = Number(b.dataset.i); renderMeasure(); });
@@ -1301,7 +1349,7 @@ function renderResults() {
     <div class="caveat">Model predictions: rollouts of the fitted model across the plausible worlds, with your measured scatter as noise. Verify on the real robot.</div>`;
   // forest
   $("#r-forest").innerHTML = forest(c.gap, state.truth);
-  $("#r-truth").innerHTML = (state.s.sample || state.s.simulated) ? (state.truth ? `<span class="small muted">${T(`Hidden physics from ${esc(state.truth.source)} shown as white diamonds${state.truth.note ? `; ${esc(state.truth.note)}` : ""}.`, `흰 마름모가 정답입니다 (${esc(tx(state.truth.source))})${state.truth.note ? `. ${esc(tx(state.truth.note))}` : ""}.`)}</span>` : `<button class="btn" id="reveal">${T("Reveal the hidden physics", "정답 확인하기")}</button><span class="small muted">${state.s.simulated ? T("Your settings were never shown to GapCloser.", "설정한 값은 GapCloser에 전달되지 않았습니다.") : T("This sample came from a world GapCloser never saw.", "이 예시는 GapCloser가 정답을 모르는 상태입니다.")} ${T("Compare after the fact.", "결과와 비교할 수 있습니다.")}</span>`) : "";
+  $("#r-truth").innerHTML = (state.s.sample || state.s.simulated) ? (state.truth ? `<span class="small muted">${T(`Hidden physics from ${esc(state.truth.source)} shown as white diamonds${state.truth.note ? `; ${esc(state.truth.note)}` : ""}.`, `흰 마름모가 정답입니다 (${esc(tx(state.truth.source))})${state.truth.note ? `. ${esc(tx(state.truth.note))}` : ""}.`)}</span>` : `<button class="btn" id="reveal">${T("Reveal the hidden physics", "정답 확인하기")}</button><span class="small muted">${state.s.simulated ? T("Your settings were never shown to Tether.", "설정한 값은 Tether에 전달되지 않았습니다.") : T("This sample came from a world Tether never saw.", "이 예시는 Tether가 정답을 모르는 상태입니다.")} ${T("Compare after the fact.", "결과와 비교할 수 있습니다.")}</span>`) : "";
   if ($("#reveal")) $("#reveal").onclick = async () => { state.truth = toView(await be.truth(state.s.id)); renderResults(); };
   // charts
   $("#r-charts").innerHTML = chartStops(c) + chartFriction(c) + chartSuccess(c);
@@ -1504,14 +1552,22 @@ function renderExport() {
   $("#x-tabs").querySelectorAll("button").forEach(b => b.onclick = () => { state.exportTab = b.dataset.id; renderExport(); });
   const t = XTABS.find(x => x.id === state.exportTab), text = exportText(t.id);
   $("#x-code").innerHTML = highlight(text, t.id);
-  $("#x-note").textContent = { newton: "Material values for newton.ModelBuilder.ShapeConfig, plus the measured friction region.", isaaclab: "An EventTermCfg that randomizes the object's material over the measured interval at startup.", carla: T("CARLA 0.9.16: scales your vehicle's tire friction by measured / simulated μ, places a friction trigger on the wet or icy section, and ends with a braking check.", "CARLA 0.9.16: 차량 타이어 마찰을 측정값/시뮬레이션값 비율로 바꾸고, 젖거나 언 구간에 마찰 트리거를 두며, 마지막에 제동 거리 확인식을 넣습니다."), markdown: "A one-page report to share.", json: "Everything above, machine-readable (gapcloser.calibration/v1)." }[t.id];
-  $("#x-dl").hidden = !LIVE;  // a shared page cannot start downloads; Copy works everywhere
+  $("#x-note").textContent = { newton: "Material values for newton.ModelBuilder.ShapeConfig, plus the measured friction region.", isaaclab: "An EventTermCfg that randomizes the object's material over the measured interval at startup.", carla: T("CARLA 0.9.16: scales your vehicle's tire friction by measured / simulated μ, places a friction trigger on the wet or icy section, and ends with a braking check.", "CARLA 0.9.16: 차량 타이어 마찰을 측정값/시뮬레이션값 비율로 바꾸고, 젖거나 언 구간에 마찰 트리거를 두며, 마지막에 제동 거리 확인식을 넣습니다."), markdown: "A one-page report to share.", json: "Everything above, machine-readable (tether.calibration/v1)." }[t.id];
+  $("#x-dl").hidden = !LIVE;
+  const others = ["robot", "driving", "factory"].filter(id => id !== DOM.id);
+  const home = $("#nav-home") && $("#nav-home").getAttribute("href");
+  const cons = $("#nav-console") && $("#nav-console").getAttribute("href");
+  $("#wayout").innerHTML = `<h3>${T("Where next", "다음으로")}</h3><div class="row">
+      ${others.map(id => `<a class="btn" href="#${id}" data-dom="${id}">${T("Try", "다른 업무:")} ${esc(DOMS[id].name[LANG] || DOMS[id].name.en)}</a>`).join("")}
+      ${cons ? `<a class="btn" href="${esc(cons)}">${T("See how the agent works (console)", "AI 작동 원리 보기 (콘솔)")}</a>` : ""}
+      ${home ? `<a class="btn" href="${esc(home)}">${T("Overview", "소개 화면")}</a>` : ""}</div>`;
+  $("#wayout").querySelectorAll("[data-dom]").forEach(a => a.onclick = ev => { ev.preventDefault(); DATA_DOM = a.dataset.dom; try { localStorage.setItem("gapcloser-domain", DATA_DOM); } catch (_) {} renderDomainCopy(); simDefaults(); renderSamples(); drawSimView(); go("data"); });  // a shared page cannot start downloads; Copy works everywhere
   $("#x-copy").onclick = async () => { try { await navigator.clipboard.writeText(text); toast("Copied"); }
     catch (_) { const r = document.createRange(); r.selectNodeContents($("#x-code")); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); toast("Selected: press Ctrl/Cmd+C"); } };
   $("#x-dl").onclick = () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type: "text/plain" })); a.download = t.file; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); toast("Downloaded " + t.file); };
 }
 
-/* ---------------------------------------------------------------- Ask GapCloser (Nemotron, grounded in this session) */
+/* ---------------------------------------------------------------- Ask Tether (Nemotron, grounded in this session) */
 const SUGG = {
   data: [["What does this tool do, in simple words?", "이 도구는 무엇을 합니까?"], ["How should I film my table?", "영상은 어떻게 촬영합니까?"], ["What do the simulation sliders mean?", "가상 탁자 설정 항목을 설명해 주십시오"]],
   measure: [["Why do I place handles on the sheet's corners?", "A4 용지 모서리를 맞추는 이유는?"], ["What is parallax and why does height matter?", "물건 높이가 필요한 이유는?"]],
@@ -1569,6 +1625,11 @@ document.querySelectorAll(".lang button").forEach(b => b.onclick = () => setLang
 initChat();
 renderSteps();
 initData().then(() => setLang(LANG));
+addEventListener("hashchange", () => {  // a link to /studio#driving while already on the page: switch the data tab
+  const h = location.hash.slice(1);
+  if (!["robot", "driving", "factory"].includes(h) || h === DATA_DOM) return;
+  DATA_DOM = h; renderDomainCopy(); simDefaults(); renderSamples(); drawSimView(); if (state.step !== "data") go("data");
+});
 </script>
 </body>
 </html>

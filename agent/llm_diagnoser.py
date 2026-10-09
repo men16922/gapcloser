@@ -19,7 +19,7 @@ from agent.loop import Diagnosis, Suspect, TrajectoryDiagnoser, _fit_line, _laun
 from sim.params import PARAM_SPACE, ParamSet, effective_friction
 from sim.push_task import SUCCESS_TOL, Rollout
 
-SYSTEM = """You are the diagnosis module of GapCloser, an agent that closes the sim-to-real gap of a robot push task.
+SYSTEM = """You are the diagnosis module of Tether, an agent that closes the sim-to-real gap of a robot push task.
 A cube is pushed with launch speed v = command * actuator_gain and slides to rest on a table.
 Physics: deceleration a = mu_eff * g with mu_eff = (object_mu + table_mu) / 2, stop distance = v^2 / (2 a).
 The policy computes its command from the target distance it perceives through the camera:

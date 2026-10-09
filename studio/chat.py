@@ -1,4 +1,4 @@
-"""Ask GapCloser: questions about the Studio and about the visitor's current result, answered by Nemotron.
+"""Ask Tether: questions about the Studio and about the visitor's current result, answered by Nemotron.
 
 The model gets a short product guide and a compact summary of the session (data, calibration with intervals,
 predicted success, next experiment, the agent's steps and the cross-check, the revealed truth if any). It is told
@@ -12,7 +12,7 @@ import json
 MAX_TURNS = 12  # conversation turns sent to the model (older ones are dropped)
 MAX_CHARS = 1200  # per user message
 
-GUIDE = """GapCloser Studio fits a simulator to the real world in three domains with the same physics (an object launched
+GUIDE = """Tether Studio fits a simulator to the real world in three domains with the same physics (an object launched
 toward a line slides to a stop; part of the surface may differ; the actuator may under-deliver; a camera judges distance):
 robot manipulation (an arm pushes a box to a line on a table), autonomous vehicles (a car brakes to stop at a stop line;
 wet or icy section of road; speed control; front camera range) and factory inspection (a pneumatic pusher slides a part
@@ -34,7 +34,7 @@ different friction starts (m from the launch point); patch_mu = friction inside 
 unit command; camera_pitch_deg = camera tilt error; lens_k = lens distortion; next experiment = pushes where the plausible
 models disagree most inside the 0.2-0.6 m target range."""
 
-SYSTEM = """You are the help assistant inside GapCloser Studio. Answer the visitor's question in {lang}.
+SYSTEM = """You are the help assistant inside Tether Studio. Answer the visitor's question in {lang}.
 Use only the guide and the session summary below for facts and numbers; if the answer is not there, say so plainly and
 suggest what to do in the Studio. Explain like to a smart newcomer: short sentences, concrete numbers with units, no
 jargon without a one-line explanation. Keep answers under 120 words unless asked for detail. Do not invent results,

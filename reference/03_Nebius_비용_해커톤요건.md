@@ -3,7 +3,7 @@
 ## 해커톤 필수 요건
 
 - 요건은 "Nebius Token Factory **또는** Nebius AI Cloud에서 동작 + NVIDIA 오픈 모델 1개 이상 사용"입니다 (`docs/setup/NEBIUS_SETUP.md`).
-- GapCloser는 Nebius Token Factory에서 NVIDIA Nemotron 3 Super를 호출하므로 Token Factory만으로 요건을 충족합니다.
+- Tether는 Nebius Token Factory에서 NVIDIA Nemotron 3 Super를 호출하므로 Token Factory만으로 요건을 충족합니다.
 - Nebius AI Cloud(VM)는 필수가 아닙니다. 공개 데모 주소가 필요할 때만 선택적으로 사용합니다.
 
 ## Nebius AI Cloud 사용 내역 (2026-10-09)

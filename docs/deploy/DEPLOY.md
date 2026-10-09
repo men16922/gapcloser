@@ -1,4 +1,4 @@
-# Deploying GapCloser
+# Deploying Tether
 
 The same Docker image runs everywhere. It needs no GPU: NVIDIA Newton runs on CPU and Nemotron is called over HTTPS on Nebius Token Factory.
 
@@ -51,7 +51,7 @@ Cost guards built in: one run at a time, max 4 iterations, max 3 hidden faults (
    git clone https://huggingface.co/spaces/<user>/gapcloser hf-space && cd hf-space
    rsync -a --exclude .git --exclude .venv --exclude runs/live ../ ./
    cp deploy/hf-space/README.md README.md
-   git lfs track "*.webp" && git add -A && git commit -m "GapCloser demo" && git push
+   git lfs track "*.webp" && git add -A && git commit -m "Tether demo" && git push
    ```
 4. The Space builds the Dockerfile (about 3 minutes) and serves on port 7860.
 

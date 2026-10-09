@@ -62,7 +62,7 @@ TOOLS = [
           {"model": MODEL_SCHEMA, "explanation": {"type": "string", "description": "under 60 words"}}, ["model", "explanation"]),
 ]
 
-SYSTEM = """You are GapCloser, an agent that fixes a robot simulator so a policy trained in it works on the real robot.
+SYSTEM = """You are Tether, an agent that fixes a robot simulator so a policy trained in it works on the real robot.
 Task: a robot pushes a cube (launch speed = actuator_gain * command); it slides to a stop; success = stop within 3 cm of a target line.
 The policy perceives the target through a camera and inverts the simulator to pick each command, so a correct simulator
 (dynamics AND perception) means success. The current simulator is wrong. Work like a scientist:

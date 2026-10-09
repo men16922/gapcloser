@@ -85,7 +85,7 @@ def test_exports_are_valid_python_and_carry_the_numbers():
     md = export.markdown(s, cal, design.suggest(s, cal))
     assert "Friction region starts at" in md and "Predicted effect" in md
     doc = export.to_json(s, cal)
-    assert doc["schema"] == "gapcloser.calibration/v1"
+    assert doc["schema"] == "tether.calibration/v1"
     json.dumps(doc)
 
 

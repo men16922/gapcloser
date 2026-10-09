@@ -159,3 +159,10 @@ def test_domains_label_the_same_physics_and_driving_exports_carla(tmp_path):
     md = c.get(f"/api/studio/sessions/{s['id']}/export/markdown").text
     assert "Tire-road friction" in md
     assert " m" in md and "Froude" in md
+
+
+def test_overview_console_and_studio_are_linked(tmp_path):
+    c = client(tmp_path)
+    home = c.get("/").text
+    assert "Tether" in home and 'href="/console' in home and "/studio" in home and "sample=" in home
+    assert c.get("/api/studio/sample-frame/press-line").headers["content-type"] == "image/jpeg"

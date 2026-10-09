@@ -1,4 +1,4 @@
-"""GapCloser loop: train in sim -> run in "real" -> diagnose the gap -> edit sim config -> repeat.
+"""Tether loop: train in sim -> run in "real" -> diagnose the gap -> edit sim config -> repeat.
 
 The loop never sees hidden params: "real" is only reachable through RealWorld.rollout (measured
 success, never LLM-estimated). Diagnoser/Planner are pluggable; the heuristic ones here are the

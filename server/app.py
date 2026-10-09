@@ -1,4 +1,4 @@
-"""GapCloser live server: the dashboard plus an API that runs the agent on a user-chosen hidden world.
+"""Tether live server: the dashboard plus an API that runs the agent on a user-chosen hidden world.
 
   GET  /                       dashboard (live mode: loads recorded runs, can start new runs)
   GET  /api/bundle             recorded scenarios + benchmark (runs/demo/bundle.json)
@@ -9,7 +9,7 @@
                                (agent_step = one tool call of the Nemotron agent, streamed as it happens)
   GET  /clips/... , /live/...  rendered clips
   GET  /replay/...             3D viewer replays (per-frame Newton poses)
-  /studio, /api/studio/*       GapCloser Studio: calibrate from your own video or robot log (server/studio_api.py)
+  /studio, /api/studio/*       Tether Studio: calibrate from your own video or robot log (server/studio_api.py)
 
 "Stump the agent": with an LLM configured, every live run takes the open-world path (inverse policy,
 Nemotron tool agent that inspects evidence, fits model structures, probes the real robot, commits a
@@ -246,7 +246,7 @@ def create_app(llm=None, env_name: str | None = None, render: bool | None = None
             print(f"[gapcloser] Cosmos eyes unavailable ({eyes.last_error}); running without them")
             eyes = None
 
-    app = FastAPI(title="GapCloser", docs_url="/api/docs", openapi_url="/api/openapi.json")
+    app = FastAPI(title="Tether", docs_url="/api/docs", openapi_url="/api/openapi.json")
     runs: dict[str, Run] = {}
     busy = threading.Lock()
     hits: dict[str, deque] = defaultdict(deque)
@@ -398,7 +398,12 @@ def create_app(llm=None, env_name: str | None = None, render: bool | None = None
         return JSONResponse({"id": rid, "done": run.done, "events": run.events})
 
     @app.get("/", response_class=HTMLResponse)
-    def index():
+    def home():
+        """Overview: what Tether does, the route Console -> Studio -> Export, the three domains."""
+        return HTMLResponse((ROOT / "dashboard" / "home.html").read_text())
+
+    @app.get("/console", response_class=HTMLResponse)
+    def console():
         page = ROOT / "dashboard" / "dist" / "gapcloser.live.html"
         if not page.exists():
             raise HTTPException(404, "Dashboard not built. Run `make dashboard`.")

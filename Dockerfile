@@ -1,4 +1,4 @@
-# GapCloser live demo: NVIDIA Newton on CPU + FastAPI. Nemotron is called over HTTPS
+# Tether live demo: NVIDIA Newton on CPU + FastAPI. Nemotron is called over HTTPS
 # (Nebius Token Factory), so the container needs no GPU.
 FROM python:3.12-slim
 

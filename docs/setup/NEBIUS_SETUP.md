@@ -2,7 +2,7 @@
 
 작성: 2026-10-05 · 소요 시간: 약 10분 · 비용: $0 (카드 등록 여부는 가입 화면에서 확인)
 
-GapCloser의 에이전트 두뇌(Nemotron)는 Nebius Token Factory API로 호출한다.
+Tether의 에이전트 두뇌(Nemotron)는 Nebius Token Factory API로 호출한다.
 해커톤 규정상 "Nebius Token Factory 또는 Nebius AI Cloud에서 동작 + NVIDIA 오픈 모델 1개 이상"이 필수이므로 이 설정 없이는 출품할 수 없다.
 
 ---
@@ -21,7 +21,7 @@ GapCloser의 에이전트 두뇌(Nemotron)는 Nebius Token Factory API로 호출
 
 1. <https://dev.nebius.com/builders> 접속 → **Join** (무료)
 2. 이메일로 가입하고, "무엇을 만드는지" 항목에 한 줄 적는다.
-   - 예: `GapCloser — an agent that closes the Sim2Real gap using Nemotron and NVIDIA Newton (Nebius x NVIDIA Global AI Hackathon, Physical AI track)`
+   - 예: `Tether — an agent that closes the Sim2Real gap using Nemotron and NVIDIA Newton (Nebius x NVIDIA Global AI Hackathon, Physical AI track)`
 3. 이메일 인증
 4. **Claim credits**에서 원하는 크레딧을 받는다. 최소한 **Token Factory**는 받고, 가능하면 **LangSmith**도 받는다.
 

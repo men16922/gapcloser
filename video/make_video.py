@@ -201,16 +201,16 @@ def build_scenes(work: Path) -> list[Scene]:
     pair0 = clip_pair(clips / m0["clip"]["sim"], clips / m0["clip"]["real"], ("SIMULATOR · WHAT THE AGENT EXPECTS", "REAL · HIDDEN PHYSICS"),
                       (res(m0, "sim"), res(m0, "real")), "Same policy, same push. Different physics.", work / "pair0")
     pairN = clip_pair(clips / mN["clip"]["sim"], clips / mN["clip"]["real"], ("SIMULATOR · AFTER ONE FIX", "REAL · HIDDEN PHYSICS"),
-                      (res(mN, "sim"), res(mN, "real")), "After GapCloser", work / "pairN")
+                      (res(mN, "sim"), res(mN, "real")), "After Tether", work / "pairN")
 
     scenes = [
-        Scene("01_title", f"GapCloser. An agent that closes the sim-to-real gap, built with NVIDIA Newton and {model_short} on Nebius Token Factory.",
-              image=card([("GapCloser", FONT_D, 150, FG), ("An agent that closes the Sim2Real gap", FONT_B, 56, FG),
+        Scene("01_title", f"Tether. An agent that closes the sim-to-real gap, built with NVIDIA Newton and {model_short} on Nebius Token Factory.",
+              image=card([("Tether", FONT_D, 150, FG), ("An agent that closes the Sim2Real gap", FONT_B, 56, FG),
                           ("NVIDIA Newton  ·  Nemotron on Nebius Token Factory", FONT_B, 40, GREEN)], work / "title.png",
                          footer="Nebius × NVIDIA Global AI Hackathon · Physical AI track"), min_s=6),
         Scene("02_problem", f"A robot arm pushes a cube onto the green line. In the simulator, the push lands on target. "
                             f"In the real world, with physics the agent cannot see, it stops {short_cm:.0f} centimeters short.", frames=pair0, min_s=9),
-        Scene("03_measure", f"GapCloser trains a policy in its simulator, then measures it in the hidden world. "
+        Scene("03_measure", f"Tether trains a policy in its simulator, then measures it in the hidden world. "
                             f"{ok0} of {n} pushes land on target, while the simulator predicted {sim0} of {n}.", image=s_measure),
         Scene("04_diagnose", f"{model_short} reads the evidence. The tracked launch speed is only {pc(gain_est)} percent of the simulator's, "
                              "while the deceleration is unchanged. So the motor is weak. It is not the friction.",
@@ -223,7 +223,7 @@ def build_scenes(work: Path) -> list[Scene]:
                            f"An agent that only looks at where the cube stopped blames friction, and stays at "
                            f"{pc(wm['baselines']['outcome_only'])} percent.", image=s_reveal),
         Scene("09_bench", f"Across ten random hidden worlds, domain randomization reaches {dr} percent and the nominal simulator {nom}. "
-                          f"GapCloser reaches up to {best} percent, {llm} with {model_short} as the diagnoser, and the first diagnosis names the true cause in every world.",
+                          f"Tether reaches up to {best} percent, {llm} with {model_short} as the diagnoser, and the first diagnosis names the true cause in every world.",
               image=s_bench),
     ]
     if server_up():
@@ -237,7 +237,7 @@ def build_scenes(work: Path) -> list[Scene]:
                           ("Physics + rendering:  NVIDIA Newton 1.6 (CPU)", FONT_M, 34, MUTED),
                           (f"Diagnosis:  {model}", FONT_M, 34, MUTED),
                           ("Cost:  ≈ $0.0013 per diagnosis", FONT_M, 34, MUTED)], work / "stack.png"), min_s=8),
-        Scene("12_end", "GapCloser.", image=card([("GapCloser", FONT_D, 150, FG), ("Closing the Sim2Real gap, one agent loop at a time.", FONT_B, 48, MUTED)],
+        Scene("12_end", "Tether.", image=card([("Tether", FONT_D, 150, FG), ("Closing the Sim2Real gap, one agent loop at a time.", FONT_B, 48, MUTED)],
                                                  work / "end.png", footer="Apache-2.0 · not affiliated with or endorsed by NVIDIA or Nebius"), min_s=4),
     ]
     return scenes

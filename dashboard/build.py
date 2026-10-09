@@ -36,6 +36,7 @@ def _template(bundle_json: str) -> str:
     tpl = tpl.replace('"__FRANKA__"', _script_safe(franka), 1)
     studio = "/studio" if bundle_json == "null" else os.environ.get("GAPCLOSER_STUDIO_URL", "")
     tpl = tpl.replace("__STUDIO_URL__", studio, 1)
+    tpl = tpl.replace("__HOME_URL__", "/" if bundle_json == "null" else "")
     return tpl.replace('"__BUNDLE__"', bundle_json, 1)
 
 
@@ -83,7 +84,8 @@ def build_studio(rec_dir: Path = STUDIO_REC, out_dir: Path = HERE / "dist", cons
     tpl = tpl.replace("/*__STUDIO_DOMAINS__*/null", _script_safe(json.dumps(page_data(), separators=(",", ":"))), 1)
     out_dir.mkdir(parents=True, exist_ok=True)
     live = out_dir / "studio.live.html"
-    live.write_text(tpl)
+    live.write_text(tpl.replace("__HOME_URL__", "/"))
+    tpl = tpl.replace("__HOME_URL__", "")  # recorded pages have no home page to go back to
     outs = [live]
     order = ["flick", "lab-bench", "short-reach", "stop-line", "press-line"]
     recs = [json.loads((rec_dir / f"{k}.json").read_text()) for k in order if (rec_dir / f"{k}.json").exists()]

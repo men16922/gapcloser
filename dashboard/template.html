@@ -1,4 +1,4 @@
-<title>GapCloser Console</title>
+<title>Tether Console</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -30,6 +30,7 @@
 * { box-sizing: border-box; }
 html, body { background: var(--bg); color: var(--fg); }
 body { font: 15px/1.45 var(--f-body); padding-inline: 16px; padding-block: 0 32px; }
+:lang(ko) body { word-break: keep-all; }
 .wrap { max-width: 1480px; margin: 0 auto; }
 h1, h2, h3 { font-family: var(--f-display); font-weight: 600; margin: 0; text-wrap: balance; }
 .label { font: 600 11px/1 var(--f-display); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
@@ -42,10 +43,25 @@ button { font: inherit; color: inherit; }
 .brand { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s3); }
 .brand h1 { font-size: 26px; letter-spacing: 0.01em; }
 .brand h1 b { color: var(--green); font-weight: 700; }
+.mark { width: 22px; height: 14px; margin-right: 8px; vertical-align: 1px; display: inline-block; }
 .brand .sub { color: var(--muted); font-size: 14px; }
 .studio-link { color: var(--fg); font-size: 14px; border: 1px solid var(--green); padding: 4px 9px; text-decoration: none; }
 .studio-link:hover { background: var(--green-wash); }
 .studio-link[href=""] { display: none; }
+.flow { display: flex; gap: 0; border: 1px solid var(--line); }
+.flow a { display: grid; grid-template-columns: auto auto; column-gap: 8px; align-items: baseline; padding: 6px 12px; color: var(--muted); text-decoration: none; font-size: 15px; font-weight: 600; }
+.flow a + a { border-left: 1px solid var(--line); }
+.flow a i { font-style: normal; grid-row: span 2; font-size: 12px; color: var(--dim); border: 1px solid var(--line); width: 18px; height: 18px; display: inline-grid; place-items: center; align-self: center; }
+.flow a small { grid-column: 2; font-size: 12px; font-weight: 400; color: var(--dim); }
+.flow a[aria-current="page"] { color: var(--fg); box-shadow: inset 0 -2px 0 var(--green); }
+.flow a[aria-current="page"] i { border-color: var(--green); color: var(--green); }
+.flow a:hover { color: var(--fg); }
+.flow a[href=""] { display: none; }
+.domhead { margin: 18px 0 0; font-size: 13px; color: var(--muted); }
+.tryit { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; border-left: 3px solid var(--green); background: var(--green-wash); padding: 10px 14px; }
+.tryit a { color: #000; background: var(--green); padding: 6px 12px; font-weight: 600; text-decoration: none; }
+.tryit a:hover { background: var(--green-hi, #91c733); }
+.tryit span { font-size: 13.5px; color: var(--muted); }
 .domains { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--line); margin: 14px 0 4px; }
 .domains a { display: grid; gap: 2px; padding: 12px 16px; color: var(--fg); text-decoration: none; border-right: 1px solid var(--line); }
 .domains a:last-child { border-right: 0; }
@@ -399,10 +415,12 @@ td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
 
 <div class="wrap">
   <div class="top">
-    <div class="brand"><h1>Gap<b>Closer</b></h1><span class="sub">Sim2Real agent console</span><a class="studio-link" id="studio-link" href="__STUDIO_URL__">Studio: calibrate from your own video or log</a></div>
+    <div class="brand"><a href="__HOME_URL__" style="text-decoration:none;color:inherit"><h1><svg class="mark" viewBox="0 0 22 14" aria-hidden="true"><rect x="0" y="0" width="6" height="6" fill="#69717a"/><rect x="16" y="8" width="6" height="6" fill="#76b900"/><path d="M3 6 L19 8" stroke="#76b900" stroke-width="1.6"/></svg>Tether</h1></a><span class="sub">Sim2Real agent console</span></div>
+    <nav class="flow" aria-label="Tether"><a href="__HOME_URL__" id="home-link"><i>0</i>Overview<small>What Tether does</small></a><a href="#" aria-current="page"><i>1</i>Agent console<small>How the AI works</small></a><a id="studio-link" href="__STUDIO_URL__"><i>2</i>Studio<small>Your own data, three domains</small></a></nav>
     <div class="stack" id="stack"></div>
     <div class="lang" role="group" aria-label="Language"><button type="button" data-lang="en">EN</button><button type="button" data-lang="ko">KO</button></div>
   </div>
+  <p class="domhead" id="domhead"></p>
   <nav class="domains" id="domains" aria-label="Domains in Studio"></nav>
   <section class="intro" id="intro" aria-label="What is this"></section>
   <nav class="picker" id="tabs" aria-label="Scenarios"></nav>
@@ -411,10 +429,31 @@ td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
 </div>
 
 <script>
+/* A console example as a Studio virtual table: same hidden friction / strip / motor, ready to run in NVIDIA Newton.
+   Studio's virtual table has no lens, light or bounce settings; those are named so nothing is silently dropped. */
+function studioLink(truth, title) {
+  const base = document.getElementById("studio-link").getAttribute("href");
+  if (!base || !truth) return "";
+  const h = Object.fromEntries(Object.entries(truth).map(([k, v]) => [k, v && typeof v === "object" ? v.hidden : v]));
+  const mu = ((h.object_mu ?? 0.8) + (h.table_mu ?? 0.8)) / 2, q = new URLSearchParams();
+  q.set("mu", Math.min(1, Math.max(0.2, mu)).toFixed(2));
+  if (h.patch_y0 != null && h.patch_y0 < 0.99) { q.set("y0", h.patch_y0.toFixed(2)); q.set("pm", Math.min(0.95, Math.max(0.2, h.patch_mu ?? 0.8)).toFixed(2)); }
+  const log = h.actuator_gain != null || h.camera_dx != null;
+  if (h.actuator_gain != null) q.set("g", Math.min(1.3, Math.max(0.7, h.actuator_gain)).toFixed(2));
+  q.set("kind", log ? "log" : "video"); q.set("from", LANG === "ko" && KO[title] ? KO[title] : title);
+  const skipped = ["lens_k", "light_intensity", "restitution", "camera_dx"].filter(k => h[k] != null);
+  const names = { lens_k: ["lens distortion", "렌즈 휘어짐"], light_intensity: ["lighting", "조명"], restitution: ["bounce", "튕김"], camera_dx: ["camera offset", "카메라 위치"] };
+  const ko = LANG === "ko";
+  const live = base.startsWith("/");  // the shared page cannot pass settings; it opens the robot tab
+  const href = live ? `${base}?${q}#robot` : `${base}#robot`;
+  const note = skipped.length ? (ko ? `Studio 가상 탁자에는 ${skipped.map(k => names[k][1]).join(", ")} 설정이 없어 제외합니다.` : `Studio's virtual table has no ${skipped.map(k => names[k][0]).join(", ")} setting; left out.`) : "";
+  return `<div class="tryit" data-notr="1"><a href="${href}">${ko ? "이 상황을 Studio에서 직접 해 보기" : "Run this case yourself in Studio"}</a><span>${ko ? (live ? "같은 마찰·구간·모터 값으로 가상 탁자를 채워 둡니다. 영상/기록을 만들고 AI 진단부터 내보내기까지 이어집니다." : "Studio를 로봇 조작 탭으로 엽니다.") : (live ? "Opens Studio's virtual table with the same friction, strip and motor, then video or log, diagnosis and export." : "Opens Studio on the robot tab.")} ${note}</span></div>`;
+}
 function renderDomains() {  // the three Studio domains (studio/domains.py); hidden when there is no Studio to link to
   const base = document.getElementById("studio-link").getAttribute("href"), nav = document.getElementById("domains");
   if (!base) { nav.dataset.off = "1"; return; }
   const ko = LANG === "ko";
+  document.getElementById("domhead").textContent = ko ? "② Studio에서 내 데이터로 해 보기: 업무를 고릅니다. 아래 예시들은 ①의 작동 원리를 보여 줍니다." : "② Try it on your own data in Studio: pick a domain. The examples below show how the AI works (①).";
   nav.innerHTML = [["robot", "Robot manipulation", "로봇 조작", "Arm pushes a box to a line", "로봇 팔이 상자를 선까지 밀기"],
     ["driving", "Autonomous vehicles", "자율주행 차량", "Car brakes to a stop line · CARLA export", "차량이 정지선에 맞춰 제동 · CARLA 내보내기"],
     ["factory", "Factory inspection", "제조 검사", "Pusher slides a part to inspection", "푸셔가 부품을 검사 위치로 밀기"]]
@@ -427,13 +466,13 @@ let LANG = (() => { const q = new URLSearchParams(location.search).get("lang"); 
   try { return localStorage.getItem("gapcloser-lang") || "en"; } catch (_) { return "en"; } })();
 const tl = (en, ko) => (LANG === "ko" ? ko : en);
 const KO = {
-  "Sim2Real agent console": "가상↔현실 차이를 고치는 AI", "Studio: calibrate from your own video or log": "Studio: 내 영상·기록으로 직접 해 보기",
+  "Sim2Real agent console": "가상↔현실 차이를 고치는 AI", "Overview": "소개", "Agent console": "AI 콘솔", "What Tether does": "Tether 소개", "How the AI works": "AI 작동 원리", "Your own data, three domains": "내 데이터, 세 가지 업무", "Studio: calibrate from your own video or log": "Studio: 내 영상·기록으로 직접 해 보기",
   "Scenarios": "예시 상황", "Closed world · rule-solvable": "쉬운 문제 · 정해진 규칙으로 풀림", "Open world · faults outside the rule book": "어려운 문제 · 규칙으로는 못 푸는 경우",
   "Benchmarks": "성능 비교", "Gap-Bench": "성능 비교 (45개 세계)", "Tier-0 bench": "성능 비교 (기본 10개)", "+ Stump the agent": "+ AI에게 문제 내기",
   "Slippery cube": "미끄러운 상자", "Sticky table": "끈적한 탁자", "Shifted camera": "삐뚤어진 카메라", "Weak motor": "힘 약한 모터", "Tipping edge": "상자가 넘어지는 경우",
   "Wet strip": "젖은 구간", "Rough strip": "거친 구간", "Lens distortion": "휘어진 렌즈", "Three faults": "문제 3개 동시에", "Custom world": "내가 만든 문제",
   "Replay run": "처음부터 다시 보기", "Show result": "결과 바로 보기", "Reveal truth": "정답 보기", "Hide truth": "정답 숨기기",
-  "Before": "고치기 전", "After GapCloser": "고친 후", "Gap": "차이", "Real trials used": "실제로 밀어 본 횟수", "Agent loops": "고친 횟수",
+  "Before": "고치기 전", "After Tether": "고친 후", "Gap": "차이", "Real trials used": "실제로 밀어 본 횟수", "Agent loops": "고친 횟수",
   "Agent timeline": "진행 순서", "Agent lab notebook": "AI의 실험 노트", "Evidence": "근거", "Outcome": "결과", "Belief vs truth": "AI의 추측 vs 정답",
   "Sim vs real · same policy, target 0.45 m": "가상 vs 진짜 · 같은 동작으로 0.45 m 목표 밀기", "Camera clips · Newton tiled-camera render": "카메라 영상 · NVIDIA Newton으로 렌더링",
   "Sim · agent’s model": "가상 · AI가 생각한 세계", "Real · hidden physics": "진짜 · 숨겨진 세계", "Ghost": "겹쳐 보기", "Split": "나눠 보기", "Wide": "넓게",
@@ -452,8 +491,8 @@ const KO = {
   "Mean real success by tier": "난이도별 평균 성공률", "Tier": "난이도", "Closed": "쉬움", "Open": "어려움", "Compound": "아주 어려움", "Nominal sim": "그냥 기본 가상 세계",
   "Domain rand.": "무작위로 넓게 연습", "Rule-based": "정해진 규칙", "System ID": "자동 계산 방식", "Nemotron agent": "Nemotron AI", "whisker = 95% CI": "선 길이 = 오차 범위",
   "Honest note:": "솔직히 말하면:", "Same budget, four strategies": "같은 횟수로 네 가지 방법 비교", "Domain randomization": "무작위로 넓게 연습", "Rule-based agent": "정해진 규칙",
-  "Outcome-only agent": "결과만 보는 방법", "System-ID baseline": "자동 계산 방식", "GapCloser · tracking": "GapCloser · 움직임까지 봄", "GapCloser · outcome-only": "GapCloser · 결과만 봄",
-  "GapCloser · Nemotron": "GapCloser · Nemotron AI", "Rules break outside their map. Who closes the gap?": "정해진 규칙은 예상 밖 상황에서 실패합니다. 어떤 방법이 차이를 고치는지 비교합니다.",
+  "Outcome-only agent": "결과만 보는 방법", "System-ID baseline": "자동 계산 방식", "Tether · tracking": "Tether · 움직임까지 봄", "Tether · outcome-only": "Tether · 결과만 봄",
+  "Tether · Nemotron": "Tether · Nemotron AI", "Rules break outside their map. Who closes the gap?": "정해진 규칙은 예상 밖 상황에서 실패합니다. 어떤 방법이 차이를 고치는지 비교합니다.",
   "Closed-world parameters": "기본 설정값", "rule book knows these": "규칙이 아는 것들", "Friction strip": "미끄럽거나 거친 구간", "open world": "어려운 문제",
   "Hide some physics. Watch Nemotron find it.": "탁자에 차이를 숨기고, AI가 찾아내는지 확인합니다.", "Presets": "예시", "Surprise me": "무작위",
   "Reset": "초기화", "Run agent": "AI 실행", "How the agent sees it": "AI가 받는 정보", "It never sees the values you set.": "설정한 값은 AI에게 보이지 않습니다.",
@@ -1490,11 +1529,11 @@ function boot(B, LIVE) {
     const bl = run.baselines || {};
     const P_ = (x) => (x == null ? "…" : pct(x));
     const hidden = Object.entries(run.truth).map(([k, v]) => `${k}`).join(", ");
-    return `<div class="scn"><div><span class="label">${isLive(run) ? `Your world · ${faultsOf(run.hidden || {}).length} hidden fault${faultsOf(run.hidden || {}).length === 1 ? "" : "s"} · ${agentKind(run) === "rule" ? "rule-based diagnoser" : "Nemotron tool agent"}` : `${run.open ? "Open-world scenario" : "Scenario"} · hidden change in ${Object.keys(run.truth).length} parameters`}</span><h2>${esc(run.title)}</h2><p>${BLURB[run.id] && !isLive(run) ? esc(BLURB[run.id]) : run.hidden ? `${isLive(run) ? "Your hidden world" : "Custom world"}: ${describeHidden(run.hidden)}. ${isLive(run) ? "The agent never saw these values." : ""}` : ""}</p>${run.error ? `<p class="bad-t">${esc(run.error)}</p>` : ""}</div>
+    return `<div class="scn"><div><span class="label">${isLive(run) ? `Your world · ${faultsOf(run.hidden || {}).length} hidden fault${faultsOf(run.hidden || {}).length === 1 ? "" : "s"} · ${agentKind(run) === "rule" ? "rule-based diagnoser" : "Nemotron tool agent"}` : `${run.open ? "Open-world scenario" : "Scenario"} · hidden change in ${Object.keys(run.truth).length} parameters`}</span><h2>${esc(run.title)}</h2><p>${BLURB[run.id] && !isLive(run) ? esc(BLURB[run.id]) : run.hidden ? `${isLive(run) ? "Your hidden world" : "Custom world"}: ${describeHidden(run.hidden)}. ${isLive(run) ? "The agent never saw these values." : ""}` : ""}</p>${run.error ? `<p class="bad-t">${esc(run.error)}</p>` : ""}${run.truth && !(run.final_success == null && !run.error) ? studioLink(run.truth, run.title) : ""}</div>
         <div class="controls">${live ? `<span class="chip run"><i></i>${run.events.some((e) => e.type === "done") ? "running baselines (rule-based, system ID)…" : thinkingIter(run) != null && run.agent === "tool" ? "Nemotron is experimenting…" : "agent running…"}</span>` : `<button class="btn primary" id="play">${S.timer ? "Pause" : "Replay run"}</button><button class="btn" id="end">Show result</button>`}</div></div>
       ${run.open ? openKpis(run, fullIts, partial, live) : `<div class="kpis">
         <div class="kpi"><span class="label">Before</span><span class="v">${P_(first)}</span><span class="d">real success, sim-trained policy</span></div>
-        <div class="kpi hero"><span class="label">After GapCloser</span><span class="v">${P_(live || partial ? null : last)}</span><span class="d">${(live || partial) && shownLast != null ? `latest ${pct(shownLast)}, still working` : "measured in hidden physics"}</span></div>
+        <div class="kpi hero"><span class="label">After Tether</span><span class="v">${P_(live || partial ? null : last)}</span><span class="d">${(live || partial) && shownLast != null ? `latest ${pct(shownLast)}, still working` : "measured in hidden physics"}</span></div>
         <div class="kpi"><span class="label">Agent loops</span><span class="v">${Math.max(0, (partial ? its : fullIts).length - 1)}<small> fixes</small></span><span class="d">${(partial ? its : fullIts).length} trainings${partial ? " so far" : " total"}</span></div>
         <div class="kpi"><span class="label">Outcome-only agent</span><span class="v">${P_(bl.outcome_only)}</span><span class="d">same loop, sees end positions only</span></div>
         <div class="kpi"><span class="label">Domain randomization</span><span class="v">${P_(bl.full_dr)}</span><span class="d">all 10 params, full range</span></div>
@@ -1503,7 +1542,7 @@ function boot(B, LIVE) {
   }
 
   // ---------- benchmark ----------
-  const METH_ALL = [["full_dr", "Domain randomization", "all params, full range"], ["nominal", "Nominal sim", "no randomization"], ["gapcloser_outcome", "GapCloser · outcome-only", "sees end positions"], ["gapcloser_traj", "GapCloser · tracking", "sees cube motion"], ["gapcloser_llm", "GapCloser · Nemotron", "LLM reads the evidence"]];
+  const METH_ALL = [["full_dr", "Domain randomization", "all params, full range"], ["nominal", "Nominal sim", "no randomization"], ["gapcloser_outcome", "Tether · outcome-only", "sees end positions"], ["gapcloser_traj", "Tether · tracking", "sees cube motion"], ["gapcloser_llm", "Tether · Nemotron", "LLM reads the evidence"]];
   function renderBench() {
     const s = B.benchmark.summary;
     const METH = METH_ALL.filter(([k]) => s[k]);

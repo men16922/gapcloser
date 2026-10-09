@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Deploy GapCloser to a Nebius AI Cloud CPU VM (eu-west1 by default), retrying VM creation until the account allows it
+# Deploy Tether to a Nebius AI Cloud CPU VM (eu-west1 by default), retrying VM creation until the account allows it
 # (billing details saved). Then: copy the committed code, build the Docker image on the VM, run it on port 80.
 # Needs: nebius CLI profile (nebius profile create), ~/.ssh/gapcloser_nebius, NEBIUS_API_KEY in .env.
 # Usage: deploy/nebius_vm.sh [max_wait_minutes]      Stop billing afterwards: nebius compute instance delete --id <id>

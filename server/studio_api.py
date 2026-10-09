@@ -198,7 +198,10 @@ def mount_studio(app: FastAPI, llm, budget, data_dir: Path, budgeted_llm_cls) ->
         from studio.video import first_frame_jpeg
 
         m = sample(sample_id)
+        still = SAMPLE_DIR / f"{m['id']}-frame.jpg"  # log samples may ship a Newton-rendered still of their scene
         if m["kind"] != "video":
+            if still.exists():
+                return FileResponse(still, media_type="image/jpeg")
             raise HTTPException(404, "Not a video sample.")
         cache = store / f"_thumb-{m['id']}.jpg"
         if not cache.exists():

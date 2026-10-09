@@ -1,4 +1,4 @@
-"""GapCloser Studio CLI.
+"""Tether Studio CLI.
 
   python -m studio calibrate LOG.csv|LOG.json [--llm tokenfactory|local] [--out DIR]
   python -m studio video CLIP.mp4 --corners x1,y1,x2,y2,x3,y3,x4,y4 [--sheet a4|letter] [--out DIR] [--llm ...]

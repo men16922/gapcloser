@@ -1,4 +1,4 @@
-# Devpost draft — GapCloser
+# Devpost draft — Tether
 
 Status: draft 2026-10-09 (Studio added). Numbers come from `runs/bench/open_newton_super_n15.json` (Gap-Bench, Newton, Nemotron 3 Super on Nebius Token Factory), `runs/bench/open_newton_{nano,lightning,ultra}.json` and `runs/demo/bundle.json`.
 
@@ -12,7 +12,7 @@ A policy that works 98% of the time in simulation fails on the real robot, becau
 
 ## What it does
 
-GapCloser trains a push policy in **NVIDIA Newton**, runs it in a second Newton world whose physics are hidden from the agent, and measures where all 20 pushes stop. When pushes miss, the **Nemotron 3 Super** agent on **Nebius Token Factory** investigates with tools:
+Tether trains a push policy in **NVIDIA Newton**, runs it in a second Newton world whose physics are hidden from the agent, and measures where all 20 pushes stop. When pushes miss, the **Nemotron 3 Super** agent on **Nebius Token Factory** investigates with tools:
 
 - **Look:** it reads a deceleration profile from camera tracks and a perception check of perceived vs true target positions.
 - **Hypothesize and fit:** it proposes simulator *structures*, such as "uniform friction + weaker motor", "+ a friction strip from 0.40 m" or "+ lens distortion". A least-squares fitter returns the numbers and residuals for each. The LLM chooses the structure and the optimizer does the arithmetic.
@@ -30,7 +30,7 @@ The agent console shows the whole investigation:
 
 On the live server, visitors can **hide physics themselves** ("Stump the agent") and watch Nemotron work it out.
 
-### GapCloser Studio: your own data, a calibrated simulator out
+### Tether Studio: your own data, a calibrated simulator out
 
 The agent loop is useful only if it can face real measurements. **Studio** is the product surface for that.
 

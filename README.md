@@ -1,8 +1,8 @@
-# GapCloser
+# Tether
 
 **An agent that fixes the simulator when a robot fails in the real world, and can tell you why.**
 
-A policy trained in simulation fails on the real robot because the simulator is wrong in ways nobody wrote down: a slippery strip on the table, a weak motor, a distorted camera lens. GapCloser runs the loop an engineer runs by hand. It measures the failures, works out what is wrong with the simulator, designs extra experiments when the data cannot decide, fixes the simulator, retrains and measures again.
+A policy trained in simulation fails on the real robot because the simulator is wrong in ways nobody wrote down: a slippery strip on the table, a weak motor, a distorted camera lens. Tether runs the loop an engineer runs by hand. It measures the failures, works out what is wrong with the simulator, designs extra experiments when the data cannot decide, fixes the simulator, retrains and measures again.
 
 Built for the Nebius × NVIDIA Global AI Hackathon (Physical AI track). Runs on a laptop at near-zero cost:
 
@@ -10,7 +10,7 @@ Built for the Nebius × NVIDIA Global AI Hackathon (Physical AI track). Runs on 
 - Reasoning: **NVIDIA Nemotron 3** on **Nebius Token Factory**
 - Eyes: **NVIDIA Cosmos Reason 2**, running locally (optional)
 
-## GapCloser Studio: calibrate from your own data
+## Tether Studio: calibrate from your own data
 
 The agent loop above runs against a hidden simulated world. **Studio** points the same machinery at
 measurements you bring, and hands back a simulator you can use:

@@ -1,4 +1,4 @@
-# GapCloser — Sim2Real self-closing agent (Nebius x NVIDIA hackathon)
+# Tether — Sim2Real self-closing agent (Nebius x NVIDIA hackathon)
 # Gate must stay OFFLINE + DETERMINISTIC: no GPU, no network, no Nebius/Token Factory calls.
 .PHONY: check test lint smoke-local demo dashboard replays franka-mesh serve docker site video studio-samples studio-record studio-bench
 
