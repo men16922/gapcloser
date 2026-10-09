@@ -15,7 +15,9 @@ import tempfile
 from pathlib import Path
 
 import numpy as np
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
+
+from studio.fonts import font
 
 from sim.push_task import SUCCESS_TOL, frictions, observe, unobserve
 from studio.fit import calibrate
@@ -117,8 +119,8 @@ def montage(sample: str, out: Path) -> dict:
         a = idx
         idx, hits = render_episode(worlds, cmds, targets, domain, tmp, idx)
         episodes.append((it, a, idx, hits))
-    fd = ImageFont.truetype("/System/Library/Fonts/Supplemental/DIN Condensed Bold.ttf", 54)
-    fm = ImageFont.truetype("/System/Library/Fonts/Menlo.ttc", 24)
+    fd = font("display", 54)
+    fm = font("mono", 24)
     frames = tmp / "out"
     frames.mkdir()
     j = 0

@@ -16,7 +16,9 @@ import sys
 import tempfile
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
+
+from studio.fonts import font
 
 from sim.push_task import SUCCESS_TOL, observe
 from studio.session import load
@@ -61,8 +63,8 @@ def render_rollout(s, truth_model: dict, training: dict, domain: str, out: Path)
     counts = {c: len(list((tmp / c).glob("*.png"))) for c, *_ in cols}
     n = max(counts.values()) + 30  # columns run at their own pace; a finished column holds its last frame
     scale, unit = UNITS.get(domain, (1.0, "cm"))
-    fd = ImageFont.truetype("/System/Library/Fonts/Supplemental/DIN Condensed Bold.ttf", 34)
-    fm = ImageFont.truetype("/System/Library/Fonts/Menlo.ttc", 20)
+    fd = font("display", 34)
+    fm = font("mono", 20)
     W, H = 1920, 1080
     frames = tmp / "out"
     frames.mkdir()
@@ -85,8 +87,7 @@ def render_rollout(s, truth_model: dict, training: dict, domain: str, out: Path)
             done = i >= nxt - 14  # the push has come to rest (the renderer holds 14 frames after rest)
             txt = f"run {pi + 1}: target {TARGETS[pi] * scale:.2f} m" + (f"  ->  {end * (100 if unit == 'cm' else 1):+.1f} {unit}" if done else "")
             d.text((x, 300 + fr.height + 16), txt, font=fm, fill=((118, 185, 0) if hits[pi] else (226, 87, 76)) if done else (153, 153, 153))
-        d.text((20, 60), "Same hidden world, same targets. Only the training differs. (0.6x)", font=ImageFont.truetype(
-            "/System/Library/Fonts/Supplemental/DIN Condensed Bold.ttf", 60), fill=(238, 238, 238))
+        d.text((20, 60), "Same hidden world, same targets. Only the training differs. (0.6x)", font=font("display", 60), fill=(238, 238, 238))
         d.text((20, H - 60), "Rendered by NVIDIA Newton. Policies from Tether Studio's Retrain step; the hidden world never trained them.",
                font=fm, fill=(105, 113, 122))
         im.save(frames / f"f{i:05d}.png")
