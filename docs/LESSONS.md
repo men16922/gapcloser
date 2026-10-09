@@ -1,6 +1,6 @@
 # Lessons
 
-Last Updated: 2026-10-08
+Last Updated: 2026-10-09
 
 Repo-specific facts an agent learned the hard way, one per line, newest first. Read before
 starting work; append when a blocker, gate failure, or repair taught you something the docs did
@@ -17,6 +17,13 @@ Not for: task status (that is `docs/PROGRESS_LOG.md`), open work (`docs/NEXT_PLA
 decisions with rationale (`docs/DECISIONS.md`).
 
 ## Entries
+
+- 2026-10-09 fitter: scipy Nelder-Mead's default simplex (5% of x0, 0.00025 at 0) left camera_pitch_deg/lens_k stuck at 0; pass initial_simplex with per-field steps. Applies to: agent/tool_agent.py fit_hypothesis.
+- 2026-10-09 fitter: a friction region started with patch_mu == mu_eff is flat in patch_y0, so the fit never moves; multistart patch_mu at 0.6x/1.4x. Applies to: agent/tool_agent.py.
+- 2026-10-09 real tracks: 1.5 mm camera jitter makes 2-frame finite-difference deceleration useless (±0.3 g) and misled Nemotron; use a 7-frame Savitzky-Golay second derivative and skip windows that reach the stop. Applies to: Workbench.decel_profile.
+- 2026-10-09 agent: Nemotron fitted stops by trading friction for actuator gain (stops depend on gain^2/mu) and ignored the launch residual; tool results now carry `unexplained` warnings and Studio cross-checks against a structure library. Applies to: agent/tool_agent.py, studio/pipeline.py.
+- 2026-10-09 video: release frame must be refined on raw forward differences; the smoothed-speed peak lands one frame late (+3-6 cm start error). Applies to: studio/video.py segment.
+- 2026-10-09 shell: `cat > file` with no heredoc waits on stdin forever and stalls the tool call. Applies to: any Bash command.
 
 - 2026-10-08 benchmarks: a 6-worlds/tier run showed the LLM agent beating sysID (99% vs 93%); at 15/tier it vanished (96% vs 97%). Never claim a gap from n<=6. Applies to: eval/open_bench.py, README/DEVPOST claims.
 - 2026-10-08 tool-agent: Nemotron hand-tuning numbers never committed; splitting "LLM picks structure, least-squares fitter fits numbers" (`fit_hypothesis`) fixed it. Applies to: agent/tool_agent.py.

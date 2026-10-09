@@ -81,3 +81,13 @@ def test_video_sample_track_append_analyze_overlay(tmp_path):
     ov = res["overlay"]["0"]["regions"]
     assert len(ov) == 2 and all(len(r["poly"]) == 4 for r in ov)
     assert c.get(f"/api/studio/files/{s['id']}/upload.mp4").status_code == 404
+
+
+def test_log_session_takes_the_suggested_pushes(tmp_path):
+    c = client(tmp_path)
+    s = c.post("/api/studio/sessions", data={"sample": "short-reach"}).json()
+    more = "command,stop\n2.3,0.52\n2.5,0.66\n"
+    r = c.post(f"/api/studio/sessions/{s['id']}/logs", files={"file": ("more.csv", more, "text/csv")}).json()
+    assert r["added_pushes"] == 2 and len(r["session"]["pushes"]) == 10
+    bad = c.post(f"/api/studio/sessions/{s['id']}/logs", files={"file": ("x.csv", "launch_speed,stop\n2,0.3\n", "text/csv")})
+    assert bad.status_code == 422

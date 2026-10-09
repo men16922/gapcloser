@@ -1,8 +1,12 @@
 # Status
 
-Last Updated: 2026-10-08
+Last Updated: 2026-10-09
 
 ## Current Baseline
+
+- **Studio (product surface, 2026-10-09):** `/studio` on the live server and `dashboard/dist/studio.standalone.html` (recorded). Flow: phone video (A4 sheet → focal/pose, parallax-corrected tracking, push segmentation) or robot log → Nemotron agent (offline: probe_real queues next-experiment cards) + cross-check → bootstrap 90% intervals, what-if worlds for unmeasured table, ghost boxes (old vs calibrated sim) over the user's video → Newton / Isaac Lab EventTermCfg / Markdown / JSON exports. CLI `python -m studio`. Code: `studio/`, `server/studio_api.py`, `dashboard/studio.html`.
+- Studio samples (Newton, truth revealed after): two-take flick video recovers μ 0.55 / region 0.376 m / μ 0.294 (truth 0.55 / 0.36 / 0.30); lab-bench log recovers μ 0.699, gain 0.872, region 0.372/0.445, pitch 2.0° (truth 0.70, 0.88, 0.38/0.45, 2°); short-reach refuses to invent the unmeasured region and asks for far pushes.
+- Experiment savings (`make studio-bench`): real pushes to 95%: suggested 5.8 / sweep 5.9–6.2 / random 7.7–7.9 (analytic 50, Newton 20 worlds).
 
 - Scope: zero cost, no hardware, Tier 0. Local Mac: NVIDIA Newton; Nemotron 3 Super 120B on Nebius Token Factory (key in `.env`, gitignored); Ollama Nano for offline experiments.
 - Public repo: https://github.com/men16922/gapcloser
@@ -11,12 +15,12 @@ Last Updated: 2026-10-08
 - Dashboard v3 (artifact https://claude.ai/artifact/WVBNfVMAzeNg71kDSFqYAf): agent lab notebook, 3D viewer with friction strips, Gap-Bench panel, Cosmos eyes strip, live "Stump the agent" (`make serve`).
 - Cosmos Reason 2 8B local (llama.cpp, `agent/cosmos_eyes.py`): second opinion on tipping, 21/21 agree on demo clips; held-out tip recall ~50%.
 - Nemotron family (open+compound, 6 each): Super 100/99, Lightning 100/95, Ultra 100/83, Nano 97/53.
-- `make check` green: 67 tests (was 33 (incl. live server, Newton env, tipping, recorded real Nemotron response replay, vision-role request shape).
+- `make check` green: 87 tests (incl. Studio core/API/video; live server, Newton env, tipping, recorded real Nemotron response replay, vision-role request shape).
 - Agent: LLMDiagnoser (Nemotron) → fallback TrajectoryDiagnoser; HeuristicPlanner applies estimates. Tipped trials excluded from fits.
 - Benchmark (Newton, 10 worlds): full DR 18% / nominal 24% / outcome-only 89% / tracking 94%; Nemotron 30B 99% (run 1) / 93% (run 2), P 0.89/0.94, R 1.00.
 - Live server: `make serve` / Docker image (CPU) — verified with Token Factory in a container; deploy guide `docs/deploy/DEPLOY.md`.
 - Submission assets: `make site` (static page), `make video` (1080p draft, ~110 s), fresh-clone reproduction verified.
-- Demo: 5 scenarios recorded with Nemotron 30B; dashboard v2 https://claude.ai/artifact/WVBNfVMAzeNg71kDSFqYAf.
+- Demo: console scenarios recorded with Nemotron 3 Super; dashboard v3 https://claude.ai/artifact/WVBNfVMAzeNg71kDSFqYAf.
 
 ## Active Focus
 
@@ -25,6 +29,9 @@ Authority: `docs/NEXT_PLAN.md`.
 0. Award plan workstreams (`docs/plans/2026-10-07-award-plan.md`); submission checklist after freeze.
 
 ## Open Risks
+
+- Studio has only been validated on Newton-rendered video; a real phone video has not been run yet (user to film; tracking is template NCC and may struggle with hands occluding, motion blur, glossy objects).
+- Token Factory latency spiked on 2026-10-09 (95 s for 20 tokens); recording runs need long timeouts.
 
 - Honest caveat: passive sysID with the same fitter matches the agent on clean (analytic) data; no measurable edge on Newton either at n=15. The agent's value is matching sysID without a hand-ordered structure library, choosing probes, and explaining fixes.
 - Token Factory spend so far ≈ $2 of $25 (Super ≈ $0.0013 per diagnosis). Nano Omni not offered on Token Factory.

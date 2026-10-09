@@ -1,8 +1,14 @@
 # Progress Log
 
-Last Updated: 2026-10-08
+Last Updated: 2026-10-09
 
 This file maintains only recent incremental summaries (newest 3-5 items, ≤120 lines). Older entries are archived to `docs/archive/progress-YYYY-MM.md` via `/tidy-docs`.
+
+## 2026-10-09 — GapCloser Studio: calibrate from your own data
+- Status: Product surface built and verified end to end (live API in headless Chrome, recorded standalone, mobile 390 px no overflow).
+- Changed: `studio/` (session ingest, fit + bootstrap intervals + what-if worlds, query-by-committee next experiment, Newton/Isaac Lab/Markdown/JSON export, A4-sheet camera recovery + parallax-corrected tracking, CLI, Newton-rendered sample videos/logs, recorder); `server/studio_api.py`; `dashboard/studio.html` (ghost boxes over the user's video, friction painted on the frame, forest plot with truth reveal); tool agent: offline probe queue, Savitzky-Golay decel profile, `unexplained` residual checks, per-field simplex + patch-mu multistart (pitch was stuck at 0 before); Studio cross-check + identifiability guard; `eval/studio_bench.py`.
+- Verified: `make check` 87 passed; sample truths recovered (see STATUS); bench suggested 5.8 vs random 7.7–7.9 vs sweep 5.9–6.2 real pushes to 95%; Gap-Bench analytic sysID 100/100/100, rule 100/80/59 (no regression).
+- Next: real phone video; Studio artifact; video v2.
 
 ## 2026-10-08 — Dashboard v3, live Stump the agent, Cosmos eyes, README/Devpost rewrite
 - Status: Award-plan core done except video. Artifact republished (v3).

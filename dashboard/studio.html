@@ -160,11 +160,25 @@ table.pushes th:first-child, table.pushes td:first-child { text-align: left; }
 .map .scale { position: absolute; right: 12px; bottom: 10px; background: rgba(0,0,0,0.72); padding: 6px 9px; font-size: 12px; color: var(--muted); display: grid; gap: 4px; }
 .map .scale .ramp { width: 160px; height: 8px; background: linear-gradient(90deg, var(--slick), #8b9097, var(--grip)); }
 .map .scale .ends { display: flex; justify-content: space-between; }
+.map video { display: block; width: 100%; height: auto; }
+.map { overflow: hidden; }
+.map .zoom { position: relative; transform-origin: 0 0; }
+.gh line, .gh polygon { vector-effect: non-scaling-stroke; }
+.gh.cal line { stroke: #76b900; stroke-width: 2.5; }
+.gh.cal polygon { fill: rgba(118,185,0,0.28); stroke: none; }
+.gh.cur line { stroke: #d6dadd; stroke-width: 2; stroke-dasharray: 5 4; }
+.gh.cur polygon { fill: rgba(214,218,221,0.12); stroke: none; }
+.ghostbar { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; margin-top: 10px; font-size: 13.5px; }
+.ghostbar label { display: inline-flex; gap: 6px; align-items: center; cursor: pointer; }
+.gk { width: 14px; height: 10px; display: inline-block; border: 2px solid; }
+.gk.cal { border-color: #76b900; background: rgba(118,185,0,0.28); }
+.gk.cur { border-color: #d6dadd; border-style: dashed; }
 .strip1d svg { display: block; width: 100%; height: auto; }
 .verdict { background: var(--panel); border: 1px solid var(--line); padding: 20px; display: grid; gap: 16px; align-content: start; }
 .verdict .pair { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: end; }
 .verdict .big { font: 600 54px/1 var(--f-display); font-variant-numeric: tabular-nums; }
 .verdict .big.after { color: var(--green); }
+.verdict .big.span { font-size: 40px; color: var(--warn); }
 .verdict .arrow { font: 500 26px/1 var(--f-display); color: var(--dim); padding-bottom: 10px; }
 .verdict .what { font-size: 13px; color: var(--muted); margin-top: 6px; }
 .verdict .range { font: 12.5px/1.3 var(--f-mono); color: var(--muted); margin-top: 2px; }
@@ -741,13 +755,27 @@ function renderResults() {
   const v = s.videos[s.videos.length - 1];
   if (ov && v) {
     const polys = ov.regions.map(g => `<polygon points="${g.poly.map(p => p.join(",")).join(" ")}" fill="${muColor(g.mu, 0.42)}" stroke="${muColor(g.mu)}" stroke-width="1.5" vector-effect="non-scaling-stroke"/>`).join("");
-    const fs = v.width / 34, txt = `font-family:var(--f-display);font-weight:600;fill:#fff;paint-order:stroke;stroke:#000;stroke-width:4px`;
+    const kz = Math.max(1, Math.min(2.4, v.width / Math.max(1, (Math.max(...ov.regions.flatMap(g => g.poly).map(p => p[0])) - Math.min(...ov.regions.flatMap(g => g.poly).map(p => p[0]))) * 1.16)));
+    const fs = v.width / 34 / kz, txt = `font-family:var(--f-display);font-weight:600;fill:#fff;paint-order:stroke;stroke:#000;stroke-width:4px`;
     const labels = ov.regions.map(g => { const q = g.label_px || [g.poly.reduce((a, p) => a + p[0], 0) / 4, g.poly.reduce((a, p) => a + p[1], 0) / 4];
       return `<text x="${q[0]}" y="${q[1]}" text-anchor="middle" style="${txt};font-size:${fs}px">μ ${fmt(g.mu)}</text>`; }).join("");
     const unm = ov.unmeasured_poly ? `<polygon points="${ov.unmeasured_poly.map(p => p.join(",")).join(" ")}" fill="url(#hatch2)"/>` : "";
     const r0 = ov.reach_px && ov.reach_px[0];
-    const reach = ov.reach_px ? `<line x1="${ov.reach_px[0][0]}" y1="${ov.reach_px[0][1]}" x2="${ov.reach_px[1][0]}" y2="${ov.reach_px[1][1]}" stroke="#fff" stroke-width="2" stroke-dasharray="7 5" vector-effect="non-scaling-stroke"/><text x="${r0[0] + 10}" y="${r0[1] + fs * 0.9}" style="${txt};font-weight:500;font-size:${v.width / 62}px">${ov.unmeasured_poly ? `no push got past ${fmt(ov.reach_m)} m` : `measured to ${fmt(ov.reach_m)} m`}</text>` : "";
-    $("#r-map").innerHTML = `<div class="map"><img src="${esc(be.media(v.frame))}" alt="Your table with the measured friction painted on it" width="${v.width}" height="${v.height}"><svg class="ov" viewBox="0 0 ${v.width} ${v.height}" aria-hidden="true"><defs><pattern id="hatch2" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="10" height="10" fill="rgba(0,0,0,0.5)"/><line x1="0" y1="0" x2="0" y2="10" stroke="rgba(255,255,255,0.35)" stroke-width="2"/></pattern></defs>${polys}${unm}${labels}${reach}</svg><div class="cap">Your table, measured</div><div class="scale"><div class="ramp"></div><div class="ends"><span>slick 0.2</span><span>grippy 1.0</span></div></div></div>`;
+    const reach = ov.reach_px ? `<line x1="${ov.reach_px[0][0]}" y1="${ov.reach_px[0][1]}" x2="${ov.reach_px[1][0]}" y2="${ov.reach_px[1][1]}" stroke="#fff" stroke-width="2" stroke-dasharray="7 5" vector-effect="non-scaling-stroke"/><text x="${(ov.reach_px[0][0] + ov.reach_px[1][0]) / 2}" y="${Math.min(ov.reach_px[0][1], ov.reach_px[1][1]) - fs * 0.4}" text-anchor="middle" style="${txt};font-weight:500;font-size:${v.width / 62 / kz}px">${ov.unmeasured_poly ? `no push got past ${fmt(ov.reach_m)} m` : `measured to ${fmt(ov.reach_m)} m`}</text>` : "";
+    const hasGhosts = ov.ghosts && ov.ghosts.length;
+    const media = hasGhosts ? `<video src="${esc(be.media(v.file))}" muted loop playsinline preload="auto" width="${v.width}" height="${v.height}" aria-label="Your video with the simulators' predictions overlaid"></video>`
+                            : `<img src="${esc(be.media(v.frame))}" alt="Your table with the measured friction painted on it" width="${v.width}" height="${v.height}">`;
+    // zoom onto where the action is: the painted table, the sheet and the tracked paths
+    const pts = [...ov.regions.flatMap(g => g.poly), ...(v.corners || []), ...(v.pushes || []).flatMap(p => p.path_px || [])];
+    let x0 = Math.min(...pts.map(p => p[0])), x1 = Math.max(...pts.map(p => p[0])), y0 = Math.min(...pts.map(p => p[1])), y1 = Math.max(...pts.map(p => p[1]));
+    const padx = (x1 - x0) * 0.08, pady = (y1 - y0) * 0.12;
+    x0 = Math.max(0, x0 - padx); x1 = Math.min(v.width, x1 + padx); y0 = Math.max(0, y0 - pady); y1 = Math.min(v.height, y1 + pady);
+    const k = Math.max(1, Math.min(2.4, v.width / (x1 - x0), v.height / (y1 - y0)));
+    const cx = Math.min(Math.max((x0 + x1) / 2 - v.width / (2 * k), 0), v.width - v.width / k), cy = Math.min(Math.max((y0 + y1) / 2 - v.height / (2 * k), 0), v.height - v.height / k);
+    const zoom = `transform: scale(${k.toFixed(3)}) translate(${(-cx / v.width * 100).toFixed(3)}%, ${(-cy / v.height * 100).toFixed(3)}%)`;
+    $("#r-map").innerHTML = `<div class="map"><div class="zoom" style="${zoom}">${media}<svg class="ov" viewBox="0 0 ${v.width} ${v.height}" aria-hidden="true"><defs><pattern id="hatch2" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="10" height="10" fill="rgba(0,0,0,0.5)"/><line x1="0" y1="0" x2="0" y2="10" stroke="rgba(255,255,255,0.35)" stroke-width="2"/></pattern></defs><g class="regions">${polys}${unm}${labels}${reach}</g><g id="ghosts"></g></svg></div><div class="cap">Your table, measured</div><div class="scale"><div class="ramp"></div><div class="ends"><span>slick 0.2</span><span>grippy 1.0</span></div></div></div>` +
+      (hasGhosts ? `<div class="ghostbar"><button class="btn" id="g-play">Pause</button><label><input type="checkbox" id="g-cal" checked> <i class="gk cal"></i>calibrated sim</label><label><input type="checkbox" id="g-cur" checked> <i class="gk cur"></i>your current sim</label><label><input type="checkbox" id="g-map" checked> friction map</label><span class="small dim">Same launch speed and spot as each real push; the boxes are the simulators' predictions.</span></div>` : "");
+    if (hasGhosts) ghostPlayer(v, ov);
   } else {
     $("#r-map").innerHTML = `<div class="map strip1d">${strip1d(c, s)}<div class="cap">The table along the push, measured</div></div>`;
   }
@@ -765,7 +793,7 @@ function renderResults() {
     <div class="pair">
       <div><div class="big">${pct(p.before.median)}</div><div class="what">your current sim</div><div class="range">90%: ${pct(p.before.lo)}–${pct(p.before.hi)}</div></div>
       <div class="arrow" aria-hidden="true">→</div>
-      <div><div class="big after">${pct(p.after.median)}</div><div class="what">calibrated sim</div><div class="range">90%: ${pct(p.after.lo)}–${pct(p.after.hi)}</div></div>
+      <div><div class="big after ${p.unmeasured_whatif ? "span" : ""}">${p.unmeasured_whatif && p.after.hi - p.after.lo > 0.1 ? `${Math.round(p.after.lo * 100)}–${pct(p.after.hi)}` : pct(p.after.median)}</div><div class="what">calibrated sim</div><div class="range">${p.unmeasured_whatif ? "depends on the unmeasured table" : `90%: ${pct(p.after.lo)}–${pct(p.after.hi)}`}</div></div>
     </div>
     <div class="by">${weak < 0 ? "Holds across the whole target range." : `Weakest beyond ${fmt(lo + (hi - lo) * weak / by.length)} m${p.unmeasured_whatif ? ", where no push has measured the table yet" : ""}.`}</div>
     <div class="chips">${chips.join("")}</div>
@@ -785,11 +813,17 @@ function renderResults() {
   $("#r-next").innerHTML = nx + (more ? `<div class="row" style="margin-top:14px">${more}</div>` : "") + `<div class="row" style="margin-top:22px"><button class="btn primary" id="to-x">Export the calibrated config</button></div>`;
   if ($("#more")) $("#more").onclick = addTake;
   if ($("#more-file")) $("#more-file").onchange = () => addTake($("#more-file").files[0]);
+  if ($("#more-log")) $("#more-log").onchange = async () => {
+    try { const f = new FormData(); f.set("file", $("#more-log").files[0]);
+      state.s = await call(fetch(`/api/studio/sessions/${state.s.id}/logs`, { method: "POST", body: f }));
+      state.result = null; state.done.delete("diag"); state.done.delete("results"); state.done.delete("export");
+      toast(`Added ${state.s.added_pushes} pushes`); go("measure");
+    } catch (e) { toast(e.message); } };
   $("#to-x").onclick = () => go("export");
 }
 function moreAction() {
   const s = state.s;
-  if (s.kind !== "video") return LIVE ? `<span class="small muted">Run the suggested pushes, add them to your log and upload it again.</span>` : "";
+  if (s.kind !== "video") return LIVE ? `<label class="btn">Add the pushes you ran (CSV/JSON)<input type="file" id="more-log" accept=".csv,.json" hidden></label><span class="small muted">Same columns as your first log; they are merged and you diagnose again.</span>` : "";
   const sample = s.sample && (LIVE ? null : rec.recFor(s.sample));
   if (s.sample === "flick" && s.videos.length < 2) return `<button class="btn" id="more">Load take 2: the pushes it asked for</button>`;
   if (LIVE && !s.sample) return `<label class="btn">Add a video of these pushes<input type="file" id="more-file" accept="video/*" hidden></label><span class="small muted">Keep the sheet where it was.</span>`;
@@ -804,6 +838,33 @@ async function addTake(file) {
     state.done.delete("diag"); state.done.delete("results"); state.done.delete("export");
     go("measure");
   } catch (e) { toast(e.message); }
+}
+function ghostPlayer(v, ov) {
+  const vid = $("#r-map video"), g = $("#ghosts"), fps = v.fps || 30;
+  const edges = [[0, 1], [1, 2], [2, 3], [3, 0], [4, 5], [5, 6], [6, 7], [7, 4], [0, 4], [1, 5], [2, 6], [3, 7]];
+  const box = (pts, cls) => `<g class="${cls}">${edges.map(([a, b]) => `<line x1="${pts[a][0]}" y1="${pts[a][1]}" x2="${pts[b][0]}" y2="${pts[b][1]}"/>`).join("")}<polygon points="${[4, 5, 6, 7].map(i => pts[i].join(",")).join(" ")}"/></g>`;
+  const show = { cal: true, cur: true };
+  const draw = () => {
+    const f = Math.floor(vid.currentTime * fps);
+    let p = null;
+    for (const q of ov.ghosts) if (q.release_frame <= f && f < q.release_frame + q.frames) p = q;
+    let out = "";
+    if (p) {
+      const k = f - p.release_frame;
+      if (show.cur) out += box(p.current[Math.min(k, p.current.length - 1)], "gh cur");
+      if (show.cal) out += box(p.calibrated[Math.min(k, p.calibrated.length - 1)], "gh cal");
+    }
+    g.innerHTML = out;
+  };
+  const loop = () => { draw(); if (!vid.paused) requestAnimationFrame(loop); };
+  vid.addEventListener("play", loop); vid.addEventListener("seeked", draw); vid.addEventListener("loadeddata", draw);
+  const pb = $("#g-play");
+  pb.onclick = () => { vid.paused ? vid.play() : vid.pause(); };
+  vid.addEventListener("play", () => pb.textContent = "Pause"); vid.addEventListener("pause", () => { pb.textContent = "Play"; draw(); });
+  $("#g-cal").onchange = e => { show.cal = e.target.checked; draw(); };
+  $("#g-cur").onchange = e => { show.cur = e.target.checked; draw(); };
+  $("#g-map").onchange = e => { $("#r-map .regions").style.display = e.target.checked ? "" : "none"; };
+  if (reduce) { vid.currentTime = (ov.ghosts[0].release_frame + 12) / fps; pb.textContent = "Play"; } else vid.play().catch(() => { pb.textContent = "Play"; });
 }
 function strip1d(c, s) {
   const W = 900, H = 230, x0 = 40, x1 = W - 20, ymax = 0.9;
@@ -902,12 +963,15 @@ function exportText(id) {
   return r.exports[id];
 }
 function highlight(text, id) {
-  const e = esc(text);
-  if (id === "newton" || id === "isaaclab") return e.split("\n").map(l => {
-    const i = l.indexOf("#"); const code = i >= 0 ? l.slice(0, i) : l, com = i >= 0 ? `<span class="c">${l.slice(i)}</span>` : "";
-    return code.replace(/\b(import|from|class|def|return|True|False|None)\b/g, '<span class="k">$1</span>').replace(/(&quot;[^&]*?&quot;)/g, '<span class="s">$1</span>') + com;
+  if (id !== "newton" && id !== "isaaclab") return esc(text);
+  return text.split("\n").map(line => {
+    let q = null, cut = -1;  // the comment starts at the first # outside a string literal
+    for (let i = 0; i < line.length; i++) { const ch = line[i];
+      if (q) { if (ch === q) q = null; } else if (ch === '"' || ch === "'") q = ch; else if (ch === "#") { cut = i; break; } }
+    const code = cut >= 0 ? line.slice(0, cut) : line, com = cut >= 0 ? `<span class="c">${esc(line.slice(cut))}</span>` : "";
+    const parts = code.split(/("[^"]*"|'[^']*')/);
+    return parts.map((t, i) => i % 2 ? `<span class="s">${esc(t)}</span>` : esc(t).replace(/\b(import|from|class|def|return|True|False|None|as)\b/g, '<span class="k">$1</span>')).join("") + com;
   }).join("\n");
-  return e;
 }
 function renderExport() {
   state.done.add("export"); renderSteps();

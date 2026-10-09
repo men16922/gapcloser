@@ -1,6 +1,6 @@
 # Devpost draft — GapCloser
 
-Status: draft 2026-10-08. Numbers come from `runs/bench/open_newton_super_n15.json` (Gap-Bench, Newton, Nemotron 3 Super on Nebius Token Factory), `runs/bench/open_newton_{nano,lightning,ultra}.json` and `runs/demo/bundle.json`.
+Status: draft 2026-10-09 (Studio added). Numbers come from `runs/bench/open_newton_super_n15.json` (Gap-Bench, Newton, Nemotron 3 Super on Nebius Token Factory), `runs/bench/open_newton_{nano,lightning,ultra}.json` and `runs/demo/bundle.json`.
 
 ## Tagline
 
@@ -29,6 +29,31 @@ The agent console shows the whole investigation:
 - a "reveal truth" view that grades the diagnosis
 
 On the live server, visitors can **hide physics themselves** ("Stump the agent") and watch Nemotron work it out.
+
+### GapCloser Studio: your own data, a calibrated simulator out
+
+The agent loop is useful only if it can face real measurements. **Studio** is the product surface for that.
+
+- **Bring data:** a phone video of an object flicked across your table, with a sheet of A4 or Letter paper as
+  the only reference. Or the push log your robot already writes.
+- **Measure:** from four clicked sheet corners, Studio recovers the camera's focal length, height and angle.
+  It tracks the object with parallax correction for its height, splits the video into pushes and measures
+  launch speeds and slides in metres. On the Newton-rendered sample this is within 3 mm and 2%.
+- **Diagnose:** the same Nemotron tool agent works offline. The pushes it would have run on a robot become
+  *next experiment* cards. A cross-check fits a fixed structure library and overrules the agent when its
+  model leaves evidence unexplained, for example launch speeds it never fitted.
+- **Calibrated sim:** you get:
+  - the measured physics, each value with a 90% bootstrap interval;
+  - the measured friction painted onto your own video frame;
+  - *ghost boxes* replaying each real push in your old simulator (it stops short) and in the calibrated one
+    (it moves with the real object);
+  - predicted success before and after. Unmeasured stretches of table are treated as unknown rather than
+    extrapolated.
+- **Next experiment:** query by committee picks the pushes where plausible models still disagree. In a
+  benchmark (50 analytic and 20 Newton worlds), it reaches 95% real success with 5.8 real pushes vs 7.7–7.9
+  for random pushes, about the same as a well-designed manual sweep (5.9–6.2).
+- **Export:** NVIDIA Newton material values and the friction region, an Isaac Lab `EventTermCfg` whose
+  domain-randomization ranges are the measured intervals, a Markdown report and JSON.
 
 ## How we built it
 

@@ -1,14 +1,16 @@
 # Agent Brief
 
-Last Updated: 2026-10-08
+Last Updated: 2026-10-09
 
-> ▶ NEXT SESSION: video v2 storyboard around the Three faults notebook + 3D viewer + Gap-Bench (`docs/submission/VIDEO_STORYBOARD.md`, `make video`), then optional HF Space deploy.
+> ▶ NEXT SESSION: Studio is built (video/log → calibrated sim with intervals, ghost boxes, next experiment, Newton/Isaac Lab export). Next: run a REAL phone video through `/studio`, publish the Studio artifact, then video v2 around Studio.
 
 ## Snapshot
 
 GapCloser (Nebius × NVIDIA Global AI Hackathon, Physical AI track): an agent closes the Sim2Real gap — measurements in a hidden-physics "real" Newton world, including open-world faults (friction strip, lens) → Nemotron 3 Super tool agent (look, fit, probe, commit) on Token Factory → new sim config → retrain → re-measure; Cosmos Reason 2 (local) as a second opinion on tipping. Near-zero cost, no hardware: local Mac + NVIDIA Newton + Token Factory (~$2 of $25 spent). Deadline 2026-10-30 10:00 PDT (KST 10-31 02:00); submit 10-29. Original proposal: `suggestion.md` (v3 notice at top).
 
 ## Active Work
+
+0. Studio product (`docs/plans/2026-10-09-studio-product.md`): `studio/` core, `server/studio_api.py`, `dashboard/studio.html`; samples in `studio/samples/` (Newton-rendered, truth JSON beside each).
 
 Authority: `docs/NEXT_PLAN.md`.
 
@@ -27,6 +29,7 @@ Authority: `docs/NEXT_PLAN.md`.
 - Tier 0 table: `.venv/bin/python -m eval.compare --worlds 10`
 - Gap-Bench: `.venv/bin/python -m eval.open_bench --worlds 6 [--env newton] [--llm tokenfactory]`
 - Open scenarios: `.venv/bin/python -m eval.record_demo --open-only --llm tokenfactory`
+- Studio: `make serve` → http://localhost:8000/studio; CLI `python -m studio calibrate LOG.csv | video CLIP.mp4 --corners ...`; `make studio-samples`, `make studio-record`, `make studio-bench`
 - Demo + dashboard: `make demo` → `dashboard/dist/gapcloser.standalone.html` (artifact: https://claude.ai/artifact/WVBNfVMAzeNg71kDSFqYAf)
 
 ## Guardrails

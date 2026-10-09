@@ -4,6 +4,7 @@
   GET  /api/studio/samples                       sample sessions (robot logs, phone videos)
   POST /api/studio/sessions                      multipart: file (video | .csv | .json) or sample=<id>; name
   POST /api/studio/sessions/{sid}/videos         multipart: file or sample part -> add another video of the same table
+  POST /api/studio/sessions/{sid}/logs           multipart: file -> append more pushes to a robot-log session
   POST /api/studio/sessions/{sid}/videos/{i}/track   {"corners": [x,y]*4, "sheet": "a4", "object_px": [x,y]?, "object_height_m"?}
   POST /api/studio/sessions/{sid}/analyze        {"agent": true|false} -> streams on /events
   GET  /api/studio/sessions/{sid}/events         Server-Sent Events: stage, agent_step*, calibration, next, done, overlay, result, end | error
@@ -225,6 +226,28 @@ def mount_studio(app: FastAPI, llm, budget, data_dir: Path, budgeted_llm_cls) ->
             raise HTTPException(422, "Upload a video.")
         return s.public() | {"added": v["index"]}
 
+    @app.post("/api/studio/sessions/{sid}/logs")
+    async def more_log(sid: str, file: UploadFile = File(...)):
+        """Append the pushes of another log (e.g. the suggested next experiment) to a log session."""
+        from studio.session import Session, SessionError, load
+
+        s = get(sid)
+        if s.kind != "log" or s.session is None:
+            raise HTTPException(422, "Only robot-log sessions take more log rows; add a video to a video session.")
+        path = await save_upload(file, s.dir)
+        try:
+            extra = load(path.read_text(errors="replace"), (file.filename or "more.csv").lower())
+        except SessionError as e:
+            raise HTTPException(422, str(e)) from None
+        if extra.has_commands != s.session.has_commands:
+            raise HTTPException(422, "The new rows must use the same columns as the first log (commands vs launch speeds).")
+        for p in extra.pushes:
+            p.origin = "added"
+        s.session = Session(s.session.name, "log", s.session.pushes + extra.pushes, s.session.sim,
+                            list(dict.fromkeys(s.session.notes + extra.notes)), s.session.meta)
+        s.result = None
+        return s.public() | {"added_pushes": len(extra.pushes)}
+
     @app.post("/api/studio/sessions/{sid}/videos/{i}/track")
     def track(sid: str, i: int, req: TrackRequest):
         from studio.session import Session, SessionError
@@ -240,7 +263,7 @@ def mount_studio(app: FastAPI, llm, budget, data_dir: Path, budgeted_llm_cls) ->
             sess, dbg = track_video(Path(v["path"]), req.corners, req.sheet, s.name, req.object_px, height, prior=prior)
         except SessionError as e:
             raise HTTPException(422, str(e)) from None
-        s.cams[i] = dbg.pop("to_px")
+        s.cams[i] = (dbg.pop("to_px"), dbg.pop("box_px"))
         for p in sess.pushes:
             p.origin = f"video{i}"
         v.update(tracked=True, corners=req.corners, sheet=req.sheet, pushes=dbg["pushes"], camera=dbg["camera"],
@@ -257,7 +280,7 @@ def mount_studio(app: FastAPI, llm, budget, data_dir: Path, budgeted_llm_cls) ->
         """Friction regions of the calibrated model drawn on each video's first frame."""
         out = {}
         m = cal.model
-        for i, to_px in s.cams.items():
+        for i, (to_px, box_px) in s.cams.items():
             regions = []
             y_end = 0.95
             if m.get("patch_y0") is not None:
@@ -270,11 +293,29 @@ def mount_studio(app: FastAPI, llm, budget, data_dir: Path, budgeted_llm_cls) ->
             reach = s.session.coverage()[1] if s.session else 0.0
             for r in regions:  # label anchor: early in the region, inside the measured stretch when possible
                 y = r["from"] + 0.35 * (min(r["to"], max(reach, r["from"] + 0.05)) - r["from"])
-                r["label_px"] = to_px(max(y, 0.05), 0.0)
+                r["label_px"] = to_px(max(y, 0.05), 0.075)  # beside the push path, not on it
             unmeasured = ([to_px(reach, -0.11), to_px(y_end, -0.11), to_px(y_end, 0.11), to_px(reach, 0.11)]
                           if reach < y_end - 0.02 else None)
             out[str(i)] = {"regions": regions, "reach_px": [to_px(reach, -0.13), to_px(reach, 0.13)], "reach_m": round(reach, 3),
-                           "unmeasured_poly": unmeasured}
+                           "unmeasured_poly": unmeasured, "ghosts": ghosts(s.videos[i], cal, box_px)}
+        return out
+
+    def ghosts(v: dict, cal, box_px) -> list[dict]:
+        """Per push of this video: where the box would be, frame by frame, in your current sim and in the
+        calibrated sim, given the measured launch (speed, place). Drawn over the real video as wireframes."""
+        from agent.tool_agent import at_start
+        from sim.push_task import analytic_track
+
+        base = cal.base
+        cur = s_session_sim(base)
+        out = []
+        for p in v.get("pushes", []):
+            frames = max(20, p["rest_frame"] - p["release_frame"] + 24)
+            row = {"push": p["push"], "release_frame": p["release_frame"], "frames": frames}
+            for name, prm in (("calibrated", cal.params), ("current", cur)):
+                tr = analytic_track(p["launch_speed_mps"] / prm["actuator_gain"], at_start(prm, p["start_m"]), frames)
+                row[name] = [box_px(p["start_m"] + y, p.get("lateral_m", 0.0)) for y in tr]
+            out.append(row)
         return out
 
     def worker(s: StudioSession, use_agent: bool) -> None:
@@ -386,6 +427,11 @@ def mount_studio(app: FastAPI, llm, budget, data_dir: Path, budgeted_llm_cls) ->
         if path.parent != s.dir.resolve() or not path.exists() or path.name.startswith("upload"):
             raise HTTPException(404, "No such file.")
         return FileResponse(path)
+
+
+def s_session_sim(base):
+    """The visitor's current simulator as the ghost should replay it: hand pushes are speeds, so gain 1."""
+    return base.with_(actuator_gain=1.0)
 
 
 def truth_view(t: dict) -> dict:

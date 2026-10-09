@@ -352,8 +352,25 @@ def track_video(path: Path, corners_px, sheet: str = "a4", name: str | None = No
         u = cam.project(w)[0] / scale
         return [round(float(u[0]), 1), round(float(u[1]), 1)]
 
+    nrm = np.array([-axis[1], axis[0]])
+    half = max(hgt, 0.02) / 2
+
+    def box_px(d: float, lateral: float = 0.0) -> list[list[float]]:
+        """8 image corners of an object-sized box whose centre sits d along the push axis (ghost overlays):
+        bottom face first (counter-clockwise), then the top face."""
+        c = o_world + d * axis + lateral * nrm
+        pts = []
+        for z in (0.0, 2 * half):
+            for a, b in ((-1, -1), (1, -1), (1, 1), (-1, 1)):
+                pts.append(np.append(c + a * half * axis + b * half * nrm, z))
+        uv_ = cam.project(np.asarray(pts)) / scale
+        return [[round(float(x), 1), round(float(y), 1)] for x, y in uv_]
+
+    for dp, (r, _e) in zip(debug_pushes, [(q["release_frame"], q["rest_frame"]) for q in debug_pushes]):
+        dp["lateral_m"] = round(float((P[r] - o_world) @ nrm), 4)
+
     debug = {"fps": fps, "frames": len(frames), "scale": scale, "camera": {"height_m": round(cam.height_m, 3), "focal_px": round(cam.f / scale, 1)},
              "object_px": [round(obj[0] / scale, 1), round(obj[1] / scale, 1)], "pushes": debug_pushes,
              "axis_px": {f"{d:.2f}": to_px(d) for d in np.arange(0.0, 0.91, 0.05)},
-             "to_px": to_px, "track_score_min": round(float(score[good].min()) if good.any() else 0.0, 3)}
+             "to_px": to_px, "box_px": box_px, "track_score_min": round(float(score[good].min()) if good.any() else 0.0, 3)}
     return session, debug
