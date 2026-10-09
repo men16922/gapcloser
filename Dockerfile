@@ -18,6 +18,7 @@ COPY --chown=app agent agent
 COPY --chown=app sim sim
 COPY --chown=app eval eval
 COPY --chown=app server server
+COPY --chown=app studio studio
 COPY --chown=app dashboard dashboard
 COPY --chown=app runs/demo runs/demo
 

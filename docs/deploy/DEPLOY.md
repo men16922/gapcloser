@@ -39,6 +39,8 @@ The image bundles `runs/demo` (recorded scenarios and clips, committed to git). 
 
 Cost guards built in: one run at a time, max 4 iterations, max 3 hidden faults (a strip counts as one), values inside the parameter bounds and `patch_mu` ≤ 0.95 (stickier strips tip the cube), per-IP rate limit, a global LLM-call cap, a per-run cap of 24 agent turns, and a 2048-token output cap. Every chat turn counts as one call. Tool-agent turns resend the growing conversation (about 2–6k prompt tokens each; the spike measured ~17k in + 2k out per world with Super, ≈ $0.007), so 200 calls stay around 1M tokens in the worst case.
 
+**Studio** (`/studio`) is served by the same container. Visitors upload a phone video (up to 120 MB, 90 s analysed) or a robot log and get a calibrated simulator. Uploads live under `runs/studio/<session>` and the newest 60 sessions are kept. Studio analyses share the global LLM-call cap and are capped at 8 agent turns each. One agent analysis runs at a time; others wait up to 2 minutes, then fall back to the offline fit.
+
 ## Hugging Face Spaces (free)
 
 1. Create a Space at huggingface.co/new-space: SDK **Docker**, hardware **CPU basic**.
