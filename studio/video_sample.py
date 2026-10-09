@@ -78,7 +78,7 @@ LOOK = {  # per domain: object colour, ground colour, reference rectangle colour
 }
 
 
-def _scenery(b, wp, vis, domain: str, body: int) -> None:
+def _scenery(b, wp, vis, domain: str, body: int, target: float | None = None) -> None:
     """Visual-only dressing (no collision, no mass): it makes the same sliding test read as a road or a line."""
     def box(parent, p, h, color):
         b.add_shape_box(parent, xform=wp.transform(p=wp.vec3(*p), q=wp.quat_identity()), hx=h[0], hy=h[1], hz=h[2],
@@ -91,7 +91,7 @@ def _scenery(b, wp, vis, domain: str, body: int) -> None:
             while y < 1.2:
                 box(-1, (x, y + 0.06, 0.0003), (0.003, 0.06, 0.0003), white)
                 y += 0.24
-        box(-1, (0.0, 0.50, 0.0003), (0.072, 0.008, 0.0003), white)
+        box(-1, (0.0, 0.50 if target is None else target, 0.0003), (0.072, 0.008, 0.0003), white)
         box(body, (0.0, 0.0, -0.012), (0.037, 0.09, 0.018), LOOK["driving"]["object"])  # hood and boot
         box(body, (0.0, 0.004, 0.012), (0.031, 0.034, 0.006), (0.10, 0.13, 0.17))  # glasshouse
         for x in (-0.037, 0.037):
@@ -101,16 +101,17 @@ def _scenery(b, wp, vis, domain: str, body: int) -> None:
         for x in (-0.052, 0.052):
             box(-1, (x, 0.45, 0.004), (0.006, 0.75, 0.004), (0.16, 0.17, 0.19))
         green = (0.46, 0.73, 0.0)
-        for y in (0.40, 0.50):
+        c = 0.45 if target is None else target  # the inspection window, centred on the target
+        for y in (c - 0.05, c + 0.05):
             box(-1, (0.0, y, 0.0004), (0.046, 0.003, 0.0004), green)
         for x in (-0.044, 0.044):
-            box(-1, (x, 0.45, 0.0004), (0.003, 0.05, 0.0004), green)
+            box(-1, (x, c, 0.0004), (0.003, 0.05, 0.0004), green)
         box(-1, (-0.13, 0.45, 0.09), (0.012, 0.012, 0.09), (0.22, 0.23, 0.25))  # camera post (far side of the rail)
         box(-1, (-0.10, 0.45, 0.17), (0.035, 0.014, 0.014), dark)  # camera head
 
 
 def render(out: Path = OUT / "flick-video.mp4", speeds=SPEEDS, seed: int = 3, hard: bool = False,
-           world: dict | None = None, show_strip: bool = True, domain: str = "robot") -> dict:
+           world: dict | None = None, show_strip: bool = True, domain: str = "robot", targets: list[float] | None = None) -> dict:
     """hard: a worse phone. Textured table, hand-held camera shake (1.5 mm, 0.15 deg per frame), motion blur
     (blend with the previous frame), exposure flicker, heavier compression. Used to test the tracker.
     world: the table's hidden physics {"mu_eff", "patch_y0" (None = no region), "patch_mu"}; default = the sample.
@@ -145,7 +146,11 @@ def render(out: Path = OUT / "flick-video.mp4", speeds=SPEEDS, seed: int = 3, ha
         cx, cy = SHEET["center"]
         b.add_shape_box(-1, xform=wp.transform(p=wp.vec3(cx, cy, 0.0004), q=wp.quat_identity()),
                         hx=SHEET["size_x"] / 2, hy=SHEET["size_y"] / 2, hz=0.0004, cfg=vis, color=look["sheet"])
-        _scenery(b, wp, vis, domain, body)
+        tgt = targets[i] if targets else None
+        _scenery(b, wp, vis, domain, body, tgt)
+        if tgt is not None and domain == "robot":  # the line the policy aims at
+            b.add_shape_box(-1, xform=wp.transform(p=wp.vec3(0.0, tgt, 0.0005), q=wp.quat_identity()), hx=0.07, hy=0.004,
+                            hz=0.0005, cfg=vis, color=(0.46, 0.73, 0.0))
         if strip and show_strip:
             b.add_shape_box(-1, xform=wp.transform(p=wp.vec3(0.0, (strip[0] + 1.2) / 2, 0.0002), q=wp.quat_identity()),
                             hx=0.16, hy=(1.2 - strip[0]) / 2, hz=0.0002, cfg=vis, color=(0.20, 0.24, 0.30))

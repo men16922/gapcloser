@@ -1339,7 +1339,7 @@ async function runDiagnosis() {
   try {
     state.result = toView(await be.analyze(state.s.id, agent, e => { e = toView(e); state.nb.events.push(e); h.on(e); }));
     h.settle();
-    state.truth = null; state.laneIt = null; state.trainProgress = null;
+    state.truth = null; state.laneIt = null; state.trainProgress = null; state.rolloutFile = null;
     state.done.add("diag");
     state.summaries.diag = state.result.agent ? [`${state.result.agent.steps} agent steps`, `AI가 ${state.result.agent.steps}단계 진행`] : ["offline fit", "AI 없이 계산"];
     nbDone();
@@ -1664,12 +1664,20 @@ function renderTrain() {
         <div class="row" style="margin:8px 0"><div class="seg2" role="group">${ids.map(id => `<button type="button" data-c="${id}" aria-pressed="${state.laneCond === id}">${T(...TNAME[id])}</button>`).join("")}</div></div>
         <label class="small muted" style="display:flex;gap:10px;align-items:center">${T("iteration", "반복")} <input type="range" id="lane-it" min="0" max="${r.iterations}" value="${state.laneIt}" style="flex:1"> <output id="lane-it-o" class="num">${state.laneIt}</output> <button class="btn" id="lane-play" type="button">${T("Play", "재생")}</button></label>
         <div id="lanes">${lanesSvg(r, state.laneCond, state.laneIt)}</div></div></div>
+    ${LIVE && r.hidden_known ? `<div class="row" style="margin-top:14px"><button class="btn" id="t-vid">${T("Show the three policies in the hidden world (NVIDIA Newton video)", "세 정책을 숨겨진 실제 세계에서 보기 (NVIDIA Newton 영상)")}</button><span class="small muted" id="t-vid-note"></span></div><div id="t-vid-box"></div>` : ""}
     <div class="caveat" style="margin-top:12px">${T("The policy is a command table over the perceived distance, learned by trial (iterative learning control, median over worlds). It is deliberately simple so that what differs between the three is only the physics it was trained on.", "정책은 카메라가 본 거리마다 명령을 정하는 표이며, 시행착오(세계별 중앙값으로 고치는 반복 학습 제어)로 학습합니다. 세 조건의 차이가 학습에 쓴 물리값에서만 나오도록 일부러 단순하게 만들었습니다.")}</div>`;
   const redrawLanes = () => { $("#lanes").innerHTML = lanesSvg(r, state.laneCond, state.laneIt); $("#lane-it-o").textContent = state.laneIt; animateLanes(r, state.laneCond, state.laneIt); };
   el.querySelectorAll("[data-c]").forEach(b => b.onclick = () => { state.laneCond = b.dataset.c; el.querySelectorAll("[data-c]").forEach(x => x.setAttribute("aria-pressed", String(x === b))); redrawLanes(); });
   $("#lane-it").oninput = e => { state.laneIt = +e.target.value; redrawLanes(); };
   $("#lane-play").onclick = async () => { for (let i = 0; i <= r.iterations; i++) { state.laneIt = i; $("#lane-it").value = i; redrawLanes(); await sleep(reduce ? 0 : 1600); } };
   animateLanes(r, state.laneCond, state.laneIt);
+  const showVid = f => { $("#t-vid-box").innerHTML = `<video src="${esc(be.media(f))}" controls autoplay muted playsinline loop style="width:100%;margin-top:10px;border:1px solid var(--line)"></video>`; };
+  if (state.rolloutFile && $("#t-vid-box")) showVid(state.rolloutFile);
+  if ($("#t-vid")) $("#t-vid").onclick = async () => {
+    $("#t-vid").disabled = true; $("#t-vid-note").textContent = T("Newton is rendering three columns (about 30 s)…", "Newton이 세 화면을 렌더링하는 중입니다 (약 30초)…");
+    try { const v = await call(fetch(`/api/studio/sessions/${state.s.id}/train/video`, { method: "POST" })); state.rolloutFile = v.file; showVid(v.file); $("#t-vid-note").textContent = ""; }
+    catch (e) { $("#t-vid-note").textContent = e.message; $("#t-vid").disabled = false; }
+  };
 }
 
 /* ---------------------------------------------------------------- 6 export */

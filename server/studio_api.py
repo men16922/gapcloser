@@ -671,6 +671,25 @@ def mount_studio(app: FastAPI, llm, budget, data_dir: Path, budgeted_llm_cls) ->
         threading.Thread(target=run, daemon=True).start()
         return job
 
+    @app.post("/api/studio/sessions/{sid}/train/video")
+    def train_video(sid: str):
+        """Render the three trained policies acting in the hidden world, side by side (NVIDIA Newton, ~20 s)."""
+        from studio.rollout_video import render_rollout
+
+        s = get(sid)
+        if not (s.training and s.training.get("result")):
+            raise HTTPException(422, "Retrain first.")
+        h = hidden_truth(s)
+        if h is None:
+            raise HTTPException(422, "Only samples and simulated data have a hidden world to show the policies in.")
+        if not sim_lock.acquire(timeout=90):
+            raise HTTPException(429, "Newton is busy with another simulation. Try again in a minute.")
+        try:
+            out = render_rollout(s.session, h["model"], s.training["result"], s.domain, s.dir / "rollout.mp4")
+        finally:
+            sim_lock.release()
+        return {"file": f"files/{s.id}/rollout.mp4", "hits": out["hits"]}
+
     @app.get("/api/studio/sessions/{sid}/train")
     def train_state(sid: str):
         s = get(sid)

@@ -179,6 +179,13 @@ def newton_clip(video: Path, out_dir: Path, title: str, seconds: float = 7.0, st
     return paths
 
 
+def video_frames(video: Path, out_dir: Path) -> list[Path]:
+    """A finished 1920x1080 clip as a PNG sequence (for scenes made by studio.rollout_video)."""
+    out_dir.mkdir(parents=True, exist_ok=True)
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(video), "-vf", f"fps={FPS},scale={W}:{H}", str(out_dir / "f%04d.png")], check=True)
+    return sorted(out_dir.glob("f*.png"))
+
+
 def build_scenes(work: Path, caps: Path) -> list[Scene]:
     """v2 (Tether): overview -> Studio on the driving domain -> Newton replay -> exports -> other domains -> console."""
     bundle = json.loads((ROOT / "runs/demo/bundle.json").read_text())
@@ -230,6 +237,11 @@ def build_scenes(work: Path, caps: Path) -> list[Scene]:
         Scene("09_verify", f"Before export, every run is replayed in NVIDIA Newton with the exported physics. "
                            f"About {v_cal * 100:.0f} centimeters of stopping error at full scale, against {v_cur:.1f} meters for the current simulator.",
               image=zoom("studio_verify", (270, 80, 1920, 1000)), zoom=False, min_s=9),
+        Scene("09b_retrain", "Does it matter for learning? Tether retrains the policy three ways in parallel NVIDIA Newton worlds: on the current simulator, "
+                             "on wide domain randomization, and on Tether's measured ranges. Scored in the hidden real world: forty two, zero, and one hundred percent.",
+              image=zoom("studio_retrain", (270, 60, 1920, 1000)), zoom=False, min_s=11),
+        Scene("09c_rollout", "Here are the three policies braking in the hidden world, rendered by Newton. Only the Tether-trained car stops on the line every time.",
+              frames=video_frames(ROOT / "video/out/rollout-brake-log.mp4", work / "rollout"), min_s=8),
         Scene("10_export", "Then take it home: NVIDIA Newton materials, Isaac Lab randomization over the measured intervals, "
                            "and for driving, CARLA tire friction with a friction trigger on the wet section.", image=c("studio_carla")),
         Scene("11_domains", f"One physics covers three jobs. In factory inspection, a pneumatic pusher on an oily rail goes from "
@@ -240,7 +252,7 @@ def build_scenes(work: Path, caps: Path) -> list[Scene]:
         Scene("13_stack", "NVIDIA Newton simulates and renders on a laptop CPU. Nemotron reasons on Nebius Token Factory for about a cent per diagnosis. "
                           "Days of hand-tuning a simulator become one session.",
               image=card([("How it works", FONT_D, 96, FG),
-                          ("data  →  measure  →  diagnose  →  calibrate  →  verify in Newton  →  export", FONT_B, 42, FG),
+                          ("data → measure → diagnose → calibrate → verify → retrain in Newton → export", FONT_B, 40, FG),
                           ("Physics + rendering:  NVIDIA Newton (Warp, CPU)", FONT_M, 34, MUTED),
                           (f"Agent:  {model} on Nebius Token Factory", FONT_M, 34, MUTED),
                           ("Exports:  NVIDIA Newton · Isaac Lab · CARLA", FONT_M, 34, MUTED)], work / "stack.png"), min_s=8),

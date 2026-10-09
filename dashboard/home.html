@@ -118,7 +118,7 @@ h2.sec { font-size: 30px; margin-top: 8px; }
 .pipe code { font: 12px/1.4 var(--f-mono); color: var(--fg); }
 
 /* evidence */
-.ev { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-top: 24px; }
+.ev { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; margin-top: 24px; }
 .ev div { border: 1px solid var(--line); padding: 18px; display: grid; gap: 6px; align-content: start; }
 .ev .big { font: 600 40px/1 var(--f-display); }
 .ev .big small { font-size: 20px; color: var(--muted); font-weight: 500; }
@@ -288,7 +288,7 @@ function render() {
       <div><span class="n">2 · ${T("MEASURE", "측정")}</span><b>${T("Scale from a rectangle", "사각형 하나로 크기")}</b><p>${T("Homography from a known rectangle gives focal length and camera pose; tracking is parallax-corrected; launch speed from a local deceleration fit.", "크기를 아는 사각형으로 초점 거리와 카메라 자세를 구하고, 시차를 보정해 추적하며, 감속 구간에 맞춰 출발 속도를 구합니다.")}</p></div>
       <div><span class="n">3 · ${T("DIAGNOSE", "진단")}</span><b>Nemotron 3 Super</b><p>${T("A tool-using agent profiles deceleration, checks perception, tests hypotheses and asks for experiments. A library search cross-checks it.", "도구를 쓰는 AI가 감속을 재고, 카메라를 확인하고, 가설을 검증하고, 실험을 요청합니다. 자동 탐색이 그 답을 교차 검증합니다.")}</p></div>
       <div><span class="n">4 · ${T("CALIBRATE", "보정")}</span><b>${T("Least squares + bootstrap", "최소제곱 + 부트스트랩")}</b><p>${T("Every value with a 90% interval that includes measurement error; what-if worlds where nothing was measured; the next run that settles the most.", "측정 오차까지 포함한 90% 범위, 측정하지 않은 구간의 가정 시나리오, 가장 많이 확실해지는 다음 실험.")}</p></div>
-      <div><span class="n">5 · ${T("VERIFY", "검증")}</span><b>${T("Replay in Newton", "Newton 재현")}</b><p>${T("Every run replayed in the full engine with the exported physics, from its own start and launch, against the measured stop.", "모든 기록을 같은 출발 조건으로 실제 물리 엔진에서 다시 실행해 실제 정지 위치와 비교합니다.")}</p></div>
+      <div><span class="n">5 · ${T("VERIFY, RETRAIN", "검증, 재학습")}</span><b>${T("Replay and retrain in Newton", "Newton 재현과 재학습")}</b><p>${T("Every run replayed with the exported physics; then a policy retrained in parallel Newton worlds (current sim, wide randomization, Tether's ranges) and scored.", "모든 기록을 내보낼 값으로 다시 실행하고, Newton 병렬 세계에서 정책을 세 방식(지금 시뮬레이터, 넓은 무작위화, Tether 범위)으로 다시 학습해 비교합니다.")}</p></div>
       <div><span class="n">6 · ${T("EXPORT", "내보내기")}</span><b>Newton · Isaac Lab · CARLA</b><p><code>ShapeConfig(mu=…)</code>, <code>EventTermCfg</code>, <code>static.trigger.friction</code>${T(", a report and JSON.", ", 보고서와 JSON.")}</p></div>
     </div>
   </section>
@@ -297,6 +297,7 @@ function render() {
     <span class="kicker">${T("EVIDENCE", "검증")}</span>
     <h2 class="sec">${T("Measured, not claimed", "주장이 아니라 측정값")}</h2>
     <div class="ev">
+      <div style="border-color:var(--green)"><span class="big num"><em>100%</em></span><p>${T("A policy retrained on Tether's measured ranges, scored in the hidden real world: 4 of 6 examples at 100%. Trained on the current sim: 0–63%. Wide randomization: 0–38%.", "Tether가 잰 범위로 다시 학습한 정책의 숨겨진 실제 세계 성공률: 예시 6개 중 4개가 100%. 지금 시뮬레이터로 학습: 0~63%. 넓은 무작위화: 0~38%.")}</p><span class="src">${T("Studio “Retrain”: parallel NVIDIA Newton worlds; the two below 100% are the unmeasured far table (46%) and a wet-section friction at its interval edge (58%)", "Studio “다시 학습”: NVIDIA Newton 병렬 세계. 100% 미만 두 개는 측정하지 않은 먼 구간(46%)과 범위 끝에 걸린 젖은 구간 마찰(58%)")}</span></div>
       <div><span class="big num">54% <small>→</small> <em>96%</em></span><p>${T("Policy success on the hardest open-world faults (a friction strip and a bent lens together): fixed rules vs the Nemotron agent.", "가장 어려운 경우(다른 마찰 구간과 휘어진 렌즈 동시)에서 정책 성공률: 정해진 규칙 vs Nemotron AI.")}</p><span class="src">${T("Agent console, NVIDIA Newton, 15 worlds per tier", "AI 콘솔, NVIDIA Newton, 난이도별 15개 세계")}</span></div>
       <div><span class="big num">5.8 <small>vs</small> 7.6</span><p>${T("Real runs needed to reach 95% success when the next run is Tether's suggestion vs a random one.", "95% 성공까지 필요한 실제 실행 횟수: Tether 추천 vs 무작위.")}</p><span class="src">${T("50 worlds; a hand-made far-first sweep needs 5.9", "가상 세계 50개, 먼 곳부터 사람이 짠 순서는 5.9번")}</span></div>
       <div><span class="big num"><em>6–9</em> <small>mm</small></span><p>${T("Exported physics replayed push by push in NVIDIA Newton: rms stop error across the six examples (robot scale). Your current sim: 3–25 cm.", "내보낸 물리값으로 모든 기록을 NVIDIA Newton에서 다시 실행했을 때의 평균 정지 위치 오차(예시 6개, 로봇 크기 기준). 지금 시뮬레이터는 3~25 cm.")}</p><span class="src">${T("Studio export step, “Verified in NVIDIA Newton”", "Studio 내보내기 단계 “NVIDIA Newton으로 검증”")}</span></div>

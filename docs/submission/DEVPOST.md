@@ -40,9 +40,13 @@ Tether has three connected surfaces: an **overview**, an **agent console** that 
 5. **Calibrated sim:** every value with a 90% interval (bootstrap that also redraws measurement error), friction
    painted on your own video, ghost objects replaying each run in the old and the calibrated simulator, predicted
    success before/after, and an explicit "unknown" where nothing was measured.
-6. **Verify in NVIDIA Newton:** before export, every measured run is replayed in the full engine, from its own start
+6. **Retrain and test:** the same learner trains a policy three ways in parallel NVIDIA Newton worlds (each world
+   with its own friction, region and actuator through a per-body Warp kernel): on your current simulator, on wide
+   domain randomization, and on worlds drawn from Tether's bootstrap ensemble. When the hidden world is known, each
+   policy is scored there, and Newton renders the three policies acting side by side.
+7. **Verify in NVIDIA Newton:** before export, every measured run is replayed in the full engine, from its own start
    and launch, with the exported physics and with your current simulator.
-7. **Export:** NVIDIA Newton materials and friction region, an Isaac Lab `EventTermCfg` whose randomization ranges
+8. **Export:** NVIDIA Newton materials and friction region, an Isaac Lab `EventTermCfg` whose randomization ranges
    are the measured intervals, and for driving a **CARLA 0.9.16** script (tire friction scaled by measured/simulated
    μ, a `static.trigger.friction` box on the wet section, and a braking-distance check), plus a report and JSON.
 
@@ -62,7 +66,7 @@ world whose physics the agent cannot see, let Nemotron investigate, fix the simu
   benchmarked Nano, Super, Ultra and 3.5 Lightning. A chat panel ("Ask Tether") answers questions grounded in the
   visitor's own session, in English or Korean.
 - **NVIDIA Cosmos Reason 2 8B** locally through llama.cpp at zero cost.
-- FastAPI with Server-Sent Events, a no-build front end (three.js for the 3D replay), 96 offline tests that replay
+- FastAPI with Server-Sent Events, a no-build front end (three.js for the 3D replay), 97 offline tests that replay
   recorded Nemotron sessions without network or credits.
 
 ## Results
@@ -80,6 +84,21 @@ world whose physics the agent cannot see, let Nemotron investigate, fix the simu
   intervals contain the truth 90.5% of the time; before we added a 1% length-scale term for logs it was 82%.
 - **Replay in NVIDIA Newton:** with the exported physics, rms stop error over the six examples is 6–9 mm at robot
   scale; the uncalibrated simulators are off by 3–25 cm. On the roadside example at full scale: 22 cm vs 2.7 m.
+- **Retrain and test** (policy learned by trial in 16 parallel Newton worlds × 11 table points, 10 iterations; success
+  in the hidden world, 24 targets):
+
+  | Example | Current sim | Wide randomization | Tether's ranges |
+  |---|---|---|---|
+  | Vehicle log | 42% | 0% | **100%** |
+  | Robot phone video | 0% | 13% | **100%** |
+  | Robot log | 63% | 0% | **100%** |
+  | Pusher log | 0% | 38% | **100%** |
+  | Roadside video | 29% | 8% | **58%** |
+  | Short pushes only | 0% | 25% | **46%** |
+
+  The two below 100% are honest: the short log never measured the far table (Studio says so before you train), and
+  on the roadside video the true wet-section friction sits at the edge of its interval. Wide randomization trains a
+  policy that is mediocre everywhere; the current simulator is confidently wrong.
 - **Next experiment:** reaching 95% real success takes 5.8 real runs with Tether's suggestions vs 7.6 random, about
   the same as a well-designed manual sweep (5.9).
 
@@ -134,13 +153,14 @@ fastapi, python, openai-python, scipy, opencv
 ## Track
 
 Physical AI. There is no physical hardware; the video shows the application modules in action (overview, Studio
-on the driving domain, Newton replay, exports, factory domain, agent console).
+on the driving domain, Newton replay, retraining and the three policies braking side by side, exports, factory
+domain, agent console).
 
 ## How it maps to the judging criteria
 
 | Criterion | Where to look |
 |---|---|
-| Technical implementation | Nemotron tool agent + cross-check, bootstrap intervals with measured coverage, Newton replay of the export, Froude-scaled driving, 96 offline tests |
+| Technical implementation | Nemotron tool agent + cross-check, bootstrap intervals with measured coverage, Newton replay of the export, retraining in parallel Newton worlds scored in the hidden world, Froude-scaled driving, 97 offline tests |
 | Design | One route: overview → console → Studio → export; friction painted on the visitor's own video; ghost replays; EN/KO |
 | Potential impact | Same tool for robots, vehicles and production lines; exports into Newton, Isaac Lab and CARLA |
 | Quality of the idea | An agent that fixes the simulator instead of the policy, and says how sure it is |

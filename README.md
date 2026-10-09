@@ -26,7 +26,7 @@ Built for the Nebius × NVIDIA Global AI Hackathon (Physical AI track). Runs on 
 |---|---|
 | http://localhost:8000/ | Overview: the route, the three domains, the evidence |
 | http://localhost:8000/console | Agent console: Nemotron fixing hidden worlds, Gap-Bench |
-| http://localhost:8000/studio | Studio: your data (or a world you simulate) → calibrated simulator → Newton replay → export |
+| http://localhost:8000/studio | Studio: your data (or a world you simulate) → calibrated simulator → retrain in parallel Newton worlds → Newton replay → export |
 
 Plain-Korean guides live in `reference/`. Submission text: `docs/submission/DEVPOST.md`. Demo video:
 `python -m video.capture && python -m video.make_video`.
