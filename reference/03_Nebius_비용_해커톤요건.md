@@ -29,6 +29,7 @@
   > Hello. I added billing details to tenant crimson-silverfish-tenant-abc (customer ID customer-e00ehudcbgahcv5avj8il) and was charged a $25 top-up. I used $0.38 for a short test and have deleted all resources. I only need Nebius Token Factory for the hackathon. Could you refund the unused balance of $24.62? Thank you.
 
 - 환불 가능 여부와 기간은 Nebius 정책에 따릅니다. 가능 여부는 확인되지 않았습니다.
+- **2026-10-10 00:16 환불 요청 제출:** 티켓 P282039303 (Billing → Refunds, "Refund request for unused prepaid balance ($24.62)", 상태 Open). 진행 상황은 콘솔 Support center에서 확인합니다.
 
 ## 다시 배포할 때
 
