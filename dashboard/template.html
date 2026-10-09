@@ -422,11 +422,11 @@ const KO = {
   "drag to orbit · shift-drag to pan · click, then wheel to zoom": "드래그: 돌려 보기 · shift+드래그: 옮기기 · 클릭 후 휠: 확대",
   "Every push this iteration · stop error vs target": "이번 회차에 민 결과 · 목표에서 얼마나 벗어났나", "real, on line": "진짜, 성공", "real, miss": "진짜, 실패",
   "sim prediction": "가상 세계 예상", "Real success per iteration": "회차별 실제 성공률", "Sim parameters · belief vs truth": "가상 세계 설정값 · AI 추측 vs 정답",
-  "▼ hidden truth": "▼ 정답", "sim belief (it 0)": "AI 추측 (처음)", "nominal": "기본값", "Truth stays hidden from the agent. Reveal it to grade the diagnosis.": "AI는 정답을 모르고 풀어요. 정답을 열어서 채점해 보세요.",
+  "▼ hidden truth": "▼ 정답", "sim belief (it 0)": "AI 추측 (처음)", "nominal": "기본값", "Truth stays hidden from the agent. Reveal it to grade the diagnosis.": "AI는 정답을 모르는 상태로 풉니다. 정답을 열어 채점할 수 있습니다.",
   "Hidden change": "숨겨 둔 차이", "Look · dynamics": "관찰 · 움직임", "Look · camera": "관찰 · 카메라", "Experiment · real robot": "실험 · 진짜 로봇으로 밀어 보기",
-  "Commit · new simulator": "결정 · 고친 가상 세계", "Retrain the policy in this simulator.": "고친 가상 세계에서 다시 연습해요.",
-  "Retrained with the updated simulator.": "고친 가상 세계에서 다시 연습했어요.", "Policy trained in the nominal simulator.": "기본 가상 세계에서 연습한 상태예요.",
-  "Full reasoning in the lab notebook.": "자세한 생각 과정은 실험 노트에 있어요.", "Raw tool trace · JSON": "원본 기록 · JSON", "HeuristicPlanner → sim config diff": "가상 세계 설정이 이렇게 바뀌었어요",
+  "Commit · new simulator": "결정 · 고친 가상 세계", "Retrain the policy in this simulator.": "고친 가상 세계에서 다시 연습합니다.",
+  "Retrained with the updated simulator.": "고친 가상 세계에서 다시 연습했습니다.", "Policy trained in the nominal simulator.": "기본 가상 세계에서 연습한 상태입니다.",
+  "Full reasoning in the lab notebook.": "자세한 과정은 실험 노트에 있습니다.", "Raw tool trace · JSON": "원본 기록 · JSON", "HeuristicPlanner → sim config diff": "가상 세계 설정 변경 내용",
   "uniform friction": "탁자 전체 마찰", "uniform friction + gain": "탁자 마찰 + 모터 힘", "uniform friction + gain + camera offset": "탁자 마찰 + 모터 힘 + 카메라 위치",
   "uniform friction + gain + camera offset + lens": "탁자 마찰 + 모터 힘 + 카메라 위치 + 렌즈", "Uniform deceleration": "어디서나 같은 속도로 느려짐",
   "✓ accepted": "✓ 맞음", "✕ rejected": "✕ 틀림", "Stop residual": "멈춘 위치 오차", "frame tilted (Cosmos)": "기울어진 장면 (Cosmos 판단)", "frame upright": "똑바로 선 장면",
@@ -435,11 +435,11 @@ const KO = {
   "Domain rand.": "무작위로 넓게 연습", "Rule-based": "정해진 규칙", "System ID": "자동 계산 방식", "Nemotron agent": "Nemotron AI", "whisker = 95% CI": "선 길이 = 오차 범위",
   "Honest note:": "솔직히 말하면:", "Same budget, four strategies": "같은 횟수로 네 가지 방법 비교", "Domain randomization": "무작위로 넓게 연습", "Rule-based agent": "정해진 규칙",
   "Outcome-only agent": "결과만 보는 방법", "System-ID baseline": "자동 계산 방식", "GapCloser · tracking": "GapCloser · 움직임까지 봄", "GapCloser · outcome-only": "GapCloser · 결과만 봄",
-  "GapCloser · Nemotron": "GapCloser · Nemotron AI", "Rules break outside their map. Who closes the gap?": "정해진 규칙은 예상 밖 상황에서 무너져요. 누가 차이를 고칠까요?",
+  "GapCloser · Nemotron": "GapCloser · Nemotron AI", "Rules break outside their map. Who closes the gap?": "정해진 규칙은 예상 밖 상황에서 실패합니다. 어떤 방법이 차이를 고치는지 비교합니다.",
   "Closed-world parameters": "기본 설정값", "rule book knows these": "규칙이 아는 것들", "Friction strip": "미끄럽거나 거친 구간", "open world": "어려운 문제",
-  "Hide some physics. Watch Nemotron find it.": "탁자에 비밀을 숨겨 보세요. AI가 찾아내는지 지켜보세요.", "Presets": "예시", "Surprise me": "아무거나",
-  "Reset": "처음으로", "Run agent": "AI 출발", "How the agent sees it": "AI가 받는 정보", "It never sees the values you set.": "여러분이 정한 값은 AI가 볼 수 없어요.",
-  "World": "세계", "Lane": "줄", "Off. Tick the box to add a strip.": "꺼져 있어요. 체크하면 구간이 생겨요.", "Nothing hidden yet: pick a preset or move a slider.": "아직 숨긴 게 없어요. 예시를 고르거나 막대를 움직여 보세요.",
+  "Hide some physics. Watch Nemotron find it.": "탁자에 차이를 숨기고, AI가 찾아내는지 확인합니다.", "Presets": "예시", "Surprise me": "무작위",
+  "Reset": "초기화", "Run agent": "AI 실행", "How the agent sees it": "AI가 받는 정보", "It never sees the values you set.": "설정한 값은 AI에게 보이지 않습니다.",
+  "World": "세계", "Lane": "줄", "Off. Tick the box to add a strip.": "꺼짐. 체크하면 구간이 추가됩니다.", "Nothing hidden yet: pick a preset or move a slider.": "아직 숨긴 값이 없습니다. 예시를 고르거나 슬라이더를 조정합니다.",
   "strip from (m)": "구간 시작 (m)", "strip μ": "구간 마찰", "camera dx (cm)": "카메라 옆으로 어긋남 (cm)", "camera pitch (°)": "카메라 기울기 (°)", "lens k (1/m)": "렌즈 휘어짐",
   "20 real pushes: perceived target, command, where the cube stopped": "진짜로 20번 민 결과: 카메라가 본 목표, 민 세기, 상자가 멈춘 곳", "camera tracks of each sliding cube": "미끄러지는 상자를 카메라로 찍은 움직임",
   "up to 12 extra real pushes it may spend on its own experiments": "스스로 실험하려고 더 밀어 볼 수 있는 기회 최대 12번",
@@ -447,34 +447,34 @@ const KO = {
   "perception error": "카메라 오차", "on the dashed line = perfect camera": "점선 위면 카메라가 정확한 것", "perceived vs true target (m)": "카메라가 본 거리 vs 실제 거리 (m)",
   "target range": "목표 범위", "short": "짧게", "no data": "기록 없음", "none": "없음", "sim": "가상", "SIM": "가상", "REAL": "진짜", "Real": "진짜",
   "waiting for strike": "밀기 전", "real success, sim-trained policy": "가상에서 연습한 로봇의 실제 성공률", "real success: sim-trained policy → after the fix": "실제 성공률: 고치기 전 → 고친 후",
-  "Before → after · Nemotron agent": "고치기 전 → 고친 후 · Nemotron AI", "Gap closed.": "차이를 고쳤어요.", "Why did the sim-trained policy land": "가상에서 연습한 로봇이 왜",
+  "Before → after · Nemotron agent": "고치기 전 → 고친 후 · Nemotron AI", "Gap closed.": "차이를 고쳤습니다.", "Why did the sim-trained policy land": "가상에서 연습한 로봇이 왜",
   "beyond the change": "바뀌는 지점 너머", "fixes": "고친 것", "from": "부터", "calls": "번 호출", "Task: Push-to-line · 20 targets 0.20–0.60 m · success = stop within ±3 cm": "과제: 상자를 밀어 선에 세우기 · 목표 20곳 (0.20~0.60 m) · 선에서 3 cm 안에 서면 성공",
-  "All success rates measured by rollout in NVIDIA Newton. Hidden “real” physics is never shown to the agent.": "모든 성공률은 NVIDIA Newton에서 실제로 밀어 보고 쟀어요. AI에게는 숨겨진 “진짜” 세계를 보여 주지 않아요.",
-  "Each world hides two of the ten physical and camera parameters. Every method is graded by the share of 20 real pushes that stop within ±3 cm.": "세계마다 10가지 설정 중 2가지를 몰래 바꿔 놨어요. 20번 밀어서 선에서 3 cm 안에 선 비율로 채점해요.",
-  "Density, size, restitution, light and camera height do not change the outcome: good tests of whether the agent blames the wrong thing.": "무게, 크기, 튕김, 조명, 카메라 높이는 결과에 영향이 없어요. AI가 엉뚱한 걸 탓하는지 확인하는 함정이에요.",
-  "The real cube is far slipperier than modeled. Pushes tuned in sim overshoot the line.": "진짜 상자가 생각보다 훨씬 미끄러워요. 가상 세계에 맞춰 밀면 선을 지나쳐요.",
-  "The real table grips harder than the sim surface, so every push falls short.": "진짜 탁자가 더 뻑뻑해서, 밀 때마다 선까지 못 가요.",
-  "The real camera sits a few centimeters off. Every target is perceived short, the room is also dimmer.": "진짜 카메라가 몇 cm 어긋나 있어서 목표가 실제보다 가깝게 보여요. 방도 더 어두워요.",
-  "The arm delivers less speed than commanded. From end positions alone this looks exactly like extra friction; the tracked launch speed tells them apart.": "로봇 팔이 시킨 것보다 약하게 밀어요. 멈춘 위치만 보면 탁자가 뻑뻑한 것과 똑같아 보이지만, 출발 속도를 보면 구분할 수 있어요.",
-  "The table grips so hard that many cubes tip over instead of sliding. Tipping is outside the agent’s sliding model; this run shows where the method stops working.": "탁자가 너무 뻑뻑해서 상자가 미끄러지지 않고 넘어져요. 넘어지는 경우는 이 방법으로 못 풀어요. 한계를 솔직히 보여 주는 예시예요.",
-  "Beyond 0.35 m the real table is wet and friction halves. The rule book has no parameter for a region of the table, so rules can only average it away.": "0.35 m부터 탁자가 젖어 있어서 훨씬 미끄러워요. 정해진 규칙에는 “일부 구간만 다름”이 없어서, 평균으로 대충 때울 수밖에 없어요.",
-  "The real table is slick near the robot and rough beyond 0.30 m: two frictions on one table, outside the rule book.": "로봇 가까운 쪽은 미끄럽고, 0.30 m부터는 거칠어요. 한 탁자에 두 종류의 바닥이 있어서 정해진 규칙으로는 못 풀어요.",
-  "The real camera has lens distortion: far targets look much closer than they are. The rule book only knows a shifted or tilted camera.": "진짜 카메라 렌즈가 휘어져서, 먼 목표일수록 훨씬 가깝게 보여요. 정해진 규칙은 어긋나거나 기운 카메라만 알아요.",
-  "A weak motor, a slippery strip from 0.40 m and a distorted lens at once. The strip starts beyond where the first pushes stop, so the agent must design an experiment to find it.": "모터는 약하고, 0.40 m부터는 바닥이 미끄럽고, 카메라 렌즈도 휘어 있어요. 미끄러운 곳은 처음 밀었을 때 닿지 않는 거리에 있어서, AI가 일부러 더 멀리 밀어 봐야 찾을 수 있어요.",
-  "Beyond a line on the table the friction changes (wet or rough). One friction number cannot describe it.": "탁자 어느 지점부터 바닥이 달라져요 (젖었거나 거칠어요). 마찰 값 하나로는 설명이 안 돼요.",
-  "The camera misjudges distance by k · d²: with k < 0 far targets look closer than they are, with k > 0 farther. Rules only know a shifted or tilted camera.": "카메라가 먼 곳일수록 거리를 더 틀리게 봐요 (값이 음수면 가깝게, 양수면 멀게). 정해진 규칙은 어긋나거나 기운 카메라만 알아요.",
-  "Closed worlds change parameters the rule-based agent knows. Open worlds add a friction strip or lens distortion it has no parameter for; compound worlds add both. Every method trains the same inverse policy, so it is exactly as good as its simulator. Real trials = evaluations + probe pushes.": "쉬움: 규칙이 아는 설정만 바꿨어요. 어려움: 규칙이 모르는 “다른 바닥 구간”이나 “휘어진 렌즈”를 넣었어요. 아주 어려움: 둘 다 넣었어요. 어떤 방법이든 가상 세계를 얼마나 잘 고치느냐가 성적을 결정해요.",
-  "All rollouts in NVIDIA Newton. Policy search uses the analytic surrogate (agrees with Newton within 1 cm). Diagnosis precision/recall grades the first diagnosis against the hidden changes that can affect the measurements.": "모두 NVIDIA Newton에서 실제로 밀어 보고 쟀어요. 진단 점수는 AI가 처음에 짚은 원인이 정답과 얼마나 맞는지예요.",
-  "the System-ID baseline uses the same least-squares fitter with a hand-ordered structure library and matches the agent here. The agent’s edge is that it decides which structures and which real experiments to try, and explains them.": "사람이 미리 후보를 정해 둔 자동 계산 방식도 AI만큼 잘해요. AI의 장점은 무엇을 의심하고 어떤 실험을 할지 스스로 정하고, 왜 그렇게 고쳤는지 설명한다는 점이에요.",
-  "Pick a preset or build a world, including faults the rule book has no parameter for. The agent trains a policy in its simulator, measures it in your hidden world, and repairs the simulator until the policy works. A run takes a few minutes.": "예시를 고르거나 직접 문제를 만들어 보세요. AI는 가상 세계에서 연습하고, 여러분이 숨긴 세계에서 밀어 보고, 성공할 때까지 가상 세계를 고쳐요. 몇 분 걸려요.",
-  "Nemotron inspects the evidence, proposes simulator structures, fits them by least squares, probes the robot when the data cannot decide, and commits a simulator. The policy is retrained in it and measured again in your world.": "Nemotron AI가 기록을 보고 원인을 추측하고, 계산으로 확인하고, 헷갈리면 더 밀어 보고, 답을 정해요. 고친 가상 세계에서 다시 연습한 뒤 여러분의 세계에서 다시 확인해요.",
+  "All success rates measured by rollout in NVIDIA Newton. Hidden “real” physics is never shown to the agent.": "모든 성공률은 NVIDIA Newton에서 실제로 밀어 측정했습니다. AI에게는 숨겨진 “진짜” 세계를 보여 주지 않습니다.",
+  "Each world hides two of the ten physical and camera parameters. Every method is graded by the share of 20 real pushes that stop within ±3 cm.": "각 세계는 10가지 설정 중 2가지를 숨겨서 바꿨습니다. 20번 밀어 선에서 3 cm 이내에 멈춘 비율로 채점합니다.",
+  "Density, size, restitution, light and camera height do not change the outcome: good tests of whether the agent blames the wrong thing.": "무게, 크기, 튕김, 조명, 카메라 높이는 결과에 영향이 없습니다. AI가 엉뚱한 원인을 지목하는지 확인하는 항목입니다.",
+  "The real cube is far slipperier than modeled. Pushes tuned in sim overshoot the line.": "실제 상자가 훨씬 미끄럽습니다. 가상 세계 기준으로 밀면 선을 지나칩니다.",
+  "The real table grips harder than the sim surface, so every push falls short.": "실제 탁자가 더 뻑뻑해 매번 선에 못 미칩니다.",
+  "The real camera sits a few centimeters off. Every target is perceived short, the room is also dimmer.": "실제 카메라가 몇 cm 어긋나 목표가 가깝게 보입니다. 조명도 더 어둡습니다.",
+  "The arm delivers less speed than commanded. From end positions alone this looks exactly like extra friction; the tracked launch speed tells them apart.": "로봇 팔이 명령보다 약하게 밉니다. 멈춘 위치만으로는 탁자가 뻑뻑한 것과 같아 보이지만, 출발 속도로 구분됩니다.",
+  "The table grips so hard that many cubes tip over instead of sliding. Tipping is outside the agent’s sliding model; this run shows where the method stops working.": "탁자가 너무 뻑뻑해 상자가 미끄러지지 않고 넘어집니다. 넘어지는 경우는 이 방법으로 풀 수 없습니다. 한계를 보여 주는 예시입니다.",
+  "Beyond 0.35 m the real table is wet and friction halves. The rule book has no parameter for a region of the table, so rules can only average it away.": "0.35 m부터 탁자가 젖어 훨씬 미끄럽습니다. 정해진 규칙은 일부 구간만 다른 경우를 표현하지 못해 평균값으로 처리합니다.",
+  "The real table is slick near the robot and rough beyond 0.30 m: two frictions on one table, outside the rule book.": "로봇 가까운 쪽은 미끄럽고 0.30 m부터는 거칩니다. 한 탁자에 두 종류의 바닥이 있어 정해진 규칙으로는 풀 수 없습니다.",
+  "The real camera has lens distortion: far targets look much closer than they are. The rule book only knows a shifted or tilted camera.": "실제 카메라 렌즈가 휘어 먼 목표일수록 가깝게 보입니다. 정해진 규칙은 어긋나거나 기운 카메라만 다룹니다.",
+  "A weak motor, a slippery strip from 0.40 m and a distorted lens at once. The strip starts beyond where the first pushes stop, so the agent must design an experiment to find it.": "모터가 약하고, 0.40 m부터 바닥이 미끄러우며, 카메라 렌즈도 휘어 있습니다. 미끄러운 구간은 처음 밀기로는 닿지 않아, AI가 더 멀리 밀어 봐야 찾을 수 있습니다.",
+  "Beyond a line on the table the friction changes (wet or rough). One friction number cannot describe it.": "탁자의 특정 지점부터 바닥이 달라집니다 (젖었거나 거침). 마찰 값 하나로는 설명할 수 없습니다.",
+  "The camera misjudges distance by k · d²: with k < 0 far targets look closer than they are, with k > 0 farther. Rules only know a shifted or tilted camera.": "카메라가 먼 곳일수록 거리를 더 틀리게 봅니다 (음수면 가깝게, 양수면 멀게). 정해진 규칙은 어긋나거나 기운 카메라만 다룹니다.",
+  "Closed worlds change parameters the rule-based agent knows. Open worlds add a friction strip or lens distortion it has no parameter for; compound worlds add both. Every method trains the same inverse policy, so it is exactly as good as its simulator. Real trials = evaluations + probe pushes.": "쉬움: 규칙이 아는 설정만 바꿨습니다. 어려움: 규칙에 없는 “다른 바닥 구간”이나 “휘어진 렌즈”를 넣었습니다. 아주 어려움: 둘 다 넣었습니다. 성적은 가상 세계를 얼마나 정확히 고치느냐로 결정됩니다.",
+  "All rollouts in NVIDIA Newton. Policy search uses the analytic surrogate (agrees with Newton within 1 cm). Diagnosis precision/recall grades the first diagnosis against the hidden changes that can affect the measurements.": "모두 NVIDIA Newton에서 밀어 측정했습니다. 진단 점수는 처음 지목한 원인이 정답과 맞는 정도입니다.",
+  "the System-ID baseline uses the same least-squares fitter with a hand-ordered structure library and matches the agent here. The agent’s edge is that it decides which structures and which real experiments to try, and explains them.": "사람이 후보를 미리 정해 둔 자동 계산 방식도 AI와 비슷한 성능입니다. AI의 장점은 의심할 원인과 실험을 스스로 정하고, 수정 이유를 설명한다는 점입니다.",
+  "Pick a preset or build a world, including faults the rule book has no parameter for. The agent trains a policy in its simulator, measures it in your hidden world, and repairs the simulator until the policy works. A run takes a few minutes.": "예시를 고르거나 직접 문제를 만듭니다. AI는 가상 세계에서 연습하고, 숨긴 세계에서 밀어 본 뒤, 성공할 때까지 가상 세계를 고칩니다. 몇 분 걸립니다.",
+  "Nemotron inspects the evidence, proposes simulator structures, fits them by least squares, probes the robot when the data cannot decide, and commits a simulator. The policy is retrained in it and measured again in your world.": "Nemotron AI가 기록으로 원인을 추측하고 계산으로 확인하며, 불확실하면 추가로 밀어 본 뒤 답을 정합니다. 고친 가상 세계에서 다시 연습하고 실제 세계에서 재확인합니다.",
   "Built on NVIDIA Cosmos · camera events from Cosmos Reason 2 8B (NVIDIA Open Model License), run locally with llama.cpp": "NVIDIA Cosmos 사용 · Cosmos Reason 2 8B가 영상을 보고 판단 (내 컴퓨터에서 llama.cpp로 실행)",
-  "Shaded band = ±3 cm tolerance. Real and sim use the identical commands; only the physics differs. 3D replay: per-frame cube and Franka link poses recorded from NVIDIA Newton for the target above (sim cube shown as a ghost). The arm is kinematic (IK) and only visualizes the strike; the cube’s motion is simulated.": "색칠된 띠 안(±3 cm)에 서면 성공이에요. 가상과 진짜는 똑같이 밀고, 바닥 같은 물리만 달라요. 3D 화면은 NVIDIA Newton에서 계산한 움직임이에요 (반투명 상자가 가상 세계). 로봇 팔은 미는 모습을 보여 주는 용도이고, 상자의 움직임이 실제 계산 결과예요.",
-  "Shaded band = ±3 cm tolerance. Real and sim use the identical commands; only the physics differs. Clips: the Franka arm is kinematic (IK) and only visualizes the strike; the cube’s motion is simulated in NVIDIA Newton.": "색칠된 띠 안(±3 cm)에 서면 성공이에요. 가상과 진짜는 똑같이 밀고, 바닥 같은 물리만 달라요. 영상 속 로봇 팔은 미는 모습을 보여 주는 용도이고, 상자의 움직임은 NVIDIA Newton 계산 결과예요.",
-  "Each iteration it gets only what a real robot would log:": "매번 진짜 로봇이 남기는 기록만 받아요:", "Up to": "최대",
+  "Shaded band = ±3 cm tolerance. Real and sim use the identical commands; only the physics differs. 3D replay: per-frame cube and Franka link poses recorded from NVIDIA Newton for the target above (sim cube shown as a ghost). The arm is kinematic (IK) and only visualizes the strike; the cube’s motion is simulated.": "색칠된 띠(±3 cm) 안에 멈추면 성공입니다. 가상과 실제는 같은 명령으로 밀고 물리만 다릅니다. 3D 화면은 NVIDIA Newton 계산 결과입니다 (반투명 상자가 가상 세계). 로봇 팔은 미는 동작 표시용이며, 상자의 움직임이 계산 결과입니다.",
+  "Shaded band = ±3 cm tolerance. Real and sim use the identical commands; only the physics differs. Clips: the Franka arm is kinematic (IK) and only visualizes the strike; the cube’s motion is simulated in NVIDIA Newton.": "색칠된 띠(±3 cm) 안에 멈추면 성공입니다. 가상과 실제는 같은 명령으로 밀고 물리만 다릅니다. 로봇 팔은 미는 동작 표시용이며, 상자의 움직임은 NVIDIA Newton 계산 결과입니다.",
+  "Each iteration it gets only what a real robot would log:": "매번 실제 로봇이 남기는 기록만 받습니다:", "Up to": "최대",
   "+ friction": "+ 마찰", "+ gain": "+ 모터 힘", "+ camera": "+ 카메라", "+ lens": "+ 렌즈", "+ strip": "+ 구간", "strip": "구간", "lens": "렌즈", "camera": "카메라", "gain": "모터 힘",
   "same loop, sees end positions only": "같은 방식, 멈춘 위치만 봄", "Camera reads": "카메라 측정", "Deceleration drops at": "덜 느려지기 시작하는 곳", "Deceleration jumps at": "갑자기 더 느려지는 곳",
-  "Designs an experiment:": "실험을 계획해요:", "robot": "로봇", "Closer": "Closer", "actuator gain": "모터 힘", "lens k": "렌즈 휘어짐",
+  "Designs an experiment:": "실험 계획:", "robot": "로봇", "Closer": "Closer", "actuator gain": "모터 힘", "lens k": "렌즈 휘어짐",
 };
 const KO_RX = [
   [/^(Diagnose|Measure|Train|Plan|Goal) · it (\d+)$/, (m, a, n) => ({ Diagnose: "원인 찾기", Measure: "밀어 보기", Train: "연습", Plan: "가상 세계 고치기", Goal: "목표 달성" })[a] + ` · ${+n + 1}회차`],
@@ -482,14 +482,14 @@ const KO_RX = [
   [/^(\d+) trials$/, "$1번 밀어 봄"], [/^(\d+) worlds$/, "문제 $1개"], [/^(\d+) trainings total$/, "총 $1번 연습"], [/^(\d+)\/(\d+) steps$/, "$1/$2 단계"],
   [/^Scenario · hidden change in (\d+) parameters?$/, "예시 · 몰래 바꾼 것 $1가지"], [/^Open-world scenario · hidden change in (\d+) parameters?$/, "어려운 예시 · 몰래 바꾼 것 $1가지"],
   [/^(Nominal sim|Domain rand\.|Rule-based|System ID|Nemotron agent) · (Closed|Open|Compound): (.*) \(95% CI\) · (\d+) real trials$/, (m, a, t, v, n) => `${KO[a] || a} · ${KO[t]}: ${v} · ${n}번 밀어 봄`],
-  [/^Accepted: every real stop within ([\d.]+) cm(?:, camera within ([\d.]+) cm)?$/, (m, a, b) => `맞아요: 모든 기록과 ${a} cm 안으로 일치` + (b ? `, 카메라도 ${b} cm 안` : "")],
-  [/^Rejected: predicted stops miss by up to ([\d.]+) cm \(command ([\d.]+)\)$/, "틀렸어요: 최대 $1 cm까지 어긋나요 (세기 $2로 밀 때)"],
-  [/^Rejected: stops fit, but camera readings are off by ([\d.]+) cm rms$/, "틀렸어요: 멈춘 위치는 맞지만 카메라가 $1 cm 어긋나요"],
+  [/^Accepted: every real stop within ([\d.]+) cm(?:, camera within ([\d.]+) cm)?$/, (m, a, b) => `채택: 모든 기록과 ${a} cm 이내 일치` + (b ? `, 카메라도 ${b} cm 안` : "")],
+  [/^Rejected: predicted stops miss by up to ([\d.]+) cm \(command ([\d.]+)\)$/, "기각: 최대 $1 cm 어긋남 (세기 $2)"],
+  [/^Rejected: stops fit, but camera readings are off by ([\d.]+) cm rms$/, "기각: 멈춘 위치는 맞지만 카메라가 $1 cm 어긋남"],
   [/^Agent’s belief · μ ([\d.]+) → ([\d.]+) from ([\d.]+) m$/, "AI의 추측 · 마찰 $1 → $3 m부터 $2"],
-  [/^(\d+) cubes? tipped over$/, "상자 $1개가 넘어졌어요"], [/^Cosmos marked (\d+) of (\d+) sampled frames as tilted$/, "Cosmos가 장면 $2개 중 $1개에서 상자가 기울었다고 봤어요"],
-  [/^Real clip · (\d+) tracked crops · local, ([\d.]+) s · second opinion, physics flag is ground truth$/, "진짜 영상 장면 $1개를 $2초 동안 확인 · 참고용 의견이에요"],
+  [/^(\d+) cubes? tipped over$/, "상자 $1개가 넘어졌습니다"], [/^Cosmos marked (\d+) of (\d+) sampled frames as tilted$/, "Cosmos가 장면 $2개 중 $1개에서 기울어짐을 감지했습니다"],
+  [/^Real clip · (\d+) tracked crops · local, ([\d.]+) s · second opinion, physics flag is ground truth$/, "실제 영상 장면 $1개 분석 ($2초) · 참고용 판단"],
   [/^Live server · (\d+) runs\/hour per visitor · (\d+) LLM calls left$/, "서버 실행 중 · 한 사람당 시간에 $1번 · AI 호출 $2번 남음"],
-  [/^Up to (\d+) agent turns per run · (\d+) LLM calls left on this server; past either, the rule-based diagnoser takes over$/, "한 번에 AI는 최대 $1단계까지 · AI 호출 $2번 남음. 다 쓰면 정해진 규칙으로 바뀌어요"],
+  [/^Up to (\d+) agent turns per run · (\d+) LLM calls left on this server; past either, the rule-based diagnoser takes over$/, "실행당 AI 최대 $1단계 · AI 호출 $2회 남음. 한도를 넘으면 정해진 규칙으로 전환됩니다"],
   [/^Your hidden world · (\d+)\/(\d+) faults$/, "내가 숨긴 것 · $1/$2개"], [/^Your world · (\d+) hidden faults? · Nemotron tool agent$/, "내가 만든 문제 · 숨긴 것 $1개 · Nemotron AI"],
   [/^Your worlds · closed (\d+\/\d+)$/, "내가 만든 문제 · 해결 $1"], [/^Your worlds · (.*)$/, "내가 만든 문제 · $1"], [/^Hypothesis (H\d+) · fit$/, "가설 $1 · 계산해 보기"], [/^stop ([\d.]+) m$/, "$1 m에서 멈춤"],
   [/^true ([\d.]+) m → perceived ([\d.]+) m$/, "실제 $1 m → 카메라는 $2 m로 봄"], [/^cmd ([\d.]+) → ([\d.]+) m$/, "세기 $1 → $2 m"],
@@ -498,17 +498,17 @@ const KO_RX = [
   [/^system ID (\d+%)$/, "자동 계산 $1"], [/^· · nominal (\d+%) \/ full DR (\d+%)$/, "· · 기본 가상 세계 $1 / 무작위 연습 $2"],
   [/^✓ agrees · Newton: no tip$/, "✓ 같은 판단 · Newton: 안 넘어짐"], [/^✓ agrees · Newton: tipped ([\d.]+) s$/, "✓ 같은 판단 · Newton: $1초에 넘어짐"],
   [/^✕ disagrees · Newton: (.*)$/, "✕ 다른 판단 · Newton: $1"], [/^slid ([\d.]+) s$/, "$1초 미끄러짐"], [/^tipped ([\d.]+) s$/, "$1초에 넘어짐"],
-  [/^Your hidden world: (.*)\. The agent never saw these values$/, "내가 숨긴 값: $1. AI는 이 값을 몰라요"],
-  [/^(\d+)\/(\d+) hidden changes are inside the agent’s belief at it (\d+)\. Changes the outcome cannot reveal \(light, restitution\) are left at nominal by design$/, "몰래 바꾼 $2가지 중 $1가지를 AI가 맞혔어요. 결과에 영향이 없는 것(조명, 튕김)은 일부러 건드리지 않아요"],
+  [/^Your hidden world: (.*)\. The agent never saw these values$/, "숨긴 값: $1. AI에게는 보이지 않습니다"],
+  [/^(\d+)\/(\d+) hidden changes are inside the agent’s belief at it (\d+)\. Changes the outcome cannot reveal \(light, restitution\) are left at nominal by design$/, "숨긴 $2가지 중 $1가지를 AI가 맞혔습니다. 결과에 영향이 없는 항목(조명, 튕김)은 기본값으로 둡니다"],
   [/^Gap-Bench · (\d+) hidden worlds in 3 tiers · mean real success ± 95% CI$/, "성능 비교 · 문제 $1개 (난이도 3단계) · 평균 성공률과 오차 범위"],
   [/^Tier 0 benchmark · (\d+) random hidden worlds, 2 changed parameters each$/, "기본 성능 비교 · 문제 $1개, 각각 설정 2가지를 몰래 바꿈"],
   [/^Stump the agent · live in NVIDIA Newton · (.*)$/, "AI에게 문제 내기 · NVIDIA Newton에서 실시간 · $1"],
-  [/^NVIDIA Newton rollout · (\d+) pushes each$/, "NVIDIA Newton에서 $1번씩 밀어 봄"], [/^(\d+)% of real pushes land on the line$/, "이제 $1%가 선에 딱 멈춰요"],
+  [/^NVIDIA Newton rollout · (\d+) pushes each$/, "NVIDIA Newton에서 $1번씩 밀어 봄"], [/^(\d+)% of real pushes land on the line$/, "이제 $1%가 선에 멈춥니다"],
   [/^Stopped at (\d+%)$/, "$1에서 멈춤"],
   [/^\/ target ([\d.]+)$/, "/ 목표 $1 m"], [/^✓ (\d+%) · (\d+) trials$/, "✓ $1 · $2번 밀어 봄"], [/^target range ([\d.]+–[\d.]+ m)$/, "목표 범위 $1"], [/^targets ([\d.]+–[\d.]+ m)$/, "목표 $1"],
   [/^sliding ([\d.]+) m\/s · (.+?) to target(?: · on strip μ ([\d.]+))?$/, (m, v, e, mu) => `미끄러지는 중 (${v} m/s) · 목표와 ${e} 차이` + (mu ? ` · 다른 구간 위 (마찰 ${mu})` : "")],
   [/^([+-]?[\d.]+ cm) · (on line|overshoot|short)( · tipped)?$/, (m, e, w, t) => `${e} · ${({ "on line": "성공", overshoot: "지나침", short: "모자람" })[w]}` + (t ? " · 넘어짐" : "")],
-  [/^it (\d+) · after fix (\d+)( · gap closed)?$/, (m, a, b, g) => `${+a + 1}회차 · ${b}번 고친 뒤` + (g ? " · 차이 해결!" : "")],
+  [/^it (\d+) · after fix (\d+)( · gap closed)?$/, (m, a, b, g) => `${+a + 1}회차 · ${b}번 고친 뒤` + (g ? " · 차이 해결" : "")],
   [/^closed-world rules · (\d+) real trials$/, "기본 규칙 · $1번 밀어 봄"], [/^fixed structure library · (\d+) trials$/, "미리 정한 후보로 계산 · $1번 밀어 봄"],
   [/^all (\d+) params, full range$/, "설정 $1가지를 전부 넓게"], [/^all params, full range · ([\d.]+) trainings$/, "모든 설정을 넓게 · $1번 연습"],
   [/^agent: evaluations \+ (\d+) probe push(?:es)?$/, "AI: 확인 + 실험용 밀기 $1번"], [/^no randomization · ([\d.]+) trainings$/, "넓게 연습 안 함 · $1번 연습"],
@@ -1066,7 +1066,7 @@ function boot(B, LIVE) {
       const r = e.real, s = e.sim;
       const n = r.trials.length, ok = r.trials.filter((t) => t.success).length;
       const tipped = r.trials.filter((t) => t.tipped).length;
-      return `<div class="who">${tl(`NVIDIA Newton rollout · ${n} pushes each`, `NVIDIA Newton에서 ${n}번씩 밀어 봄`)}</div><div class="txt">${tl(`Real <b class="${r.success_rate >= 0.9 ? "ok-t" : "bad-t"}">${ok}/${n}</b> on target, sim predicted <b>${s.trials.filter((t) => t.success).length}/${n}</b>.`, `진짜로는 ${n}번 중 <b class="${r.success_rate >= 0.9 ? "ok-t" : "bad-t"}">${ok}번</b> 성공했어요. 가상 세계에서는 <b>${s.trials.filter((t) => t.success).length}번</b> 성공할 줄 알았어요.`)}${tipped ? ` <span style="color:var(--warn)">${tl(`${tipped} cube${tipped > 1 ? "s" : ""} tipped over.`, `상자 ${tipped}개가 넘어졌어요.`)}</span>` : ""}</div>`;
+      return `<div class="who">${tl(`NVIDIA Newton rollout · ${n} pushes each`, `NVIDIA Newton에서 ${n}번씩 밀어 봄`)}</div><div class="txt">${tl(`Real <b class="${r.success_rate >= 0.9 ? "ok-t" : "bad-t"}">${ok}/${n}</b> on target, sim predicted <b>${s.trials.filter((t) => t.success).length}/${n}</b>.`, `진짜로는 ${n}번 중 <b class="${r.success_rate >= 0.9 ? "ok-t" : "bad-t"}">${ok}번</b> 성공했습니다. 가상 세계 예상은 <b>${s.trials.filter((t) => t.success).length}번</b>이었습니다.`)}${tipped ? ` <span style="color:var(--warn)">${tl(`${tipped} cube${tipped > 1 ? "s" : ""} tipped over.`, `상자 ${tipped}개가 넘어졌습니다.`)}</span>` : ""}</div>`;
     }
     if (e.type === "diagnose") {
       const why = e.reasoning ? `<blockquote class="why">${esc(e.reasoning)}</blockquote>` : "";
@@ -1078,7 +1078,7 @@ function boot(B, LIVE) {
       return `<div class="who">${esc(e.agent)} → sim config diff</div>${rows.length ? `<div class="diff">${rows.join("\n")}</div>` : `<div class="txt">No change.</div>`}`;
     }
     if (e.type === "done") {
-      return `<div class="txt">${e.reached_goal ? tl(`<b class="ok-t">Gap closed.</b> ${pct(e.final_success)} of real pushes land on the line.`, `<b class="ok-t">차이를 고쳤어요!</b> 이제 ${pct(e.final_success)}가 선에 딱 멈춰요.`) : tl(`<b class="bad-t">Stopped at ${pct(e.final_success)}</b> after the iteration budget.`, `정해진 횟수를 다 써서 <b class="bad-t">${pct(e.final_success)}에서 멈췄어요</b>.`)}</div>`;
+      return `<div class="txt">${e.reached_goal ? tl(`<b class="ok-t">Gap closed.</b> ${pct(e.final_success)} of real pushes land on the line.`, `<b class="ok-t">차이를 고쳤습니다.</b> 이제 ${pct(e.final_success)}가 선에 멈춥니다.`) : tl(`<b class="bad-t">Stopped at ${pct(e.final_success)}</b> after the iteration budget.`, `정해진 횟수를 다 써서 <b class="bad-t">${pct(e.final_success)}에서 멈췄습니다</b>.`)}</div>`;
     }
     return "";
   }
@@ -1284,7 +1284,7 @@ function boot(B, LIVE) {
       cap = `Deceleration ${jump.d > 0 ? "jumps" : "drops"} at <b>≈${jump.at.toFixed(2)} m</b>: ${g0.toFixed(2)} g → ${g1.toFixed(2)} g. One friction number cannot explain this.`;
     } else {
       const m = bins.reduce((s, b) => s + b.g, 0) / bins.length;
-      cap = tl(`Uniform deceleration <b>≈${m.toFixed(2)} g</b>${cover < 0.6 ? `, but tracks only reach <b>${cover.toFixed(2)} m</b> and targets go to 0.60 m` : ""}.`, `어디서나 비슷하게 느려져요 (<b>≈${m.toFixed(2)} g</b>)${cover < 0.6 ? `. 그런데 <b>${cover.toFixed(2)} m</b>까지만 기록이 있고, 목표는 0.60 m까지예요` : ""}.`);
+      cap = tl(`Uniform deceleration <b>≈${m.toFixed(2)} g</b>${cover < 0.6 ? `, but tracks only reach <b>${cover.toFixed(2)} m</b> and targets go to 0.60 m` : ""}.`, `위치와 관계없이 비슷하게 느려집니다 (<b>≈${m.toFixed(2)} g</b>)${cover < 0.6 ? `. 그런데 <b>${cover.toFixed(2)} m</b>까지만 기록이 있으며, 목표는 0.60 m까지입니다` : ""}.`);
     }
     return { cap, vis: `<div class="vis">${decelChart(bins, strip)}<div class="side">${tl("real cube deceleration (g) by position, from camera tracks, 5 cm bins", "탁자 위치마다 상자가 얼마나 빨리 느려졌는지 (5 cm 단위)")}${strip ? `<br><span style="color:${strip.rough ? "#b3895b" : "#5b8fb3"}">■</span> ${tl("beyond the change", "바뀌는 지점 너머")}` : ""}<br><span style="color:#76b900">▬</span> ${tl("target range", "목표 범위")}</div></div>` };
   }
@@ -1293,8 +1293,8 @@ function boot(B, LIVE) {
     if (!pts.length) return { cap: "No perception data.", vis: "" };
     const err = pts.map((p) => p.perceived_m - p.true_m), mx = Math.max(...err.map(Math.abs));
     const near = err[0], far = err[err.length - 1];
-    const cap = mx < 0.003 ? tl(`Camera reads true: perceived = actual within <b>${(mx * 1000).toFixed(0)} mm</b>. Perception is not the problem.`, `카메라는 정확해요 (오차 <b>${(mx * 1000).toFixed(0)} mm</b> 이내). 카메라는 문제가 아니에요.`)
-      : tl(`Camera reads <b>${far < 0 ? "short" : "long"}</b>: ${cm(Math.abs(near))} cm at ${pts[0].true_m.toFixed(2)} m, <b>${cm(Math.abs(far))} cm</b> at ${pts[pts.length - 1].true_m.toFixed(2)} m${Math.abs(far) > 2 * Math.abs(near) + 0.003 ? ", growing with distance" : ""}.`, `카메라가 거리를 <b>${far < 0 ? "가깝게" : "멀게"}</b> 봐요: ${pts[0].true_m.toFixed(2)} m에서 ${cm(Math.abs(near))} cm, ${pts[pts.length - 1].true_m.toFixed(2)} m에서 <b>${cm(Math.abs(far))} cm</b> 틀려요${Math.abs(far) > 2 * Math.abs(near) + 0.003 ? ". 멀수록 더 틀려요" : ""}.`);
+    const cap = mx < 0.003 ? tl(`Camera reads true: perceived = actual within <b>${(mx * 1000).toFixed(0)} mm</b>. Perception is not the problem.`, `카메라는 정확합니다 (오차 <b>${(mx * 1000).toFixed(0)} mm</b> 이내). 카메라 문제는 아닙니다.`)
+      : tl(`Camera reads <b>${far < 0 ? "short" : "long"}</b>: ${cm(Math.abs(near))} cm at ${pts[0].true_m.toFixed(2)} m, <b>${cm(Math.abs(far))} cm</b> at ${pts[pts.length - 1].true_m.toFixed(2)} m${Math.abs(far) > 2 * Math.abs(near) + 0.003 ? ", growing with distance" : ""}.`, `카메라가 거리를 <b>${far < 0 ? "가깝게" : "멀게"}</b> 봅니다: ${pts[0].true_m.toFixed(2)} m에서 ${cm(Math.abs(near))} cm, ${pts[pts.length - 1].true_m.toFixed(2)} m에서 <b>${cm(Math.abs(far))} cm</b> 오차${Math.abs(far) > 2 * Math.abs(near) + 0.003 ? ". 멀수록 오차가 커집니다" : ""}.`);
     const W = 300, H = 110, L = 30, R = 8, T = 8, Bm = 22, lo = 0.15, hi = 0.65;
     const xs = (x) => L + ((x - lo) / (hi - lo)) * (W - L - R), ys = (v) => T + (1 - (v - lo) / (hi - lo)) * (H - T - Bm);
     let g = [0.2, 0.4, 0.6].map((v) => `<line x1="${L}" x2="${W - R}" y1="${ys(v)}" y2="${ys(v)}" stroke="#222"/><text x="${L - 4}" y="${ys(v) + 4}" text-anchor="end">${v.toFixed(1)}</text><text x="${xs(v)}" y="${H - 4}" text-anchor="middle">${v.toFixed(1)}</text>`).join("");
@@ -1342,7 +1342,7 @@ function boot(B, LIVE) {
         else {
           used += rs.length;
           const far = Math.max(0, ...rs.filter((x) => !x.tipped).map((x) => x.stop_m));
-          cap = tl(`<b>Designs an experiment:</b> ${rs.length} real push${rs.length > 1 ? "es" : ""} aimed past the tracked range. Coverage <b>0–${cover0.toFixed(2)} m → 0–${Math.max(cover0, far).toFixed(2)} m</b>.`, `<b>실험을 해 봐요:</b> 아직 안 가 본 먼 곳까지 ${rs.length}번 더 밀어 봐요. 확인한 거리 <b>${cover0.toFixed(2)} m → ${Math.max(cover0, far).toFixed(2)} m</b>.`);
+          cap = tl(`<b>Designs an experiment:</b> ${rs.length} real push${rs.length > 1 ? "es" : ""} aimed past the tracked range. Coverage <b>0–${cover0.toFixed(2)} m → 0–${Math.max(cover0, far).toFixed(2)} m</b>.`, `<b>실험:</b> 측정하지 않은 먼 구간까지 ${rs.length}번 추가로 밉니다. 측정 범위 <b>${cover0.toFixed(2)} m → ${Math.max(cover0, far).toFixed(2)} m</b>.`);
           body = `<div class="probes">${rs.map((x) => `<span>cmd ${(+x.command).toFixed(1)} → ${x.tipped ? "tipped" : (+x.stop_m).toFixed(2) + " m"}</span>`).join("")}<span class="budget">${r.probe_budget_left} of ${r.probe_budget_left + used} probes left</span></div>`;
         }
       } else if (s.tool === "commit") {
@@ -1362,7 +1362,7 @@ function boot(B, LIVE) {
     }).join("");
     const ladder = fits.length ? `<div class="ladder"><span class="label" style="margin-right:4px">Stop residual</span>${fits.map((f, i) => `${i ? `<span class="ar">→</span>` : ""}<span class="r ${f.ok ? "ok" : "bad"}" title="${esc(f.label)}">H${i + 1} ${f.stop != null ? cm(f.stop) + " cm" : "?"} ${f.ok ? "✓" : "✕"}</span>`).join("")}</div>` : "";
     const n = meas ? meas.real.trials.length : 0, ok = meas ? meas.real.trials.filter((t) => t.success).length : 0, sok = meas ? meas.sim.trials.filter((t) => t.success).length : 0;
-    return `<div class="nb-head"><span class="q">${meas ? tl(`Why did the sim-trained policy land <b style="color:var(--fg)">${ok}/${n}</b> real pushes when the sim predicted ${sok}/${n}? `, `가상 세계에서는 ${n}번 중 ${sok}번 성공할 줄 알았는데, 왜 실제로는 <b style="color:var(--fg)">${ok}번</b>만 성공했을까요? `) : ""}${tl(`${trace.length} tool calls · ${used} real probe push${used === 1 ? "" : "es"}.`, `AI가 ${trace.length}단계로 조사 · 실험용 밀기 ${used}번.`)}</span>${ladder}</div>
+    return `<div class="nb-head"><span class="q">${meas ? tl(`Why did the sim-trained policy land <b style="color:var(--fg)">${ok}/${n}</b> real pushes when the sim predicted ${sok}/${n}? `, `가상 세계 예상은 ${n}번 중 ${sok}번 성공, 실제는 <b style="color:var(--fg)">${ok}번</b> 성공. 원인을 찾습니다. `) : ""}${tl(`${trace.length} tool calls · ${used} real probe push${used === 1 ? "" : "es"}.`, `AI가 ${trace.length}단계로 조사 · 실험용 밀기 ${used}번.`)}</span>${ladder}</div>
       <ol class="nb">${items}</ol>
       <details class="raw"><summary class="label">Raw tool trace · JSON</summary><pre>${esc(JSON.stringify(trace, null, 1))}</pre></details>`;
   }
@@ -1591,7 +1591,7 @@ function boot(B, LIVE) {
         </div>
         <aside class="side-col">
           <section class="pane agentview"><header><span class="label">How the agent sees it</span></header><div class="body">
-            <p>${tl("<b>It never sees the values you set.</b> Each iteration it gets only what a real robot would log:", "<b>AI는 여러분이 정한 값을 볼 수 없어요.</b> 진짜 로봇이 남기는 기록만 받아요:")}</p>
+            <p>${tl("<b>It never sees the values you set.</b> Each iteration it gets only what a real robot would log:", "<b>AI는 설정한 값을 볼 수 없습니다.</b> 실제 로봇이 남기는 기록만 받습니다:")}</p>
             <ul><li>20 real pushes: perceived target, command, where the cube stopped</li><li>camera tracks of each sliding cube</li><li>up to ${12} extra real pushes it may spend on its own experiments</li></ul>
             <p>${tool ? "Nemotron inspects the evidence, proposes simulator structures, fits them by least squares, probes the robot when the data cannot decide, and commits a simulator. The policy is retrained in it and measured again in your world." : "No LLM is configured on this server, so the rule-based diagnoser runs. It has no parameter for a strip or a lens and can only average them away."}</p>
           </div></section>
@@ -1689,13 +1689,13 @@ function boot(B, LIVE) {
     const el = $("#intro");
     if (introHidden()) { el.hidden = true; return; }
     el.hidden = false;
-    el.innerHTML = `<div class="ih"><h2>${tl("What is this? (30 seconds)", "이게 뭔가요? (30초 설명)")}</h2><button type="button" class="x" id="intro-x">${tl("Got it, hide", "알겠어요, 닫기")}</button></div>
+    el.innerHTML = `<div class="ih"><h2>${tl("What is this? (30 seconds)", "30초 설명")}</h2><button type="button" class="x" id="intro-x">${tl("Got it, hide", "닫기")}</button></div>
       <ol>
-        <li><b>${tl("1. A robot practises in a virtual world", "1. 로봇은 가상 세계에서 연습해요")}</b>${tl("It learns to push a box so it stops exactly on a line. In the virtual world it succeeds almost every time.", "상자를 밀어서 선에 딱 세우는 연습이에요. 가상 세계에서는 거의 매번 성공해요.")}</li>
-        <li><b>${tl("2. In the real world it misses", "2. 진짜 세계에선 자꾸 빗나가요")}</b>${tl("The real table is a bit different: slipperier, a wet patch, a weaker motor, a tilted camera. Nobody wrote that down.", "진짜 탁자는 조금 달라요. 더 미끄럽거나, 젖은 곳이 있거나, 모터가 약하거나, 카메라가 기울어 있어요. 아무도 그걸 미리 몰라요.")}</li>
-        <li><b>${tl("3. The AI finds why and fixes the virtual world", "3. AI가 이유를 찾아 가상 세계를 고쳐요")}</b>${tl("NVIDIA Nemotron looks at where the box stopped, tests guesses, pushes a few more times if unsure, and fixes the virtual world. The robot practises again and now succeeds for real.", "NVIDIA Nemotron이 상자가 멈춘 위치를 보고 원인을 추측하고, 헷갈리면 몇 번 더 밀어 보고, 가상 세계를 고쳐요. 로봇이 다시 연습하면 진짜 세계에서도 성공해요.")}</li>
+        <li><b>${tl("1. A robot practises in a virtual world", "1. 로봇은 가상 세계에서 연습합니다")}</b>${tl("It learns to push a box so it stops exactly on a line. In the virtual world it succeeds almost every time.", "상자를 밀어 선에 세우는 연습입니다. 가상 세계에서는 거의 매번 성공합니다.")}</li>
+        <li><b>${tl("2. In the real world it misses", "2. 실제 세계에서는 빗나갑니다")}</b>${tl("The real table is a bit different: slipperier, a wet patch, a weaker motor, a tilted camera. Nobody wrote that down.", "실제 탁자는 조금 다릅니다. 더 미끄럽거나, 젖은 곳이 있거나, 모터가 약하거나, 카메라가 기울어 있습니다. 이 차이는 미리 알 수 없습니다.")}</li>
+        <li><b>${tl("3. The AI finds why and fixes the virtual world", "3. AI가 원인을 찾아 가상 세계를 고칩니다")}</b>${tl("NVIDIA Nemotron looks at where the box stopped, tests guesses, pushes a few more times if unsure, and fixes the virtual world. The robot practises again and now succeeds for real.", "NVIDIA Nemotron이 상자가 멈춘 위치로 원인을 추측하고, 불확실하면 추가로 밀어 본 뒤 가상 세계를 고칩니다. 다시 연습한 로봇은 실제 세계에서도 성공합니다.")}</li>
       </ol>
-      <p class="note">${tl("Every example uses the same task (a robot arm pushing a box onto a line) on purpose: what changes from tab to tab is the hidden cause in the “real” world. Press “Reveal truth” to see whether the AI found it. Physics: NVIDIA Newton. To try your own table or video, open the Studio.", "모든 예시는 일부러 같은 과제예요 (로봇 팔이 상자를 밀어 선에 세우기). 위 탭마다 다른 건 “진짜 세계”에 숨겨 둔 원인이에요. “정답 보기”를 누르면 AI가 맞혔는지 확인할 수 있어요. 물리 계산은 NVIDIA Newton이 해요. 내 탁자나 영상으로 해 보려면 Studio를 여세요.")}</p>`;
+      <p class="note">${tl("Every example uses the same task (a robot arm pushing a box onto a line) on purpose: what changes from tab to tab is the hidden cause in the “real” world. Press “Reveal truth” to see whether the AI found it. Physics: NVIDIA Newton. To try your own table or video, open the Studio.", "모든 예시는 같은 과제입니다 (로봇 팔이 상자를 밀어 선에 세우기). 탭마다 다른 것은 실제 세계에 숨긴 원인입니다. “정답 보기”로 AI가 맞혔는지 확인할 수 있습니다. 물리 계산은 NVIDIA Newton이 합니다. 직접 해 보려면 Studio를 엽니다.")}</p>`;
     $("#intro-x").onclick = () => { try { localStorage.setItem(introKey, "1"); } catch (_) {} el.hidden = true; };
   }
   renderIntro();

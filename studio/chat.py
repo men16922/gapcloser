@@ -41,7 +41,7 @@ GUIDE:
 SESSION (JSON, may be empty):
 {session}"""
 
-LANGS = {"en": "English", "ko": "Korean (한국어)"}
+LANGS = {"en": "English", "ko": "Korean (한국어, formal 합니다체 endings, concise; never 해요체)"}
 
 
 def _r(x, d=3):
