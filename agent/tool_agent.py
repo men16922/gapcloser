@@ -189,6 +189,14 @@ class Workbench:
             free = list(dict.fromkeys(free + ["patch_y0", "patch_mu"]))
         if not free:
             return {"fitted_model": from_params(to_params(start, self.base)), **self.test_hypothesis(start)}
+        rest = [f for f in free if f not in ("patch_y0", "patch_mu")]
+        if rest and len(rest) < len(free):
+            # fit the rest of the model without the region first: starting the region search from the current sim
+            # (e.g. friction 0.8 on a 0.45 table) strands Nelder-Mead in a far-away local minimum
+            pre = self.fit_hypothesis({**start, "patch_y0": None, "patch_mu": None}, rest)["fitted_model"]
+            start.update({k: pre[k] for k in rest})
+            if abs(start["patch_mu"] - start.get("mu_eff", start["patch_mu"])) > 0.05 and model.get("patch_mu") is None:
+                start["patch_mu"] = start["mu_eff"]
 
         def build(x):
             return to_params({**start, **dict(zip(free, x))}, self.base)
@@ -201,7 +209,7 @@ class Workbench:
             if "patch_mu" in free:  # a region as slick as the rest is flat in y0: also start slicker and stickier
                 j, mu = free.index("patch_mu"), x0[free.index("mu_eff")] if "mu_eff" in free else x0[free.index("patch_mu")]
                 if abs(x0[j] - mu) < 0.05:
-                    starts = [st[:j] + [m] + st[j + 1:] for st in starts for m in (0.6 * mu, 1.4 * mu)]
+                    starts = [st[:j] + [m] + st[j + 1:] for st in starts for m in (0.55 * mu, 0.8 * mu, 1.25 * mu, 1.6 * mu)]
 
         def simplex(st):  # per-field step sizes: scipy's default (5% of x0, 0.00025 at 0) strands pitch/lens at 0
             pts = [list(st)]

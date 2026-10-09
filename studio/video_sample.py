@@ -67,9 +67,12 @@ def sheet_corners_world() -> np.ndarray:
     return np.array([[cx - hx, cy - hy, 0], [cx + hx, cy - hy, 0], [cx + hx, cy + hy, 0], [cx - hx, cy + hy, 0]], float)
 
 
-def render(out: Path = OUT / "flick-video.mp4", speeds=SPEEDS, seed: int = 3, hard: bool = False) -> dict:
+def render(out: Path = OUT / "flick-video.mp4", speeds=SPEEDS, seed: int = 3, hard: bool = False,
+           world: dict | None = None, show_strip: bool = True) -> dict:
     """hard: a worse phone. Textured table, hand-held camera shake (1.5 mm, 0.15 deg per frame), motion blur
-    (blend with the previous frame), exposure flicker, heavier compression. Used to test the tracker."""
+    (blend with the previous frame), exposure flicker, heavier compression. Used to test the tracker.
+    world: the table's hidden physics {"mu_eff", "patch_y0" (None = no region), "patch_mu"}; default = the sample.
+    show_strip: draw the friction region (samples do; a visitor's own hidden world does not give it away)."""
     import warp as wp
 
     import newton
@@ -78,8 +81,11 @@ def render(out: Path = OUT / "flick-video.mp4", speeds=SPEEDS, seed: int = 3, ha
 
     wp.config.quiet = True
     rng = random.Random(seed)
-    params = ParamSet.nominal().with_(object_mu=MU_EFF, table_mu=MU_EFF, patch_y0=STRIP[0], patch_mu=STRIP[1],
-                                      object_half_size=HALF)
+    world = world or {"mu_eff": MU_EFF, "patch_y0": STRIP[0], "patch_mu": STRIP[1]}
+    mu = float(world["mu_eff"])
+    strip = (float(world["patch_y0"]), float(world["patch_mu"])) if world.get("patch_y0") is not None else None
+    params = ParamSet.nominal().with_(object_mu=mu, table_mu=mu, object_half_size=HALF,
+                                      **({"patch_y0": strip[0], "patch_mu": strip[1]} if strip else {}))
     quat, _ = look_at_quat(CAM_POS, CAM_LOOK)
     proc = subprocess.Popen(["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}",
                              "-r", str(FPS), "-i", "-", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "30" if hard else "20", str(out)],
@@ -89,16 +95,17 @@ def render(out: Path = OUT / "flick-video.mp4", speeds=SPEEDS, seed: int = 3, ha
     for i, v in enumerate(speeds):
         y_start = rng.uniform(-0.015, 0.015)
         b = newton.ModelBuilder()
-        cfg = newton.ModelBuilder.ShapeConfig(mu=MU_EFF, density=400.0)
+        cfg = newton.ModelBuilder.ShapeConfig(mu=mu, density=400.0)
         body = b.add_body(xform=wp.transform(p=wp.vec3(0.0, y_start, HALF), q=wp.quat_identity()))
         b.add_shape_box(body, hx=HALF, hy=HALF, hz=HALF, cfg=cfg, color=(0.95, 0.42, 0.08))
         vis = newton.ModelBuilder.ShapeConfig(has_shape_collision=False, has_particle_collision=False)
         cx, cy = SHEET["center"]
         b.add_shape_box(-1, xform=wp.transform(p=wp.vec3(cx, cy, 0.0004), q=wp.quat_identity()),
                         hx=SHEET["size_x"] / 2, hy=SHEET["size_y"] / 2, hz=0.0004, cfg=vis, color=(0.96, 0.96, 0.94))
-        b.add_shape_box(-1, xform=wp.transform(p=wp.vec3(0.0, (STRIP[0] + 1.2) / 2, 0.0002), q=wp.quat_identity()),
-                        hx=0.16, hy=(1.2 - STRIP[0]) / 2, hz=0.0002, cfg=vis, color=(0.20, 0.24, 0.30))
-        ground = b.add_ground_plane(cfg=newton.ModelBuilder.ShapeConfig(mu=MU_EFF), color=(0.33, 0.30, 0.27))
+        if strip and show_strip:
+            b.add_shape_box(-1, xform=wp.transform(p=wp.vec3(0.0, (strip[0] + 1.2) / 2, 0.0002), q=wp.quat_identity()),
+                            hx=0.16, hy=(1.2 - strip[0]) / 2, hz=0.0002, cfg=vis, color=(0.20, 0.24, 0.30))
+        ground = b.add_ground_plane(cfg=newton.ModelBuilder.ShapeConfig(mu=mu), color=(0.33, 0.30, 0.27))
         model = b.finalize()
         state = model.state()
         cam = SensorTiledCamera(model=model)
@@ -156,7 +163,7 @@ def render(out: Path = OUT / "flick-video.mp4", speeds=SPEEDS, seed: int = 3, ha
     mu1, mu2, y0 = frictions(params)
     meta = {"video": out.name, "fps": FPS, "size": [W, H], "synthetic": True, "renderer": "NVIDIA Newton SensorTiledCamera",
             "sheet": "a4", "sheet_corners_px": [[round(float(x), 1), round(float(y), 1)] for x, y in corners],
-            "object_height_m": 2 * HALF, "hidden": {"mu_eff": MU_EFF, "patch_y0": y0, "patch_mu": mu2}, "pushes": truth,
+            "object_height_m": 2 * HALF, "hidden": {"mu_eff": mu1, "patch_y0": None if mu2 is None else y0, "patch_mu": mu2}, "pushes": truth,
             "camera": {"pos": CAM_POS, "look_at": CAM_LOOK, "fov_v_deg": math.degrees(FOV_V)}}
     out.with_suffix(".truth.json").write_text(json.dumps(meta, indent=2))
     return meta

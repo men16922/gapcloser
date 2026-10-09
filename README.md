@@ -32,6 +32,16 @@ measurements you bring, and hands back a simulator you can use:
 6. **Export.** A snippet for NVIDIA Newton (`ShapeConfig` mu and the friction region), an Isaac Lab
    `EventTermCfg` whose domain-randomization ranges are the measured intervals, a Markdown report and JSON.
 
+**No video at hand?** Studio can simulate the table. Set the hidden physics with sliders:
+
+- friction;
+- a region of different friction;
+- for robot logs, the motor strength and the camera tilt.
+
+NVIDIA Newton then renders a phone-style video or writes a robot log. Studio diagnoses it without seeing your
+settings, can run the pushes it asks for in the same simulated world, and finally reveals your settings as
+ground truth.
+
 ```bash
 make serve                    # then open http://localhost:8000/studio
 python -m studio calibrate my_robot_log.csv --llm tokenfactory --out runs/studio/mine

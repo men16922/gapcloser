@@ -4,6 +4,8 @@
   GET  /api/studio/samples                       sample sessions (robot logs, phone videos)
   POST /api/studio/sessions                      multipart: file (video | .csv | .json) or sample=<id>; name
   POST /api/studio/sessions/{sid}/videos         multipart: file or sample part -> add another video of the same table
+  POST /api/studio/simulate                      {"kind": "video"|"log", "world": {...}, "pushes", "reach"} -> NVIDIA Newton makes the data
+  POST /api/studio/sessions/{sid}/simulate-more  {"speeds"|"commands": [...]} -> run the next experiment in the same world
   POST /api/studio/sessions/{sid}/logs           multipart: file -> append more pushes to a robot-log session
   POST /api/studio/sessions/{sid}/videos/{i}/track   {"corners": [x,y]*4, "sheet": "a4", "object_px": [x,y]?, "object_height_m"?}
   POST /api/studio/sessions/{sid}/analyze        {"agent": true|false} -> streams on /events
@@ -59,6 +61,19 @@ class AnalyzeRequest(BaseModel):
     agent: bool = True
 
 
+class SimulateRequest(BaseModel):
+    kind: str = Field("video", pattern="^(video|log)$")
+    world: dict[str, float | None]
+    pushes: int = Field(7, ge=3, le=12)
+    reach: float = Field(0.45, ge=0.15, le=0.9)
+    seed: int = 0
+
+
+class MorePushesRequest(BaseModel):
+    speeds: list[float] | None = Field(None, max_length=8)  # video: launch speeds (m/s)
+    commands: list[float] | None = Field(None, max_length=8)  # robot log: commands
+
+
 class StudioSession:
     def __init__(self, sid: str, name: str, kind: str, sample: str | None, folder: Path):
         self.id, self.name, self.kind, self.sample, self.dir = sid, name, kind, sample, folder
@@ -70,6 +85,9 @@ class StudioSession:
         self.done = True
         self.cond = threading.Condition()
         self.created = time.time()
+        self.world: dict | None = None  # simulated session: the visitor's hidden physics (ground truth)
+        self.origin_offset = 0.0  # simulated video: median release of take 1 from the simulator origin
+        self.object_height: float | None = None
 
     def push(self, e: dict) -> None:
         with self.cond:
@@ -82,7 +100,8 @@ class StudioSession:
         return {"id": self.id, "name": self.name, "kind": self.kind, "sample": self.sample,
                 "videos": [{k: v for k, v in x.items() if k not in ("path",)} for x in self.videos],
                 "session": self.session.to_json() if self.session else None, "result": self.result,
-                "busy": not self.done}
+                "busy": not self.done, "simulated": self.world is not None,
+                "world_keys": sorted(self.world) if self.world else []}
 
 
 def mount_studio(app: FastAPI, llm, budget, data_dir: Path, budgeted_llm_cls) -> None:
@@ -207,6 +226,84 @@ def mount_studio(app: FastAPI, llm, budget, data_dir: Path, budgeted_llm_cls) ->
         sessions[sid] = s
         return s.public()
 
+    sim_lock = threading.Lock()
+
+    @app.post("/api/studio/simulate")
+    def simulate(req: SimulateRequest):
+        """Make the 'real' data in NVIDIA Newton from the visitor's own hidden physics."""
+        from studio import simulate as sm
+        from studio.session import SessionError
+
+        try:
+            world = sm.validate(req.world, req.kind)
+            speeds = sm.flick_speeds(world, req.pushes, req.reach, req.seed) if req.kind == "video" else None
+        except SessionError as e:
+            raise HTTPException(422, str(e)) from None
+        if not sim_lock.acquire(timeout=90):
+            raise HTTPException(429, "Newton is busy with another simulation. Try again in a minute.")
+        evict()
+        sid = uuid.uuid4().hex[:10]
+        folder = store / sid
+        folder.mkdir(parents=True, exist_ok=True)
+        try:
+            if req.kind == "video":
+                s = StudioSession(sid, "Your simulated table (phone video)", "video", None, folder)
+                meta = sm.render_video(world, speeds, folder / "video0.mp4", seed=req.seed + 11)
+                starts = sorted(p["start_y_m"] for p in meta["pushes"])
+                s.origin_offset = starts[len(starts) // 2]
+                s.object_height = meta["object_height_m"]
+                add_video(s, folder / "video0.mp4", meta["sheet_corners_px"])
+            else:
+                s = StudioSession(sid, "Your simulated robot log", "log", None, folder)
+                s.session = sm.robot_log(world, req.pushes, req.reach, req.seed)
+                s.session.name = s.name
+        except SessionError as e:
+            shutil.rmtree(folder, ignore_errors=True)
+            raise HTTPException(422, str(e)) from None
+        finally:
+            sim_lock.release()
+        s.world = world
+        sessions[sid] = s
+        return s.public()
+
+    @app.post("/api/studio/sessions/{sid}/simulate-more")
+    def simulate_more(sid: str, req: MorePushesRequest):
+        """Run the suggested next experiment in the same simulated world: a new video take or more log rows."""
+        from studio import simulate as sm
+        from studio.session import Session, SessionError
+
+        s = get(sid)
+        if s.world is None:
+            raise HTTPException(422, "Only simulated sessions can run pushes in Newton; film or log them for real data.")
+        if not sim_lock.acquire(timeout=90):
+            raise HTTPException(429, "Newton is busy with another simulation. Try again in a minute.")
+        try:
+            if s.kind == "video":
+                if not s.videos or not s.videos[0]["tracked"]:
+                    raise HTTPException(422, "Track the first take before adding another.")
+                speeds = [min(4.0, max(0.3, float(v))) for v in (req.speeds or [])]
+                if not speeds:
+                    raise HTTPException(422, "Give the launch speeds to run.")
+                i = len(s.videos)
+                meta = sm.render_video(s.world, speeds, s.dir / f"take{i}.mp4", seed=97 + i)
+                v = add_video(s, s.dir / f"take{i}.mp4", meta["sheet_corners_px"])
+                (s.dir / f"take{i}.mp4").unlink(missing_ok=True)
+                out = s.public() | {"added": v["index"]}
+            else:
+                cmds = [min(4.5, max(0.3, float(c))) for c in (req.commands or [])]
+                if not cmds:
+                    raise HTTPException(422, "Give the commands to run.")
+                extra = sm.robot_log(s.world, 0, 0.0, seed=len(s.session.pushes), commands=cmds)
+                s.session = Session(s.session.name, "log", s.session.pushes + extra.pushes, s.session.sim,
+                                    s.session.notes, s.session.meta)
+                out = s.public() | {"added_pushes": len(extra.pushes)}
+        except SessionError as e:
+            raise HTTPException(422, str(e)) from None
+        finally:
+            sim_lock.release()
+        s.result = None
+        return out
+
     @app.post("/api/studio/sessions/{sid}/videos")
     async def more_video(sid: str, file: UploadFile | None = File(None), part: str | None = Form(None)):
         s = get(sid)
@@ -258,7 +355,7 @@ def mount_studio(app: FastAPI, llm, budget, data_dir: Path, budgeted_llm_cls) ->
             raise HTTPException(404, "Unknown video.")
         v = s.videos[i]
         prior = s.session.meta if (i > 0 and s.session is not None) else None
-        height = req.object_height_m or next((x.get("object_height_m") for x in SAMPLES if x["id"] == s.sample), None)
+        height = req.object_height_m or s.object_height or next((x.get("object_height_m") for x in SAMPLES if x["id"] == s.sample), None)
         try:
             sess, dbg = track_video(Path(v["path"]), req.corners, req.sheet, s.name, req.object_px, height, prior=prior)
         except SessionError as e:
@@ -411,10 +508,19 @@ def mount_studio(app: FastAPI, llm, budget, data_dir: Path, budgeted_llm_cls) ->
     @app.get("/api/studio/sessions/{sid}/truth")
     def truth(sid: str):
         s = get(sid)
-        if not s.sample:
-            raise HTTPException(404, "Only samples have a known ground truth.")
+        if not s.sample and s.world is None:
+            raise HTTPException(404, "Only samples and simulated tables have a known ground truth.")
         if s.result is None:
             raise HTTPException(409, "Run the analysis first: the hidden physics is revealed afterwards.")
+        if s.world is not None:
+            from studio.simulate import truth as sim_truth
+
+            out = sim_truth(s.world)
+            if s.kind == "video" and out["model"].get("patch_y0") is not None:
+                out["model"]["patch_y0"] = round(out["model"]["patch_y0"] - s.origin_offset, 4)
+                out["note"] = (f"region start measured from the median release point "
+                               f"({s.origin_offset * 100:+.1f} cm from the simulator origin)")
+            return out
         m = sample(s.sample)
         part = m["parts"][0] if m["kind"] == "video" else m["file"].rsplit(".", 1)[0]
         t = json.loads((SAMPLE_DIR / f"{part}.truth.json").read_text())

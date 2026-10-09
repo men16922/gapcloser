@@ -91,3 +91,22 @@ def test_log_session_takes_the_suggested_pushes(tmp_path):
     assert r["added_pushes"] == 2 and len(r["session"]["pushes"]) == 10
     bad = c.post(f"/api/studio/sessions/{s['id']}/logs", files={"file": ("x.csv", "launch_speed,stop\n2,0.3\n", "text/csv")})
     assert bad.status_code == 422
+
+
+def test_simulated_robot_log_round_trip(tmp_path):
+    pytest.importorskip("newton")
+    c = client(tmp_path)
+    bad = c.post("/api/studio/simulate", json={"kind": "video", "world": {"mu_eff": 0.5, "actuator_gain": 0.9}})
+    assert bad.status_code == 422 and "robot logs" in bad.json()["detail"]
+    assert c.post("/api/studio/simulate", json={"kind": "log", "world": {"mu_eff": 1.5}}).status_code == 422
+    world = {"mu_eff": 0.6, "actuator_gain": 0.85}
+    s = c.post("/api/studio/simulate", json={"kind": "log", "world": world, "pushes": 8, "reach": 0.5}).json()
+    assert s["simulated"] and len(s["session"]["pushes"]) == 8
+    c.post(f"/api/studio/sessions/{s['id']}/analyze", json={"agent": False})
+    res = next(e["result"] for e in events(c, s["id"]) if e["type"] == "result")
+    m = res["calibration"]["model"]
+    assert abs(m["mu_eff"] - 0.6) < 0.04 and abs(m["actuator_gain"] - 0.85) < 0.03
+    t = c.get(f"/api/studio/sessions/{s['id']}/truth").json()
+    assert t["model"]["actuator_gain"] == 0.85
+    more = c.post(f"/api/studio/sessions/{s['id']}/simulate-more", json={"commands": [3.0, 3.4]}).json()
+    assert more["added_pushes"] == 2 and len(more["session"]["pushes"]) == 10
