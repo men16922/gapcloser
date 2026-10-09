@@ -1,0 +1,4180 @@
+{
+ "env": "analytic",
+ "worlds": 50,
+ "summary": {
+  "suggested": {
+   "closed": 50,
+   "worlds": 50,
+   "median_pushes": 6.0,
+   "mean_pushes": 5.76
+  },
+  "random": {
+   "closed": 50,
+   "worlds": 50,
+   "median_pushes": 8.0,
+   "mean_pushes": 7.6
+  },
+  "sweep": {
+   "closed": 50,
+   "worlds": 50,
+   "median_pushes": 6.0,
+   "mean_pushes": 5.88
+  }
+ },
+ "rows": [
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.775,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 0
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 10,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.775,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 0.775,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 8,
+     "success": 0.725,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    },
+    {
+     "pushes": 10,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 0
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 8,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.775,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 0.7,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    },
+    {
+     "pushes": 8,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 0
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.7,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 1
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 8,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.7,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 0.7,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 8,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 1
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 8,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.7,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 0.825,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    },
+    {
+     "pushes": 8,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 1
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.85,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 2
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 8,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.85,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 0.85,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 8,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 2
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.85,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 2
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.775,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 3
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.775,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 3
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.775,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 3
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 4
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 12,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 0.925,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 8,
+     "success": 0.925,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 10,
+     "success": 0.925,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 12,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 4
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 4
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 5
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 8,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 8,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 5
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 5
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.85,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 6
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.85,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 6
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.85,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 6
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 7
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 8,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 8,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 7
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 7
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 8
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 8,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 0.925,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 8,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 8
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 8
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.7,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 9
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 8,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.7,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 0.825,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    },
+    {
+     "pushes": 8,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 9
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.7,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 9
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 4,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    }
+   ],
+   "world": 10
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 4,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    }
+   ],
+   "world": 10
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 4,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    }
+   ],
+   "world": 10
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.825,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 11
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 10,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.825,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 0.825,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 8,
+     "success": 0.7,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    },
+    {
+     "pushes": 10,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 11
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 8,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.825,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 0.85,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    },
+    {
+     "pushes": 8,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 11
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.7,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 12
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 10,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.7,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 0.7,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 8,
+     "success": 0.7,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 10,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 12
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.7,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 12
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.8,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 13
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 8,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.8,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 0.8,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    },
+    {
+     "pushes": 8,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 13
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.8,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 13
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 4,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.95,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    }
+   ],
+   "world": 14
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 4,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.95,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    }
+   ],
+   "world": 14
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 4,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.95,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    }
+   ],
+   "world": 14
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 15
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 10,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 0.85,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 8,
+     "success": 0.85,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    },
+    {
+     "pushes": 10,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 15
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 15
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.725,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 16
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.725,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 16
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.725,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 16
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.625,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 17
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.625,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 17
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.625,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 17
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 18
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 18
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 18
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.85,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 19
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 8,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.85,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 0.7,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    },
+    {
+     "pushes": 8,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 19
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.85,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 19
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.85,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 20
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 8,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.85,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 0.85,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 8,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 20
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.85,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 20
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.775,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 21
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 8,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.775,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 0.775,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 8,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 21
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.775,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 21
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.775,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 22
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 12,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.775,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 0.7,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    },
+    {
+     "pushes": 8,
+     "success": 0.75,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    },
+    {
+     "pushes": 10,
+     "success": 0.775,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    },
+    {
+     "pushes": 12,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 22
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.775,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 22
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.775,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 23
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.775,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 23
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.775,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 23
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.725,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 24
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 8,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.725,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 0.7,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 8,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 24
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.725,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 24
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.7,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 25
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 8,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.7,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 0.475,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    },
+    {
+     "pushes": 8,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 25
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.7,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 25
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 4,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    }
+   ],
+   "world": 26
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 4,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    }
+   ],
+   "world": 26
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 4,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    }
+   ],
+   "world": 26
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.725,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 27
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.725,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 27
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.725,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 27
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.925,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 28
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 12,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.925,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 0.925,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 8,
+     "success": 0.925,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 10,
+     "success": 0.925,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 12,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 28
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.925,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 28
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.9,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 29
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 8,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.9,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 0.9,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    },
+    {
+     "pushes": 8,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 29
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.9,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 29
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.7,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 30
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 8,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.7,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 0.575,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    },
+    {
+     "pushes": 8,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 30
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.7,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 30
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.7,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 31
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.7,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 31
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.7,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 31
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.575,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 32
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 8,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.575,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 0.575,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    },
+    {
+     "pushes": 8,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 32
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.575,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 32
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 33
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 12,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 8,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 10,
+     "success": 0.625,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    },
+    {
+     "pushes": 12,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 33
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 33
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 34
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 8,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    },
+    {
+     "pushes": 8,
+     "success": 0.95,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 34
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 34
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 4,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.95,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    }
+   ],
+   "world": 35
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 4,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.95,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    }
+   ],
+   "world": 35
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 4,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.95,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    }
+   ],
+   "world": 35
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.925,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 36
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.925,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 0.95,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    }
+   ],
+   "world": 36
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.925,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 36
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.775,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 37
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 10,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.775,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 0.775,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 8,
+     "success": 0.775,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 10,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 37
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.775,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 37
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 4,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    }
+   ],
+   "world": 38
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 4,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    }
+   ],
+   "world": 38
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 4,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    }
+   ],
+   "world": 38
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.625,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 39
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.625,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 39
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.625,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 39
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.775,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 40
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.775,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 40
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.775,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 40
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 41
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 10,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 0.625,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    },
+    {
+     "pushes": 8,
+     "success": 0.625,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    },
+    {
+     "pushes": 10,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 41
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 41
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.85,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 42
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 8,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.85,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 0.7,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    },
+    {
+     "pushes": 8,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 42
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.85,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 42
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 43
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 10,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 8,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 10,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 43
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.875,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 43
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.625,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 44
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 8,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.625,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 0.625,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 8,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 44
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.625,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 44
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.575,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 45
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 8,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.575,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 0.5,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    },
+    {
+     "pushes": 8,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 45
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.575,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 45
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 4,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.95,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    }
+   ],
+   "world": 46
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 4,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.95,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    }
+   ],
+   "world": 46
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 4,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.95,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    }
+   ],
+   "world": 46
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.775,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 47
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 8,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.775,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 0.775,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 8,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 47
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.775,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 47
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.775,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 48
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.775,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 48
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.775,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 48
+  },
+  {
+   "method": "suggested",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.85,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 49
+  },
+  {
+   "method": "random",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.85,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 49
+  },
+  {
+   "method": "sweep",
+   "closed": true,
+   "pushes": 6,
+   "history": [
+    {
+     "pushes": 4,
+     "success": 0.85,
+     "structure": [
+      "mu_eff",
+      "actuator_gain"
+     ]
+    },
+    {
+     "pushes": 6,
+     "success": 1.0,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    }
+   ],
+   "world": 49
+  }
+ ]
+}

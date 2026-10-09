@@ -27,8 +27,11 @@ for experiments; numbers come from least-squares fitting, never from the languag
 agent if its model leaves evidence unexplained) -> 4 Calibrated sim (each value with a 90% interval from a bootstrap
 over pushes that also redraws systematic video error; friction painted on the visitor's frame; ghost boxes replay each
 push in the old and the calibrated simulator; predicted success of a policy trained in each; a range when part of the
-table was never measured) -> 5 Export (NVIDIA Newton snippet, Isaac Lab EventTermCfg whose randomization ranges are the
-intervals, Markdown report, JSON).
+table was never measured) -> 5 Retrain (the same learner trains a policy three ways in parallel NVIDIA Newton worlds:
+the current simulator, wide domain randomization, and worlds drawn from Tether's bootstrap; when the hidden world is
+known it scores each policy there, and Newton can render the three policies side by side) -> 6 Export (first a replay
+of every measured run in NVIDIA Newton with the exported physics vs the current simulator; then NVIDIA Newton snippet,
+Isaac Lab EventTermCfg whose randomization ranges are the intervals, CARLA for driving, Markdown report, JSON).
 Terms: mu / friction 0.2 = icy, 1.0 = rubbery; mu_eff = friction of the object-table pair; patch_y0 = where a region of
 different friction starts (m from the launch point); patch_mu = friction inside it; actuator_gain = real launch speed per
 unit command; camera_pitch_deg = camera tilt error; lens_k = lens distortion; next experiment = pushes where the plausible
@@ -98,6 +101,9 @@ def session_summary(state: dict | None, truth: dict | None = None, step: str | N
         ag["explanation"] = D.scale_text(d, ag["explanation"])
     if out.get("revealed_truth"):
         out["revealed_truth"] = D.model_to_domain(d, out["revealed_truth"])
+    nr = out.get("newton_replay")
+    if nr:
+        nr["rms_stop_error_exported_m"], nr["rms_stop_error_current_sim_m"] = L(nr["rms_stop_error_exported_m"]), L(nr["rms_stop_error_current_sim_m"])
     return out
 
 
@@ -132,6 +138,15 @@ def _summary(state: dict, truth: dict | None, step: str | None) -> dict:
             out["agent"] = {"model": ag.get("model_name"), "explanation": ag.get("explanation"),
                             "steps": [s.get("tool") for s in ag.get("trace", [])], "cross_check": ag.get("cross_check"),
                             "requested_pushes": ag.get("requested_commands")}
+        tr = res.get("training")
+        if tr:
+            out["retrain"] = {"hidden_world_known": tr.get("hidden_known"), "iterations": tr.get("iterations"), "worlds": tr.get("n_worlds"),
+                              "success": {k: {"hidden_world": c.get("final_real"), "training_worlds": (c.get("train") or [None])[-1]}
+                                          for k, c in tr.get("conditions", {}).items()}}
+        v = res.get("verify")
+        if v:
+            out["newton_replay"] = {"rms_stop_error_exported_m": v.get("rms_calibrated_m"), "rms_stop_error_current_sim_m": v.get("rms_current_m"),
+                                    "runs": len(v.get("pushes", []))}
     if truth:
         out["revealed_truth"] = truth.get("model")
     return out

@@ -1,6 +1,6 @@
 # Tether — Sim2Real self-closing agent (Nebius x NVIDIA hackathon)
 # Gate must stay OFFLINE + DETERMINISTIC: no GPU, no network, no Nebius/Token Factory calls.
-.PHONY: check test lint smoke-local demo dashboard replays franka-mesh serve docker site video studio-samples studio-record studio-bench
+.PHONY: check test lint smoke-local demo dashboard replays franka-mesh serve docker site video studio-samples studio-record studio-bench prove
 
 PY := $(shell [ -x .venv/bin/python ] && echo .venv/bin/python || echo python3)
 
@@ -45,6 +45,9 @@ studio-record:
 	$(PY) -m dashboard.build
 
 # active vs passive data collection: real pushes needed to reach 95% (analytic, 50 worlds, ~30 s)
+prove:  # recompute every headline number (no network, ~5 min) -> runs/proof/PROOF.md
+	$(PY) -m eval.prove
+
 studio-bench:
 	$(PY) -m eval.studio_bench --worlds 50 --json runs/bench/studio_bench_analytic.json
 

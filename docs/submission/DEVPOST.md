@@ -80,8 +80,10 @@ world whose physics the agent cannot see, let Nemotron investigate, fix the simu
 | Robot log (20 pushes) | μ 0.696, arm 0.872×, region from 0.376 m at μ 0.449, camera 1.9° | 0.70, 0.88×, 0.38 m / 0.45, 2.0° |
 | Pusher log (18 strokes) | μ 0.558, pusher 0.911×, oily from 0.281 m (0.276–0.299), oil μ 0.316, camera −1.6° | 0.55, 0.92×, **0.300 m**, 0.32, −1.5° |
 
-- One value misses its interval (the oily section starts 0.9 mm beyond it). Across 24 random hidden worlds the 90%
-  intervals contain the truth 90.5% of the time; before we added a 1% length-scale term for logs it was 82%.
+- 19 of the 21 hidden values in the six examples fall inside their 90% intervals; the two misses are by 0.9 mm (oily
+  section start) and 0.001 (robot arm gain). Across 24 random hidden worlds (118 values) the 90% intervals contain the
+  truth 92% of the time; before we added a 1% length-scale term for logs it was 82%. `make prove` recomputes all of
+  this, plus the replay and retraining tables, in about five minutes with no network (`runs/proof/PROOF.md`).
 - **Replay in NVIDIA Newton:** with the exported physics, rms stop error over the six examples is 6–9 mm at robot
   scale; the uncalibrated simulators are off by 3–25 cm. On the roadside example at full scale: 22 cm vs 2.7 m.
 - **Retrain and test** (policy learned by trial in 16 parallel Newton worlds × 11 table points, 10 iterations; success

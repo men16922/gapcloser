@@ -1,0 +1,217 @@
+{
+ "when": "2026-10-10 01:46",
+ "git": "2ba38ce",
+ "machine": "arm64 Darwin",
+ "quick": false,
+ "coverage": {
+  "worlds": 24,
+  "values": 118,
+  "coverage": 0.924,
+  "by_field": {
+   "mu_eff": 0.875,
+   "actuator_gain": 1.0,
+   "camera_pitch_deg": 0.917,
+   "patch_y0": 0.826,
+   "patch_mu": 1.0
+  }
+ },
+ "examples": {
+  "brake-log": {
+   "domain": "driving",
+   "runs": 18,
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "truth_inside_interval": {
+    "mu_eff": true,
+    "actuator_gain": true,
+    "patch_y0": true,
+    "patch_mu": true
+   },
+   "replay_rms_m": {
+    "calibrated": 0.007,
+    "current": 0.0445
+   },
+   "scale": 25.0,
+   "retrain_hidden_success": {
+    "current": 0.417,
+    "wide": 0.0,
+    "tether": 1.0
+   }
+  },
+  "flick": {
+   "domain": "robot",
+   "runs": 11,
+   "structure": [
+    "mu_eff",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "truth_inside_interval": {
+    "mu_eff": true,
+    "patch_y0": true,
+    "patch_mu": true
+   },
+   "replay_rms_m": {
+    "calibrated": 0.0061,
+    "current": 0.1968
+   },
+   "scale": 1.0,
+   "retrain_hidden_success": {
+    "current": 0.0,
+    "wide": 0.125,
+    "tether": 1.0
+   }
+  },
+  "lab-bench": {
+   "domain": "robot",
+   "runs": 20,
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "patch_y0",
+    "patch_mu",
+    "camera_dx",
+    "camera_pitch_deg"
+   ],
+   "truth_inside_interval": {
+    "mu_eff": true,
+    "actuator_gain": false,
+    "patch_y0": true,
+    "patch_mu": true,
+    "camera_pitch_deg": true
+   },
+   "replay_rms_m": {
+    "calibrated": 0.0056,
+    "current": 0.0312
+   },
+   "scale": 1.0,
+   "retrain_hidden_success": {
+    "current": 0.625,
+    "wide": 0.0,
+    "tether": 1.0
+   }
+  },
+  "press-line": {
+   "domain": "factory",
+   "runs": 18,
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "patch_y0",
+    "patch_mu",
+    "camera_dx",
+    "camera_pitch_deg"
+   ],
+   "truth_inside_interval": {
+    "mu_eff": true,
+    "actuator_gain": true,
+    "patch_y0": false,
+    "patch_mu": true,
+    "camera_pitch_deg": true
+   },
+   "replay_rms_m": {
+    "calibrated": 0.0079,
+    "current": 0.2469
+   },
+   "scale": 1.0,
+   "retrain_hidden_success": {
+    "current": 0.0,
+    "wide": 0.375,
+    "tether": 1.0
+   }
+  },
+  "short-reach": {
+   "domain": "robot",
+   "runs": 8,
+   "structure": [
+    "mu_eff",
+    "actuator_gain"
+   ],
+   "truth_inside_interval": {
+    "mu_eff": true
+   },
+   "replay_rms_m": {
+    "calibrated": 0.0035,
+    "current": 0.0508
+   },
+   "scale": 1.0,
+   "retrain_hidden_success": {
+    "current": 0.0,
+    "wide": 0.25,
+    "tether": 0.458
+   }
+  },
+  "stop-line": {
+   "domain": "driving",
+   "runs": 11,
+   "structure": [
+    "mu_eff",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "truth_inside_interval": {
+    "mu_eff": true,
+    "patch_y0": true,
+    "patch_mu": true
+   },
+   "replay_rms_m": {
+    "calibrated": 0.009,
+    "current": 0.1095
+   },
+   "scale": 25.0,
+   "retrain_hidden_success": {
+    "current": 0.292,
+    "wide": 0.083,
+    "tether": 0.583
+   }
+  }
+ },
+ "next_experiment": {
+  "suggested": {
+   "closed": 50,
+   "worlds": 50,
+   "median_pushes": 6.0,
+   "mean_pushes": 5.76
+  },
+  "random": {
+   "closed": 50,
+   "worlds": 50,
+   "median_pushes": 8.0,
+   "mean_pushes": 7.6
+  },
+  "sweep": {
+   "closed": 50,
+   "worlds": 50,
+   "median_pushes": 6.0,
+   "mean_pushes": 5.88
+  }
+ },
+ "gap_bench": {
+  "closed": {
+   "nominal": 0.463,
+   "full_dr": 0.0,
+   "rule": 1.0,
+   "sysid": 1.0,
+   "agent": 1.0
+  },
+  "open": {
+   "nominal": 0.387,
+   "full_dr": 0.063,
+   "rule": 0.83,
+   "sysid": 1.0,
+   "agent": 1.0
+  },
+  "compound": {
+   "nominal": 0.223,
+   "full_dr": 0.143,
+   "rule": 0.537,
+   "sysid": 0.973,
+   "agent": 0.957
+  }
+ },
+ "seconds": 312
+}
