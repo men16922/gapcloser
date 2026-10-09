@@ -47,6 +47,9 @@ button { font: inherit; color: inherit; }
 .studio-link:hover { background: var(--green-wash); }
 .studio-link[href=""] { display: none; }
 .stack { margin-left: auto; display: flex; flex-wrap: wrap; gap: var(--s2); }
+.lang { display: inline-flex; border: 1px solid var(--line); }
+.lang button { background: none; border: 0; padding: 5px 9px; cursor: pointer; font: 600 12px/1 var(--f-mono); color: var(--muted); }
+.lang button[aria-pressed="true"] { background: var(--raised); color: var(--fg); box-shadow: inset 0 -2px 0 var(--green); }
 .chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border: 1px solid var(--line); font: 500 12px/1.2 var(--f-mono); color: var(--muted); white-space: nowrap; }
 .chip i { width: 6px; height: 6px; background: var(--green); display: inline-block; }
 .chip.pending i { background: var(--warn); }
@@ -379,12 +382,166 @@ td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
   <div class="top">
     <div class="brand"><h1>Gap<b>Closer</b></h1><span class="sub">Sim2Real agent console</span><a class="studio-link" id="studio-link" href="__STUDIO_URL__">Studio: calibrate from your own video or log</a></div>
     <div class="stack" id="stack"></div>
+    <div class="lang" role="group" aria-label="Language"><button type="button" data-lang="en">EN</button><button type="button" data-lang="ko">KO</button></div>
   </div>
   <nav class="picker" id="tabs" aria-label="Scenarios"></nav>
   <main id="main"></main>
   <div class="foot" id="foot"></div>
 </div>
 
+<script>
+/* EN (default) / KO. Whole sentences where word order differs go through tl(en, ko) in the render code; labels and
+   recurring phrases are translated in the DOM as they render (exact table + patterns). Model-written reasoning and
+   parameter names stay as written. */
+let LANG = (() => { const q = new URLSearchParams(location.search).get("lang"); if (q === "ko" || q === "en") return q;
+  try { return localStorage.getItem("gapcloser-lang") || "en"; } catch (_) { return "en"; } })();
+const tl = (en, ko) => (LANG === "ko" ? ko : en);
+const KO = {
+  "Sim2Real agent console": "Sim2Real 에이전트 콘솔", "Studio: calibrate from your own video or log": "Studio: 내 영상이나 로그로 보정하기",
+  "Scenarios": "시나리오", "Closed world · rule-solvable": "닫힌 세계 · 규칙으로 해결 가능", "Open world · faults outside the rule book": "열린 세계 · 규칙 밖의 결함",
+  "Benchmarks": "벤치마크", "Gap-Bench": "Gap-Bench", "Tier-0 bench": "Tier-0 벤치", "+ Stump the agent": "+ 에이전트에게 문제 내기",
+  "Slippery cube": "미끄러운 큐브", "Sticky table": "끈적한 탁자", "Shifted camera": "어긋난 카메라", "Weak motor": "약한 모터", "Tipping edge": "넘어지는 경계",
+  "Wet strip": "젖은 띠", "Rough strip": "거친 띠", "Lens distortion": "렌즈 왜곡", "Three faults": "세 가지 결함", "Custom world": "직접 만든 세계",
+  "Replay run": "실행 재생", "Show result": "결과 보기", "Reveal truth": "정답 공개", "Hide truth": "정답 숨기기",
+  "Before": "이전", "After GapCloser": "GapCloser 이후", "Gap": "격차", "Real trials used": "사용한 실제 시도", "Agent loops": "에이전트 반복",
+  "Agent timeline": "에이전트 타임라인", "Agent lab notebook": "에이전트 실험 노트", "Evidence": "근거", "Outcome": "결과", "Belief vs truth": "추정 vs 정답",
+  "Sim vs real · same policy, target 0.45 m": "시뮬 vs 실제 · 같은 정책, 목표 0.45 m", "Camera clips · Newton tiled-camera render": "카메라 영상 · Newton 타일 카메라 렌더",
+  "Sim · agent’s model": "시뮬 · 에이전트의 모델", "Real · hidden physics": "실제 · 숨겨진 물리", "Ghost": "고스트", "Split": "분할", "Wide": "넓게",
+  "drag to orbit · shift-drag to pan · click, then wheel to zoom": "드래그로 회전 · shift+드래그로 이동 · 클릭 후 휠로 확대",
+  "Every push this iteration · stop error vs target": "이번 반복의 모든 밀기 · 목표 대비 정지 오차", "real, on line": "실제, 선 위", "real, miss": "실제, 빗나감",
+  "sim prediction": "시뮬 예측", "Real success per iteration": "반복별 실제 성공률", "Sim parameters · belief vs truth": "시뮬 파라미터 · 추정 vs 정답",
+  "▼ hidden truth": "▼ 숨겨진 정답", "sim belief (it 0)": "시뮬 추정 (반복 0)", "nominal": "기본값", "Truth stays hidden from the agent. Reveal it to grade the diagnosis.": "정답은 에이전트에게 숨겨져 있습니다. 공개하면 진단을 채점할 수 있습니다.",
+  "Hidden change": "숨겨진 변경", "Look · dynamics": "관찰 · 동역학", "Look · camera": "관찰 · 카메라", "Experiment · real robot": "실험 · 실제 로봇",
+  "Commit · new simulator": "확정 · 새 시뮬레이터", "Retrain the policy in this simulator.": "이 시뮬레이터로 정책을 다시 학습합니다.",
+  "Retrained with the updated simulator.": "업데이트된 시뮬레이터로 다시 학습했습니다.", "Policy trained in the nominal simulator.": "기본 시뮬레이터로 학습한 정책입니다.",
+  "Full reasoning in the lab notebook.": "전체 추론은 실험 노트에 있습니다.", "Raw tool trace · JSON": "도구 호출 원본 · JSON", "HeuristicPlanner → sim config diff": "HeuristicPlanner → 시뮬 설정 변경",
+  "uniform friction": "균일 마찰", "uniform friction + gain": "균일 마찰 + 모터", "uniform friction + gain + camera offset": "균일 마찰 + 모터 + 카메라 오프셋",
+  "uniform friction + gain + camera offset + lens": "균일 마찰 + 모터 + 카메라 오프셋 + 렌즈", "Uniform deceleration": "균일 감속",
+  "✓ accepted": "✓ 채택", "✕ rejected": "✕ 기각", "Stop residual": "정지 잔차", "frame tilted (Cosmos)": "기울어진 프레임 (Cosmos)", "frame upright": "똑바른 프레임",
+  "first tilt > 30° in Newton": "Newton에서 처음 30° 넘게 기운 순간", "Cosmos Reason 2 eyes · local": "Cosmos Reason 2 눈 · 로컬", "Cosmos Reason 2 · sees": "Cosmos Reason 2 · 관찰",
+  "Mean real success by tier": "계층별 평균 실제 성공률", "Tier": "계층", "Closed": "닫힘", "Open": "열림", "Compound": "복합", "Nominal sim": "기본 시뮬",
+  "Domain rand.": "도메인 랜덤화", "Rule-based": "규칙 기반", "System ID": "시스템 식별", "Nemotron agent": "Nemotron 에이전트", "whisker = 95% CI": "수염 = 95% 신뢰구간",
+  "Honest note:": "솔직한 메모:", "Same budget, four strategies": "같은 예산, 네 가지 전략", "Domain randomization": "도메인 랜덤화", "Rule-based agent": "규칙 기반 에이전트",
+  "Outcome-only agent": "결과만 보는 에이전트", "System-ID baseline": "시스템 식별 기준선", "GapCloser · tracking": "GapCloser · 추적", "GapCloser · outcome-only": "GapCloser · 결과만",
+  "GapCloser · Nemotron": "GapCloser · Nemotron", "Rules break outside their map. Who closes the gap?": "규칙은 자기 지도 밖에서 무너집니다. 누가 격차를 좁힐까요?",
+  "Closed-world parameters": "닫힌 세계 파라미터", "rule book knows these": "규칙이 아는 항목", "Friction strip": "마찰 띠", "open world": "열린 세계",
+  "Hide some physics. Watch Nemotron find it.": "물리를 숨겨 보세요. Nemotron이 찾아내는 걸 지켜보세요.", "Presets": "프리셋", "Surprise me": "무작위로",
+  "Reset": "초기화", "Run agent": "에이전트 실행", "How the agent sees it": "에이전트가 보는 것", "It never sees the values you set.": "여러분이 정한 값은 보지 못합니다.",
+  "World": "세계", "Lane": "차선", "Off. Tick the box to add a strip.": "꺼짐. 체크하면 띠를 추가합니다.", "Nothing hidden yet: pick a preset or move a slider.": "아직 숨긴 것이 없습니다: 프리셋을 고르거나 슬라이더를 움직이세요.",
+  "strip from (m)": "띠 시작 (m)", "strip μ": "띠 μ", "camera dx (cm)": "카메라 dx (cm)", "camera pitch (°)": "카메라 기울기 (°)", "lens k (1/m)": "렌즈 k (1/m)",
+  "20 real pushes: perceived target, command, where the cube stopped": "실제 밀기 20회: 인식한 목표, 명령값, 큐브가 멈춘 위치", "camera tracks of each sliding cube": "미끄러지는 각 큐브의 카메라 궤적",
+  "up to 12 extra real pushes it may spend on its own experiments": "직접 실험에 쓸 수 있는 추가 실제 밀기 최대 12회",
+  "What the agent expects": "에이전트의 예상", "What actually happens": "실제로 일어나는 일", "real (measured)": "실제 (측정)", "measured in hidden physics": "숨겨진 물리에서 측정",
+  "perception error": "인식 오차", "on the dashed line = perfect camera": "점선 위 = 완벽한 카메라", "perceived vs true target (m)": "인식 vs 실제 목표 (m)",
+  "target range": "목표 범위", "short": "짧게", "no data": "데이터 없음", "none": "없음", "sim": "시뮬", "SIM": "시뮬", "REAL": "실제", "Real": "실제",
+  "waiting for strike": "타격 대기", "real success, sim-trained policy": "실제 성공률, 시뮬 학습 정책", "real success: sim-trained policy → after the fix": "실제 성공률: 시뮬 학습 정책 → 수정 후",
+  "Before → after · Nemotron agent": "이전 → 이후 · Nemotron 에이전트", "Gap closed.": "격차를 좁혔습니다.", "Why did the sim-trained policy land": "시뮬 학습 정책이 왜",
+  "beyond the change": "변화 지점 너머", "fixes": "수정", "from": "부터", "calls": "호출", "Task: Push-to-line · 20 targets 0.20–0.60 m · success = stop within ±3 cm": "과제: 선에 밀어 세우기 · 목표 20개 0.20–0.60 m · 성공 = ±3 cm 안에 정지",
+  "All success rates measured by rollout in NVIDIA Newton. Hidden “real” physics is never shown to the agent.": "모든 성공률은 NVIDIA Newton 실행으로 측정했습니다. 숨겨진 “실제” 물리는 에이전트에게 보여주지 않습니다.",
+  "Each world hides two of the ten physical and camera parameters. Every method is graded by the share of 20 real pushes that stop within ±3 cm.": "각 세계는 10개의 물리·카메라 파라미터 중 2개를 숨깁니다. 모든 방법은 실제 밀기 20회 중 ±3 cm 안에 멈춘 비율로 채점합니다.",
+  "Density, size, restitution, light and camera height do not change the outcome: good tests of whether the agent blames the wrong thing.": "밀도, 크기, 반발, 조명, 카메라 높이는 결과를 바꾸지 않습니다. 에이전트가 엉뚱한 원인을 탓하는지 확인하기 좋습니다.",
+  "The real cube is far slipperier than modeled. Pushes tuned in sim overshoot the line.": "실제 큐브가 모델보다 훨씬 미끄럽습니다. 시뮬에 맞춘 밀기가 선을 넘어갑니다.",
+  "The real table grips harder than the sim surface, so every push falls short.": "실제 탁자가 시뮬보다 더 잘 잡아서 모든 밀기가 모자랍니다.",
+  "The real camera sits a few centimeters off. Every target is perceived short, the room is also dimmer.": "실제 카메라가 몇 cm 어긋나 있습니다. 모든 목표가 짧게 보이고, 방도 더 어둡습니다.",
+  "The arm delivers less speed than commanded. From end positions alone this looks exactly like extra friction; the tracked launch speed tells them apart.": "팔이 명령보다 느리게 밉니다. 멈춘 위치만 보면 마찰이 큰 것과 똑같아 보이지만, 추적한 출발 속도로 구분됩니다.",
+  "The table grips so hard that many cubes tip over instead of sliding. Tipping is outside the agent’s sliding model; this run shows where the method stops working.": "탁자가 너무 잘 잡아서 많은 큐브가 미끄러지지 않고 넘어집니다. 넘어짐은 에이전트의 미끄럼 모델 밖이라, 이 실행은 방법이 통하지 않는 지점을 보여줍니다.",
+  "Beyond 0.35 m the real table is wet and friction halves. The rule book has no parameter for a region of the table, so rules can only average it away.": "0.35 m 너머 실제 탁자가 젖어 마찰이 절반입니다. 규칙에는 탁자의 일부 구간을 나타낼 파라미터가 없어 평균으로 뭉갤 수밖에 없습니다.",
+  "The real table is slick near the robot and rough beyond 0.30 m: two frictions on one table, outside the rule book.": "실제 탁자는 로봇 가까이는 미끄럽고 0.30 m 너머는 거칩니다. 한 탁자에 마찰이 둘이라 규칙 밖입니다.",
+  "The real camera has lens distortion: far targets look much closer than they are. The rule book only knows a shifted or tilted camera.": "실제 카메라에 렌즈 왜곡이 있어 먼 목표가 훨씬 가깝게 보입니다. 규칙은 어긋나거나 기운 카메라만 압니다.",
+  "A weak motor, a slippery strip from 0.40 m and a distorted lens at once. The strip starts beyond where the first pushes stop, so the agent must design an experiment to find it.": "약한 모터, 0.40 m부터 미끄러운 띠, 왜곡된 렌즈가 한꺼번에 있습니다. 띠는 첫 밀기들이 멈추는 곳 너머에서 시작해서, 에이전트가 실험을 설계해야 찾을 수 있습니다.",
+  "Beyond a line on the table the friction changes (wet or rough). One friction number cannot describe it.": "탁자의 어떤 선 너머에서 마찰이 바뀝니다 (젖었거나 거침). 마찰 숫자 하나로는 설명할 수 없습니다.",
+  "The camera misjudges distance by k · d²: with k < 0 far targets look closer than they are, with k > 0 farther. Rules only know a shifted or tilted camera.": "카메라가 거리를 k · d²만큼 잘못 봅니다: k < 0이면 먼 목표가 가깝게, k > 0이면 멀게 보입니다. 규칙은 어긋나거나 기운 카메라만 압니다.",
+  "Closed worlds change parameters the rule-based agent knows. Open worlds add a friction strip or lens distortion it has no parameter for; compound worlds add both. Every method trains the same inverse policy, so it is exactly as good as its simulator. Real trials = evaluations + probe pushes.": "닫힌 세계는 규칙 기반 에이전트가 아는 파라미터를 바꿉니다. 열린 세계는 규칙에 없는 마찰 띠나 렌즈 왜곡을 더하고, 복합 세계는 둘 다 더합니다. 모든 방법이 같은 역정책을 학습하므로 성능은 시뮬레이터의 정확도와 같습니다. 실제 시도 = 평가 + 탐색 밀기.",
+  "All rollouts in NVIDIA Newton. Policy search uses the analytic surrogate (agrees with Newton within 1 cm). Diagnosis precision/recall grades the first diagnosis against the hidden changes that can affect the measurements.": "모든 실행은 NVIDIA Newton에서 했습니다. 정책 탐색은 해석적 대리 모델(Newton과 1 cm 이내 일치)을 씁니다. 진단 정밀도/재현율은 첫 진단을 측정에 영향을 주는 숨겨진 변경과 비교해 채점합니다.",
+  "the System-ID baseline uses the same least-squares fitter with a hand-ordered structure library and matches the agent here. The agent’s edge is that it decides which structures and which real experiments to try, and explains them.": "시스템 식별 기준선은 같은 최소제곱 피팅기에 사람이 순서를 정한 구조 목록을 쓰며, 여기서는 에이전트와 비슷합니다. 에이전트의 장점은 어떤 구조와 어떤 실제 실험을 시도할지 스스로 정하고 설명한다는 점입니다.",
+  "Pick a preset or build a world, including faults the rule book has no parameter for. The agent trains a policy in its simulator, measures it in your hidden world, and repairs the simulator until the policy works. A run takes a few minutes.": "프리셋을 고르거나 직접 세계를 만드세요. 규칙에 없는 결함도 넣을 수 있습니다. 에이전트는 시뮬레이터에서 정책을 학습하고, 숨겨진 세계에서 측정하고, 정책이 통할 때까지 시뮬레이터를 고칩니다. 한 번 실행에 몇 분 걸립니다.",
+  "Nemotron inspects the evidence, proposes simulator structures, fits them by least squares, probes the robot when the data cannot decide, and commits a simulator. The policy is retrained in it and measured again in your world.": "Nemotron이 근거를 살피고, 시뮬레이터 구조를 제안하고, 최소제곱으로 맞추고, 데이터로 결정할 수 없으면 로봇으로 탐색한 뒤 시뮬레이터를 확정합니다. 정책을 그 안에서 다시 학습하고 여러분의 세계에서 다시 측정합니다.",
+  "Built on NVIDIA Cosmos · camera events from Cosmos Reason 2 8B (NVIDIA Open Model License), run locally with llama.cpp": "NVIDIA Cosmos 기반 · Cosmos Reason 2 8B의 카메라 이벤트 (NVIDIA Open Model License), llama.cpp로 로컬 실행",
+  "Shaded band = ±3 cm tolerance. Real and sim use the identical commands; only the physics differs. 3D replay: per-frame cube and Franka link poses recorded from NVIDIA Newton for the target above (sim cube shown as a ghost). The arm is kinematic (IK) and only visualizes the strike; the cube’s motion is simulated.": "음영 띠 = ±3 cm 허용 범위. 실제와 시뮬은 같은 명령을 쓰고 물리만 다릅니다. 3D 재생: 위 목표에 대해 NVIDIA Newton에서 기록한 프레임별 큐브·Franka 링크 자세 (시뮬 큐브는 고스트). 팔은 IK로 타격만 보여 주고, 큐브의 움직임은 시뮬레이션입니다.",
+  "Shaded band = ±3 cm tolerance. Real and sim use the identical commands; only the physics differs. Clips: the Franka arm is kinematic (IK) and only visualizes the strike; the cube’s motion is simulated in NVIDIA Newton.": "음영 띠 = ±3 cm 허용 범위. 실제와 시뮬은 같은 명령을 쓰고 물리만 다릅니다. 영상: Franka 팔은 IK로 타격만 보여 주고, 큐브의 움직임은 NVIDIA Newton 시뮬레이션입니다.",
+  "Each iteration it gets only what a real robot would log:": "매 반복마다 실제 로봇이 남길 기록만 받습니다:", "Up to": "최대",
+  "+ friction": "+ 마찰", "+ gain": "+ 모터", "+ camera": "+ 카메라", "+ lens": "+ 렌즈", "+ strip": "+ 띠", "strip": "띠", "lens": "렌즈", "camera": "카메라", "gain": "모터",
+  "same loop, sees end positions only": "같은 루프, 멈춘 위치만 봄", "Camera reads": "카메라 판독", "Deceleration drops at": "감속이 떨어지는 지점", "Deceleration jumps at": "감속이 뛰는 지점",
+  "Designs an experiment:": "실험을 설계합니다:", "robot": "로봇", "Closer": "Closer", "actuator gain": "모터 세기", "lens k": "렌즈 k",
+};
+const KO_RX = [
+  [/^(Diagnose|Measure|Train|Plan|Goal) · it (\d+)$/, (m, a, n) => ({ Diagnose: "진단", Measure: "측정", Train: "학습", Plan: "계획", Goal: "목표" })[a] + ` · 반복 ${n}`],
+  [/^it (\d+)$/, "반복 $1"], [/^it 0 · sim-trained policy$/, "반복 0 · 시뮬 학습 정책"], [/^Agent lab notebook · it (\d+)$/, "에이전트 실험 노트 · 반복 $1"],
+  [/^(\d+) trials$/, "시도 $1회"], [/^(\d+) worlds$/, "세계 $1개"], [/^(\d+) trainings total$/, "총 학습 $1회"], [/^(\d+)\/(\d+) steps$/, "$1/$2 단계"],
+  [/^Scenario · hidden change in (\d+) parameters?$/, "시나리오 · 숨겨진 변경 $1개"], [/^Open-world scenario · hidden change in (\d+) parameters?$/, "열린 세계 시나리오 · 숨겨진 변경 $1개"],
+  [/^(Nominal sim|Domain rand\.|Rule-based|System ID|Nemotron agent) · (Closed|Open|Compound): (.*) \(95% CI\) · (\d+) real trials$/, (m, a, t, v, n) => `${KO[a] || a} · ${KO[t]}: ${v} (95% 신뢰구간) · 실제 시도 ${n}회`],
+  [/^Accepted: every real stop within ([\d.]+) cm(?:, camera within ([\d.]+) cm)?$/, (m, a, b) => `채택: 모든 실제 정지가 ${a} cm 이내` + (b ? `, 카메라 ${b} cm 이내` : "")],
+  [/^Rejected: predicted stops miss by up to ([\d.]+) cm \(command ([\d.]+)\)$/, "기각: 예측 정지가 최대 $1 cm 빗나감 (명령 $2)"],
+  [/^Rejected: stops fit, but camera readings are off by ([\d.]+) cm rms$/, "기각: 정지는 맞지만 카메라 값이 $1 cm(rms) 어긋남"],
+  [/^Agent’s belief · μ ([\d.]+) → ([\d.]+) from ([\d.]+) m$/, "에이전트 추정 · μ $1 → $2 ($3 m부터)"],
+  [/^(\d+) cubes? tipped over$/, "큐브 $1개가 넘어졌습니다"], [/^Cosmos marked (\d+) of (\d+) sampled frames as tilted$/, "Cosmos가 표본 프레임 $2장 중 $1장을 기울었다고 봤습니다"],
+  [/^Real clip · (\d+) tracked crops · local, ([\d.]+) s · second opinion, physics flag is ground truth$/, "실제 영상 · 추적 크롭 $1장 · 로컬, $2초 · 보조 의견, 정답은 물리 플래그"],
+  [/^Live server · (\d+) runs\/hour per visitor · (\d+) LLM calls left$/, "라이브 서버 · 방문자당 시간당 $1회 · LLM 호출 $2회 남음"],
+  [/^Up to (\d+) agent turns per run · (\d+) LLM calls left on this server; past either, the rule-based diagnoser takes over$/, "실행당 에이전트 최대 $1턴 · 이 서버의 LLM 호출 $2회 남음. 둘 중 하나를 넘으면 규칙 기반 진단으로 바뀝니다"],
+  [/^Your hidden world · (\d+)\/(\d+) faults$/, "숨긴 세계 · 결함 $1/$2"], [/^Your world · (\d+) hidden faults? · Nemotron tool agent$/, "내 세계 · 숨긴 결함 $1개 · Nemotron 도구 에이전트"],
+  [/^Your worlds · closed (\d+\/\d+)$/, "내 세계 · 해결 $1"], [/^Your worlds · (.*)$/, "내 세계 · $1"], [/^Hypothesis (H\d+) · fit$/, "가설 $1 · 피팅"], [/^stop ([\d.]+) m$/, "정지 $1 m"],
+  [/^true ([\d.]+) m → perceived ([\d.]+) m$/, "실제 $1 m → 인식 $2 m"], [/^cmd ([\d.]+) → ([\d.]+) m$/, "명령 $1 → $2 m"],
+  [/^([+-][\d.]+ cm) overshoot$/, "$1 넘침"], [/^([+-][\d.]+ cm) short$/, "$1 모자람"], [/^([+-][\d.]+ cm) on line$/, "$1 선 위"],
+  [/^(\d+) of (\d+) probes left$/, "탐색 밀기 $2회 중 $1회 남음"], [/^rule-based (\d+%)$/, "규칙 기반 $1"], [/^outcome-only agent (\d+%)$/, "결과만 보는 에이전트 $1"],
+  [/^system ID (\d+%)$/, "시스템 식별 $1"], [/^· · nominal (\d+%) \/ full DR (\d+%)$/, "· · 기본 $1 / 전체 DR $2"],
+  [/^✓ agrees · Newton: no tip$/, "✓ 일치 · Newton: 넘어짐 없음"], [/^✓ agrees · Newton: tipped ([\d.]+) s$/, "✓ 일치 · Newton: $1초에 넘어짐"],
+  [/^✕ disagrees · Newton: (.*)$/, "✕ 불일치 · Newton: $1"], [/^slid ([\d.]+) s$/, "$1초 미끄러짐"], [/^tipped ([\d.]+) s$/, "$1초에 넘어짐"],
+  [/^Your hidden world: (.*)\. The agent never saw these values$/, "숨긴 세계: $1. 에이전트는 이 값을 보지 못했습니다"],
+  [/^(\d+)\/(\d+) hidden changes are inside the agent’s belief at it (\d+)\. Changes the outcome cannot reveal \(light, restitution\) are left at nominal by design$/, "반복 $3에서 숨겨진 변경 $2개 중 $1개가 에이전트 추정 범위 안에 있습니다. 결과로 드러나지 않는 변경(조명, 반발)은 일부러 기본값으로 둡니다"],
+  [/^Gap-Bench · (\d+) hidden worlds in 3 tiers · mean real success ± 95% CI$/, "Gap-Bench · 3계층 숨겨진 세계 $1개 · 평균 실제 성공률 ± 95% 신뢰구간"],
+  [/^Tier 0 benchmark · (\d+) random hidden worlds, 2 changed parameters each$/, "Tier 0 벤치마크 · 무작위 숨겨진 세계 $1개, 각 파라미터 2개 변경"],
+  [/^Stump the agent · live in NVIDIA Newton · (.*)$/, "에이전트에게 문제 내기 · NVIDIA Newton 라이브 · $1"],
+  [/^NVIDIA Newton rollout · (\d+) pushes each$/, "NVIDIA Newton 실행 · 각 $1회 밀기"], [/^(\d+)% of real pushes land on the line$/, "실제 밀기의 $1%가 선 위에 멈춥니다"],
+  [/^Stopped at (\d+%)$/, "$1에서 멈춤"],
+  [/^\/ target ([\d.]+)$/, "/ 목표 $1"], [/^✓ (\d+%) · (\d+) trials$/, "✓ $1 · 시도 $2회"], [/^target range ([\d.]+–[\d.]+ m)$/, "목표 범위 $1"], [/^targets ([\d.]+–[\d.]+ m)$/, "목표 $1"],
+  [/^sliding ([\d.]+) m\/s · (.+?) to target(?: · on strip μ ([\d.]+))?$/, (m, v, e, mu) => `미끄러지는 중 ${v} m/s · 목표까지 ${e}` + (mu ? ` · 띠 위 μ ${mu}` : "")],
+  [/^([+-]?[\d.]+ cm) · (on line|overshoot|short)( · tipped)?$/, (m, e, w, t) => `${e} · ${({ "on line": "선 위", overshoot: "넘침", short: "모자람" })[w]}` + (t ? " · 넘어짐" : "")],
+  [/^it (\d+) · after fix (\d+)( · gap closed)?$/, (m, a, b, g) => `반복 ${a} · 수정 ${b}회 후` + (g ? " · 격차 해소" : "")],
+  [/^closed-world rules · (\d+) real trials$/, "닫힌 세계 규칙 · 실제 시도 $1회"], [/^fixed structure library · (\d+) trials$/, "고정 구조 목록 · 시도 $1회"],
+  [/^all (\d+) params, full range$/, "파라미터 $1개 전체 범위"], [/^all params, full range · ([\d.]+) trainings$/, "전체 파라미터 전체 범위 · 학습 $1회"],
+  [/^agent: evaluations \+ (\d+) probe push(?:es)?$/, "에이전트: 평가 + 탐색 밀기 $1회"], [/^no randomization · ([\d.]+) trainings$/, "랜덤화 없음 · 학습 $1회"],
+  [/^surrogate policy search · (\d+) randomized worlds$/, "대리 모델 정책 탐색 · 무작위 세계 $1개"],
+  [/^tool agent: (\d+) steps, (\d+) probe pushes; committed model stop residual ([\d.]+) cm rms$/, "도구 에이전트: $1단계, 탐색 밀기 $2회; 확정 모델 정지 잔차 $3 cm rms"],
+  [/^sim belief \(it (\d+)\)$/, "시뮬 추정 (반복 $1)"], [/^· numbers fitted by least squares to every real push$/, "· 모든 실제 밀기에 최소제곱으로 맞춘 값"],
+  [/^· replayed against every real push$/, "· 모든 실제 밀기에 다시 돌려 본 값"],
+  [/^(?:uniform friction|friction strip|camera offset|friction|gain|lens)(?: \+ (?:uniform friction|friction strip|camera offset|friction|gain|lens))*(?: @[\d.]+ m)?$/, (m) => m.replace(/uniform friction|friction strip|camera offset|friction|gain|lens/g, w => ({ "uniform friction": "균일 마찰", "friction strip": "마찰 띠", "camera offset": "카메라 오프셋", friction: "마찰", gain: "모터", lens: "렌즈" })[w])],
+  [/^sees (cube motion|end positions) · ([\d.]+) trainings · diagnosis P ([\d.]+) \/ R ([\d.]+)$/, (m, w, t, p, r) => `${w === "cube motion" ? "큐브 움직임을 봄" : "멈춘 위치만 봄"} · 학습 ${t}회 · 진단 P ${p} / R ${r}`],
+  [/^LLM reads the evidence · ([\d.]+) trainings · diagnosis P ([\d.]+) \/ R ([\d.]+)$/, "LLM이 근거를 읽음 · 학습 $1회 · 진단 P $2 / R $3"],
+];
+function tr1(text) {
+  const k = text.trim(); if (!k) return text;
+  if (KO[k]) return text.replace(k, KO[k]);
+  const dot = /[.]$/.test(k) && !k.endsWith("…") ? "." : "", core = dot ? k.slice(0, -1) : k;
+  if (dot && KO[core]) return text.replace(k, KO[core] + ".");
+  for (const [rx, rep] of KO_RX) if (rx.test(core)) return text.replace(k, core.replace(rx, rep) + dot);
+  return text;
+}
+const ORIG = new WeakMap(), SET = new WeakMap();
+const SKIP = "script,style,pre,code,textarea,.raw,.why,.fitcard .vals,.diff,.brand h1";
+function trNode(n) {
+  if (!ORIG.has(n)) ORIG.set(n, n.nodeValue);
+  const en = ORIG.get(n), want = LANG === "ko" ? tr1(en) : en;
+  if (n.nodeValue !== want) { SET.set(n, want); n.nodeValue = want; }
+}
+function trTree(root) {
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: n => n.parentElement && n.parentElement.closest(SKIP) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT });
+  let n; while ((n = w.nextNode())) trNode(n);
+}
+new MutationObserver(muts => {
+  for (const m of muts) {
+    if (m.type === "characterData") { if (SET.get(m.target) !== m.target.nodeValue) { ORIG.set(m.target, m.target.nodeValue); if (!(m.target.parentElement && m.target.parentElement.closest(SKIP))) trNode(m.target); } continue; }
+    m.addedNodes.forEach(n => { if (n.nodeType === 3) { if (!(n.parentElement && n.parentElement.closest(SKIP))) trNode(n); } else if (n.nodeType === 1) trTree(n); });
+  }
+}).observe(document.documentElement, { childList: true, characterData: true, subtree: true });
+function setLang(l, rerender) {
+  LANG = l;
+  try { localStorage.setItem("gapcloser-lang", l); } catch (_) {}
+  document.documentElement.lang = l;
+  document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.lang === l)));
+  if (rerender) rerender();  // whole-sentence strings are rebuilt by the page's own render
+  trTree(document.body);
+}
+</script>
 <script>/*__THREE__*/</script>
 <script>window.FRANKA = "__FRANKA__";</script>
 <script>
@@ -897,7 +1054,7 @@ function boot(B, LIVE) {
       const r = e.real, s = e.sim;
       const n = r.trials.length, ok = r.trials.filter((t) => t.success).length;
       const tipped = r.trials.filter((t) => t.tipped).length;
-      return `<div class="who">NVIDIA Newton rollout · ${n} pushes each</div><div class="txt">Real <b class="${r.success_rate >= 0.9 ? "ok-t" : "bad-t"}">${ok}/${n}</b> on target, sim predicted <b>${s.trials.filter((t) => t.success).length}/${n}</b>.${tipped ? ` <span style="color:var(--warn)">${tipped} cube${tipped > 1 ? "s" : ""} tipped over.</span>` : ""}</div>`;
+      return `<div class="who">${tl(`NVIDIA Newton rollout · ${n} pushes each`, `NVIDIA Newton 실행 · 각 ${n}회 밀기`)}</div><div class="txt">${tl("Real", "실제")} <b class="${r.success_rate >= 0.9 ? "ok-t" : "bad-t"}">${ok}/${n}</b> ${tl("on target, sim predicted", "적중, 시뮬 예측")} <b>${s.trials.filter((t) => t.success).length}/${n}</b>.${tipped ? ` <span style="color:var(--warn)">${tl(`${tipped} cube${tipped > 1 ? "s" : ""} tipped over.`, `큐브 ${tipped}개가 넘어졌습니다.`)}</span>` : ""}</div>`;
     }
     if (e.type === "diagnose") {
       const why = e.reasoning ? `<blockquote class="why">${esc(e.reasoning)}</blockquote>` : "";
@@ -909,7 +1066,7 @@ function boot(B, LIVE) {
       return `<div class="who">${esc(e.agent)} → sim config diff</div>${rows.length ? `<div class="diff">${rows.join("\n")}</div>` : `<div class="txt">No change.</div>`}`;
     }
     if (e.type === "done") {
-      return `<div class="txt">${e.reached_goal ? `<b class="ok-t">Gap closed.</b> ${pct(e.final_success)} of real pushes land on the line.` : `<b class="bad-t">Stopped at ${pct(e.final_success)}</b> after the iteration budget.`}</div>`;
+      return `<div class="txt">${e.reached_goal ? tl(`<b class="ok-t">Gap closed.</b> ${pct(e.final_success)} of real pushes land on the line.`, `<b class="ok-t">격차를 좁혔습니다.</b> 실제 밀기의 ${pct(e.final_success)}가 선 위에 멈춥니다.`) : tl(`<b class="bad-t">Stopped at ${pct(e.final_success)}</b> after the iteration budget.`, `반복 예산을 다 써서 <b class="bad-t">${pct(e.final_success)}에서 멈췄습니다</b>.`)}</div>`;
     }
     return "";
   }
@@ -1115,17 +1272,17 @@ function boot(B, LIVE) {
       cap = `Deceleration ${jump.d > 0 ? "jumps" : "drops"} at <b>≈${jump.at.toFixed(2)} m</b>: ${g0.toFixed(2)} g → ${g1.toFixed(2)} g. One friction number cannot explain this.`;
     } else {
       const m = bins.reduce((s, b) => s + b.g, 0) / bins.length;
-      cap = `Uniform deceleration <b>≈${m.toFixed(2)} g</b>${cover < 0.6 ? `, but tracks only reach <b>${cover.toFixed(2)} m</b> and targets go to 0.60 m` : ""}.`;
+      cap = tl(`Uniform deceleration <b>≈${m.toFixed(2)} g</b>${cover < 0.6 ? `, but tracks only reach <b>${cover.toFixed(2)} m</b> and targets go to 0.60 m` : ""}.`, `감속이 고르게 <b>≈${m.toFixed(2)} g</b>입니다${cover < 0.6 ? `. 다만 궤적은 <b>${cover.toFixed(2)} m</b>까지만 있고 목표는 0.60 m까지입니다` : ""}.`);
     }
-    return { cap, vis: `<div class="vis">${decelChart(bins, strip)}<div class="side">real cube deceleration (g) by position, from camera tracks, 5 cm bins${strip ? `<br><span style="color:${strip.rough ? "#b3895b" : "#5b8fb3"}">■</span> beyond the change` : ""}<br><span style="color:#76b900">▬</span> target range</div></div>` };
+    return { cap, vis: `<div class="vis">${decelChart(bins, strip)}<div class="side">${tl("real cube deceleration (g) by position, from camera tracks, 5 cm bins", "카메라 궤적으로 본 실제 큐브의 위치별 감속(g), 5 cm 단위")}${strip ? `<br><span style="color:${strip.rough ? "#b3895b" : "#5b8fb3"}">■</span> ${tl("beyond the change", "변화 지점 너머")}` : ""}<br><span style="color:#76b900">▬</span> ${tl("target range", "목표 범위")}</div></div>` };
   }
   function percStep(res) {
     const pts = (res || []).filter((r) => r.true_m != null).sort((a, b) => a.true_m - b.true_m);
     if (!pts.length) return { cap: "No perception data.", vis: "" };
     const err = pts.map((p) => p.perceived_m - p.true_m), mx = Math.max(...err.map(Math.abs));
     const near = err[0], far = err[err.length - 1];
-    const cap = mx < 0.003 ? `Camera reads true: perceived = actual within <b>${(mx * 1000).toFixed(0)} mm</b>. Perception is not the problem.`
-      : `Camera reads <b>${far < 0 ? "short" : "long"}</b>: ${cm(Math.abs(near))} cm at ${pts[0].true_m.toFixed(2)} m, <b>${cm(Math.abs(far))} cm</b> at ${pts[pts.length - 1].true_m.toFixed(2)} m${Math.abs(far) > 2 * Math.abs(near) + 0.003 ? ", growing with distance" : ""}.`;
+    const cap = mx < 0.003 ? tl(`Camera reads true: perceived = actual within <b>${(mx * 1000).toFixed(0)} mm</b>. Perception is not the problem.`, `카메라가 정확합니다: 인식 거리 = 실제 거리, 오차 <b>${(mx * 1000).toFixed(0)} mm</b> 이내. 인식은 문제가 아닙니다.`)
+      : tl(`Camera reads <b>${far < 0 ? "short" : "long"}</b>: ${cm(Math.abs(near))} cm at ${pts[0].true_m.toFixed(2)} m, <b>${cm(Math.abs(far))} cm</b> at ${pts[pts.length - 1].true_m.toFixed(2)} m${Math.abs(far) > 2 * Math.abs(near) + 0.003 ? ", growing with distance" : ""}.`, `카메라가 거리를 <b>${far < 0 ? "짧게" : "길게"}</b> 봅니다: ${pts[0].true_m.toFixed(2)} m에서 ${cm(Math.abs(near))} cm, ${pts[pts.length - 1].true_m.toFixed(2)} m에서 <b>${cm(Math.abs(far))} cm</b>${Math.abs(far) > 2 * Math.abs(near) + 0.003 ? ", 거리가 멀수록 커집니다" : ""}.`);
     const W = 300, H = 110, L = 30, R = 8, T = 8, Bm = 22, lo = 0.15, hi = 0.65;
     const xs = (x) => L + ((x - lo) / (hi - lo)) * (W - L - R), ys = (v) => T + (1 - (v - lo) / (hi - lo)) * (H - T - Bm);
     let g = [0.2, 0.4, 0.6].map((v) => `<line x1="${L}" x2="${W - R}" y1="${ys(v)}" y2="${ys(v)}" stroke="#222"/><text x="${L - 4}" y="${ys(v) + 4}" text-anchor="end">${v.toFixed(1)}</text><text x="${xs(v)}" y="${H - 4}" text-anchor="middle">${v.toFixed(1)}</text>`).join("");
@@ -1173,7 +1330,7 @@ function boot(B, LIVE) {
         else {
           used += rs.length;
           const far = Math.max(0, ...rs.filter((x) => !x.tipped).map((x) => x.stop_m));
-          cap = `<b>Designs an experiment:</b> ${rs.length} real push${rs.length > 1 ? "es" : ""} aimed past the tracked range. Coverage <b>0–${cover0.toFixed(2)} m → 0–${Math.max(cover0, far).toFixed(2)} m</b>.`;
+          cap = tl(`<b>Designs an experiment:</b> ${rs.length} real push${rs.length > 1 ? "es" : ""} aimed past the tracked range. Coverage <b>0–${cover0.toFixed(2)} m → 0–${Math.max(cover0, far).toFixed(2)} m</b>.`, `<b>실험을 설계합니다:</b> 궤적이 없는 구간 너머로 실제 밀기 ${rs.length}회. 측정 범위 <b>0–${cover0.toFixed(2)} m → 0–${Math.max(cover0, far).toFixed(2)} m</b>.`);
           body = `<div class="probes">${rs.map((x) => `<span>cmd ${(+x.command).toFixed(1)} → ${x.tipped ? "tipped" : (+x.stop_m).toFixed(2) + " m"}</span>`).join("")}<span class="budget">${r.probe_budget_left} of ${r.probe_budget_left + used} probes left</span></div>`;
         }
       } else if (s.tool === "commit") {
@@ -1193,7 +1350,7 @@ function boot(B, LIVE) {
     }).join("");
     const ladder = fits.length ? `<div class="ladder"><span class="label" style="margin-right:4px">Stop residual</span>${fits.map((f, i) => `${i ? `<span class="ar">→</span>` : ""}<span class="r ${f.ok ? "ok" : "bad"}" title="${esc(f.label)}">H${i + 1} ${f.stop != null ? cm(f.stop) + " cm" : "?"} ${f.ok ? "✓" : "✕"}</span>`).join("")}</div>` : "";
     const n = meas ? meas.real.trials.length : 0, ok = meas ? meas.real.trials.filter((t) => t.success).length : 0, sok = meas ? meas.sim.trials.filter((t) => t.success).length : 0;
-    return `<div class="nb-head"><span class="q">${meas ? `Why did the sim-trained policy land <b style="color:var(--fg)">${ok}/${n}</b> real pushes when the sim predicted ${sok}/${n}? ` : ""}${trace.length} tool calls · ${used} real probe push${used === 1 ? "" : "es"}.</span>${ladder}</div>
+    return `<div class="nb-head"><span class="q">${meas ? tl(`Why did the sim-trained policy land <b style="color:var(--fg)">${ok}/${n}</b> real pushes when the sim predicted ${sok}/${n}? `, `시뮬은 ${sok}/${n}를 예측했는데, 왜 시뮬로 학습한 정책은 실제로 <b style="color:var(--fg)">${ok}/${n}</b>만 맞혔을까요? `) : ""}${tl(`${trace.length} tool calls · ${used} real probe push${used === 1 ? "" : "es"}.`, `도구 호출 ${trace.length}회 · 실제 탐색 밀기 ${used}회.`)}</span>${ladder}</div>
       <ol class="nb">${items}</ol>
       <details class="raw"><summary class="label">Raw tool trace · JSON</summary><pre>${esc(JSON.stringify(trace, null, 1))}</pre></details>`;
   }
@@ -1262,7 +1419,7 @@ function boot(B, LIVE) {
         <p>Closed worlds change parameters the rule-based agent knows. Open worlds add a friction strip or lens distortion it has no parameter for; compound worlds add both. Every method trains the same inverse policy, so it is exactly as good as its simulator. Real trials = evaluations + probe pushes.</p></div></div>
       <div class="gb"><section class="pane"><header><span class="label">Mean real success by tier</span></header><div class="body">${gbChart(sm, tiers)}</div></section>
         <div><div class="tbl-wrap"><table><thead>${head}</thead><tbody>${rows}</tbody></table></div>
-          <div class="cost"><span>Nemotron 3 Super · Nebius Token Factory</span><span><b>${u.calls || 0}</b> calls</span><span><b>${((u.prompt_tokens || 0) / 1000).toFixed(0)}k</b> in / <b>${((u.completion_tokens || 0) / 1000).toFixed(1)}k</b> out tokens</span><span><b>$${cost.toFixed(3)}</b> total · $${(cost / nAgent).toFixed(4)} per world</span><span>at $0.30 / $0.90 per 1M</span></div>
+          <div class="cost"><span>Nemotron 3 Super · Nebius Token Factory</span><span>${tl(`<b>${u.calls || 0}</b> calls`, `호출 <b>${u.calls || 0}</b>회`)}</span><span>${tl(`<b>${((u.prompt_tokens || 0) / 1000).toFixed(0)}k</b> in / <b>${((u.completion_tokens || 0) / 1000).toFixed(1)}k</b> out tokens`, `입력 <b>${((u.prompt_tokens || 0) / 1000).toFixed(0)}k</b> / 출력 <b>${((u.completion_tokens || 0) / 1000).toFixed(1)}k</b> 토큰`)}</span><span>${tl(`<b>$${cost.toFixed(3)}</b> total · $${(cost / nAgent).toFixed(4)} per world`, `총 <b>$${cost.toFixed(3)}</b> · 세계당 $${(cost / nAgent).toFixed(4)}`)}</span><span>${tl("at $0.30 / $0.90 per 1M", "100만 토큰당 $0.30 / $0.90")}</span></div>
           <p class="honest"><b>Honest note:</b> the System-ID baseline uses the same least-squares fitter with a hand-ordered structure library and matches the agent here. The agent’s edge is that it decides which structures and which real experiments to try, and explains them.</p></div></div>`;
   }
 
@@ -1422,7 +1579,7 @@ function boot(B, LIVE) {
         </div>
         <aside class="side-col">
           <section class="pane agentview"><header><span class="label">How the agent sees it</span></header><div class="body">
-            <p><b>It never sees the values you set.</b> Each iteration it gets only what a real robot would log:</p>
+            <p>${tl("<b>It never sees the values you set.</b> Each iteration it gets only what a real robot would log:", "<b>에이전트는 여러분이 정한 값을 보지 못합니다.</b> 매 반복마다 실제 로봇이 남길 기록만 받습니다:")}</p>
             <ul><li>20 real pushes: perceived target, command, where the cube stopped</li><li>camera tracks of each sliding cube</li><li>up to ${12} extra real pushes it may spend on its own experiments</li></ul>
             <p>${tool ? "Nemotron inspects the evidence, proposes simulator structures, fits them by least squares, probes the robot when the data cannot decide, and commits a simulator. The policy is retrained in it and measured again in your world." : "No LLM is configured on this server, so the rule-based diagnoser runs. It has no parameter for a strip or a lens and can only average them away."}</p>
           </div></section>
@@ -1514,7 +1671,9 @@ function boot(B, LIVE) {
       else if (o === "split" || o === "lane") window.GC_V3_INIT = { ...(window.GC_V3_INIT || {}), [o === "split" ? "mode" : "view"]: o };
     });
   } catch (_) {}
+  document.querySelectorAll(".lang button").forEach((b) => (b.onclick = () => setLang(b.dataset.lang, () => { renderTabs(); render(); })));
   render();
+  setLang(LANG);
 }
 const EMPTY = { runs: [], benchmark: null, params: null, task: { name: "Push-to-line", n_targets: 20, success_tol_m: 0.03 }, stack: { physics: "NVIDIA Newton", diagnoser: "" }, generated: "" };
 if (window.BUNDLE) boot(window.BUNDLE, null);

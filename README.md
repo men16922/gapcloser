@@ -42,6 +42,10 @@ NVIDIA Newton then renders a phone-style video or writes a robot log. Studio dia
 settings, can run the pushes it asks for in the same simulated world, and finally reveals your settings as
 ground truth.
 
+The console and the Studio are in English by default; the **EN / KO** switch in the top bar (or `?lang=ko`)
+shows them in Korean. **Ask** (bottom right in the Studio) answers questions about the page and your result,
+using NVIDIA Nemotron on Token Factory, grounded in the session's numbers and answering in the chosen language.
+
 ```bash
 make serve                    # then open http://localhost:8000/studio
 python -m studio calibrate my_robot_log.csv --llm tokenfactory --out runs/studio/mine

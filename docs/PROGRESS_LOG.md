@@ -4,6 +4,10 @@ Last Updated: 2026-10-09
 
 This file maintains only recent incremental summaries (newest 3-5 items, ≤120 lines). Older entries are archived to `docs/archive/progress-YYYY-MM.md` via `/tidy-docs`.
 
+## 2026-10-09 — Simulation mode, EN/KO, Ask GapCloser
+- Changed: Studio simulation mode (visitor sets hidden physics, Newton renders video / writes log, next experiment runs in the same world); EN default + KO switch on console and Studio (whole-sentence templates + DOM translation + patterns for server strings); `POST /api/studio/chat` + Ask panel (Nemotron, grounded in the session, truth only after reveal, 30 questions/session); fitter pre-fit before region search; Nebius VM deployed, verified, then deleted at user request (`deploy/nebius_vm.sh`).
+- Verified: `make check` 91 passed; simulated world recovered inside intervals; chat answers EN/KO in 2-5 s; KO/EN switch restores originals; 390 px no overflow.
+
 ## 2026-10-09 — GapCloser Studio: calibrate from your own data
 - Status: Product surface built and verified end to end (live API in headless Chrome, recorded standalone, mobile 390 px no overflow).
 - Changed: `studio/` (session ingest, fit + bootstrap intervals + what-if worlds, query-by-committee next experiment, Newton/Isaac Lab/Markdown/JSON export, A4-sheet camera recovery + parallax-corrected tracking, CLI, Newton-rendered sample videos/logs, recorder); `server/studio_api.py`; `dashboard/studio.html` (ghost boxes over the user's video, friction painted on the frame, forest plot with truth reveal); tool agent: offline probe queue, Savitzky-Golay decel profile, `unexplained` residual checks, per-field simplex + patch-mu multistart (pitch was stuck at 0 before); Studio cross-check + identifiability guard; `eval/studio_bench.py`.
