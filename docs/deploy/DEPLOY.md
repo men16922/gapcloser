@@ -57,6 +57,11 @@ Cost guards built in: one run at a time, max 4 iterations, max 3 hidden faults (
 
 ## Nebius AI Cloud CPU VM
 
+Scripted: `deploy/nebius_vm.sh` (needs `nebius profile create` once, billing details saved in the console, and
+`~/.ssh/gapcloser_nebius`). It retries VM creation until the account allows it, then copies the committed code,
+builds the image on the VM and runs it on port 80. A fresh tenant without billing details refuses every create
+call with `PermissionDenied`, even for admins. Manual steps:
+
 1. In the Nebius console, create a Compute VM: smallest CPU preset (2 vCPU / 8 GB), Ubuntu 22.04, public IP, your SSH key.
 2. On the VM:
    ```bash
