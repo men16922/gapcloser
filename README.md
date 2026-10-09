@@ -10,6 +10,61 @@ Built for the Nebius × NVIDIA Global AI Hackathon (Physical AI track). Runs on 
 - Reasoning: **NVIDIA Nemotron 3** on **Nebius Token Factory**
 - Eyes: **NVIDIA Cosmos Reason 2**, running locally (optional)
 
+## GapCloser Studio: calibrate from your own data
+
+The agent loop above runs against a hidden simulated world. **Studio** points the same machinery at
+measurements you bring, and hands back a simulator you can use:
+
+1. **Data.** Upload a phone video of an object flicked across your table, with a sheet of A4 or Letter paper
+   lying beside the path. Or upload the push log your robot already writes (CSV/JSON).
+2. **Measure.** Drag four handles onto the sheet's corners. From the sheet alone, Studio recovers the camera's
+   focal length, height and angle. It tracks the object, corrects for the parallax of the object's own height,
+   splits the video into pushes and measures each launch speed and slide in metres.
+3. **Diagnose.** Nemotron 3 Super works through your pushes with the same tools as the agent loop. It cannot
+   push a real robot from here, so the pushes it asks for become *next experiment* cards. A cross-check fits a
+   fixed library of model structures and overrules the agent if its model leaves evidence unexplained.
+4. **Calibrated sim.** You get:
+   - the physics that differs from your simulator, each value with a 90% interval (bootstrap over your pushes);
+   - the measured friction painted onto your own video frame;
+   - predicted success of a policy trained in the old vs calibrated simulator. Stretches of table that no push
+     reached are treated as unknown (±30% what-ifs), so the prediction is not falsely certain.
+5. **Next experiment.** It names the pushes where plausible models still disagree, within your working range.
+6. **Export.** A snippet for NVIDIA Newton (`ShapeConfig` mu and the friction region), an Isaac Lab
+   `EventTermCfg` whose domain-randomization ranges are the measured intervals, a Markdown report and JSON.
+
+```bash
+make serve                    # then open http://localhost:8000/studio
+python -m studio calibrate my_robot_log.csv --llm tokenfactory --out runs/studio/mine
+python -m studio video clip.mp4 --corners 409,368,536,439,649,330,534,287 --llm tokenfactory
+```
+
+**Samples, with ground truth revealed after the diagnosis.** The two-take phone video is rendered by NVIDIA
+Newton's `SensorTiledCamera` from a world Studio never sees, and is labelled synthetic everywhere. Results
+from the API with Nemotron 3 Super on Token Factory:
+
+| Sample | Measured (90% interval) | Hidden truth |
+|---|---|---|
+| Phone video, take 1 (7 flicks, reach 0.46 m) | friction 0.55; a slick region from ~0.36 m, interval still wide | 0.55; region from 0.36 m, μ 0.30 |
+| Phone video, + take 2 (the 4 pushes it asked for) | 0.550 (0.541–0.556); region from 0.376 m (0.360–0.400), μ 0.294 (0.268–0.329) | 0.55; 0.36 m; 0.30 |
+| Robot log, lab bench (20 pushes) | friction 0.699, gain 0.872, region 0.372 m / μ 0.445, camera pitch 2.0° | 0.70, 0.88, 0.38 m / 0.45, 2.0° |
+| Robot log, short pushes only (reach 0.29 m) | friction 0.60, gain 0.99. It does **not** invent a region it never measured; it asks for pushes to 0.45–0.62 m | 0.60; region from 0.33 m |
+
+Camera recovery from the sheet: 0.481 m height and focal length 579 px (true 0.48 m, 579 px). Tracked slides are
+within 3 mm of Newton's, launch speeds within 2%.
+
+**Does the next-experiment card save real pushes?** (`make studio-bench`) Every method starts from the same 4
+short pushes and adds 2 per round until a policy trained in the calibrated simulator reaches 95% real success:
+
+| Real pushes to 95% | analytic, 50 worlds | NVIDIA Newton, 20 worlds |
+|---|---|---|
+| Studio's suggested pushes | **5.8** | **5.8** |
+| Hand-written long-to-short sweep | 5.9 | 6.2 |
+| Random pushes | 7.7 | 7.9 |
+
+Honest reading: the suggestions need about 25% fewer real pushes than random ones. They are about as good as a
+sweep that an engineer who already knows to push long would write. The difference is that the suggestions
+adapt to the table, so you do not need to know that in advance.
+
 ## How it works
 
 ```mermaid

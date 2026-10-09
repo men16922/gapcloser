@@ -1,6 +1,6 @@
 # GapCloser — Sim2Real self-closing agent (Nebius x NVIDIA hackathon)
 # Gate must stay OFFLINE + DETERMINISTIC: no GPU, no network, no Nebius/Token Factory calls.
-.PHONY: check test lint smoke-local demo dashboard replays franka-mesh serve docker site video
+.PHONY: check test lint smoke-local demo dashboard replays franka-mesh serve docker site video studio-samples studio-record studio-bench
 
 PY := $(shell [ -x .venv/bin/python ] && echo .venv/bin/python || echo python3)
 
@@ -34,7 +34,21 @@ replays:
 franka-mesh:
 	$(PY) -m dashboard.franka_mesh
 
-# live server on http://localhost:8000 (GAPCLOSER_LLM=local|tokenfactory|none)
+# Studio sample data: Newton robot logs + Newton-rendered phone videos with ground truth (studio/samples)
+studio-samples:
+	$(PY) -m studio.samples
+	$(PY) -m studio.video_sample
+
+# record the samples through the Studio API (Nemotron agent when GAPCLOSER_LLM / --llm is set), rebuild pages
+studio-record:
+	$(PY) -m studio.record --llm $${GAPCLOSER_LLM:-tokenfactory}
+	$(PY) -m dashboard.build
+
+# active vs passive data collection: real pushes needed to reach 95% (analytic, 50 worlds, ~30 s)
+studio-bench:
+	$(PY) -m eval.studio_bench --worlds 50 --json runs/bench/studio_bench_analytic.json
+
+# live server on http://localhost:8000 (Studio at /studio) (GAPCLOSER_LLM=local|tokenfactory|none)
 serve: dashboard
 	$(PY) -m uvicorn server.app:app --host 0.0.0.0 --port $${PORT:-8000}
 

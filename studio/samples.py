@@ -36,6 +36,7 @@ SAMPLES = {
 }
 TRACK_NOISE = 0.0015  # m, camera tracking jitter added to the simulated measurements
 STOP_NOISE = 0.003
+PERCEPTION_NOISE = 0.002  # m, target detection scatter of the robot camera
 
 
 def make(name: str, env) -> tuple[Session, dict]:
@@ -47,7 +48,7 @@ def make(name: str, env) -> tuple[Session, dict]:
         pol = InverseTrainer().train(Randomization.none())
         ro = env.rollout(hidden, pol, eval_targets(spec["targets"], 77))
         for t in ro.trials:
-            pushes.append(Push(t.slide + rng.gauss(0, STOP_NOISE), t.command, None, t.target, t.observed, t.tipped,
+            pushes.append(Push(t.slide + rng.gauss(0, STOP_NOISE), t.command, None, t.target, t.observed + rng.gauss(0, PERCEPTION_NOISE), t.tipped,
                                [y + rng.gauss(0, TRACK_NOISE) for y in t.track]))
     if spec["probes"]:
         for t in env.push(hidden, spec["probes"]).trials:

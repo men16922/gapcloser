@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import base64
 import json
+import os
 from pathlib import Path
 
 HERE = Path(__file__).parent
@@ -33,6 +34,8 @@ def _template(bundle_json: str) -> str:
     franka = FRANKA.read_text() if FRANKA.exists() else "null"
     tpl = tpl.replace("/*__THREE__*/", _script_safe(three), 1)
     tpl = tpl.replace('"__FRANKA__"', _script_safe(franka), 1)
+    studio = "/studio" if bundle_json == "null" else os.environ.get("GAPCLOSER_STUDIO_URL", "")
+    tpl = tpl.replace("__STUDIO_URL__", studio, 1)
     return tpl.replace('"__BUNDLE__"', bundle_json, 1)
 
 
@@ -67,6 +70,42 @@ def build_live(out: Path) -> Path:
     return out
 
 
+STUDIO_REC = Path("runs/studio-demo")
+MIME = {".mp4": "video/mp4", ".jpg": "image/jpeg", ".webm": "video/webm"}
+
+
+def build_studio(rec_dir: Path = STUDIO_REC, out_dir: Path = HERE / "dist", console_url: str | None = None) -> list[Path]:
+    """Studio pages: studio.live.html (served at /studio, talks to the API) and, when recorded sessions exist,
+    studio.standalone.html (sessions + media inlined; replays the recorded Nemotron runs offline)."""
+    tpl = (HERE / "studio.html").read_text()
+    out_dir.mkdir(parents=True, exist_ok=True)
+    live = out_dir / "studio.live.html"
+    live.write_text(tpl)
+    outs = [live]
+    order = ["flick", "lab-bench", "short-reach"]
+    recs = [json.loads((rec_dir / f"{k}.json").read_text()) for k in order if (rec_dir / f"{k}.json").exists()]
+    if not recs:
+        return outs
+    media = {}
+    for r in recs:
+        for v in r["videos"]:
+            for key in ("file", "frame"):
+                path = rec_dir / v[key]
+                media[v[key]] = f"data:{MIME[path.suffix]};base64," + base64.b64encode(path.read_bytes()).decode()
+        for st in r["stages"]:  # the page re-derives these; keep the payload small
+            if st.get("result"):
+                st["result"].pop("session", None)
+    model = next((r["stages"][-1]["result"]["agent"]["model_name"] for r in recs
+                  if (r["stages"][-1]["result"] or {}).get("agent")), None)
+    console_url = console_url or os.environ.get("GAPCLOSER_CONSOLE_URL")
+    data = {"samples": recs, "media": media, "model": model, "provider": "tokenfactory", "console_url": console_url}
+    html = tpl.replace("/*__STUDIO_DATA__*/null", _script_safe(json.dumps(data, separators=(",", ":"))), 1)
+    sa = out_dir / "studio.standalone.html"
+    sa.write_text(html)
+    outs.append(sa)
+    return outs
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--bundle", type=Path, default=Path("runs/demo/bundle.json"))
@@ -74,6 +113,8 @@ def main() -> None:
     a = ap.parse_args()
     live = build_live(a.out.with_name("gapcloser.live.html"))
     print(f"wrote {live}")
+    for p in build_studio():
+        print(f"wrote {p} ({p.stat().st_size / 1e6:.2f} MB)")
     if a.bundle.exists():
         out = build(a.bundle, a.out)
         print(f"wrote {out} ({out.stat().st_size / 1e6:.2f} MB)")

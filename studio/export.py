@@ -128,8 +128,8 @@ def markdown(session: Session, cal: Calibration, nxt: dict | None = None, agent:
     out += ["", "## Predicted effect (model rollouts, not measured)", "",
             f"Success within {pr['tolerance_m'] * 100:.0f} cm over targets {pr['target_range_m'][0]:.1f}–{pr['target_range_m'][1]:.1f} m, "
             f"for a policy trained in each simulator:", "",
-            f"- current sim: **{pr['before']['mean'] * 100:.0f}%** (90%: {pr['before']['lo'] * 100:.0f}–{pr['before']['hi'] * 100:.0f}%)",
-            f"- calibrated sim: **{pr['after']['mean'] * 100:.0f}%** (90%: {pr['after']['lo'] * 100:.0f}–{pr['after']['hi'] * 100:.0f}%)"]
+            f"- current sim: **{pr['before']['median'] * 100:.0f}%** (90%: {pr['before']['lo'] * 100:.0f}–{pr['before']['hi'] * 100:.0f}%)",
+            f"- calibrated sim: **{pr['after']['median'] * 100:.0f}%** (90%: {pr['after']['lo'] * 100:.0f}–{pr['after']['hi'] * 100:.0f}%)"]
     if pr.get("unmeasured_whatif"):
         out.append(f"- your pushes reach {pr['measured_reach_m']:.2f} m; beyond that the prediction includes ±30% friction what-ifs")
     if nxt:

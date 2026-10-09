@@ -172,7 +172,8 @@ def predict(session: Session, cal_params: ParamSet, ensemble: list[dict], sigma:
     for name, pol in (("before", pol_before), ("after", pol_after)):
         s = [expected_success(w, pol, sigma) for w in worlds]
         by = [success_by_target(w, pol, sigma) for w in worlds]
-        out[name] = {"mean": round(sum(s) / len(s), 3), "lo": round(_pct(s, 0.05), 3), "hi": round(_pct(s, 0.95), 3),
+        out[name] = {"mean": round(sum(s) / len(s), 3), "median": round(_pct(s, 0.5), 3),
+                     "lo": round(_pct(s, 0.05), 3), "hi": round(_pct(s, 0.95), 3),
                      "by_target": [round(sum(col) / len(col), 3) for col in zip(*by)]}
     out["noise_sigma_m"] = round(sigma, 4)
     out["target_range_m"] = list(TARGET_RANGE)

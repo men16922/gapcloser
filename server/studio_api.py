@@ -150,6 +150,18 @@ def mount_studio(app: FastAPI, llm, budget, data_dir: Path, budgeted_llm_cls) ->
                 return HTMLResponse(page.read_text())
         raise HTTPException(404, "Studio page not built. Run `make dashboard`.")
 
+    @app.get("/api/studio/sample-frame/{sample_id}")
+    def sample_frame(sample_id: str):
+        from studio.video import first_frame_jpeg
+
+        m = sample(sample_id)
+        if m["kind"] != "video":
+            raise HTTPException(404, "Not a video sample.")
+        cache = store / f"_thumb-{m['id']}.jpg"
+        if not cache.exists():
+            cache.write_bytes(first_frame_jpeg(SAMPLE_DIR / f"{m['parts'][0]}.mp4")[0])
+        return FileResponse(cache, media_type="image/jpeg")
+
     @app.get("/api/studio/samples")
     def samples():
         return [{k: v for k, v in x.items() if k in ("id", "kind", "title", "blurb", "parts")} for x in SAMPLES]
@@ -256,7 +268,13 @@ def mount_studio(app: FastAPI, llm, budget, data_dir: Path, budgeted_llm_cls) ->
             for r in regions:
                 r["poly"] = [to_px(r["from"], -0.11), to_px(r["to"], -0.11), to_px(r["to"], 0.11), to_px(r["from"], 0.11)]
             reach = s.session.coverage()[1] if s.session else 0.0
-            out[str(i)] = {"regions": regions, "reach_px": [to_px(reach, -0.13), to_px(reach, 0.13)], "reach_m": round(reach, 3)}
+            for r in regions:  # label anchor: early in the region, inside the measured stretch when possible
+                y = r["from"] + 0.35 * (min(r["to"], max(reach, r["from"] + 0.05)) - r["from"])
+                r["label_px"] = to_px(max(y, 0.05), 0.0)
+            unmeasured = ([to_px(reach, -0.11), to_px(y_end, -0.11), to_px(y_end, 0.11), to_px(reach, 0.11)]
+                          if reach < y_end - 0.02 else None)
+            out[str(i)] = {"regions": regions, "reach_px": [to_px(reach, -0.13), to_px(reach, 0.13)], "reach_m": round(reach, 3),
+                           "unmeasured_poly": unmeasured}
         return out
 
     def worker(s: StudioSession, use_agent: bool) -> None:

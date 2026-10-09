@@ -147,3 +147,28 @@ def test_agent_structure_and_offline_probe_requests_reach_the_report():
     assert [e["type"] for e in events][-1] == "done" and any(e["type"] == "agent_step" for e in events)
     probe = next(e["step"] for e in events if e["type"] == "agent_step" and e["step"]["tool"] == "probe_real")
     assert probe["result"]["queued_for_human"] == [3.9, 4.2]
+
+
+def test_friction_region_past_the_measured_reach_is_not_invented():
+    s = session_from(PATCH.with_(actuator_gain=1.0), [1.2 + 0.08 * i for i in range(8)])
+    cal = calibrate(s, ["mu_eff", "actuator_gain", "patch_y0", "patch_mu"],
+                    {**from_params(ParamSet.nominal()), "patch_y0": 0.45, "patch_mu": 0.3}, n_boot=0)
+    assert "patch_y0" not in cal.structure and cal.model["patch_y0"] is None
+    assert "dropped" in cal.chosen_by
+
+
+def test_cross_check_overrules_an_agent_that_ignores_the_launch_speed():
+    s = session_from(PATCH, [1.5 + 0.2 * i for i in range(12)])  # true gain 0.9
+    free = ["mu_eff", "patch_y0", "patch_mu"]  # the agent forgot the actuator: stops fit by trading friction for gain
+
+    def call(name, args, i):
+        return {"content": "", "model": "scripted", "tool_calls": [{"id": f"c{i}", "name": name, "arguments": json.dumps(args)}]}
+
+    start = {**from_params(ParamSet.nominal()), "patch_y0": 0.3, "patch_mu": 0.5}
+    llm = RecordedLLM({"chat:diagnose": [call("fit_hypothesis", {"model": start, "free": free}, 0),
+                                         call("commit", {"model": {**start, "mu_eff": 0.74}, "explanation": "x"}, 1)]})
+    res = analyze(s, llm, n_boot=0)
+    cc = res.agent["cross_check"]
+    assert cc["adopted"] == "search" and "actuator_gain" in res.calibration.structure
+    assert any("launch" in u for u in cc["unexplained"])
+    assert abs(res.calibration.model["actuator_gain"] - 0.9) < 0.02
