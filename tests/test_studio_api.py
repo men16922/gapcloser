@@ -51,7 +51,7 @@ def test_bad_upload_is_a_plain_422(tmp_path):
 def test_sample_truth_only_after_analysis(tmp_path):
     c = client(tmp_path)
     got = {x["id"]: x["domain"] for x in c.get("/api/studio/samples").json()}
-    assert got == {"flick": "robot", "lab-bench": "robot", "short-reach": "robot", "stop-line": "driving", "press-line": "factory"}
+    assert got == {"flick": "robot", "lab-bench": "robot", "short-reach": "robot", "stop-line": "driving", "brake-log": "driving", "press-line": "factory"}
     s = c.post("/api/studio/sessions", data={"sample": "short-reach"}).json()
     assert c.get(f"/api/studio/sessions/{s['id']}/truth").status_code == 409
     c.post(f"/api/studio/sessions/{s['id']}/analyze", json={"agent": False})

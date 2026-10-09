@@ -185,3 +185,86 @@ def test_domain_units_scale_lengths_and_speeds_but_not_friction():
     # Froude: the stop distance of the scaled run, scaled up, equals the full-size one (v^2 / (2 mu g))
     v, mu = 2.0, 0.7
     assert abs((v * d.speed_scale) ** 2 / (2 * mu * 9.81) - d.scale * v * v / (2 * mu * 9.81)) < 1e-9
+
+
+def test_carla_export_runs_against_the_carla_api_shape():
+    """CARLA is not installed here (it needs a GPU server), so the export runs against a stand-in `carla` module with
+    the calls the snippet makes, named as in the CARLA 0.9.16 Python API and the friction-trigger tutorial
+    (static.trigger.friction: friction, extent_x/y/z in centimetres; the trigger sets the wheels' friction while a
+    vehicle is inside and restores it on exit)."""
+    import sys
+    import types
+
+    from studio import export
+    from studio.pipeline import analyze
+    from studio.session import load
+
+    class V:
+        def __init__(self, x=0.0, y=0.0, z=0.0):
+            self.x, self.y, self.z = x, y, z
+
+        def __add__(self, o):
+            return V(self.x + o.x, self.y + o.y, self.z + o.z)
+
+        def __mul__(self, k):
+            return V(self.x * k, self.y * k, self.z * k)
+
+    rec = {"applied": None, "attrs": {}, "spawned": None}
+
+    class Wheel:
+        def __init__(self):
+            self.tire_friction = 3.5  # a CARLA vehicle's own value: a scalar, not mu
+
+    class PC:
+        def __init__(self):
+            self.wheels = [Wheel() for _ in range(4)]
+
+    class Tf:
+        def __init__(self, location=None, rotation=None):
+            self.location, self.rotation = location or V(), rotation
+
+        def get_forward_vector(self):
+            return V(1.0, 0.0, 0.0)
+
+    class Ego:
+        def get_physics_control(self):
+            return PC()
+
+        def apply_physics_control(self, pc):
+            rec["applied"] = [w.tire_friction for w in pc.wheels]
+
+        def get_transform(self):
+            return Tf(V(10.0, 0.0, 0.0), "rot")
+
+    class BP:
+        def set_attribute(self, k, v):
+            assert isinstance(v, str)
+            rec["attrs"][k] = float(v)
+
+    class World:
+        def get_actors(self):
+            return types.SimpleNamespace(filter=lambda pat: [Ego()] if pat == "vehicle.*" else [])
+
+        def get_blueprint_library(self):
+            return types.SimpleNamespace(find=lambda name: BP() if name == "static.trigger.friction" else None)
+
+        def spawn_actor(self, bp, tf):
+            rec["spawned"] = tf
+
+    fake = types.ModuleType("carla")
+    fake.Client = lambda host, port: types.SimpleNamespace(get_world=World)
+    fake.Transform = Tf
+    sys.modules["carla"] = fake
+    try:
+        s = load((SAMPLES / "lab-bench.csv").read_text(), "lab-bench.csv", "t")
+        s.meta["domain"] = "driving"
+        res = analyze(s, None)
+        exec(compile(export.carla_snippet(s, res.calibration), "carla_calibration.py", "exec"), {})
+    finally:
+        sys.modules.pop("carla", None)
+    m = res.calibration.model
+    assert rec["applied"] == pytest.approx([3.5 * m["mu_eff"] / 0.8] * 4, rel=1e-3)
+    assert rec["attrs"]["friction"] == pytest.approx(3.5 * m["patch_mu"] / 0.8, rel=1e-3)
+    assert rec["attrs"]["extent_x"] == 3000.0 and rec["attrs"]["extent_y"] == 175.0  # 30 m and 1.75 m in cm
+    start = round(m["patch_y0"] * 25, 2)  # full-scale metres from the brake point
+    assert rec["spawned"].location.x == pytest.approx(10.0 + start + 30.0, abs=0.01)

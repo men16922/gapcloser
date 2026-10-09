@@ -3,6 +3,8 @@
   lab-bench   robot log: a policy trained in the nominal sim aims at targets on a bench with a weak actuator, a
               slick strip far out and a pitched camera (the sort of log a robot writes on its first real day)
   short-reach robot log that only pushes short: the far table is unmeasured (shows the next-experiment logic)
+  brake-log   driving: a braking planner tuned in the nominal sim aims at stop lines on a road that is wet from 10 m on,
+              with a speed controller that under-delivers and a front camera pitched up
   press-line  factory: a pneumatic pusher aims parts at the inspection window on a rail with an oily section, a
               pusher that has lost pressure and a line camera mounted slightly tilted
 
@@ -34,6 +36,12 @@ SAMPLES = {
         "title": "Short pushes only (far table unmeasured)",
         "hidden": {"object_mu": 0.6, "table_mu": 0.6, "patch_y0": 0.33, "patch_mu": 0.4},
         "targets": 0, "probes": [1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.75, 1.85],
+    },
+    "brake-log": {  # driving, Froude-scaled 1:25: dry 0.78, wet from 10 m (0.40 base) at 0.38, speed control 0.93, camera +1.2 deg
+        "title": "Vehicle log: braking at the stop line",
+        "hidden": {"object_mu": 0.78, "table_mu": 0.78, "actuator_gain": 0.93, "patch_y0": 0.40, "patch_mu": 0.38,
+                   "camera_pitch_deg": 1.2},
+        "targets": 14, "probes": [1.8, 2.3, 2.8, 3.2],
     },
     "press-line": {
         "title": "Pusher log: parts missing the inspection window",

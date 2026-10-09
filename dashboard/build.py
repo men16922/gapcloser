@@ -36,7 +36,7 @@ def _template(bundle_json: str) -> str:
     tpl = tpl.replace('"__FRANKA__"', _script_safe(franka), 1)
     studio = "/studio" if bundle_json == "null" else os.environ.get("GAPCLOSER_STUDIO_URL", "")
     tpl = tpl.replace("__STUDIO_URL__", studio, 1)
-    tpl = tpl.replace("__HOME_URL__", "/" if bundle_json == "null" else "")
+    tpl = tpl.replace("__HOME_URL__", "/" if bundle_json == "null" else os.environ.get("GAPCLOSER_HOME_URL", ""))
     return tpl.replace('"__BUNDLE__"', bundle_json, 1)
 
 
@@ -85,9 +85,9 @@ def build_studio(rec_dir: Path = STUDIO_REC, out_dir: Path = HERE / "dist", cons
     out_dir.mkdir(parents=True, exist_ok=True)
     live = out_dir / "studio.live.html"
     live.write_text(tpl.replace("__HOME_URL__", "/"))
-    tpl = tpl.replace("__HOME_URL__", "")  # recorded pages have no home page to go back to
+    tpl = tpl.replace("__HOME_URL__", os.environ.get("GAPCLOSER_HOME_URL", ""))  # the published overview, if any
     outs = [live]
-    order = ["flick", "lab-bench", "short-reach", "stop-line", "press-line"]
+    order = ["flick", "lab-bench", "short-reach", "stop-line", "brake-log", "press-line"]
     recs = [json.loads((rec_dir / f"{k}.json").read_text()) for k in order if (rec_dir / f"{k}.json").exists()]
     if not recs:
         return outs
@@ -119,6 +119,29 @@ def build_studio(rec_dir: Path = STUDIO_REC, out_dir: Path = HERE / "dist", cons
     return outs
 
 
+def build_home(out_dir: Path = HERE / "dist") -> list[Path]:
+    """Overview as a shared page: Newton stills inlined, links to the published Console and Studio (env
+    GAPCLOSER_CONSOLE_URL / GAPCLOSER_STUDIO_URL). Without both links there is nothing to point at; skipped."""
+    console, studio = os.environ.get("GAPCLOSER_CONSOLE_URL"), os.environ.get("GAPCLOSER_STUDIO_URL")
+    if not (console and studio):
+        return []
+    from studio.video import first_frame_jpeg
+
+    samples = HERE.parent / "studio" / "samples"
+    img = {}
+    for key, src in (("flick", "flick-video.mp4"), ("stop-line", "stop-line-video.mp4"), ("press-line", "press-line-frame.jpg")):
+        data = (samples / src).read_bytes() if src.endswith(".jpg") else first_frame_jpeg(samples / src)[0]
+        img[key] = "data:image/jpeg;base64," + base64.b64encode(data).decode()
+    html = (HERE / "home.html").read_text().replace(
+        "/*__HOME_STATIC__*/null", _script_safe(json.dumps({"console": console, "studio": studio, "img": img})), 1)
+    for tag in ("<!doctype html>", '<html lang="en">', "<head>", "</head>", "<body>", "</body>", "</html>",
+                '<meta charset="utf-8">', '<meta name="viewport" content="width=device-width, initial-scale=1">'):
+        html = html.replace(tag, "", 1)
+    out = out_dir / "home.html"
+    out.write_text(html.strip() + "\n")
+    return [out]
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--bundle", type=Path, default=Path("runs/demo/bundle.json"))
@@ -126,7 +149,7 @@ def main() -> None:
     a = ap.parse_args()
     live = build_live(a.out.with_name("gapcloser.live.html"))
     print(f"wrote {live}")
-    for p in build_studio():
+    for p in build_studio() + build_home():
         print(f"wrote {p} ({p.stat().st_size / 1e6:.2f} MB)")
     if a.bundle.exists():
         out = build(a.bundle, a.out)

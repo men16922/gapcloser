@@ -171,6 +171,14 @@ const T = (en, ko) => (LANG === "ko" ? ko : en);
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+/* Shared-page build (dashboard/build.py) injects the published Console/Studio links and the Newton stills; on the live
+   server this stays null and the page uses its own routes. Shared pages can only pass a #domain, not ?sample=. */
+const STATIC = /*__HOME_STATIC__*/null;
+const L = {
+  console: q => STATIC ? STATIC.console : `/console${q}`,
+  studio: (q, hash = "", sample = "") => STATIC ? STATIC.studio + (hash ? "#" + hash : "") : `/studio${sample ? (q ? q + "&" : "?") + "sample=" + sample : q}${hash ? "#" + hash : ""}`,
+  img: id => STATIC ? STATIC.img[id] : `/api/studio/sample-frame/${id}`,
+};
 
 /* The roadside braking example as recorded (runs/studio-demo/stop-line.json, first take): for each run, where the car
    really stopped, where the uncalibrated simulator says it would, and where Tether's calibrated simulator says it would.
@@ -236,7 +244,7 @@ function render() {
       <span class="kicker">${T("SIM-TO-REAL, TETHERED", "가상과 현실을 하나로")}</span>
       <h2 style="margin-top:12px">${T("Tie your simulator to the real world.", "시뮬레이터를 실제 세계에 단단히 묶습니다.")}</h2>
       <p class="lede">${T("Policies trained in simulation miss in the real world because the physics differ: a wet section, a weaker actuator, a tilted camera. Tether reads how things really slide and stop, from a phone video or the log your robot, car or line already writes, finds what the simulator gets wrong, says how sure it is, and hands back configs for NVIDIA Newton, Isaac Lab and CARLA.", "시뮬레이션에서 학습한 정책은 실제 세계에서 빗나갑니다. 젖은 구간, 약한 구동 장치, 기울어진 카메라처럼 물리가 다르기 때문입니다. Tether는 폰 영상이나 로봇·차량·생산 라인이 이미 남기는 기록에서 실제 움직임을 읽고, 시뮬레이터가 틀린 부분과 그 확실성을 찾아 NVIDIA Newton, Isaac Lab, CARLA 설정으로 돌려 줍니다.")}</p>
-      <div class="ctas"><a class="btn primary" href="/studio${q}">${T("Start in Studio", "Studio에서 시작하기")}</a><a class="btn" href="/console${q}">${T("Watch the agent work", "AI 작동 원리 보기")}</a></div>
+      <div class="ctas"><a class="btn primary" href="${L.studio(q)}">${T("Start in Studio", "Studio에서 시작하기")}</a><a class="btn" href="${L.console(q)}">${T("Watch the agent work", "AI 작동 원리 보기")}</a></div>
       <p class="made">${T("Physics: NVIDIA Newton. Agent: NVIDIA Nemotron 3 Super on Nebius Token Factory. Numbers come from least squares and a bootstrap, never from the language model.", "물리: NVIDIA Newton. AI: Nebius Token Factory의 NVIDIA Nemotron 3 Super. 숫자는 언어 모델이 아니라 최소제곱 계산과 부트스트랩으로 구합니다.")}</p>
     </div>
     <div class="tether">
@@ -252,9 +260,9 @@ function render() {
     <span class="kicker">${T("HOW YOU MOVE THROUGH IT", "사용 흐름")}</span>
     <h2 class="sec">${T("Three stops, one thread", "세 단계로 이어집니다")}</h2>
     <div class="route">
-      <a href="/console${q}"><span class="n">01</span><h3>${T("Agent console", "AI 콘솔")}</h3><p>${T("See how it works: a world with hidden faults, the Nemotron agent experimenting, the policy going from failing to succeeding. Benchmarks against rules and system ID.", "작동 원리를 봅니다. 숨겨진 원인이 있는 세계에서 Nemotron AI가 실험하고, 정책이 실패에서 성공으로 바뀌는 과정입니다. 규칙 방식, 자동 계산과 성능을 비교합니다.")}</p><span class="go">${T("Open the console", "콘솔 열기")}</span></a>
-      <a href="/studio${q}"><span class="n">02</span><h3>${T("Studio", "Studio")}</h3><p>${T("Do it on your data: pick robot, driving or factory; bring a video or a log, or have NVIDIA Newton make one; measure, diagnose, calibrate with 90% intervals, see the next experiment.", "내 데이터로 합니다. 로봇·자율주행·제조 중 업무를 고르고, 영상이나 기록을 넣거나 NVIDIA Newton으로 만듭니다. 측정, 진단, 90% 오차 범위 보정, 다음 실험까지 봅니다.")}</p><span class="go">${T("Open Studio", "Studio 열기")}</span></a>
-      <a href="/studio${q}#robot"><span class="n">03</span><h3>${T("Export", "내보내기")}</h3><p>${T("Take it back to your stack: NVIDIA Newton materials and friction regions, Isaac Lab randomization over the measured intervals, CARLA tire friction and a friction trigger, a report.", "내 개발 환경으로 가져갑니다. NVIDIA Newton 재질·마찰 구간, 측정 범위로 정한 Isaac Lab 랜덤화, CARLA 타이어 마찰과 마찰 트리거, 보고서입니다.")}</p><span class="go">${T("Last step in Studio", "Studio 마지막 단계")}</span></a>
+      <a href="${L.console(q)}"><span class="n">01</span><h3>${T("Agent console", "AI 콘솔")}</h3><p>${T("See how it works: a world with hidden faults, the Nemotron agent experimenting, the policy going from failing to succeeding. Benchmarks against rules and system ID.", "작동 원리를 봅니다. 숨겨진 원인이 있는 세계에서 Nemotron AI가 실험하고, 정책이 실패에서 성공으로 바뀌는 과정입니다. 규칙 방식, 자동 계산과 성능을 비교합니다.")}</p><span class="go">${T("Open the console", "콘솔 열기")}</span></a>
+      <a href="${L.studio(q)}"><span class="n">02</span><h3>${T("Studio", "Studio")}</h3><p>${T("Do it on your data: pick robot, driving or factory; bring a video or a log, or have NVIDIA Newton make one; measure, diagnose, calibrate with 90% intervals, see the next experiment.", "내 데이터로 합니다. 로봇·자율주행·제조 중 업무를 고르고, 영상이나 기록을 넣거나 NVIDIA Newton으로 만듭니다. 측정, 진단, 90% 오차 범위 보정, 다음 실험까지 봅니다.")}</p><span class="go">${T("Open Studio", "Studio 열기")}</span></a>
+      <a href="${L.studio(q, "robot")}"><span class="n">03</span><h3>${T("Export", "내보내기")}</h3><p>${T("Take it back to your stack: NVIDIA Newton materials and friction regions, Isaac Lab randomization over the measured intervals, CARLA tire friction and a friction trigger, a report.", "내 개발 환경으로 가져갑니다. NVIDIA Newton 재질·마찰 구간, 측정 범위로 정한 Isaac Lab 랜덤화, CARLA 타이어 마찰과 마찰 트리거, 보고서입니다.")}</p><span class="go">${T("Last step in Studio", "Studio 마지막 단계")}</span></a>
     </div>
   </section>
 
@@ -263,11 +271,11 @@ function render() {
     <h2 class="sec">${T("Same physics, three jobs", "물리는 같고, 업무는 셋")}</h2>
     <p class="lede">${T("Something is launched toward a target and slides to a stop; part of the surface differs; the actuator under-delivers; a camera judges the distance. That one model covers an arm on a table, a car on a road (Froude-scaled, friction unchanged) and a part on a rail.", "무언가가 목표를 향해 출발해 미끄러지다 멈춥니다. 바닥 일부가 다르고, 구동 장치가 약하고, 카메라가 거리를 잽니다. 이 하나의 모델이 탁자 위 로봇 팔, 도로 위 차량(프루드 축소, 마찰은 동일), 레일 위 부품을 모두 다룹니다.")}</p>
     <div class="doms">${DOMAINS.map(d => `<article class="dom">
-      <div class="img" style="background-image:url('/api/studio/sample-frame/${d.img}')"><span>${T("Rendered in NVIDIA Newton", "NVIDIA Newton 렌더링")}</span></div>
+      <div class="img" style="background-image:url('${L.img(d.img)}')"><span>${T("Rendered in NVIDIA Newton", "NVIDIA Newton 렌더링")}</span></div>
       <div class="body"><h3>${T(...d.name)}</h3><p>${T(...d.line)}</p>
         <dl><dt>${T("Data", "데이터")}</dt><dd>${T(...d.data)}</dd><dt>${T("Finds", "찾는 것")}</dt><dd>${T(...d.finds)}</dd><dt>${T("Exports", "내보내기")}</dt><dd>${d.out}</dd></dl>
         <div class="res">${T(...d.res)}</div>
-        <div class="acts"><a class="btn primary" href="/studio${q ? q + "&" : "?"}sample=${d.sample}#${d.id}">${T("Open the example", "예시 열기")}</a><a class="btn" href="/studio${q}#${d.id}">${T("Make your own", "직접 만들기")}</a></div></div></article>`).join("")}</div>
+        <div class="acts"><a class="btn primary" href="${L.studio(q, d.id, d.sample)}">${STATIC ? T("Open in Studio", "Studio에서 열기") : T("Open the example", "예시 열기")}</a>${STATIC ? "" : `<a class="btn" href="${L.studio(q, d.id)}">${T("Make your own", "직접 만들기")}</a>`}</div></div></article>`).join("")}</div>
   </section>
 
   <section>
@@ -300,16 +308,18 @@ function render() {
 let STATUS = {};
 function renderStack() {
   const on = STATUS.provider && STATUS.provider !== "none";
-  $("#stack").innerHTML = [["NVIDIA Newton", T("physics and rendering (Warp)", "물리 계산·렌더링 (Warp)")], ["NVIDIA Nemotron 3 Super 120B", on ? T("live on Nebius Token Factory", "Nebius Token Factory 연결됨") : T("off on this server", "이 서버에서 꺼짐")], ["NVIDIA Cosmos Reason 2", T("optional, local: tipped or not", "선택, 로컬: 넘어짐 판정")], ["Isaac Lab · CARLA", T("export targets", "내보내기 대상")]]
+  $("#stack").innerHTML = [["NVIDIA Newton", T("physics and rendering (Warp)", "물리 계산·렌더링 (Warp)")], ["NVIDIA Nemotron 3 Super 120B", STATUS.recorded ? T("on Nebius Token Factory (recorded runs)", "Nebius Token Factory (실행 기록)") : on ? T("live on Nebius Token Factory", "Nebius Token Factory 연결됨") : T("off on this server", "이 서버에서 꺼짐")], ["NVIDIA Cosmos Reason 2", T("optional, local: tipped or not", "선택, 로컬: 넘어짐 판정")], ["Isaac Lab · CARLA", T("export targets", "내보내기 대상")]]
     .map(([a, b]) => `<span><b>${a}</b> · ${b}</span>`).join("");
   const st = $("#status"); st.classList.toggle("off", !on);
-  st.querySelector("span").textContent = on ? T("Agent online: Nemotron 3 Super", "AI 연결됨: Nemotron 3 Super") : T("Agent off: offline fitting", "AI 꺼짐: 계산만 사용");
+  st.querySelector("span").textContent = STATUS.recorded ? T("Recorded runs: Nemotron 3 Super", "Nemotron 3 Super 실행 기록")
+    : on ? T("Agent online: Nemotron 3 Super", "AI 연결됨: Nemotron 3 Super") : T("Agent off: offline fitting", "AI 꺼짐: 계산만 사용");
 }
 function setLang(l) { LANG = l; try { localStorage.setItem("gapcloser-lang", l); } catch (_) {} render(); }
 document.querySelectorAll(".lang button").forEach(b => b.onclick = () => setLang(b.dataset.lang));
+if (STATIC) { $("#n-console").href = STATIC.console; $("#n-studio").href = STATIC.studio; document.querySelector(".brand").removeAttribute("href"); $("#n-home").removeAttribute("href"); }
 render();
 if (!reduce) setTimeout(() => { calibrated = true; renderTether(); }, 1400);  // one orchestrated moment: the tether pulls tight
-fetch("/api/status").then(r => r.json()).then(s => { STATUS = s; renderStack(); }).catch(() => renderStack());
+(STATIC ? Promise.resolve({ provider: "tokenfactory", recorded: true }) : fetch("/api/status").then(r => r.json())).then(s => { STATUS = s; renderStack(); }).catch(() => renderStack());
 </script>
 </body>
 </html>

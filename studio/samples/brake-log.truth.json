@@ -1,0 +1,13 @@
+{
+  "name": "brake-log",
+  "hidden": {
+    "object_mu": 0.78,
+    "table_mu": 0.78,
+    "actuator_gain": 0.93,
+    "patch_y0": 0.4,
+    "patch_mu": 0.38,
+    "camera_pitch_deg": 1.2
+  },
+  "env": "NewtonPushEnv",
+  "title": "Vehicle log: braking at the stop line"
+}

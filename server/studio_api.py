@@ -57,6 +57,10 @@ SAMPLES = [
      "title": "Roadside camera: braking to a stop line",
      "blurb": "Seven braking runs filmed from beside the road, a painted 5.25 × 7.4 m box for scale. Part of the road is wet. "
               "Synthetic: rendered by NVIDIA Newton (Froude-scaled, friction is scale-free).", "object_height_m": 0.06},
+    {"id": "brake-log", "kind": "log", "file": "brake-log.csv", "domain": "driving",
+     "title": "Vehicle log: braking at the stop line",
+     "blurb": "18 braking runs from the planner (speed set-point, stop position, front-camera range to the line). "
+              "The car keeps stopping past the line on part of the road."},
     {"id": "press-line", "kind": "log", "file": "press-line.csv", "domain": "factory",
      "title": "Pusher log: parts missing the inspection window",
      "blurb": "18 pusher strokes aimed at the inspection position, with the line camera's tracks. Parts keep stopping off-position."},
