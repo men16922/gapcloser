@@ -66,6 +66,8 @@ def suggest(session: Session, cal: Calibration, k: int = 3, extra_requests: list
     max_sd = max((r["disagreement_m"] for r in rows if lo_t <= r["predicted_stop_m"] <= hi_t), default=0.0)
     settled = max_sd < 0.006 and cov_hi >= hi_t - 0.02
     agent = [{"command": round(c, 3), "predicted_stop_m": round(_stop(p, c * gain), 3)} for c in (extra_requests or [])]
+    for r in agent:  # the agent may ask for pushes that leave the table; keep them visible but marked
+        r["useful"] = r["predicted_stop_m"] <= hi_t + 0.15
     return {"settled": settled, "max_disagreement_in_range_m": round(max_sd, 4), "coverage_m": [round(cov_lo, 3), round(cov_hi, 3)],
             "suggestions": [] if settled else picked, "agent_requests": agent, "committee_size": len(members),
             "curve": [{"v": r["launch_speed_mps"], "stop": r["predicted_stop_m"], "sd": r["disagreement_m"]} for r in rows]}

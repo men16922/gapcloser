@@ -1,0 +1,385 @@
+"""Studio API: calibrate a simulator from the visitor's own data.
+
+  GET  /studio                                   the Studio page
+  GET  /api/studio/samples                       sample sessions (robot logs, phone videos)
+  POST /api/studio/sessions                      multipart: file (video | .csv | .json) or sample=<id>; name
+  POST /api/studio/sessions/{sid}/videos         multipart: file or sample part -> add another video of the same table
+  POST /api/studio/sessions/{sid}/videos/{i}/track   {"corners": [x,y]*4, "sheet": "a4", "object_px": [x,y]?, "object_height_m"?}
+  POST /api/studio/sessions/{sid}/analyze        {"agent": true|false} -> streams on /events
+  GET  /api/studio/sessions/{sid}/events         Server-Sent Events: stage, agent_step*, calibration, next, done, overlay, result, end | error
+  GET  /api/studio/sessions/{sid}                session, tracked videos, last result
+  GET  /api/studio/sessions/{sid}/export/{fmt}   json | newton | isaaclab | markdown | csv
+  GET  /api/studio/sessions/{sid}/truth          samples only, after an analysis: the hidden physics
+  GET  /api/studio/files/{sid}/{name}            uploaded video and its first frame
+
+Sessions live in memory and under runs/studio/<sid>/ (uploads, results). Uploads are capped in size and
+duration; the Nemotron agent shares the server's LLM budget and has a per-analysis turn cap.
+"""
+
+from __future__ import annotations
+
+import json
+import shutil
+import threading
+import time
+import uuid
+from pathlib import Path
+
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse, StreamingResponse
+from pydantic import BaseModel, Field
+
+ROOT = Path(__file__).resolve().parent.parent
+SAMPLE_DIR = ROOT / "studio" / "samples"
+MAX_UPLOAD = 120 * 1024 * 1024
+MAX_SESSIONS = 60
+AGENT_TURNS = 8
+VIDEO_EXT = (".mp4", ".mov", ".m4v", ".webm", ".avi", ".mkv")
+
+SAMPLES = [
+    {"id": "flick", "kind": "video", "title": "Phone video: a box on a table", "parts": ["flick-video", "flick-video-2"],
+     "blurb": "Seven hand flicks filmed from the side, an A4 sheet for scale. Something about this table is off. "
+              "Synthetic: rendered by NVIDIA Newton from physics the Studio never sees.", "object_height_m": 0.06},
+    {"id": "lab-bench", "kind": "log", "file": "lab-bench.csv", "title": "Robot log: first day on the real bench",
+     "blurb": "20 pushes (16 aimed at targets, 4 probes) with camera tracks, from a policy trained in the nominal sim."},
+    {"id": "short-reach", "kind": "log", "file": "short-reach.csv", "title": "Robot log: short pushes only",
+     "blurb": "8 short pushes. The far half of the table was never measured: watch the Studio refuse to be certain."},
+]
+
+
+class TrackRequest(BaseModel):
+    corners: list[list[float]] = Field(..., min_length=4, max_length=4)
+    sheet: str = "a4"
+    object_px: list[float] | None = None
+    object_height_m: float | None = Field(None, gt=0.005, lt=0.5)
+
+
+class AnalyzeRequest(BaseModel):
+    agent: bool = True
+
+
+class StudioSession:
+    def __init__(self, sid: str, name: str, kind: str, sample: str | None, folder: Path):
+        self.id, self.name, self.kind, self.sample, self.dir = sid, name, kind, sample, folder
+        self.session = None  # studio.session.Session (logs: at upload; videos: after tracking)
+        self.videos: list[dict] = []  # {file, frame, width, height, fps, corners_hint, tracked, pushes, overlay}
+        self.cams: dict[int, object] = {}  # video index -> to_px callable (overlay geometry)
+        self.result: dict | None = None
+        self.events: list[dict] = []
+        self.done = True
+        self.cond = threading.Condition()
+        self.created = time.time()
+
+    def push(self, e: dict) -> None:
+        with self.cond:
+            self.events.append(e)
+            if e["type"] in ("end", "error"):
+                self.done = True
+            self.cond.notify_all()
+
+    def public(self) -> dict:
+        return {"id": self.id, "name": self.name, "kind": self.kind, "sample": self.sample,
+                "videos": [{k: v for k, v in x.items() if k not in ("path",)} for x in self.videos],
+                "session": self.session.to_json() if self.session else None, "result": self.result,
+                "busy": not self.done}
+
+
+def mount_studio(app: FastAPI, llm, budget, data_dir: Path, budgeted_llm_cls) -> None:
+    store = data_dir / "studio"
+    store.mkdir(parents=True, exist_ok=True)
+    sessions: dict[str, StudioSession] = {}
+    agent_lock = threading.Lock()
+
+    def get(sid: str) -> StudioSession:
+        s = sessions.get(sid)
+        if s is None:
+            raise HTTPException(404, "Unknown session (sessions expire when the server restarts).")
+        return s
+
+    def evict() -> None:
+        while len(sessions) >= MAX_SESSIONS:
+            old = min(sessions.values(), key=lambda x: x.created)
+            sessions.pop(old.id, None)
+            shutil.rmtree(old.dir, ignore_errors=True)
+
+    def add_video(s: StudioSession, src: Path, hint: list | None = None) -> dict:
+        from studio.session import SessionError
+        from studio.video import first_frame_jpeg
+
+        i = len(s.videos)
+        dst = s.dir / f"video{i}{src.suffix.lower()}"
+        if src.resolve() != dst.resolve():
+            shutil.copyfile(src, dst)
+        try:
+            jpg, info = first_frame_jpeg(dst)
+        except SessionError as e:
+            raise HTTPException(422, str(e)) from None
+        (s.dir / f"frame{i}.jpg").write_bytes(jpg)
+        v = {"index": i, "file": f"files/{s.id}/{dst.name}", "frame": f"files/{s.id}/frame{i}.jpg", "path": str(dst),
+             "width": round(info["width"] / info["scale"]), "height": round(info["height"] / info["scale"]), "fps": info["fps"],
+             "corners_hint": hint, "tracked": False, "pushes": [], "overlay": None}
+        s.videos.append(v)
+        return v
+
+    async def save_upload(file: UploadFile, folder: Path) -> Path:
+        name = Path(file.filename or "upload").name
+        path = folder / ("upload" + Path(name).suffix.lower())
+        size = 0
+        with path.open("wb") as f:
+            while chunk := await file.read(1 << 20):
+                size += len(chunk)
+                if size > MAX_UPLOAD:
+                    raise HTTPException(413, f"File too large (max {MAX_UPLOAD >> 20} MB). Trim the video to the pushes.")
+                f.write(chunk)
+        return path
+
+    def sample(sid: str) -> dict:
+        m = next((x for x in SAMPLES if x["id"] == sid), None)
+        if m is None:
+            raise HTTPException(404, "Unknown sample.")
+        return m
+
+    def hint_for(part: str) -> list | None:
+        t = SAMPLE_DIR / f"{part}.truth.json"
+        return json.loads(t.read_text())["sheet_corners_px"] if t.exists() else None
+
+    @app.get("/studio", response_class=HTMLResponse)
+    def studio_page():
+        for page in (ROOT / "dashboard" / "dist" / "studio.live.html", ROOT / "dashboard" / "studio.html"):
+            if page.exists():
+                return HTMLResponse(page.read_text())
+        raise HTTPException(404, "Studio page not built. Run `make dashboard`.")
+
+    @app.get("/api/studio/samples")
+    def samples():
+        return [{k: v for k, v in x.items() if k in ("id", "kind", "title", "blurb", "parts")} for x in SAMPLES]
+
+    @app.post("/api/studio/sessions")
+    async def create(file: UploadFile | None = File(None), sample_id: str | None = Form(None, alias="sample"),
+                     name: str | None = Form(None)):
+        from studio.session import SessionError, load
+
+        if file is None and not sample_id:
+            raise HTTPException(422, "Upload a video or a log, or pick a sample.")
+        evict()
+        sid = uuid.uuid4().hex[:10]
+        folder = store / sid
+        folder.mkdir(parents=True, exist_ok=True)
+        try:
+            if sample_id:
+                m = sample(sample_id)
+                s = StudioSession(sid, m["title"], m["kind"], m["id"], folder)
+                if m["kind"] == "video":
+                    add_video(s, SAMPLE_DIR / f"{m['parts'][0]}.mp4", hint_for(m["parts"][0]))
+                else:
+                    s.session = load((SAMPLE_DIR / m["file"]).read_text(), m["file"], m["title"])
+            else:
+                path = await save_upload(file, folder)
+                fname = (file.filename or "upload").lower()
+                title = (name or Path(file.filename or "upload").stem)[:60]
+                if fname.endswith(VIDEO_EXT):
+                    s = StudioSession(sid, title, "video", None, folder)
+                    add_video(s, path)
+                elif fname.endswith((".csv", ".json", ".txt")):
+                    s = StudioSession(sid, title, "log", None, folder)
+                    s.session = load(path.read_text(errors="replace"), fname, title)
+                else:
+                    raise HTTPException(415, "Upload a phone video (mp4/mov/webm) or a robot log (.csv/.json).")
+        except SessionError as e:
+            shutil.rmtree(folder, ignore_errors=True)
+            raise HTTPException(422, str(e)) from None
+        except HTTPException:
+            shutil.rmtree(folder, ignore_errors=True)
+            raise
+        sessions[sid] = s
+        return s.public()
+
+    @app.post("/api/studio/sessions/{sid}/videos")
+    async def more_video(sid: str, file: UploadFile | None = File(None), part: str | None = Form(None)):
+        s = get(sid)
+        if s.kind != "video":
+            raise HTTPException(422, "This session is a robot log; start a new session for a video.")
+        if not s.videos or not s.videos[0]["tracked"]:
+            raise HTTPException(422, "Track the first video before adding another.")
+        if part:
+            m = sample(s.sample or "")
+            if part not in m["parts"]:
+                raise HTTPException(404, "Unknown sample part.")
+            v = add_video(s, SAMPLE_DIR / f"{part}.mp4", hint_for(part))
+        elif file is not None:
+            path = await save_upload(file, s.dir)
+            v = add_video(s, path, s.videos[0].get("corners"))
+        else:
+            raise HTTPException(422, "Upload a video.")
+        return s.public() | {"added": v["index"]}
+
+    @app.post("/api/studio/sessions/{sid}/videos/{i}/track")
+    def track(sid: str, i: int, req: TrackRequest):
+        from studio.session import Session, SessionError
+        from studio.video import track_video
+
+        s = get(sid)
+        if not 0 <= i < len(s.videos):
+            raise HTTPException(404, "Unknown video.")
+        v = s.videos[i]
+        prior = s.session.meta if (i > 0 and s.session is not None) else None
+        height = req.object_height_m or next((x.get("object_height_m") for x in SAMPLES if x["id"] == s.sample), None)
+        try:
+            sess, dbg = track_video(Path(v["path"]), req.corners, req.sheet, s.name, req.object_px, height, prior=prior)
+        except SessionError as e:
+            raise HTTPException(422, str(e)) from None
+        s.cams[i] = dbg.pop("to_px")
+        for p in sess.pushes:
+            p.origin = f"video{i}"
+        v.update(tracked=True, corners=req.corners, sheet=req.sheet, pushes=dbg["pushes"], camera=dbg["camera"],
+                 object_px=dbg["object_px"], axis_px=dbg["axis_px"], notes=sess.notes)
+        if i == 0 or s.session is None:
+            s.session = sess
+        else:  # replace this video's pushes, keep the others
+            keep = [p for p in s.session.pushes if p.origin != f"video{i}"]
+            s.session = Session(s.session.name, "video", keep + sess.pushes, s.session.sim,
+                                list(dict.fromkeys(s.session.notes + sess.notes)), s.session.meta)
+        return s.public()
+
+    def overlay(s: StudioSession, cal) -> dict:
+        """Friction regions of the calibrated model drawn on each video's first frame."""
+        out = {}
+        m = cal.model
+        for i, to_px in s.cams.items():
+            regions = []
+            y_end = 0.95
+            if m.get("patch_y0") is not None:
+                regions.append({"from": -0.15, "to": m["patch_y0"], "mu": m["mu_eff"]})
+                regions.append({"from": m["patch_y0"], "to": y_end, "mu": m["patch_mu"]})
+            else:
+                regions.append({"from": -0.15, "to": y_end, "mu": m["mu_eff"]})
+            for r in regions:
+                r["poly"] = [to_px(r["from"], -0.11), to_px(r["to"], -0.11), to_px(r["to"], 0.11), to_px(r["from"], 0.11)]
+            reach = s.session.coverage()[1] if s.session else 0.0
+            out[str(i)] = {"regions": regions, "reach_px": [to_px(reach, -0.13), to_px(reach, 0.13)], "reach_m": round(reach, 3)}
+        return out
+
+    def worker(s: StudioSession, use_agent: bool) -> None:
+        from studio import export
+        from studio.pipeline import analyze
+
+        got_lock = False
+        try:
+            ag = None
+            if use_agent and llm is not None:
+                got_lock = agent_lock.acquire(timeout=120)
+                if got_lock:
+                    ag = budgeted_llm_cls(llm, budget, AGENT_TURNS)
+                else:
+                    s.push({"type": "stage", "stage": "note", "message": "agent busy with another session: offline search"})
+            res = analyze(s.session, ag, on_event=s.push)
+            doc = res.to_json()
+            if s.cams:
+                doc["overlay"] = overlay(s, res.calibration)
+                s.push({"type": "overlay", "overlay": doc["overlay"]})
+            doc["report_json"] = export.to_json(s.session, res.calibration, res.next_experiment, res.agent)
+            s.result = doc
+            (s.dir / "result.json").write_text(json.dumps(doc, indent=1, default=str))
+            s.push({"type": "result", "result": doc})
+        except Exception as e:  # noqa: BLE001
+            s.push({"type": "error", "message": f"{type(e).__name__}: {e}"})
+        finally:
+            if got_lock:
+                agent_lock.release()
+            if not s.done:
+                s.push({"type": "end"})
+
+    @app.post("/api/studio/sessions/{sid}/analyze")
+    def analyze_route(sid: str, req: AnalyzeRequest):
+        s = get(sid)
+        if s.session is None:
+            raise HTTPException(422, "Track the video first (click the sheet corners).")
+        if not s.done:
+            raise HTTPException(429, "This session is already being analysed.")
+        with s.cond:
+            s.events, s.done = [], False
+        threading.Thread(target=worker, args=(s, req.agent), daemon=True).start()
+        return {"ok": True, "agent": bool(req.agent and llm is not None)}
+
+    @app.get("/api/studio/sessions/{sid}/events")
+    def events(sid: str):
+        s = get(sid)
+
+        def stream():
+            i = 0
+            while True:
+                with s.cond:
+                    while i >= len(s.events) and not s.done:
+                        if not s.cond.wait(timeout=15):
+                            break
+                    batch, done = s.events[i:], s.done
+                if not batch and not done:
+                    yield ": keep-alive\n\n"
+                    continue
+                for e in batch:
+                    yield f"data: {json.dumps(e, default=str)}\n\n"
+                i += len(batch)
+                if done and i >= len(s.events):
+                    return
+
+        return StreamingResponse(stream(), media_type="text/event-stream", headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+
+    @app.get("/api/studio/sessions/{sid}")
+    def state(sid: str):
+        return get(sid).public()
+
+    @app.get("/api/studio/sessions/{sid}/export/{fmt}")
+    def export_route(sid: str, fmt: str):
+        from studio.session import to_csv
+
+        s = get(sid)
+        if fmt == "csv":
+            if s.session is None:
+                raise HTTPException(422, "No data yet.")
+            return PlainTextResponse(to_csv(s.session), media_type="text/csv",
+                                     headers={"Content-Disposition": f'attachment; filename="{sid}-pushes.csv"'})
+        if s.result is None:
+            raise HTTPException(422, "Run the analysis first.")
+        files = {"json": ("calibration.json", json.dumps(s.result["report_json"], indent=2), "application/json"),
+                 "newton": ("newton_calibration.py", s.result["exports"]["newton"], "text/x-python"),
+                 "isaaclab": ("isaaclab_events.py", s.result["exports"]["isaaclab"], "text/x-python"),
+                 "markdown": ("report.md", s.result["exports"]["markdown"], "text/markdown")}
+        if fmt not in files:
+            raise HTTPException(404, "Formats: json, newton, isaaclab, markdown, csv.")
+        name, text, mime = files[fmt]
+        return PlainTextResponse(text, media_type=mime, headers={"Content-Disposition": f'attachment; filename="{name}"'})
+
+    @app.get("/api/studio/sessions/{sid}/truth")
+    def truth(sid: str):
+        s = get(sid)
+        if not s.sample:
+            raise HTTPException(404, "Only samples have a known ground truth.")
+        if s.result is None:
+            raise HTTPException(409, "Run the analysis first: the hidden physics is revealed afterwards.")
+        m = sample(s.sample)
+        part = m["parts"][0] if m["kind"] == "video" else m["file"].rsplit(".", 1)[0]
+        t = json.loads((SAMPLE_DIR / f"{part}.truth.json").read_text())
+        return truth_view(t)
+
+    @app.get("/api/studio/files/{sid}/{name}")
+    def files(sid: str, name: str):
+        s = get(sid)
+        path = (s.dir / Path(name).name).resolve()
+        if path.parent != s.dir.resolve() or not path.exists() or path.name.startswith("upload"):
+            raise HTTPException(404, "No such file.")
+        return FileResponse(path)
+
+
+def truth_view(t: dict) -> dict:
+    """Ground truth in the agent's model fields (mu_eff = mean of object and table mu, as in Newton XPBD)."""
+    from sim.params import effective_friction
+
+    h = t["hidden"]
+    out = {"source": t.get("env") or t.get("renderer", "NVIDIA Newton")}
+    if "mu_eff" in h:
+        out["model"] = {"mu_eff": h["mu_eff"], "patch_y0": h.get("patch_y0"), "patch_mu": h.get("patch_mu")}
+    else:
+        mu = effective_friction(h.get("object_mu", 0.8), h.get("table_mu", 0.8))
+        out["model"] = {"mu_eff": mu, **{k: h[k] for k in ("actuator_gain", "patch_y0", "patch_mu", "camera_dx", "camera_pitch_deg", "lens_k")
+                                         if k in h}}
+    return out

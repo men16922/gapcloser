@@ -135,8 +135,18 @@ class Workbench:
         perc = [observe(d.target, p) - d.observed for d in self.data if d.target is not None and d.target == d.target]
         rms = lambda xs: round(math.sqrt(sum(x * x for x in xs) / len(xs)), 4) if xs else 0.0  # noqa: E731
         worst = sorted(((round(d.command, 2), round(e, 3)) for d, e in zip(self.data, stop)), key=lambda x: -abs(x[1]))[:3]
-        return {"stop_residual_rms_m": rms(stop), "worst_stop_residuals_cmd_m": worst,
-                "launch_speed_residual_rms_mps": rms(launch), "perception_residual_rms_m": rms(perc)}
+        out = {"stop_residual_rms_m": rms(stop), "worst_stop_residuals_cmd_m": worst,
+               "launch_speed_residual_rms_mps": rms(launch), "perception_residual_rms_m": rms(perc)}
+        warn = []  # what the model still fails to explain (generic checks, same for every world)
+        if out["stop_residual_rms_m"] > 0.01:
+            warn.append("stops not explained (> 1 cm rms): the structure is missing an effect")
+        if out["launch_speed_residual_rms_mps"] > 0.08:
+            warn.append("launch speeds disagree with the model: the stops may fit only by trading friction against "
+                        "actuator_gain (stops depend on gain^2/mu); free actuator_gain")
+        if out["perception_residual_rms_m"] > 0.003:
+            warn.append("perceived target distances not explained: try camera_pitch_deg (error grows with range) or lens_k")
+        out["unexplained"] = warn
+        return out
 
     def loss(self, p: ParamSet) -> float:
         e = sum((slide_distance(d.command, at_start(p, d.start)) - d.stop) ** 2 for d in self.data)
@@ -147,13 +157,17 @@ class Workbench:
 
     # --- tools -------------------------------------------------------------------------------
     def decel_profile(self) -> list[dict]:
+        """Deceleration while sliding, binned by table position. Second derivative of a 7-frame quadratic fit
+        (Savitzky-Golay), only where the whole window is still moving: robust to camera jitter on real tracks."""
+        sg = (5.0, 0.0, -3.0, -4.0, -3.0, 0.0, 5.0)  # 7-point quadratic, 2nd derivative, / 42 dt^2
         bins: dict[float, list[float]] = {}
         for d in self.data:
             tr = d.track
-            for k in range(1, len(tr) - 1):
-                v1, v2 = (tr[k] - tr[k - 1]) / FRAME_DT, (tr[k + 1] - tr[k]) / FRAME_DT
-                if v2 > 0.05:
-                    bins.setdefault(round(int((tr[k] + d.start) / 0.05) * 0.05, 2), []).append((v1 - v2) / FRAME_DT / GRAVITY)
+            for k in range(3, len(tr) - 3):
+                if (tr[k + 3] - tr[k + 2]) / FRAME_DT < 0.12:  # window reaches the stop (or noise at rest)
+                    continue
+                acc = sum(c * tr[k - 3 + j] for j, c in enumerate(sg)) / (42.0 * FRAME_DT * FRAME_DT)
+                bins.setdefault(round(math.floor((tr[k] + d.start) / 0.05) * 0.05, 2), []).append(-acc / GRAVITY)
         out = [{"y_m": f"{b:.2f}-{b + 0.05:.2f}", "decel_g": round(sum(v) / len(v), 3), "n": len(v)} for b, v in sorted(bins.items())]
         return out or [{"note": "no usable tracks"}]
 

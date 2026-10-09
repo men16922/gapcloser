@@ -14,10 +14,15 @@ from dataclasses import dataclass, field
 from agent.tool_agent import FIELDS, ToolAgentDiagnoser, from_params
 from sim.push_task import AnalyticPushEnv, Rollout, Trial
 from studio import design, export
-from studio.fit import Calibration, calibrate, fit_base
+from studio.fit import Calibration, calibrate, fit_base, search
 from studio.session import Session
 
 AGENT_STEPS = 8
+
+
+def misfit(c: dict) -> float:
+    """Residuals in units of their noise thresholds (stop 1 cm, launch 0.08 m/s, perception 3 mm); <= 1 is explained."""
+    return max(c["stop_rms_m"] / 0.01, c.get("launch_rms_mps", 0.0) / 0.08, c.get("perception_rms_m", 0.0) / 0.003)
 
 
 class OfflineRobot:
@@ -129,6 +134,21 @@ def analyze(session: Session, llm=None, on_event=None, n_boot: int | None = None
     if agent and agent["structure"]:
         cal = calibrate(session, agent["structure"], {**from_params(fit_base(session)), **agent["committed"]},
                         chosen_by=f"Nemotron agent ({agent['model_name'] or 'llm'})", **kw)
+        # cross-check: never ship a model that leaves evidence unexplained when a library structure explains it
+        cands = search(session)
+        alt = min(cands, key=lambda c: (round(misfit(c), 1), c["n_params"]))
+        mine = misfit({"stop_rms_m": cal.residuals["stop_residual_rms_m"], "launch_rms_mps": cal.residuals["launch_speed_residual_rms_mps"],
+                       "perception_rms_m": cal.residuals["perception_residual_rms_m"]})
+        check = {"agent_misfit": round(mine, 2), "search_misfit": round(misfit(alt), 2), "search_structure": alt["free"],
+                 "unexplained": cal.residuals.get("unexplained", []), "adopted": "agent"}
+        if mine > 1.0 and misfit(alt) < 0.7 * mine:
+            cal = calibrate(session, alt["free"], alt["model"], chosen_by="cross-check (agent model overruled)", **kw)
+            cal.candidates = cands
+            check["adopted"] = "search"
+            check["reason"] = ("the agent's model leaves " + "; ".join(check["unexplained"] or ["residuals"]) +
+                               f" — the library structure {'+'.join(alt['free'])} explains the data")
+        agent["cross_check"] = check
+        emit({"type": "cross_check", "cross_check": check})
     else:
         cal = calibrate(session, **kw)
         if agent and agent.get("error"):

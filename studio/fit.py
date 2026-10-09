@@ -25,6 +25,7 @@ LABELS = {"mu_eff": "Cube-table friction", "actuator_gain": "Actuator gain", "pa
           "patch_mu": "Friction in that region", "camera_dx": "Camera offset", "camera_pitch_deg": "Camera pitch error",
           "lens_k": "Lens distortion"}
 N_BOOT = 30
+IDENT_MARGIN = 0.03  # a friction region needs this much measured slide inside it to be identifiable
 EVAL_TARGETS = tuple(TARGET_RANGE[0] + (TARGET_RANGE[1] - TARGET_RANGE[0]) * (i + 0.5) / 40 for i in range(40))
 
 
@@ -264,6 +265,13 @@ def calibrate(session: Session, structure: list[str] | None = None, start: dict 
     else:
         cands = []
         model = _fit(wb, start or from_params(base), structure)["fitted_model"]
+    reach = session.coverage()[1]
+    if model.get("patch_y0") is not None and model["patch_y0"] > reach - IDENT_MARGIN:
+        # a friction region that starts where no push reached is fitted to noise: drop it, the what-if worlds
+        # and the next-experiment cards cover that stretch of table instead
+        structure = [f for f in structure if f not in ("patch_y0", "patch_mu")]
+        model = _fit(wb, {**model, "patch_y0": None, "patch_mu": None}, structure)["fitted_model"]
+        chosen_by = (chosen_by or "Nemotron agent") + f"; friction region past {reach:.2f} m dropped (no push measured it)"
     res = wb.residuals(to_params(model, base))
     ens = bootstrap(session, model, structure, n_boot) if n_boot else []
     iv = intervals(ens, structure)

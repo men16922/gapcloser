@@ -9,6 +9,7 @@
                                (agent_step = one tool call of the Nemotron agent, streamed as it happens)
   GET  /clips/... , /live/...  rendered clips
   GET  /replay/...             3D viewer replays (per-frame Newton poses)
+  /studio, /api/studio/*       GapCloser Studio: calibrate from your own video or robot log (server/studio_api.py)
 
 "Stump the agent": with an LLM configured, every live run takes the open-world path (inverse policy,
 Nemotron tool agent that inspects evidence, fits model structures, probes the real robot, commits a
@@ -402,6 +403,10 @@ def create_app(llm=None, env_name: str | None = None, render: bool | None = None
         if not page.exists():
             raise HTTPException(404, "Dashboard not built. Run `make dashboard`.")
         return HTMLResponse(page.read_text())
+
+    from server.studio_api import mount_studio
+
+    mount_studio(app, llm, budget, data, BudgetedLLM)
 
     if (demo / "clips").exists():
         app.mount("/clips", StaticFiles(directory=demo / "clips"), name="clips")
