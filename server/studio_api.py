@@ -10,6 +10,8 @@
   POST /api/studio/sessions/{sid}/videos/{i}/track   {"corners": [x,y]*4, "sheet": "a4", "object_px": [x,y]?, "object_height_m"?}
   POST /api/studio/sessions/{sid}/analyze        {"agent": true|false} -> streams on /events
   POST /api/studio/sessions/{sid}/verify         replay every push in NVIDIA Newton with the exported and the current physics
+  POST /api/studio/sessions/{sid}/train          retrain a policy (current sim / wide randomization / Tether ranges) in parallel Newton worlds
+  GET  /api/studio/sessions/{sid}/train          its progress and learning curves
   POST /api/studio/chat                          {"sid"?, "messages": [...], "lang": "en"|"ko", "step"?} -> {"answer"}
   GET  /api/studio/sessions/{sid}/events         Server-Sent Events: stage, agent_step*, calibration, next, done, overlay, result, end | error
   GET  /api/studio/sessions/{sid}                session, tracked videos, last result
@@ -107,6 +109,7 @@ class StudioSession:
         self.videos: list[dict] = []  # {file, frame, width, height, fps, corners_hint, tracked, pushes, overlay}
         self.cams: dict[int, object] = {}  # video index -> to_px callable (overlay geometry)
         self.cal = None  # studio.fit.Calibration of the last analysis (for the Newton replay)
+        self.training: dict | None = None  # retrain-and-test job: status, progress, result
         self.result: dict | None = None
         self.events: list[dict] = []
         self.done = True
@@ -602,23 +605,19 @@ def mount_studio(app: FastAPI, llm, budget, data_dir: Path, budgeted_llm_cls) ->
         name, text, mime = files[fmt]
         return PlainTextResponse(text, media_type=mime, headers={"Content-Disposition": f'attachment; filename="{name}"'})
 
-    @app.get("/api/studio/sessions/{sid}/truth")
-    def truth(sid: str):
-        s = get(sid)
-        if not s.sample and s.world is None:
-            raise HTTPException(404, "Only samples and simulated tables have a known ground truth.")
-        if s.result is None:
-            raise HTTPException(409, "Run the analysis first: the hidden physics is revealed afterwards.")
+    def hidden_truth(s: StudioSession) -> dict | None:
+        """The hidden physics of a sample or simulated session, in the Studio frame (None for uploads)."""
         if s.world is not None:
             from studio.simulate import truth as sim_truth
 
             out = sim_truth(s.world)
-            s.truth_shown = out["model"]
             if s.kind == "video" and out["model"].get("patch_y0") is not None:
                 out["model"]["patch_y0"] = round(out["model"]["patch_y0"] - s.origin_offset, 4)
                 out["note"] = (f"region start measured from the median release point "
                                f"({s.origin_offset * 100:+.1f} cm from the simulator origin)")
             return out
+        if not s.sample:
+            return None
         m = sample(s.sample)
         part = m["parts"][0] if m["kind"] == "video" else m["file"].rsplit(".", 1)[0]
         t = json.loads((SAMPLE_DIR / f"{part}.truth.json").read_text())
@@ -630,8 +629,52 @@ def mount_studio(app: FastAPI, llm, budget, data_dir: Path, budgeted_llm_cls) ->
             o = starts[len(starts) // 2]
             out["model"]["patch_y0"] = round(out["model"]["patch_y0"] - o, 4)
             out["note"] = f"region start measured from the median release point ({o * 100:+.1f} cm from the simulator origin)"
+        return out
+
+    @app.get("/api/studio/sessions/{sid}/truth")
+    def truth(sid: str):
+        s = get(sid)
+        if not s.sample and s.world is None:
+            raise HTTPException(404, "Only samples and simulated tables have a known ground truth.")
+        if s.result is None:
+            raise HTTPException(409, "Run the analysis first: the hidden physics is revealed afterwards.")
+        out = hidden_truth(s)
         s.truth_shown = out["model"]
         return out
+
+    @app.post("/api/studio/sessions/{sid}/train")
+    def train_start(sid: str):
+        """Retrain a policy on the current sim, wide randomization and Tether's measured ranges (parallel Newton
+        worlds); poll GET for progress. The hidden world, when known, only scores the policies."""
+        from studio.train import hidden_params, train
+
+        s = get(sid)
+        if s.cal is None:
+            raise HTTPException(422, "Run the analysis first.")
+        if s.training and s.training["status"] == "running":
+            return s.training
+        h = hidden_truth(s)
+        hidden = hidden_params(h["model"] if h else None, s.session)
+        s.training = {"status": "running", "progress": [], "result": None}
+        job = s.training
+
+        def run():
+            with sim_lock:
+                try:
+                    job["result"] = train(s.session, s.cal, hidden, on_iter=job["progress"].append)
+                    job["status"] = "done"
+                except Exception as e:  # noqa: BLE001
+                    job["status"], job["error"] = "error", f"{type(e).__name__}: {e}"
+            if job["status"] == "done" and s.result is not None:
+                s.result["training"] = job["result"]
+
+        threading.Thread(target=run, daemon=True).start()
+        return job
+
+    @app.get("/api/studio/sessions/{sid}/train")
+    def train_state(sid: str):
+        s = get(sid)
+        return s.training or {"status": "idle", "progress": [], "result": None}
 
     @app.get("/api/studio/files/{sid}/{name}")
     def files(sid: str, name: str):

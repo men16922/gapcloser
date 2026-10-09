@@ -265,6 +265,21 @@ table.pushes th:first-child, table.pushes td:first-child { text-align: left; }
 .verify .legend i { display: inline-block; width: 10px; margin-right: 6px; vertical-align: 0; }
 @media (max-width: 760px) { .verify { grid-template-columns: 1fr; } }
 main.stage { padding-bottom: 96px; }  /* room for the Ask button */
+.tcards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.tcard { border: 1px solid var(--line); background: var(--panel); padding: 14px 16px; display: grid; gap: 4px; position: relative; }
+.tcard.hl { border-color: var(--green); }
+.tcard .sw { position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
+.tcard b { font: 600 40px/1 var(--f-display); }
+.tcard b.g { color: var(--green); }
+.tcard span { font-weight: 600; }
+.tcard small { color: var(--muted); font-size: 12.5px; }
+.tgrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; margin-top: 14px; }
+.tgrid svg { width: 100%; height: auto; display: block; }
+.tgrid svg text { fill: var(--muted); font: 11px var(--f-body); }
+.seg2 { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--line); }
+.seg2 button { all: unset; cursor: pointer; padding: 5px 10px; font: 600 12.5px/1.2 var(--f-display); color: var(--muted); }
+.seg2 button[aria-pressed="true"] { background: var(--raised); color: var(--fg); box-shadow: inset 0 -2px 0 var(--green); }
+@media (max-width: 860px) { .tcards, .tgrid { grid-template-columns: 1fr; } }
 .chart { background: var(--panel); border: 1px solid var(--line); padding: 14px 14px 10px; min-width: 0; }
 .chart h4 { margin: 0 0 2px; font: 600 15px/1.25 var(--f-display); letter-spacing: 0.02em; }
 .chart p { font-size: 12.5px; color: var(--muted); }
@@ -464,6 +479,12 @@ pre.code .s { color: #e3b867; }
     </section>
 
     <!-- 5 export -->
+    <section class="panel" id="p-train" hidden>
+      <h2>Retrain and test</h2>
+      <p class="lede" id="t-lede"></p>
+      <div id="t-body"></div>
+      <div class="row" style="margin-top:22px"><button class="btn primary" id="to-x2">Export the calibrated config</button></div>
+    </section>
     <section class="panel" id="p-export" hidden>
       <h2>Take it to your simulator</h2>
       <p class="lede">Intervals become domain-randomization ranges: train on what the real table can plausibly be, nothing wider.</p>
@@ -544,12 +565,15 @@ function toView(x) {
     if (s.text) s.text = scaleText(s.text); };
   const vfy = v => { (v.pushes || []).forEach(p => { p.measured = l(p.measured); p.calibrated = l(p.calibrated); p.current = l(p.current); });
     v.rms_calibrated_m = l(v.rms_calibrated_m); v.rms_current_m = l(v.rms_current_m); v.worst_calibrated_m = l(v.worst_calibrated_m); };
+  const trn = t => { t.grid_m = l(t.grid_m); t.tolerance_m = l(t.tolerance_m); t.target_range_m = l(t.target_range_m);
+    Object.values(t.conditions).forEach(c => { c.policy = sp(c.policy); c.lanes.forEach(it => it.forEach(q => { q.target = l(q.target); q.slide = l(q.slide); q.track = l(q.track); })); }); };
   const sess = s => { if (!s) return; (s.pushes || []).forEach(push); s.notes = (s.notes || []).map(scaleText); };
   const result = r => { if (!r) return; cal(r.calibration); nxt(r.next_experiment); sess(r.session);
     if (r.agent) { r.agent.explanation = scaleText(r.agent.explanation); (r.agent.trace || []).forEach(step); if (r.agent.requested_commands) r.agent.requested_commands = sp(r.agent.requested_commands); if (r.agent.cross_check && r.agent.cross_check.reason) r.agent.cross_check.reason = scaleText(r.agent.cross_check.reason); }
     if (r.overlay) Object.values(r.overlay).forEach(v => { v.reach_m = l(v.reach_m); }); };
-  if (o.calibration && o.next_experiment !== undefined) { result(o); if (o.verify) vfy(o.verify); return o; }  // a result
+  if (o.calibration && o.next_experiment !== undefined) { result(o); if (o.verify) vfy(o.verify); if (o.training) trn(o.training); return o; }  // a result
   if (o.engine && o.pushes) { vfy(o); return o; }                                           // a Newton replay
+  if (o.conditions && o.grid_m) { trn(o); return o; }                                        // a retraining run
   if (o.type) {                                                                             // an analysis event
     if (o.coverage_m) o.coverage_m = l(o.coverage_m);
     if (o.notes) o.notes = o.notes.map(scaleText);
@@ -579,6 +603,7 @@ let LANG = (() => { const q = new URLSearchParams(location.search).get("lang"); 
 const T = (en, ko) => (LANG === "ko" ? ko : en);
 const KO = {
   // chrome and steps
+  "Retrain": "다시 학습", "Policy on the new physics": "고친 물리로 정책 학습", "Retrain and test": "다시 학습하고 시험하기", "Retrain on the calibrated physics": "고친 물리값으로 다시 학습하기",
   "Agent console": "AI 콘솔", "Overview": "소개", "Studio": "Studio", "Data": "데이터", "Measure": "측정", "Diagnose": "진단", "Calibrated sim": "고친 시뮬레이터",
   "Export": "내보내기", "Video or robot log": "영상 또는 로봇 로그", "Scale and pushes": "크기 재기와 기록", "Agent at work": "AI가 원인 찾기",
   "Physics, intervals, next push": "달라진 값과 다음 실험", "Newton, Isaac Lab, report": "Newton·Isaac Lab 설정, 보고서",
@@ -778,6 +803,12 @@ const api = {
   },
   async truth(sid) { const r = await fetch(`/api/studio/sessions/${sid}/truth`); return r.ok ? r.json() : null; },
   async verify(sid) { return call(fetch(`/api/studio/sessions/${sid}/verify`, { method: "POST" })); },
+  async train(sid, onProgress) {
+    let st = await call(fetch(`/api/studio/sessions/${sid}/train`, { method: "POST" }));
+    while (st.status === "running") { await sleep(700); st = await call(fetch(`/api/studio/sessions/${sid}/train`)); onProgress(st.progress[st.progress.length - 1] || {}); }
+    if (st.status !== "done") throw new Error(st.error || "Training failed.");
+    return st.result;
+  },
   media(path) { return "/api/studio/" + path.replace(/^files\//, "files/"); },
 };
 async function call(p) {
@@ -819,6 +850,12 @@ const rec = {
     return stg.result;
   },
   async truth(sid) { return this.recFor(sid.slice(4)).truth; },
+  async train(sid, onProgress) {  // recorded run, replayed iteration by iteration
+    const r = this.recFor(sid.slice(4)), t = r.training;
+    if (!t) throw new Error(T("This recording has no training run.", "이 기록에는 학습 실행이 없습니다."));
+    for (const id of Object.keys(t.conditions)) for (let i = 0; i <= t.iterations; i += 2) { onProgress({ condition: id, iteration: i }); await sleep(reduce ? 0 : 120); }
+    return t;
+  },
   async verify(sid) {  // recorded for the final stage only (the calibration after all takes)
     const r = this.recFor(sid.slice(4));
     const k = r.sample.kind === "video" ? state.s.videos.filter(v => v.tracked).length - 1 : 0;
@@ -837,13 +874,14 @@ const STEPS = [
   { id: "measure", name: "Measure", hint: "Scale and pushes" },
   { id: "diag", name: "Diagnose", hint: "Agent at work" },
   { id: "results", name: "Calibrated sim", hint: "Physics, intervals, next push" },
+  { id: "train", name: "Retrain", hint: "Policy on the new physics" },
   { id: "export", name: "Export", hint: "Newton, Isaac Lab, report" },
 ];
 const state = { step: "data", s: null, take: 0, result: null, truth: null, status: {}, done: new Set(), summaries: {}, exportTab: "newton" };
 
 function renderSteps() {
   const order = STEPS.map(s => s.id);
-  const reach = state.result ? 5 : state.s && state.s.session ? 3 : state.s ? 2 : 1;
+  const reach = state.result ? 6 : state.s && state.s.session ? 3 : state.s ? 2 : 1;
   $("#steps").innerHTML = STEPS.map((s, i) => {
     const cls = [state.step === s.id ? "cur" : "", state.done.has(s.id) ? "done" : ""].join(" ");
     const dis = i >= reach ? "disabled" : "";
@@ -864,6 +902,7 @@ function go(step) {
   if (step === "measure") renderMeasure();
   if (step === "diag") renderDiagChoice();
   if (step === "results") renderResults();
+  if (step === "train") renderTrain();
   if (step === "export") renderExport();
   if (!$("#chat").hidden) renderChat();
   scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
@@ -1300,7 +1339,7 @@ async function runDiagnosis() {
   try {
     state.result = toView(await be.analyze(state.s.id, agent, e => { e = toView(e); state.nb.events.push(e); h.on(e); }));
     h.settle();
-    state.truth = null;
+    state.truth = null; state.laneIt = null; state.trainProgress = null;
     state.done.add("diag");
     state.summaries.diag = state.result.agent ? [`${state.result.agent.steps} agent steps`, `AI가 ${state.result.agent.steps}단계 진행`] : ["offline fit", "AI 없이 계산"];
     nbDone();
@@ -1385,7 +1424,7 @@ function renderResults() {
     `<div class="next">${n.suggestions.map(x => `<div class="card"><div class="t">${T(`Stop at ${fmt(x.predicted_stop_m)} m`, `${fmt(x.predicted_stop_m)} m에서 멈추게 하기`)}</div><div class="small num muted">${x.command != null ? (DOM.id === "driving" ? `${T("speed set-point", "속도 명령")} ${fmt(x.command, 1)} m/s (${Math.round(x.command * 3.6)} km/h)` : `${T("command", "명령값")} ${fmt(x.command)}`) : `${T("launch", "출발 속도")} ≈ ${fmt(x.launch_speed_mps, 1)} m/s${DOM.id === "driving" ? ` (${Math.round(x.launch_speed_mps * 3.6)} km/h)` : ""}`}</div><p>${esc(tx(x.why[0].toUpperCase() + x.why.slice(1)))}.</p></div>`).join("")}</div>`;
   if (n.agent_requests && n.agent_requests.length) nx += `<p class="asks">${T("The agent also asked for commands", "AI가 해 보자고 한 명령값")} ${n.agent_requests.map(a => `<span class="num">${fmt(a.command)}</span>${a.useful ? "" : T(" (off the target range)", " (목표 범위 밖)")}`).join(", ")}.</p>`;
   const more = moreAction();
-  $("#r-next").innerHTML = nx + (more ? `<div class="row" style="margin-top:14px">${more}</div>` : "") + `<div class="row" style="margin-top:22px"><button class="btn primary" id="to-x">Export the calibrated config</button></div>`;
+  $("#r-next").innerHTML = nx + (more ? `<div class="row" style="margin-top:14px">${more}</div>` : "") + `<div class="row" style="margin-top:22px"><button class="btn primary" id="to-x">Retrain on the calibrated physics</button></div>`;
   if ($("#more")) $("#more").onclick = addTake;
   if ($("#more-sim")) $("#more-sim").onclick = async () => {
     const n = state.result.next_experiment, b = $("#more-sim");
@@ -1408,7 +1447,7 @@ function renderResults() {
       state.result = null; state.done.delete("diag"); state.done.delete("results"); state.done.delete("export");
       toast(`Added ${state.s.added_pushes} pushes`); go("measure");
     } catch (e) { toast(e.message); } };
-  $("#to-x").onclick = () => go("export");
+  $("#to-x").onclick = () => go("train");
 }
 function moreAction() {
   const s = state.s;
@@ -1552,7 +1591,88 @@ function chartSuccess(c) {
     <div class="legend"><span><i style="background:#69717a;height:8px"></i>current sim</span><span><i style="background:#76b900;height:8px"></i>calibrated sim</span></div></div>`;
 }
 
-/* ---------------------------------------------------------------- 5 export */
+/* ---------------------------------------------------------------- 5 retrain and test */
+const TCOL = { current: "#69717a", wide: "#e6a23c", tether: "#76b900" };
+const TNAME = { current: ["Your current simulator", "지금 시뮬레이터"], wide: ["Wide domain randomization", "넓은 무작위화"], tether: ["Tether's measured ranges", "Tether가 잰 범위"] };
+function trainScore(c, known) { return known ? c.final_real : c.train[c.train.length - 1]; }
+function learnChart(r) {
+  const W = 560, H = 300, m = { l: 44, r: 16, t: 18, b: 38 }, n = r.iterations;
+  const A = axes(W, H, m, [0, n], [0, 1], T("training iteration", "학습 반복"), r.hidden_known ? T("success in the hidden real world", "숨겨진 실제 세계에서 성공률") : T("success in the training worlds", "학습 세계에서 성공률"),
+                 nice(0, n, 5), [0, 0.25, 0.5, 0.75, 1]);
+  const line = (ys, col, dash, w) => { const pts = ys.map((y, i) => y == null ? null : `${A.X(i)},${A.Y(y)}`).filter(Boolean);
+    return pts.length ? `<polyline points="${pts.join(" ")}" fill="none" stroke="${col}" stroke-width="${w}" ${dash ? 'stroke-dasharray="5 4" stroke-opacity="0.7"' : ""}/>` : ""; };
+  const ids = Object.keys(r.conditions);
+  const body = ids.map(id => { const c = r.conditions[id];
+    return (r.hidden_known ? line(c.train, TCOL[id], true, 1.4) + line(c.real, TCOL[id], false, 2.6) : line(c.train, TCOL[id], false, 2.6)) +
+      (r.hidden_known ? c.real : c.train).map((y, i) => y == null ? "" : `<circle cx="${A.X(i)}" cy="${A.Y(y)}" r="3" fill="${TCOL[id]}"/>`).join(""); }).join("");
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${T("Learning curves", "학습 곡선")}">${A.g}${body}</svg>
+    <div class="legend">${ids.map(id => `<span><i style="background:${TCOL[id]};height:3px"></i>${T(...TNAME[id])}</span>`).join("")}${r.hidden_known ? `<span>${T("solid: hidden real world · dashed: training worlds", "실선: 숨겨진 실제 세계 · 점선: 학습 세계")}</span>` : ""}</div>`;
+}
+function lanesSvg(r, cond, it) {
+  const lanes = r.conditions[cond].lanes[Math.min(it, r.conditions[cond].lanes.length - 1)] || [];
+  const W = 560, rowH = 26, H = 30 + lanes.length * rowH, x0 = 70, x1 = W - 16;
+  const ymax = Math.max(r.target_range_m[1] * 1.6, ...lanes.map(l => l.slide)) * 1.02, X = y => x0 + Math.max(0, y) / ymax * (x1 - x0);
+  const box = Math.max(4, X(0.03 * DOM.scale) - X(0)) * 1.4;
+  const rows = lanes.map((l, i) => { const y = 22 + i * rowH, ok = Math.abs(l.slide - l.target) <= r.tolerance_m;
+    return `<line x1="${x0}" x2="${x1}" y1="${y}" y2="${y}" stroke="#1d2125"/>
+      <rect x="${X(l.target - r.tolerance_m)}" y="${y - 9}" width="${X(l.target + r.tolerance_m) - X(l.target - r.tolerance_m)}" height="18" fill="rgba(118,185,0,0.18)"/>
+      <line x1="${X(l.target)}" x2="${X(l.target)}" y1="${y - 10}" y2="${y + 10}" stroke="#76b900" stroke-width="2"/>
+      <text x="${x0 - 8}" y="${y + 4}" text-anchor="end">μ ${fmt(l.mu)}</text>
+      <rect class="lanebox" data-i="${i}" x="${X(0) - box / 2}" y="${y - box / 2}" width="${box}" height="${box}" fill="${ok ? "#76b900" : "#e2574c"}" data-ok="${ok}"/>`; }).join("");
+  return `<svg viewBox="0 0 ${W} ${H}" id="lanes-svg" role="img" aria-label="${T("Parallel training worlds", "병렬 학습 세계")}">${rows}</svg>`;
+}
+function animateLanes(r, cond, it) {
+  const lanes = r.conditions[cond].lanes[Math.min(it, r.conditions[cond].lanes.length - 1)] || [];
+  const svg = $("#lanes-svg"); if (!svg) return;
+  const W = 560, x0 = 70, x1 = W - 16, ymax = Math.max(r.target_range_m[1] * 1.6, ...lanes.map(l => l.slide)) * 1.02, X = y => x0 + Math.max(0, y) / ymax * (x1 - x0);
+  const boxes = [...svg.querySelectorAll(".lanebox")], n = Math.max(...lanes.map(l => l.track.length));
+  let f = 0; cancelAnimationFrame(state.laneRaf);
+  const step = () => {
+    boxes.forEach((b, i) => { const tr = lanes[i].track, y = tr[Math.min(f, tr.length - 1)], w = +b.getAttribute("width"); b.setAttribute("x", X(y) - w / 2);
+      b.setAttribute("fill", f >= tr.length - 1 ? (b.dataset.ok === "true" ? "#76b900" : "#e2574c") : "#eceeef"); });
+    f += 1; if (f < n + 2) state.laneRaf = requestAnimationFrame(() => setTimeout(step, 1000 / 15));
+  };
+  if (reduce) { f = n; } step();
+}
+function renderTrain() {
+  state.done.add("train"); renderSteps();
+  const el = $("#t-body"), r = state.result && state.result.training;
+  $("#t-lede").textContent = T(`Same learner, same budget, three ways to build the training worlds. Each iteration pushes ${r ? r.n_worlds : 16} parallel NVIDIA Newton worlds at every point of the policy's table, then corrects the commands by the median miss. The hidden real world is never used for learning; when it is known (examples, simulated data) it only scores the result.`,
+    `같은 학습 방법, 같은 예산으로 학습 세계만 세 가지로 바꿉니다. 매 반복마다 NVIDIA Newton 병렬 세계 ${r ? r.n_worlds : 16}개에서 정책의 모든 목표 지점을 밀어 보고, 빗나간 정도의 중앙값으로 명령을 고칩니다. 숨겨진 실제 세계는 학습에 쓰지 않고, 정답을 아는 경우(예시, 가상 데이터)에만 결과를 채점합니다.`);
+  if (!r) {
+    const p = state.trainProgress;
+    el.innerHTML = `<div class="row"><button class="btn primary" id="t-run" ${p ? "disabled" : ""}>${T("Retrain in NVIDIA Newton", "NVIDIA Newton에서 다시 학습하기")}</button><span class="small muted" id="t-note">${p ? T(`Training: ${p.condition ? T(...TNAME[p.condition]) : ""}, iteration ${p.iteration ?? 0}…`, `학습 중: ${p.condition ? T(...TNAME[p.condition]) : ""}, ${p.iteration ?? 0}회차…`) : T("About 1 minute on CPU (three conditions × 11 iterations × 176 pushes).", "CPU로 약 1분 걸립니다 (조건 3개 × 반복 11회 × 176번).")}</span></div>`;
+    if (!p) $("#t-run").onclick = async () => {
+      state.trainProgress = {}; renderTrain();
+      try {
+        const res = await be.train(state.s.id, pr => { state.trainProgress = pr; if (state.step === "train") renderTrain(); });
+        state.result.training = toView(res); state.trainProgress = null;
+      } catch (e) { state.trainProgress = null; toast(e.message); }
+      if (state.step === "train") renderTrain();
+    };
+    return;
+  }
+  const known = r.hidden_known, ids = Object.keys(r.conditions);
+  const best = Math.max(...ids.map(id => trainScore(r.conditions[id], known)));
+  state.laneCond = state.laneCond || "tether"; state.laneIt = state.laneIt ?? r.iterations;
+  el.innerHTML = `<div class="tcards">${ids.map(id => { const c = r.conditions[id], v = trainScore(c, known);
+      return `<div class="tcard ${id === "tether" ? "hl" : ""}"><span class="sw" style="background:${TCOL[id]}"></span><b class="num ${v === best ? "g" : ""}">${pct(v)}</b>
+        <span>${T(...TNAME[id])}</span><small>${id === "current" ? T("one world: your simulator as it is", "세계 1개: 지금 시뮬레이터 그대로") : id === "wide" ? T(`${c.distinct_worlds} worlds, friction ${fmt(c.mu_range[0])}–${fmt(c.mu_range[1])}, uniform surface`, `세계 ${c.distinct_worlds}개, 마찰 ${fmt(c.mu_range[0])}–${fmt(c.mu_range[1])}, 균일한 바닥`) : T(`${c.distinct_worlds} worlds from the bootstrap: friction ${fmt(c.mu_range[0])}–${fmt(c.mu_range[1])} plus the measured region`, `부트스트랩 세계 ${c.distinct_worlds}개: 마찰 ${fmt(c.mu_range[0])}–${fmt(c.mu_range[1])}, 측정한 구간 포함`)}</small></div>`; }).join("")}</div>
+    <p class="small muted" style="margin-top:6px">${known ? T(`Success = stopping within ${tolText(r.tolerance_m)} of the ${CS("targetWord")} in the hidden real world, 24 targets ${fmt(r.target_range_m[0], 1)}–${fmt(r.target_range_m[1], 1)} m.`, `성공 = 숨겨진 실제 세계에서 ${CS("targetWordKo")} ${tolText(r.tolerance_m)} 이내로 멈춤 (목표 24개, ${fmt(r.target_range_m[0], 1)}–${fmt(r.target_range_m[1], 1)} m).`) : T("Your own data has no hidden truth to score against, so this shows success in each condition's own training worlds. Run the policy on your real system to score it.", "직접 올린 데이터는 정답이 없어 각 조건의 학습 세계 안에서 성공률을 보여 줍니다. 실제 성능은 실제 장비에서 확인해야 합니다.")} ${esc(r.engine)}, ${r.seconds} s.</p>
+    <div class="tgrid"><div class="chart"><h4>${T("Learning curves", "학습 곡선")}</h4>${learnChart(r)}</div>
+      <div class="chart"><h4>${T("Inside the training worlds", "학습 세계 들여다보기")}</h4><p>${T(`8 of the parallel worlds at one table point (Newton tracks). Green band: within ${tolText(r.tolerance_m)} of the ${CS("targetWord")} that world's camera reports.`, `병렬 세계 중 8개를 한 목표 지점에서 본 Newton 기록입니다. 초록 띠: 그 세계 카메라가 본 ${CS("targetWordKo")} ${tolText(r.tolerance_m)} 이내.`)}</p>
+        <div class="row" style="margin:8px 0"><div class="seg2" role="group">${ids.map(id => `<button type="button" data-c="${id}" aria-pressed="${state.laneCond === id}">${T(...TNAME[id])}</button>`).join("")}</div></div>
+        <label class="small muted" style="display:flex;gap:10px;align-items:center">${T("iteration", "반복")} <input type="range" id="lane-it" min="0" max="${r.iterations}" value="${state.laneIt}" style="flex:1"> <output id="lane-it-o" class="num">${state.laneIt}</output> <button class="btn" id="lane-play" type="button">${T("Play", "재생")}</button></label>
+        <div id="lanes">${lanesSvg(r, state.laneCond, state.laneIt)}</div></div></div>
+    <div class="caveat" style="margin-top:12px">${T("The policy is a command table over the perceived distance, learned by trial (iterative learning control, median over worlds). It is deliberately simple so that what differs between the three is only the physics it was trained on.", "정책은 카메라가 본 거리마다 명령을 정하는 표이며, 시행착오(세계별 중앙값으로 고치는 반복 학습 제어)로 학습합니다. 세 조건의 차이가 학습에 쓴 물리값에서만 나오도록 일부러 단순하게 만들었습니다.")}</div>`;
+  const redrawLanes = () => { $("#lanes").innerHTML = lanesSvg(r, state.laneCond, state.laneIt); $("#lane-it-o").textContent = state.laneIt; animateLanes(r, state.laneCond, state.laneIt); };
+  el.querySelectorAll("[data-c]").forEach(b => b.onclick = () => { state.laneCond = b.dataset.c; el.querySelectorAll("[data-c]").forEach(x => x.setAttribute("aria-pressed", String(x === b))); redrawLanes(); });
+  $("#lane-it").oninput = e => { state.laneIt = +e.target.value; redrawLanes(); };
+  $("#lane-play").onclick = async () => { for (let i = 0; i <= r.iterations; i++) { state.laneIt = i; $("#lane-it").value = i; redrawLanes(); await sleep(reduce ? 0 : 1600); } };
+  animateLanes(r, state.laneCond, state.laneIt);
+}
+
+/* ---------------------------------------------------------------- 6 export */
 const XTABS = [
   { id: "newton", name: "NVIDIA Newton", file: "newton_calibration.py" },
   { id: "carla", name: "CARLA", file: "carla_calibration.py", only: true },
@@ -1689,6 +1809,7 @@ function initChat() {
 document.querySelectorAll(".lang button").forEach(b => b.onclick = () => setLang(b.dataset.lang));
 initChat();
 renderSteps();
+$("#to-x2").onclick = () => go("export");
 initData().then(() => setLang(LANG));
 addEventListener("hashchange", () => {  // a link to /studio#driving while already on the page: switch the data tab
   const h = location.hash.slice(1);

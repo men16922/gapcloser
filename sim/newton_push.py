@@ -355,3 +355,89 @@ def render_trial_arm(params: ParamSet, command: float, target: float, out_path: 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     frames[0].save(out_path, save_all=True, append_images=frames[1:], duration=1000 // FPS, loop=0, quality=70)
     return float(s0.body_q.numpy()[cube, 1])
+
+
+_worlds_kernel = None
+
+
+def _worlds_mu_kernel():
+    """Per-body friction regions: each world carries its own near/far friction and region start (domain
+    randomization across parallel Newton worlds). Ground mu is 0; each cube's mu is 2 * its world's effective
+    friction, as in _patch_mu_kernel."""
+    global _worlds_kernel
+    if _worlds_kernel is None:
+        import warp as wp
+
+        @wp.kernel
+        def k(body_q: wp.array(dtype=wp.transform), bodies: wp.array(dtype=int), shapes: wp.array(dtype=int),
+              y0: wp.array(dtype=float), mu_near: wp.array(dtype=float), mu_far: wp.array(dtype=float),
+              shape_mu: wp.array(dtype=float)):
+            i = wp.tid()
+            y = wp.transform_get_translation(body_q[bodies[i]])[1]
+            shape_mu[shapes[i]] = wp.where(y >= y0[i], mu_far[i], mu_near[i])
+
+        _worlds_kernel = k
+    return _worlds_kernel
+
+
+def push_worlds(worlds: list[ParamSet], commands: list[float], starts: list[float] | None = None) -> list[Trial]:
+    """One push per (world, command) pair, every world with its own physics, all in one Newton model: friction,
+    friction region and actuator gain differ per world (density, size and restitution from the first world).
+    Used to train a policy across a randomized set of simulators in parallel. Returns trials with slide and track
+    measured from each launch point."""
+    import warp as wp
+
+    import newton
+
+    wp.config.quiet = True
+    p0 = worlds[0]
+    hs = p0["object_half_size"]
+    b = newton.ModelBuilder()
+    cubes = []
+    for i, (w, cmd) in enumerate(zip(worlds, commands)):
+        b.begin_world()
+        cfg = newton.ModelBuilder.ShapeConfig(mu=0.0, density=p0["object_density"], restitution=p0["restitution"])
+        y0 = starts[i] if starts else 0.0
+        body = b.add_body(xform=wp.transform(p=wp.vec3(0.0, y0, hs), q=wp.quat_identity()))
+        b.add_shape_box(body, hx=hs, hy=hs, hz=hs, cfg=cfg, color=(0.85, 0.85, 0.85))
+        cubes.append(body)
+        b.end_world()
+    ground = b.add_ground_plane(cfg=newton.ModelBuilder.ShapeConfig(mu=0.0))
+    model = b.finalize()
+    state = model.state()
+    qd = state.body_qd.numpy()
+    for body, cmd, w in zip(cubes, commands, worlds):
+        qd[body, :] = 0.0
+        qd[body, 1] = cmd * w["actuator_gain"]
+    state.body_qd.assign(qd)
+    shape_body = model.shape_body.numpy()
+    shapes = [int(np.flatnonzero(shape_body == bd)[0]) for bd in cubes]
+    fr = [frictions(w) for w in worlds]
+    near = [2 * f[0] for f in fr]
+    far = [2 * (f[1] if f[1] is not None else f[0]) for f in fr]
+    y0s = [f[2] if f[1] is not None else 1e9 for f in fr]
+    kern = _worlds_mu_kernel()
+    arrs = [wp.array(cubes, dtype=int), wp.array(shapes, dtype=int), wp.array(y0s, dtype=float),
+            wp.array(near, dtype=float), wp.array(far, dtype=float)]
+
+    def update(s):
+        wp.launch(kern, dim=len(cubes), inputs=[s.body_q, *arrs, model.shape_material_mu])
+
+    off = np.asarray(starts if starts else [0.0] * len(cubes))
+    tracks = [state.body_q.numpy()[cubes, 1].copy()]
+    peak = np.zeros(len(cubes))
+
+    def track(s):
+        q = s.body_q.numpy()[cubes]
+        tracks.append(q[:, 1].copy())
+        np.maximum(peak, tilt_deg(q[:, 3:7]), out=peak)
+
+    final = _simulate(model, state, track, update)
+    q = final.body_q.numpy()[cubes]
+    tilt = np.maximum(peak, tilt_deg(q[:, 3:7]))
+    tracks = tracks[:FULL_TRACK_FRAMES + 1]
+    tracks += [tracks[-1]] * (FULL_TRACK_FRAMES + 1 - len(tracks))
+    tr = np.asarray(tracks) - off
+    nan = float("nan")
+    return [Trial(nan, nan, c, float(y), [round(float(v), 5) for v in tr[:, i]], bool(tilt[i] > TIP_DEG))
+            for i, (c, y) in enumerate(zip(commands, q[:, 1] - off))]

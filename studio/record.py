@@ -12,6 +12,7 @@ import json
 import os
 import shutil
 import tempfile
+import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -44,9 +45,13 @@ def record(c, sample: dict, use_agent: bool) -> dict:
         st = c.get(f"/api/studio/sessions/{sid}").json()
         stages.append({"videos": 0, "session": st["session"], "events": ev, "result": st["result"]})
     verify = c.post(f"/api/studio/sessions/{sid}/verify").json()  # Newton replay of the final calibration
+    c.post(f"/api/studio/sessions/{sid}/train")  # retrain and test (parallel Newton worlds)
+    while (tr := c.get(f"/api/studio/sessions/{sid}/train").json())["status"] == "running":
+        time.sleep(1)
+    training = tr.get("result")
     st = c.get(f"/api/studio/sessions/{sid}").json()
     truth = c.get(f"/api/studio/sessions/{sid}/truth").json()
-    return {"sample": sample, "sid": sid, "videos": st["videos"], "stages": stages, "truth": truth, "verify": verify}
+    return {"sample": sample, "sid": sid, "videos": st["videos"], "stages": stages, "truth": truth, "verify": verify, "training": training}
 
 
 def main() -> None:

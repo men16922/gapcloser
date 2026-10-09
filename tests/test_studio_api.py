@@ -173,6 +173,32 @@ def test_newton_replay_of_the_export_beats_the_current_sim(tmp_path):
     assert v["rms_calibrated_m"] < 0.015 and v["rms_current_m"] > 5 * v["rms_calibrated_m"]
 
 
+def test_retraining_on_tether_ranges_beats_current_and_wide(tmp_path, monkeypatch):
+    pytest.importorskip("newton")
+    import time
+
+    import studio.train as tr
+
+    monkeypatch.setattr(tr, "N_WORLDS", 6)
+    monkeypatch.setattr(tr, "ITERS", 4)
+    monkeypatch.setattr(tr, "LR", 0.85)
+    c = client(tmp_path)
+    s = c.post("/api/studio/sessions", data={"sample": "press-line"}).json()
+    assert c.post(f"/api/studio/sessions/{s['id']}/train").status_code == 422
+    c.post(f"/api/studio/sessions/{s['id']}/analyze", json={"agent": False})
+    events(c, s["id"])
+    c.post(f"/api/studio/sessions/{s['id']}/train")
+    for _ in range(240):
+        st = c.get(f"/api/studio/sessions/{s['id']}/train").json()
+        if st["status"] != "running":
+            break
+        time.sleep(0.5)
+    res = st["result"]["conditions"]
+    assert st["status"] == "done" and st["result"]["hidden_known"]
+    assert res["tether"]["final_real"] >= 0.9 > res["current"]["final_real"] and res["tether"]["final_real"] > res["wide"]["final_real"]
+    assert len(res["tether"]["real"]) == 5 and res["tether"]["lanes"][0]
+
+
 def test_overview_console_and_studio_are_linked(tmp_path):
     c = client(tmp_path)
     home = c.get("/").text
