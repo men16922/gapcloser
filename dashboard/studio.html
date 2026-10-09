@@ -252,6 +252,19 @@ table.pushes th:first-child, table.pushes td:first-child { text-align: left; }
 .forest th { text-align: right; color: var(--muted); font-weight: 500; font-size: 12.5px; padding: 6px 10px; border-bottom: 1px solid var(--line); }
 .forest th:first-child { text-align: left; }
 .charts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 8px; }
+.verify { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 18px; align-items: start; background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--green); padding: 16px 18px; margin: 18px 0 22px; }
+.verify h3 { font-size: 20px; }
+.verify .stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+.verify .stats div { border: 1px solid var(--line); padding: 10px 12px; }
+.verify .stats b { display: block; font: 600 26px/1.1 var(--f-display); }
+.verify .stats b.g { color: var(--green); }
+.verify .stats span { font-size: 12.5px; color: var(--muted); }
+.verify svg { width: 100%; height: auto; display: block; }
+.verify svg text { fill: var(--muted); font: 11px var(--f-body); }
+.verify .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--muted); margin-top: 6px; }
+.verify .legend i { display: inline-block; width: 10px; margin-right: 6px; vertical-align: 0; }
+@media (max-width: 760px) { .verify { grid-template-columns: 1fr; } }
+main.stage { padding-bottom: 96px; }  /* room for the Ask button */
 .chart { background: var(--panel); border: 1px solid var(--line); padding: 14px 14px 10px; min-width: 0; }
 .chart h4 { margin: 0 0 2px; font: 600 15px/1.25 var(--f-display); letter-spacing: 0.02em; }
 .chart p { font-size: 12.5px; color: var(--muted); }
@@ -445,7 +458,7 @@ pre.code .s { color: #e3b867; }
       </div>
       <div class="sec">
         <h3>Next experiment</h3>
-        <p class="lede">Where the plausible models disagree most about where the object stops, inside the range your robot works in.</p>
+        <p class="lede" id="next-lede">Where the plausible models disagree most about where the object stops, inside the range your robot works in.</p>
         <div id="r-next"></div>
       </div>
     </section>
@@ -454,6 +467,7 @@ pre.code .s { color: #e3b867; }
     <section class="panel" id="p-export" hidden>
       <h2>Take it to your simulator</h2>
       <p class="lede">Intervals become domain-randomization ranges: train on what the real table can plausibly be, nothing wider.</p>
+      <section class="verify" id="verify" aria-live="polite"></section>
       <div class="tabs" role="tablist" id="x-tabs"></div>
       <pre class="code" id="x-code" tabindex="0"></pre>
       <div class="exportbar"><span class="small muted" id="x-note"></span><div class="row"><button class="btn" id="x-copy">Copy</button><button class="btn primary" id="x-dl">Download</button></div></div>
@@ -528,11 +542,14 @@ function toView(x) {
       if (r.queued_for_human) r.queued_for_human = sp(r.queued_for_human); (r.results || []).forEach(q => q.command = sp(q.command)); }
     if (s.args) { if (s.args.model) s.args.model = scaleModel(s.args.model); if (s.args.explanation) s.args.explanation = scaleText(s.args.explanation); if (s.args.commands) s.args.commands = sp(s.args.commands); }
     if (s.text) s.text = scaleText(s.text); };
+  const vfy = v => { (v.pushes || []).forEach(p => { p.measured = l(p.measured); p.calibrated = l(p.calibrated); p.current = l(p.current); });
+    v.rms_calibrated_m = l(v.rms_calibrated_m); v.rms_current_m = l(v.rms_current_m); v.worst_calibrated_m = l(v.worst_calibrated_m); };
   const sess = s => { if (!s) return; (s.pushes || []).forEach(push); s.notes = (s.notes || []).map(scaleText); };
   const result = r => { if (!r) return; cal(r.calibration); nxt(r.next_experiment); sess(r.session);
     if (r.agent) { r.agent.explanation = scaleText(r.agent.explanation); (r.agent.trace || []).forEach(step); if (r.agent.requested_commands) r.agent.requested_commands = sp(r.agent.requested_commands); if (r.agent.cross_check && r.agent.cross_check.reason) r.agent.cross_check.reason = scaleText(r.agent.cross_check.reason); }
     if (r.overlay) Object.values(r.overlay).forEach(v => { v.reach_m = l(v.reach_m); }); };
-  if (o.calibration && o.next_experiment !== undefined) { result(o); return o; }            // a result
+  if (o.calibration && o.next_experiment !== undefined) { result(o); if (o.verify) vfy(o.verify); return o; }  // a result
+  if (o.engine && o.pushes) { vfy(o); return o; }                                           // a Newton replay
   if (o.type) {                                                                             // an analysis event
     if (o.coverage_m) o.coverage_m = l(o.coverage_m);
     if (o.notes) o.notes = o.notes.map(scaleText);
@@ -670,8 +687,8 @@ const KO_RX = [
 ];
 // strings that come from the server (notes, reasons, sources): translated where they are shown
 const KO_SERVER = [
-  [/^Models disagree by ±([\d.]+) cm here; your pushes stop by ([\d.]+) m, so the table beyond is unmeasured$/i, "이 지점은 예상이 ±$1 cm 갈립니다. $2 m 너머는 아직 측정하지 않았습니다"],
-  [/^Models disagree by ±([\d.]+) cm here$/i, "이 지점은 예상이 ±$1 cm 갈립니다"],
+  [/^Models disagree by ±([\d.]+) (cm|m) here; your pushes stop by ([\d.]+) m, so the table beyond is unmeasured$/i, "이 지점은 예상이 ±$1 $2 갈립니다. $3 m 너머는 아직 측정하지 않았습니다"],
+  [/^Models disagree by ±([\d.]+) (cm|m) here$/i, "이 지점은 예상이 ±$1 $2 갈립니다"],
   [/^Camera recovered from the sheet: ([\d.]+) m above the table, focal (\d+) px$/i, "A4 용지로 카메라 위치를 계산했습니다: 높이 $1 m, 초점 거리 $2 px"],
   [/^Release points spread over ±(\d+) cm; positions are measured from their median$/i, "출발 위치 차이(±$1 cm)가 있어 중앙값을 기준으로 측정했습니다"],
   [/^No tracks: launch speed and position-dependent friction cannot be separated from stops alone$/i, "움직임 기록이 없어 멈춘 거리만으로는 출발 속도와 마찰을 구분하기 어렵습니다"],
@@ -760,6 +777,7 @@ const api = {
     });
   },
   async truth(sid) { const r = await fetch(`/api/studio/sessions/${sid}/truth`); return r.ok ? r.json() : null; },
+  async verify(sid) { return call(fetch(`/api/studio/sessions/${sid}/verify`, { method: "POST" })); },
   media(path) { return "/api/studio/" + path.replace(/^files\//, "files/"); },
 };
 async function call(p) {
@@ -801,6 +819,12 @@ const rec = {
     return stg.result;
   },
   async truth(sid) { return this.recFor(sid.slice(4)).truth; },
+  async verify(sid) {  // recorded for the final stage only (the calibration after all takes)
+    const r = this.recFor(sid.slice(4));
+    const k = r.sample.kind === "video" ? state.s.videos.filter(v => v.tracked).length - 1 : 0;
+    if (!r.verify || k !== r.stages.length - 1) throw new Error(T("Recorded replay covers the final calibration: load every take first.", "기록된 재현은 마지막 보정 기준입니다. 모든 영상을 먼저 불러오세요."));
+    await sleep(reduce ? 0 : 600); return r.verify;
+  },
   media(path) { return DATA.media[path] || path; },
 };
 const be = LIVE ? api : rec;
@@ -1162,7 +1186,7 @@ function pushTable(pushes, video) {
 function renderDiagChoice() {
   const agentOn = LIVE ? state.status.provider && state.status.provider !== "none" : true;
   $("#choice").innerHTML = `
-    <label><input type="radio" name="mode" value="agent" ${agentOn ? "checked" : "disabled"}><span><b>Nemotron agent</b><span>${agentOn ? `${esc(prettyModel(LIVE ? state.status.model : DATA.model))} picks the structure and asks for experiments; a cross-check guards its choice.` : "No LLM configured on this server (GAPCLOSER_LLM)."}</span></span></label>
+    <label><input type="radio" name="mode" value="agent" ${agentOn ? "checked" : "disabled"}><span><b>Nemotron agent</b><span>${agentOn ? `${esc(prettyModel(LIVE ? state.status.model : DATA.model))} ${T("picks the structure and asks for experiments; a cross-check guards its choice.", "AI가 원인의 종류를 고르고 필요한 실험을 요청합니다. 자동 탐색이 그 답을 교차 검증합니다.")}` : "No LLM configured on this server (GAPCLOSER_LLM)."}</span></span></label>
     <label><input type="radio" name="mode" value="offline" ${agentOn ? "" : "checked"}><span><b>Offline fit</b><span>Fits a fixed library of structures and keeps the simplest that explains the data. No LLM, a few seconds.</span></span></label>`;
   $("#run-note").textContent = LIVE ? "" : "Recorded run: replays the agent's real tool calls.";
   $("#run").disabled = false;
@@ -1546,8 +1570,41 @@ function highlight(text, id) {
     return parts.map((t, i) => i % 2 ? `<span class="s">${esc(t)}</span>` : esc(t).replace(/\b(import|from|class|def|return|True|False|None|as)\b/g, '<span class="k">$1</span>')).join("") + com;
   }).join("\n");
 }
+function verifyChart(v) {
+  const W = 420, H = 300, m = { l: 46, r: 12, t: 16, b: 36 };
+  const all = v.pushes.flatMap(p => [p.measured, p.calibrated, p.current]);
+  const hi = Math.max(...all) * 1.06, lo = 0;
+  const A = axes(W, H, m, [lo, hi], [lo, hi], T("measured stop (m)", "실제 멈춘 거리 (m)"), T("replayed in Newton (m)", "Newton 재현 (m)"), nice(lo, hi, 5), nice(lo, hi, 5));
+  const diag = `<line x1="${A.X(lo)}" y1="${A.Y(lo)}" x2="${A.X(hi)}" y2="${A.Y(hi)}" stroke="#eceeef" stroke-opacity="0.35" stroke-dasharray="4 4"/>`;
+  const dots = (k, col, r) => v.pushes.map(p => `<circle cx="${A.X(p.measured)}" cy="${A.Y(p[k])}" r="${r}" fill="${col}"/>`).join("");
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${T("Replayed stops against measured stops", "재현한 정지 위치와 실제 정지 위치")}">${A.g}${diag}${dots("current", "#69717a", 4)}${dots("calibrated", "#76b900", 4.2)}</svg>
+    <div class="legend"><span><i style="background:#76b900;height:8px"></i>${T("exported (calibrated) physics", "내보낸(고친) 물리값")}</span><span><i style="background:#69717a;height:8px"></i>${T("your current sim", "지금 시뮬레이터")}</span><span>${T("on the dashed line = exact", "점선 위 = 정확히 일치")}</span></div>`;
+}
+function renderVerify() {
+  const el = $("#verify"), v = state.result && state.result.verify;
+  const head = `<div><h3>${T("Verified in NVIDIA Newton", "NVIDIA Newton으로 검증")}</h3>
+    <p class="small muted" style="margin-top:4px">${T(`Before you take it home: every measured ${CS("run")} replayed in the full physics engine, from its own start and launch, once with the exported physics and once with your current simulator. The fit used a fast analytic model; this checks the numbers in the engine you will load them into.`, `가져가기 전에 확인합니다. 측정한 모든 기록을 실제와 같은 출발 위치·속도로 NVIDIA Newton에서 다시 실행합니다. 한 번은 내보낼 값으로, 한 번은 지금 시뮬레이터로 실행해 비교합니다. 값을 찾을 때는 빠른 근사 모델을 썼으므로, 실제로 쓸 물리 엔진에서 다시 확인하는 단계입니다.`)}</p>`;
+  if (!v) {
+    el.innerHTML = head + `<div class="row" style="margin-top:12px"><button class="btn primary" id="v-run">${T("Replay in NVIDIA Newton", "NVIDIA Newton으로 재현하기")}</button><span class="small muted" id="v-note">${T("Takes a few seconds on CPU.", "CPU로 몇 초 걸립니다.")}</span></div></div>`;
+    $("#v-run").onclick = async () => {
+      $("#v-run").disabled = true; $("#v-note").textContent = T("Newton is replaying…", "Newton이 재현하는 중입니다…");
+      try { state.result.verify = toView(await be.verify(state.s.id)); renderVerify(); }
+      catch (e) { $("#v-note").textContent = e.message; $("#v-run").disabled = false; }
+    };
+    return;
+  }
+  const better = v.rms_current_m / Math.max(1e-6, v.rms_calibrated_m);
+  el.innerHTML = head + `<div class="stats">
+      <div><b class="g num">±${dist(v.rms_calibrated_m)}</b><span>${T("exported physics, rms stop error", "내보낸 값, 평균 정지 위치 오차")}</span></div>
+      <div><b class="num">±${dist(v.rms_current_m)}</b><span>${T("your current sim", "지금 시뮬레이터")}</span></div>
+      <div><b class="num">${better >= 10 ? Math.round(better) : better.toFixed(1)}×</b><span>${T("closer to reality", "더 정확")}</span></div>
+      <div><b class="num">${v.pushes.length}</b><span>${T(`${CS("runsEn")} replayed in ${v.seconds} s`, `${v.seconds}초 동안 재현한 기록 수`)}</span></div></div>
+    <p class="small muted" style="margin-top:10px">${T(`Worst single ${CS("run")}: ${dist(v.worst_calibrated_m)}. Part of what remains is measurement noise in your data and the box's finite contact patch, which the analytic fit ignores.`, `가장 크게 벗어난 기록: ${dist(v.worst_calibrated_m)}. 남은 오차에는 측정 잡음과 근사 모델이 무시한 접촉면 크기 효과가 포함됩니다.`)} ${esc(v.engine)}.</p></div>
+    <div>${verifyChart(v)}</div>`;
+}
 function renderExport() {
   state.done.add("export"); renderSteps();
+  renderVerify();
   const tabs = XTABS.filter(t => !t.only || (state.result.exports || {})[t.id]);
   if (!tabs.some(t => t.id === state.exportTab)) state.exportTab = "newton";
   $("#x-tabs").innerHTML = tabs.map(t => `<button role="tab" aria-selected="${state.exportTab === t.id}" data-id="${t.id}">${t.name}</button>`).join("");

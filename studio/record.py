@@ -43,9 +43,10 @@ def record(c, sample: dict, use_agent: bool) -> dict:
         ev = events(c, sid)
         st = c.get(f"/api/studio/sessions/{sid}").json()
         stages.append({"videos": 0, "session": st["session"], "events": ev, "result": st["result"]})
+    verify = c.post(f"/api/studio/sessions/{sid}/verify").json()  # Newton replay of the final calibration
     st = c.get(f"/api/studio/sessions/{sid}").json()
     truth = c.get(f"/api/studio/sessions/{sid}/truth").json()
-    return {"sample": sample, "sid": sid, "videos": st["videos"], "stages": stages, "truth": truth}
+    return {"sample": sample, "sid": sid, "videos": st["videos"], "stages": stages, "truth": truth, "verify": verify}
 
 
 def main() -> None:

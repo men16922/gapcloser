@@ -161,6 +161,18 @@ def test_domains_label_the_same_physics_and_driving_exports_carla(tmp_path):
     assert " m" in md and "Froude" in md
 
 
+def test_newton_replay_of_the_export_beats_the_current_sim(tmp_path):
+    pytest.importorskip("newton")
+    c = client(tmp_path)
+    s = c.post("/api/studio/sessions", data={"sample": "press-line"}).json()
+    assert c.post(f"/api/studio/sessions/{s['id']}/verify").status_code == 422  # nothing calibrated yet
+    c.post(f"/api/studio/sessions/{s['id']}/analyze", json={"agent": False})
+    events(c, s["id"])
+    v = c.post(f"/api/studio/sessions/{s['id']}/verify").json()
+    assert len(v["pushes"]) == 18 and v["engine"].startswith("NVIDIA Newton")
+    assert v["rms_calibrated_m"] < 0.015 and v["rms_current_m"] > 5 * v["rms_calibrated_m"]
+
+
 def test_overview_console_and_studio_are_linked(tmp_path):
     c = client(tmp_path)
     home = c.get("/").text

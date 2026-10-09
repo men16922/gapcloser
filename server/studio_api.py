@@ -9,6 +9,7 @@
   POST /api/studio/sessions/{sid}/logs           multipart: file -> append more pushes to a robot-log session
   POST /api/studio/sessions/{sid}/videos/{i}/track   {"corners": [x,y]*4, "sheet": "a4", "object_px": [x,y]?, "object_height_m"?}
   POST /api/studio/sessions/{sid}/analyze        {"agent": true|false} -> streams on /events
+  POST /api/studio/sessions/{sid}/verify         replay every push in NVIDIA Newton with the exported and the current physics
   POST /api/studio/chat                          {"sid"?, "messages": [...], "lang": "en"|"ko", "step"?} -> {"answer"}
   GET  /api/studio/sessions/{sid}/events         Server-Sent Events: stage, agent_step*, calibration, next, done, overlay, result, end | error
   GET  /api/studio/sessions/{sid}                session, tracked videos, last result
@@ -105,6 +106,7 @@ class StudioSession:
         self.session = None  # studio.session.Session (logs: at upload; videos: after tracking)
         self.videos: list[dict] = []  # {file, frame, width, height, fps, corners_hint, tracked, pushes, overlay}
         self.cams: dict[int, object] = {}  # video index -> to_px callable (overlay geometry)
+        self.cal = None  # studio.fit.Calibration of the last analysis (for the Newton replay)
         self.result: dict | None = None
         self.events: list[dict] = []
         self.done = True
@@ -480,6 +482,7 @@ def mount_studio(app: FastAPI, llm, budget, data_dir: Path, budgeted_llm_cls) ->
                 doc["overlay"] = overlay(s, res.calibration)
                 s.push({"type": "overlay", "overlay": doc["overlay"]})
             doc["report_json"] = export.to_json(s.session, res.calibration, res.next_experiment, res.agent)
+            s.cal = res.calibration
             s.result = doc
             (s.dir / "result.json").write_text(json.dumps(doc, indent=1, default=str))
             s.push({"type": "result", "result": doc})
@@ -502,6 +505,24 @@ def mount_studio(app: FastAPI, llm, budget, data_dir: Path, budgeted_llm_cls) ->
             s.events, s.done = [], False
         threading.Thread(target=worker, args=(s, req.agent), daemon=True).start()
         return {"ok": True, "agent": bool(req.agent and llm is not None)}
+
+    @app.post("/api/studio/sessions/{sid}/verify")
+    def verify_route(sid: str):
+        """Close the loop: the exported parameters, replayed push by push in NVIDIA Newton, against the measured stops."""
+        from studio.verify import verify
+
+        s = get(sid)
+        if s.result is None or s.session is None or s.cal is None:
+            raise HTTPException(422, "Run the analysis first.")
+        if not sim_lock.acquire(timeout=90):
+            raise HTTPException(429, "Newton is busy with another simulation. Try again in a minute.")
+        try:
+            out = verify(s.session, s.cal)
+        finally:
+            sim_lock.release()
+        s.result["verify"] = out
+        s.result["report_json"]["newton_replay"] = out
+        return out
 
     chat_counts: dict[str, int] = {}
 

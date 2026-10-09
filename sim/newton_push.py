@@ -64,7 +64,7 @@ def _patch_setup(model, params: ParamSet, bodies: list[int], ground: int):
     return update
 
 
-def _build(params: ParamSet, commands: list[float], targets: list[float]):
+def _build(params: ParamSet, commands: list[float], targets: list[float], starts: list[float] | None = None):
     import warp as wp
 
     import newton
@@ -73,12 +73,13 @@ def _build(params: ParamSet, commands: list[float], targets: list[float]):
     b = newton.ModelBuilder()
     hs = params["object_half_size"]
     cubes = []
-    for cmd, tgt in zip(commands, targets):
+    for i, (cmd, tgt) in enumerate(zip(commands, targets)):
+        y0 = starts[i] if starts else 0.0  # launch point along the push axis (the friction region stays put)
         b.begin_world()
         cfg = newton.ModelBuilder.ShapeConfig(
             mu=params["object_mu"], density=params["object_density"], restitution=params["restitution"]
         )
-        body = b.add_body(xform=wp.transform(p=wp.vec3(0.0, 0.0, hs), q=wp.quat_identity()))
+        body = b.add_body(xform=wp.transform(p=wp.vec3(0.0, y0, hs), q=wp.quat_identity()))
         b.add_shape_box(body, hx=hs, hy=hs, hz=hs, cfg=cfg, color=(0.85, 0.85, 0.85))
         marker = newton.ModelBuilder.ShapeConfig(has_shape_collision=False, has_particle_collision=False)
         b.add_shape_box(-1, xform=wp.transform(p=wp.vec3(0.0, tgt, 0.0005), q=wp.quat_identity()),
@@ -125,13 +126,15 @@ class NewtonPushEnv:
         commands = [policy.command(o) for o in observed]
         return self._run(params, commands, targets, observed)
 
-    def push(self, params: ParamSet, commands: list[float]) -> Rollout:
-        """Raw pushes with chosen commands (probe experiments); target/observed are NaN."""
+    def push(self, params: ParamSet, commands: list[float], starts: list[float] | None = None) -> Rollout:
+        """Raw pushes with chosen commands (probe experiments); target/observed are NaN. `starts` launches each cube
+        from its own point on the push axis (a replayed video push); slides and tracks are then measured from it."""
         nan = [float("nan")] * len(commands)
-        return self._run(params, list(commands), nan, nan)
+        return self._run(params, list(commands), nan, nan, starts)
 
-    def _run(self, params, commands, targets, observed) -> Rollout:
-        model, state, cubes, ground = _build(params, commands, [0.0 if t != t else t for t in targets])
+    def _run(self, params, commands, targets, observed, starts=None) -> Rollout:
+        model, state, cubes, ground = _build(params, commands, [0.0 if t != t else t for t in targets], starts)
+        off = np.asarray(starts if starts else [0.0] * len(cubes))
         tracks = [state.body_q.numpy()[cubes, 1].copy()]
         peak = np.zeros(len(cubes))
 
@@ -142,11 +145,11 @@ class NewtonPushEnv:
 
         final = _simulate(model, state, track, _patch_setup(model, params, cubes, ground))
         q = final.body_q.numpy()[cubes]
-        ys = q[:, 1]
+        ys = q[:, 1] - off
         tilt = np.maximum(peak, tilt_deg(q[:, 3:7]))
         tracks = tracks[:FULL_TRACK_FRAMES + 1]
         tracks += [tracks[-1]] * (FULL_TRACK_FRAMES + 1 - len(tracks))  # at rest after the sim stops early
-        tr = np.asarray(tracks)  # (frames, worlds)
+        tr = np.asarray(tracks) - off  # (frames, worlds), from each launch point
         return Rollout([Trial(d, o, c, float(y), [round(float(v), 5) for v in tr[:, i]], bool(tilt[i] > TIP_DEG))
                         for i, (d, o, c, y) in enumerate(zip(targets, observed, commands, ys))])
 

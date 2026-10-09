@@ -109,7 +109,7 @@ h2.sec { font-size: 30px; margin-top: 8px; }
 .dom .acts a { padding: 9px 13px; font-size: 14px; }
 
 /* under the hood */
-.pipe { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); margin-top: 24px; border-top: 2px solid var(--green); }
+.pipe { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); margin-top: 24px; border-top: 2px solid var(--green); }
 .pipe div { padding: 16px 16px 4px 0; display: grid; gap: 6px; align-content: start; }
 .pipe div + div { padding-left: 16px; border-left: 1px solid var(--line-soft); }
 .pipe b { font: 600 18px/1.2 var(--f-display); }
@@ -118,7 +118,7 @@ h2.sec { font-size: 30px; margin-top: 8px; }
 .pipe code { font: 12px/1.4 var(--f-mono); color: var(--fg); }
 
 /* evidence */
-.ev { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 24px; }
+.ev { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-top: 24px; }
 .ev div { border: 1px solid var(--line); padding: 18px; display: grid; gap: 6px; align-content: start; }
 .ev .big { font: 600 40px/1 var(--f-display); }
 .ev .big small { font-size: 20px; color: var(--muted); font-weight: 500; }
@@ -133,8 +133,9 @@ footer { color: var(--dim); font-size: 13px; padding: 26px 32px 40px; max-width:
 
 @media (max-width: 980px) {
   .hero { grid-template-columns: 1fr; }
-  .doms, .ev { grid-template-columns: 1fr; }
-  .pipe { grid-template-columns: 1fr 1fr; }
+  .doms { grid-template-columns: 1fr; }
+  .ev { grid-template-columns: 1fr 1fr; }
+  .pipe { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .pipe div + div { border-left: 0; padding-left: 0; }
 }
 @media (max-width: 640px) {
@@ -146,6 +147,7 @@ footer { color: var(--dim); font-size: 13px; padding: 26px 32px 40px; max-width:
   .route a { border-right: 0; border-bottom: 1px solid var(--line); }
   .route a::after { display: none; }
   .pipe { grid-template-columns: 1fr; }
+  .ev { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) { .mk, .tl { transition: none; } }
 </style>
@@ -286,7 +288,8 @@ function render() {
       <div><span class="n">2 · ${T("MEASURE", "측정")}</span><b>${T("Scale from a rectangle", "사각형 하나로 크기")}</b><p>${T("Homography from a known rectangle gives focal length and camera pose; tracking is parallax-corrected; launch speed from a local deceleration fit.", "크기를 아는 사각형으로 초점 거리와 카메라 자세를 구하고, 시차를 보정해 추적하며, 감속 구간에 맞춰 출발 속도를 구합니다.")}</p></div>
       <div><span class="n">3 · ${T("DIAGNOSE", "진단")}</span><b>Nemotron 3 Super</b><p>${T("A tool-using agent profiles deceleration, checks perception, tests hypotheses and asks for experiments. A library search cross-checks it.", "도구를 쓰는 AI가 감속을 재고, 카메라를 확인하고, 가설을 검증하고, 실험을 요청합니다. 자동 탐색이 그 답을 교차 검증합니다.")}</p></div>
       <div><span class="n">4 · ${T("CALIBRATE", "보정")}</span><b>${T("Least squares + bootstrap", "최소제곱 + 부트스트랩")}</b><p>${T("Every value with a 90% interval that includes measurement error; what-if worlds where nothing was measured; the next run that settles the most.", "측정 오차까지 포함한 90% 범위, 측정하지 않은 구간의 가정 시나리오, 가장 많이 확실해지는 다음 실험.")}</p></div>
-      <div><span class="n">5 · ${T("EXPORT", "내보내기")}</span><b>Newton · Isaac Lab · CARLA</b><p><code>ShapeConfig(mu=…)</code>, <code>EventTermCfg</code>, <code>static.trigger.friction</code>${T(", a report and JSON.", ", 보고서와 JSON.")}</p></div>
+      <div><span class="n">5 · ${T("VERIFY", "검증")}</span><b>${T("Replay in Newton", "Newton 재현")}</b><p>${T("Every run replayed in the full engine with the exported physics, from its own start and launch, against the measured stop.", "모든 기록을 같은 출발 조건으로 실제 물리 엔진에서 다시 실행해 실제 정지 위치와 비교합니다.")}</p></div>
+      <div><span class="n">6 · ${T("EXPORT", "내보내기")}</span><b>Newton · Isaac Lab · CARLA</b><p><code>ShapeConfig(mu=…)</code>, <code>EventTermCfg</code>, <code>static.trigger.friction</code>${T(", a report and JSON.", ", 보고서와 JSON.")}</p></div>
     </div>
   </section>
 
@@ -296,6 +299,7 @@ function render() {
     <div class="ev">
       <div><span class="big num">54% <small>→</small> <em>96%</em></span><p>${T("Policy success on the hardest open-world faults (a friction strip and a bent lens together): fixed rules vs the Nemotron agent.", "가장 어려운 경우(다른 마찰 구간과 휘어진 렌즈 동시)에서 정책 성공률: 정해진 규칙 vs Nemotron AI.")}</p><span class="src">${T("Agent console, NVIDIA Newton, 15 worlds per tier", "AI 콘솔, NVIDIA Newton, 난이도별 15개 세계")}</span></div>
       <div><span class="big num">5.8 <small>vs</small> 7.6</span><p>${T("Real runs needed to reach 95% success when the next run is Tether's suggestion vs a random one.", "95% 성공까지 필요한 실제 실행 횟수: Tether 추천 vs 무작위.")}</p><span class="src">${T("50 worlds; a hand-made far-first sweep needs 5.9", "가상 세계 50개, 먼 곳부터 사람이 짠 순서는 5.9번")}</span></div>
+      <div><span class="big num"><em>6–9</em> <small>mm</small></span><p>${T("Exported physics replayed push by push in NVIDIA Newton: rms stop error across the six examples (robot scale). Your current sim: 3–25 cm.", "내보낸 물리값으로 모든 기록을 NVIDIA Newton에서 다시 실행했을 때의 평균 정지 위치 오차(예시 6개, 로봇 크기 기준). 지금 시뮬레이터는 3~25 cm.")}</p><span class="src">${T("Studio export step, “Verified in NVIDIA Newton”", "Studio 내보내기 단계 “NVIDIA Newton으로 검증”")}</span></div>
       <div><span class="big num"><em>90.5%</em></span><p>${T("How often the true value falls inside Tether's 90% interval, over 24 random hidden worlds.", "무작위로 숨긴 세계 24개에서 정답이 Tether의 90% 범위 안에 든 비율.")}</p><span class="src">${T("Intervals that are honest about what they do not know", "모르는 만큼 넓게 표시하는 범위")}</span></div>
     </div>
     <div class="stack" id="stack"></div>
