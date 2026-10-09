@@ -46,6 +46,14 @@ button { font: inherit; color: inherit; }
 .studio-link { color: var(--fg); font-size: 14px; border: 1px solid var(--green); padding: 4px 9px; text-decoration: none; }
 .studio-link:hover { background: var(--green-wash); }
 .studio-link[href=""] { display: none; }
+.domains { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--line); margin: 14px 0 4px; }
+.domains a { display: grid; gap: 2px; padding: 12px 16px; color: var(--fg); text-decoration: none; border-right: 1px solid var(--line); }
+.domains a:last-child { border-right: 0; }
+.domains a:hover { background: var(--green-wash); }
+.domains b { font-size: 16px; }
+.domains span { font-size: 13px; color: var(--muted); }
+.domains[data-off] { display: none; }
+@media (max-width: 640px) { .domains { grid-template-columns: 1fr; } .domains a { border-right: 0; border-bottom: 1px solid var(--line); } }
 .intro { border: 1px solid var(--line); background: var(--panel); margin-top: var(--s4); padding: var(--s4) var(--s5); display: grid; gap: var(--s3); }
 .intro[hidden] { display: none; }
 .intro .ih { display: flex; justify-content: space-between; gap: var(--s3); align-items: baseline; }
@@ -395,6 +403,7 @@ td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
     <div class="stack" id="stack"></div>
     <div class="lang" role="group" aria-label="Language"><button type="button" data-lang="en">EN</button><button type="button" data-lang="ko">KO</button></div>
   </div>
+  <nav class="domains" id="domains" aria-label="Domains in Studio"></nav>
   <section class="intro" id="intro" aria-label="What is this"></section>
   <nav class="picker" id="tabs" aria-label="Scenarios"></nav>
   <main id="main"></main>
@@ -402,6 +411,15 @@ td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
 </div>
 
 <script>
+function renderDomains() {  // the three Studio domains (studio/domains.py); hidden when there is no Studio to link to
+  const base = document.getElementById("studio-link").getAttribute("href"), nav = document.getElementById("domains");
+  if (!base) { nav.dataset.off = "1"; return; }
+  const ko = LANG === "ko";
+  nav.innerHTML = [["robot", "Robot manipulation", "로봇 조작", "Arm pushes a box to a line", "로봇 팔이 상자를 선까지 밀기"],
+    ["driving", "Autonomous vehicles", "자율주행 차량", "Car brakes to a stop line · CARLA export", "차량이 정지선에 맞춰 제동 · CARLA 내보내기"],
+    ["factory", "Factory inspection", "제조 검사", "Pusher slides a part to inspection", "푸셔가 부품을 검사 위치로 밀기"]]
+    .map(([id, en, k, den, dko]) => `<a href="${base}#${id}" data-notr="1"><b>Studio · ${ko ? k : en}</b><span>${ko ? dko : den}</span></a>`).join("");
+}
 /* EN (default) / KO. Whole sentences where word order differs go through tl(en, ko) in the render code; labels and
    recurring phrases are translated in the DOM as they render (exact table + patterns). Model-written reasoning and
    parameter names stay as written. */
@@ -1698,8 +1716,8 @@ function boot(B, LIVE) {
       <p class="note">${tl("Every example uses the same task (a robot arm pushing a box onto a line) on purpose: what changes from tab to tab is the hidden cause in the “real” world. Press “Reveal truth” to see whether the AI found it. Physics: NVIDIA Newton. To try your own table or video, open the Studio.", "모든 예시는 같은 과제입니다 (로봇 팔이 상자를 밀어 선에 세우기). 탭마다 다른 것은 실제 세계에 숨긴 원인입니다. “정답 보기”로 AI가 맞혔는지 확인할 수 있습니다. 물리 계산은 NVIDIA Newton이 합니다. 직접 해 보려면 Studio를 엽니다.")}</p>`;
     $("#intro-x").onclick = () => { try { localStorage.setItem(introKey, "1"); } catch (_) {} el.hidden = true; };
   }
-  renderIntro();
-  document.querySelectorAll(".lang button").forEach((b) => (b.onclick = () => setLang(b.dataset.lang, () => { renderIntro(); renderTabs(); render(); })));
+  renderIntro(); renderDomains();
+  document.querySelectorAll(".lang button").forEach((b) => (b.onclick = () => setLang(b.dataset.lang, () => { renderIntro(); renderDomains(); renderTabs(); render(); })));
   render();
   setLang(LANG);
 }
