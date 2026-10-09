@@ -18,6 +18,9 @@ decisions with rationale (`docs/DECISIONS.md`).
 
 ## Entries
 
+- 2026-10-09 nebius: the Token Factory key is a service account in an `aiproject` and cannot create cloud resources; VMs need `nebius profile create` (browser login), billing details saved (before that every create is PermissionDenied, even for admins), and a region with non-GPU vCPU quota (eu-north1/us-central1 had 0; eu-west1 200). Applies to: deploy/nebius_vm.sh.
+- 2026-10-09 docker: the VM's legacy builder makes `COPY --chown` parent dirs root-owned (runs/), the app then crashes on mkdir; BuildKit on the Mac hid it. Applies to: Dockerfile.
+
 - 2026-10-09 intervals: a bootstrap over pushes alone gave video intervals that excluded the truth (systematic tracking/scale error is shared by all pushes); each replicate now redraws scale/speed error too. Applies to: studio/fit.py bootstrap.
 
 - 2026-10-09 fitter: scipy Nelder-Mead's default simplex (5% of x0, 0.00025 at 0) left camera_pitch_deg/lens_k stuck at 0; pass initial_simplex with per-field steps. Applies to: agent/tool_agent.py fit_hypothesis.

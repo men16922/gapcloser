@@ -4,6 +4,8 @@ Last Updated: 2026-10-09
 
 ## Current Baseline
 
+- **Live on Nebius AI Cloud (2026-10-09):** http://66.201.7.61/studio (console http://66.201.7.61/). VM `gapcloser-demo` (`computeinstance-e01r2xhabtzp86ryv3`), eu-west1, cpu-d3 2vCPU/8GB, Docker, Nemotron 3 Super via Token Factory, ~$0.06/h. Redeploy: `deploy/nebius_vm.sh`; stop billing: `~/.nebius/bin/nebius compute instance delete --id computeinstance-e01r2xhabtzp86ryv3`. eu-north1 and us-central1 have 0 non-GPU vCPU quota on this tenant.
+
 - **Studio (product surface, 2026-10-09):** `/studio` on the live server and `dashboard/dist/studio.standalone.html` (recorded). Flow: phone video (A4 sheet → focal/pose, parallax-corrected tracking, push segmentation) or robot log → Nemotron agent (offline: probe_real queues next-experiment cards) + cross-check → bootstrap 90% intervals, what-if worlds for unmeasured table, ghost boxes (old vs calibrated sim) over the user's video → Newton / Isaac Lab EventTermCfg / Markdown / JSON exports. CLI `python -m studio`. Code: `studio/`, `server/studio_api.py`, `dashboard/studio.html`.
 - Studio samples (Newton, truth revealed after; all truths inside 90% intervals): flick take 2 μ 0.555 / region 0.376 m / μ 0.282 (truth 0.55 / 0.364 / 0.30); lab-bench μ 0.696, gain 0.872, region 0.376/0.449, pitch 1.9° (truth 0.70, 0.88, 0.38/0.45, 2°); short-reach refuses to invent the unmeasured region and asks for far pushes.
 - Artifacts (private): Studio https://claude.ai/artifact/B8mi26WNiRJSiv9NTLoTjw ↔ Console https://claude.ai/artifact/WVBNfVMAzeNg71kDSFqYAf (v8, links to Studio).
