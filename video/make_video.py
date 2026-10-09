@@ -217,18 +217,15 @@ def build_scenes(work: Path, caps: Path) -> list[Scene]:
                           ("NVIDIA Newton  ·  Nemotron 3 Super on Nebius Token Factory", FONT_B, 40, GREEN)], work / "title.png",
                          footer="Nebius × NVIDIA Global AI Hackathon · Physical AI track"), min_s=6),
         Scene("02_problem", f"A policy trained in simulation pushes a cube onto the green line. In simulation it lands. "
-                            f"In the real world, with physics nobody wrote down, it stops {short_cm:.0f} centimeters short. "
-                            "Robots, cars and production lines all hit this gap.", frames=pair0, min_s=9),
-        Scene("03_overview", "Tether reads how things really slide and stop, from a phone video or the logs a robot, a car or a line already writes. "
-                             "On seven braking runs, the current simulator puts the car three point seven meters short on a wet section. "
-                             "Tether's calibrated simulator lands on the real stops.", image=c("home_hero")),
+                            f"In the real world it stops {short_cm:.0f} centimeters short. Robots, cars and production lines all hit this gap.", frames=pair0, min_s=9),
+        Scene("03_overview", "Tether reads how things really slide and stop, from a video or the logs a robot, car or line already writes, "
+                             "and ties the simulator to them.", image=c("home_hero")),
         Scene("04_road", "Pick a domain. Here, autonomous driving: a car braking to a stop line, filmed from the roadside. "
                          "A painted box of known size gives the scale and the camera pose.", frames=road, min_s=7),
         Scene("05_measure", "Tether recovers the camera from the box, tracks every run with parallax correction, "
                             "and measures each launch speed and stopping distance.", image=zoom("studio_tracked", (255, 40, 1920, 990)), zoom=False),
-        Scene("06_agent", f"Nemotron 3 Super works as a tool-using agent. It profiles the deceleration along the road, sees friction drop after about eight and a half meters, "
-                          "fits hypotheses, and asks for longer runs. The numbers come from least squares, never from the language model, "
-                          "and a library search cross-checks the agent's choice.", image=zoom("studio_diag", (270, 0, 1265, 560)), zoom=False, min_s=12),
+        Scene("06_agent", "Nemotron 3 Super works as a tool-using agent. It profiles deceleration along the road, finds friction dropping after eight and a half meters, "
+                          "and asks for longer runs. The numbers come from least squares, and a library search cross-checks the agent.", image=zoom("studio_diag", (270, 0, 1265, 560)), zoom=False, min_s=12),
         Scene("07_results", "The calibrated simulator: friction painted on the road, a ninety percent interval for every value, "
                             "ghost cars replaying each run in the old and the new simulator, and the runs that would settle the rest.",
               image=zoom("studio_results", (270, 60, 1920, 1000)), zoom=False),
@@ -240,17 +237,18 @@ def build_scenes(work: Path, caps: Path) -> list[Scene]:
         Scene("09b_retrain", "Does it matter for learning? Tether retrains the policy three ways in parallel NVIDIA Newton worlds: on the current simulator, "
                              "on wide domain randomization, and on Tether's measured ranges. Scored in the hidden real world: forty two, zero, and one hundred percent.",
               image=zoom("studio_retrain", (270, 60, 1920, 1000)), zoom=False, min_s=11),
+        Scene("09b2_montage", "Inside training: sixteen parallel Newton worlds, each with physics drawn from Tether's ranges. "
+                              "At first the cars stop short of the line. By the third iteration all sixteen stop on it.",
+              frames=video_frames(ROOT / "video/out/montage-brake-log.mp4", work / "montage"), min_s=8),
         Scene("09c_rollout", "Here are the three policies braking in the hidden world, rendered by Newton. Only the Tether-trained car stops on the line every time.",
               frames=video_frames(ROOT / "video/out/rollout-brake-log.mp4", work / "rollout"), min_s=8),
-        Scene("10_export", "Then take it home: NVIDIA Newton materials, Isaac Lab randomization over the measured intervals, "
-                           "and for driving, CARLA tire friction with a friction trigger on the wet section.", image=c("studio_carla")),
+        Scene("10_export", "Then export to NVIDIA Newton, Isaac Lab, and for driving, CARLA.", image=c("studio_carla")),
         Scene("11_domains", f"One physics covers three jobs. In factory inspection, a pneumatic pusher on an oily rail goes from "
                             f"{pc(pp['before']['median'])} to {pc(pp['after']['median'])} percent predicted hits on the inspection window.",
               image=zoom("factory_results", (270, 60, 1920, 1000)), zoom=False),
         Scene("12_console", "The agent console shows why an agent: on the hardest open-world faults, fixed rules reach fifty four percent, "
                             "the Nemotron agent ninety six.", image=c("console_bench")),
-        Scene("13_stack", "NVIDIA Newton simulates and renders on a laptop CPU. Nemotron reasons on Nebius Token Factory for about a cent per diagnosis. "
-                          "Days of hand-tuning a simulator become one session.",
+        Scene("13_stack", "Newton on a laptop CPU, Nemotron on Nebius Token Factory for about a cent per diagnosis. Days of hand-tuning become one session.",
               image=card([("How it works", FONT_D, 96, FG),
                           ("data → measure → diagnose → calibrate → verify → retrain in Newton → export", FONT_B, 40, FG),
                           ("Physics + rendering:  NVIDIA Newton (Warp, CPU)", FONT_M, 34, MUTED),

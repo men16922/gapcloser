@@ -63,7 +63,10 @@ site: dashboard
 	mkdir -p site && cp dashboard/dist/gapcloser.standalone.html site/index.html
 
 # demo video (Chrome + ffmpeg + macOS say); start `make serve` first to include the live scene
-video: dashboard
+video:  # demo video: screen captures (needs make serve), Newton rollout and training montage, narration
+	$(PY) -m video.capture
+	$(PY) -m studio.rollout_video brake-log
+	$(PY) -m studio.train_montage brake-log
 	$(PY) -m video.make_video
 
 # ===== overnight harness targets (append to your Makefile) =====

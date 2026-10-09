@@ -4,6 +4,10 @@ Last Updated: 2026-10-09
 
 This file maintains only recent incremental summaries (newest 3-5 items, ≤120 lines). Older entries are archived to `docs/archive/progress-YYYY-MM.md` via `/tidy-docs`.
 
+## 2026-10-10 — Tether: retrain in parallel Newton worlds, proof run, demo video v2
+- Changed: renamed to Tether; overview page (`/`), console at `/console`, Studio deep links; Newton replay of the export; Retrain step (policy learned by trial in 16 parallel Newton worlds per condition, per-world physics kernel `push_worlds`); Newton-rendered before/after rollout and 4x4 training montage; `make prove`; demo video 2:48 (`make video`); Devpost and reference rewritten; CARLA export checked against API shape; vehicle-log driving sample.
+- Verified: `make check` 97 passed; `make prove` 312 s: coverage 92% (118 values), replay 0.6-0.8 cm vs 3-25 cm, retrain Tether 100% on 4/6 examples (46% short reach, 58% roadside); studio-bench 5.76 vs 7.6.
+
 ## 2026-10-09 — Three domains: robot manipulation, autonomous vehicles, factory inspection
 - Changed: `studio/domains.py` (names after the FlywheelFit workspace tabs); domain tabs on the Studio data step; Newton-rendered road (car, lanes, stop line) and rail (guides, inspection window, camera post) scenes; driving is Froude-scaled 1:25 (friction unchanged), shown and exported at full size; CARLA 0.9.16 export (tire_friction ratio, friction trigger, braking check); samples `stop-line` (roadside video, 2 takes) and `press-line` (pusher log), recorded with Nemotron; chat summary in domain units; robot-log bootstrap adds a 1% length-scale term (`LOG_ERROR`).
 - Verified: `make check` 93 passed; interval coverage over 24 random worlds 82% -> 90.5%; studio-bench unchanged (suggested 5.76, random 7.60, sweep 5.88); stop-line truths inside intervals; press-line region start misses by 0.9 mm (0.300 vs 0.276-0.299); headless Chrome EN/KO for all three domains; Studio artifact v5.

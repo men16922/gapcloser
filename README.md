@@ -28,8 +28,9 @@ Built for the Nebius × NVIDIA Global AI Hackathon (Physical AI track). Runs on 
 | http://localhost:8000/console | Agent console: Nemotron fixing hidden worlds, Gap-Bench |
 | http://localhost:8000/studio | Studio: your data (or a world you simulate) → calibrated simulator → retrain in parallel Newton worlds → Newton replay → export |
 
-Plain-Korean guides live in `reference/`. Submission text: `docs/submission/DEVPOST.md`. Demo video:
-`python -m video.capture && python -m video.make_video`.
+Plain-Korean guides live in `reference/`. Submission text: `docs/submission/DEVPOST.md`.
+`make prove` recomputes every headline number offline in about five minutes (`runs/proof/PROOF.md`);
+`make video` rebuilds the demo video (needs `make serve`).
 
 ## Tether Studio: calibrate from your own data
 

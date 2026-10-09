@@ -88,9 +88,10 @@ def train(session: Session, cal: Calibration, hidden: ParamSet | None, iters: in
     for cond, label in CONDITIONS.items():
         worlds = training_worlds(cond, session, cal)
         pol = TablePolicy([init * math.sqrt(g) for g in GRID])
-        curve_train, curve_real, lanes = [], [], []
+        curve_train, curve_real, lanes, history = [], [], [], []
         for it in range(iters + 1):
             # every world tries every table point: the target it aims at is what that world's camera reports there
+            history.append([round(c, 5) for c in pol.cmds])
             ws, cmds, tgts, ks = [], [], [], []
             for w in worlds:
                 for k, o in enumerate(GRID):
@@ -123,7 +124,7 @@ def train(session: Session, cal: Calibration, hidden: ParamSet | None, iters: in
                 pol.cmds[k] *= r ** (0.5 * LR)  # noqa: module-level LR read at call time
         distinct = len({(w["object_mu"], w["table_mu"], w["actuator_gain"], w["patch_y0"], w["patch_mu"]) for w in worlds})
         out["conditions"][cond] = {"label": label, "train": curve_train, "real": curve_real, "final_real": curve_real[-1],
-                                   "policy": [round(c, 4) for c in pol.cmds], "lanes": lanes, "distinct_worlds": distinct,
+                                   "policy": [round(c, 4) for c in pol.cmds], "lanes": lanes, "history": history, "distinct_worlds": distinct,
                                    "mu_range": [round(min((w["object_mu"] + w["table_mu"]) / 2 for w in worlds), 3),
                                                 round(max((w["object_mu"] + w["table_mu"]) / 2 for w in worlds), 3)]}
     out["seconds"] = round(time.time() - t0, 1)
