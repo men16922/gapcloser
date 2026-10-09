@@ -4,6 +4,10 @@ Last Updated: 2026-10-09
 
 This file maintains only recent incremental summaries (newest 3-5 items, ≤120 lines). Older entries are archived to `docs/archive/progress-YYYY-MM.md` via `/tidy-docs`.
 
+## 2026-10-09 — Three domains: robot manipulation, autonomous vehicles, factory inspection
+- Changed: `studio/domains.py` (names after the FlywheelFit workspace tabs); domain tabs on the Studio data step; Newton-rendered road (car, lanes, stop line) and rail (guides, inspection window, camera post) scenes; driving is Froude-scaled 1:25 (friction unchanged), shown and exported at full size; CARLA 0.9.16 export (tire_friction ratio, friction trigger, braking check); samples `stop-line` (roadside video, 2 takes) and `press-line` (pusher log), recorded with Nemotron; chat summary in domain units; robot-log bootstrap adds a 1% length-scale term (`LOG_ERROR`).
+- Verified: `make check` 93 passed; interval coverage over 24 random worlds 82% -> 90.5%; studio-bench unchanged (suggested 5.76, random 7.60, sweep 5.88); stop-line truths inside intervals; press-line region start misses by 0.9 mm (0.300 vs 0.276-0.299); headless Chrome EN/KO for all three domains; Studio artifact v5.
+
 ## 2026-10-09 — Simulation mode, EN/KO, Ask GapCloser
 - Changed: Studio simulation mode (visitor sets hidden physics, Newton renders video / writes log, next experiment runs in the same world); EN default + KO switch on console and Studio (whole-sentence templates + DOM translation + patterns for server strings); `POST /api/studio/chat` + Ask panel (Nemotron, grounded in the session, truth only after reveal, 30 questions/session); fitter pre-fit before region search; Nebius VM deployed, verified, then deleted at user request (`deploy/nebius_vm.sh`).
 - Verified: `make check` 91 passed; simulated world recovered inside intervals; chat answers EN/KO in 2-5 s; KO/EN switch restores originals; 390 px no overflow.
