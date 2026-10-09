@@ -6,6 +6,8 @@ from the recorded benchmark files where it needs the Nemotron agent. Writes runs
   3. Retrain and test       a policy learned in parallel Newton worlds (current / wide / Tether), hidden-world success
   4. Next experiment        studio_bench (50 analytic worlds): real runs to 95% success, suggested vs random vs sweep
   5. Gap-Bench              recorded Nemotron runs (runs/bench/open_newton_super_n15.json), quoted, not re-run
+  6. Phone robustness       the same table filmed clean and hand-held/blurred/compressed, measured end to end with
+                            automatic sheet detection (eval.robustness; skipped with --quick)
 
 Run: .venv/bin/python -m eval.prove [--quick]     (about 5 minutes on a laptop CPU; --quick: 8 worlds, fewer iterations)
 """
@@ -122,6 +124,13 @@ def report(p: dict) -> str:
           "| Tier | Nominal | Domain rand. | Rule-based | System ID | Nemotron agent |", "|---|---|---|---|---|---|"]
     for tier, row in g.items():
         L.append(f"| {tier} | {pct(row.get('nominal'))} | {pct(row.get('full_dr'))} | {pct(row.get('rule'))} | {pct(row.get('sysid'))} | {pct(row.get('agent'))} |")
+    if p.get("robustness"):
+        L += ["", "## 6. Phone robustness (automatic sheet corners, tracking, fit)", "",
+              "| Condition | Corner error | Pushes found | Launch-speed bias | Truth inside 90% | Intervals (mu, region start, region mu) |", "|---|---|---|---|---|---|"]
+        for r in p["robustness"]:
+            iv = r["intervals"]
+            L.append(f"| {r['condition']} | {r['corner_err_px']} px | {r['pushes_found']}/{r['pushes_true']} | {r['launch_speed_bias'] * 100:+.1f}% | "
+                     f"{sum(r['inside'].values())}/{len(r['inside'])} | {iv['mu_eff']}, {iv['patch_y0']}, {iv['patch_mu']} |")
     L += ["", "Limits: all data is synthetic (NVIDIA Newton) so the truth is known; a real phone video has not been validated yet."]
     return "\n".join(L) + "\n"
 
@@ -141,6 +150,11 @@ def main() -> None:
     print("4/4 next experiment", flush=True)
     p["next_experiment"] = next_experiment(a.quick)
     p["gap_bench"] = gap_bench()
+    if not a.quick:
+        from eval.robustness import main as robustness
+
+        print("robustness", flush=True)
+        p["robustness"] = robustness()["conditions"]
     p["seconds"] = round(time.time() - t0)
     (OUT / "proof.json").write_text(json.dumps(p, indent=1))
     (OUT / "PROOF.md").write_text(report(p))

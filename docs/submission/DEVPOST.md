@@ -30,7 +30,8 @@ Tether has three connected surfaces: an **overview**, an **agent console** that 
 2. **Bring data:** a phone, roadside or line-camera video (any rectangle of known size gives scale and camera pose),
    or the log your robot, car or pusher already writes. No data? Set the hidden physics yourself and **NVIDIA
    Newton** renders the video or writes the log.
-3. **Measure:** homography from the rectangle gives focal length, height and angle; tracking is parallax-corrected;
+3. **Measure:** the reference rectangle is found automatically (about 1 px on clean video, 3 px on a shaky, blurred,
+   compressed one); homography from it gives focal length, height and angle; tracking is parallax-corrected;
    launch speeds come from a local deceleration fit. On Newton-rendered video this is within 1 mm and 0.6%.
 4. **Diagnose:** **NVIDIA Nemotron 3 Super** on **Nebius Token Factory** works as a tool-using agent. It profiles
    deceleration along the surface, checks perception, fits candidate *structures* ("uniform friction + a wet section
@@ -101,6 +102,10 @@ world whose physics the agent cannot see, let Nemotron investigate, fix the simu
   The two below 100% are honest: the short log never measured the far table (Studio says so before you train), and
   on the roadside video the true wet-section friction sits at the edge of its interval. Wide randomization trains a
   policy that is mediocre everywhere; the current simulator is confidently wrong.
+- **Phone robustness** (same hidden table filmed clean vs hand-held with motion blur, exposure flicker and heavy
+  compression; automatic corners, tracking and fit end to end): 11 of 11 pushes found in both; launch speed reads
+  0.8% low clean and 6.5% low on the bad video; on the bad video the intervals widen to cover the truth instead of
+  narrowing around a wrong value (3/3 inside), on the clean one the region friction misses its interval by 0.004.
 - **Next experiment:** reaching 95% real success takes 5.8 real runs with Tether's suggestions vs 7.6 random, about
   the same as a well-designed manual sweep (5.9).
 

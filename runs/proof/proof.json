@@ -1,6 +1,6 @@
 {
- "when": "2026-10-10 01:46",
- "git": "2ba38ce",
+ "when": "2026-10-10 02:13",
+ "git": "a662519",
  "machine": "arm64 Darwin",
  "quick": false,
  "coverage": {
@@ -213,5 +213,81 @@
    "agent": 0.957
   }
  },
- "seconds": 312
+ "robustness": [
+  {
+   "condition": "clean phone",
+   "corners_auto": true,
+   "corner_err_px": 1.0,
+   "pushes_found": 11,
+   "pushes_true": 11,
+   "launch_speed_bias": -0.008,
+   "model": {
+    "mu_eff": 0.5501,
+    "patch_y0": 0.3596,
+    "patch_mu": 0.2759
+   },
+   "intervals": {
+    "mu_eff": [
+     0.511,
+     0.573
+    ],
+    "patch_y0": [
+     0.342,
+     0.379
+    ],
+    "patch_mu": [
+     0.258,
+     0.296
+    ]
+   },
+   "truth": {
+    "mu_eff": 0.55,
+    "patch_y0": 0.3527,
+    "patch_mu": 0.3
+   },
+   "inside": {
+    "mu_eff": true,
+    "patch_y0": true,
+    "patch_mu": false
+   }
+  },
+  {
+   "condition": "hand-held, blurred, compressed",
+   "corners_auto": true,
+   "corner_err_px": 3.32,
+   "pushes_found": 11,
+   "pushes_true": 11,
+   "launch_speed_bias": -0.065,
+   "model": {
+    "mu_eff": 0.5851,
+    "patch_y0": 0.184,
+    "patch_mu": 0.338
+   },
+   "intervals": {
+    "mu_eff": [
+     0.425,
+     0.631
+    ],
+    "patch_y0": [
+     0.15,
+     0.589
+    ],
+    "patch_mu": [
+     0.204,
+     0.391
+    ]
+   },
+   "truth": {
+    "mu_eff": 0.55,
+    "patch_y0": 0.3527,
+    "patch_mu": 0.3
+   },
+   "inside": {
+    "mu_eff": true,
+    "patch_y0": true,
+    "patch_mu": true
+   }
+  }
+ ],
+ "seconds": 415
 }

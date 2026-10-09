@@ -167,9 +167,15 @@ def mount_studio(app: FastAPI, llm, budget, data_dir: Path, budgeted_llm_cls) ->
         except SessionError as e:
             raise HTTPException(422, str(e)) from None
         (s.dir / f"frame{i}.jpg").write_bytes(jpg)
+        auto = False
+        if hint is None:  # an upload: look for the sheet ourselves; the visitor checks and can drag the corners
+            from studio.video import auto_sheet
+
+            hint = auto_sheet(dst)
+            auto = hint is not None
         v = {"index": i, "file": f"files/{s.id}/{dst.name}", "frame": f"files/{s.id}/frame{i}.jpg", "path": str(dst),
              "width": round(info["width"] / info["scale"]), "height": round(info["height"] / info["scale"]), "fps": info["fps"],
-             "corners_hint": hint, "tracked": False, "pushes": [], "overlay": None}
+             "corners_hint": hint, "corners_auto": auto, "tracked": False, "pushes": [], "overlay": None}
         s.videos.append(v)
         return v
 

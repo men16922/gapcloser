@@ -187,6 +187,23 @@ def test_domain_units_scale_lengths_and_speeds_but_not_friction():
     assert abs((v * d.speed_scale) ** 2 / (2 * mu * 9.81) - d.scale * v * v / (2 * mu * 9.81)) < 1e-9
 
 
+def test_sheet_corners_are_found_automatically():
+    pytest.importorskip("cv2")
+    import json
+
+    import numpy as np
+
+    from studio.video import auto_sheet
+
+    path = SAMPLES / "stop-line-video.mp4"
+    if not path.exists():
+        pytest.skip("sample video not rendered")
+    found = auto_sheet(path)
+    truth = json.loads((SAMPLES / "stop-line-video.truth.json").read_text())["sheet_corners_px"]
+    assert found is not None
+    assert max(min(np.hypot(a - x, b - y) for x, y in found) for a, b in truth) < 2.0
+
+
 def test_carla_export_runs_against_the_carla_api_shape():
     """CARLA is not installed here (it needs a GPU server), so the export runs against a stand-in `carla` module with
     the calls the snippet makes, named as in the CARLA 0.9.16 Python API and the friction-trigger tutorial

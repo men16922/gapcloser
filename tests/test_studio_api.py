@@ -204,3 +204,14 @@ def test_overview_console_and_studio_are_linked(tmp_path):
     home = c.get("/").text
     assert "Tether" in home and 'href="/console' in home and "/studio" in home and "sample=" in home
     assert c.get("/api/studio/sample-frame/press-line").headers["content-type"] == "image/jpeg"
+
+
+def test_uploaded_video_gets_its_sheet_corners_found(tmp_path):
+    pytest.importorskip("cv2")
+    path = SAMPLE_DIR / "flick-video.mp4"
+    if not path.exists():
+        pytest.skip("sample video not rendered")
+    c = client(tmp_path)
+    s = c.post("/api/studio/sessions", files={"file": ("my-table.mp4", path.read_bytes(), "video/mp4")}).json()
+    v = s["videos"][0]
+    assert v["corners_auto"] and len(v["corners_hint"]) == 4

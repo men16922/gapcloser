@@ -170,6 +170,48 @@ def first_frame_jpeg(path: Path) -> tuple[bytes, dict]:
     return buf.tobytes(), {"width": frames[0].shape[1], "height": frames[0].shape[0], "scale": scale, "fps": fps}
 
 
+def detect_sheet(frame: np.ndarray) -> np.ndarray | None:
+    """The reference sheet in a frame: the brightest, least colourful convex quadrilateral of reasonable size (a sheet
+    of paper on a table, a painted box on a road). Returns its 4 corners (px, sub-pixel refined) or None; the visitor
+    can still drag them. Order does not matter: PlaneCamera tries both senses."""
+    cv2 = _cv2()
+    h, w = frame.shape[:2]
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    blur = cv2.GaussianBlur(gray, (5, 5), 0)
+    best, best_score = None, 0.0
+    for thr in sorted({int(np.percentile(blur, q)) for q in (90, 95, 98)} | {int(cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[0])}):
+        mask = (blur > thr).astype(np.uint8)
+        mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, np.ones((5, 5), np.uint8))
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        for c in contours:
+            area = cv2.contourArea(c)
+            if not 0.004 * w * h < area < 0.5 * w * h:
+                continue
+            quad = cv2.approxPolyDP(c, 0.03 * cv2.arcLength(c, True), True)
+            if len(quad) != 4 or not cv2.isContourConvex(quad):
+                continue
+            fill = area / max(cv2.contourArea(cv2.convexHull(c)), 1.0)
+            m = np.zeros((h, w), np.uint8)
+            cv2.drawContours(m, [quad], -1, 1, -1)
+            inside = m.astype(bool)
+            white = float(gray[inside].mean()) / 255.0 * (1.0 - float(hsv[..., 1][inside].mean()) / 255.0)
+            score = area * white * fill
+            if score > best_score:
+                best, best_score = quad.reshape(4, 2).astype(np.float32), score
+    if best is None:
+        return None
+    crit = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.01)
+    return cv2.cornerSubPix(gray, best.reshape(-1, 1, 2), (5, 5), (-1, -1), crit).reshape(4, 2)
+
+
+def auto_sheet(path: Path) -> list[list[float]] | None:
+    """detect_sheet on a video's first frame, in the frame's own pixel coordinates (as the page shows it)."""
+    frames, _, scale = read_frames(Path(path), max_seconds=0.5)
+    q = detect_sheet(frames[0])
+    return None if q is None else [[round(float(x) / scale, 1), round(float(y) / scale, 1)] for x, y in q]
+
+
 def auto_object(frames: list[np.ndarray], cam: PlaneCamera | None = None) -> tuple[float, float, int]:
     """Where the object sits in the first frame: the most colourful large blob that differs from the per-pixel
     median background (the object moves around, so most of the time any given pixel shows the table).

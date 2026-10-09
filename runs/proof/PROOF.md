@@ -1,6 +1,6 @@
 # Tether: proof run
 
-2026-10-10 01:46 · git 2ba38ce · arm64 Darwin · 312 s · full
+2026-10-10 02:13 · git a662519 · arm64 Darwin · 415 s · full
 
 Everything below except section 5 was recomputed by `python -m eval.prove` on this machine, with no network.
 
@@ -30,5 +30,12 @@ Real runs to reach 95% success: suggested **5.76**, random 7.6, hand-made sweep 
 | closed | 46% | 0% | 100% | 100% | 100% |
 | open | 39% | 6% | 83% | 100% | 100% |
 | compound | 22% | 14% | 54% | 97% | 96% |
+
+## 6. Phone robustness (automatic sheet corners, tracking, fit)
+
+| Condition | Corner error | Pushes found | Launch-speed bias | Truth inside 90% | Intervals (mu, region start, region mu) |
+|---|---|---|---|---|---|
+| clean phone | 1.0 px | 11/11 | -0.8% | 2/3 | [0.511, 0.573], [0.342, 0.379], [0.258, 0.296] |
+| hand-held, blurred, compressed | 3.32 px | 11/11 | -6.5% | 3/3 | [0.425, 0.631], [0.15, 0.589], [0.204, 0.391] |
 
 Limits: all data is synthetic (NVIDIA Newton) so the truth is known; a real phone video has not been validated yet.

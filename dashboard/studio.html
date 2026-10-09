@@ -1143,7 +1143,7 @@ function renderMeasure() {
   };
   draw();
   dragHandles($("#fsvg"), v, (k, x, y) => { if (k === "obj") { if (obj) { obj[0] = x; obj[1] = y; } } else { corners[k][0] = x; corners[k][1] = y; } draw(); });
-  $("#frame-note").textContent = v.corners_hint ? (LIVE ? (state.s.simulated ? "Corners pre-placed where the sheet sits in the simulated scene; adjust them if you like." : "Corners pre-placed for this sample; adjust them if you like.") : "Recorded session: corners pre-placed, tracking replays the recorded result.") : "Click-drag the handles. Any corner order works.";
+  $("#frame-note").textContent = v.corners_auto ? T("Corners found automatically on the brightest rectangle. Check them against the sheet and drag any that are off.", "가장 밝은 사각형에서 모서리를 자동으로 찾았습니다. 종이와 맞는지 확인하고, 어긋난 점은 끌어서 옮기세요.") : v.corners_hint ? (LIVE ? (state.s.simulated ? "Corners pre-placed where the sheet sits in the simulated scene; adjust them if you like." : "Corners pre-placed for this sample; adjust them if you like.") : "Recorded session: corners pre-placed, tracking replays the recorded result.") : "Click-drag the handles. Any corner order works.";
   $("#side").innerHTML = `
     <label>${T("Reference", "기준 사각형")}<select id="sheet">${DOM.id === "driving" ? `<option value="a4">${T("Painted box (5.25 × 7.43 m)", "도로 위 기준 사각형 (5.25 × 7.43 m)")}</option>` : `<option value="a4">A4 (210 × 297 mm)</option><option value="letter">Letter (8.5 × 11 in)</option>`}</select></label>
     <label>${T(`Height of the ${CS("objectWord")} (cm)`, `${CS("objectWordKo")} 높이 (cm)`)}<input id="oh" type="number" min="1" max="${DOM.id === "driving" ? 300 : 40}" step="0.5" value="${state.s.sample || state.s.simulated ? Math.round((DOM.object_height_m || 0.06) * 100) : 5}"></label>
