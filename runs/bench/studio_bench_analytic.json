@@ -12,13 +12,13 @@
    "closed": 50,
    "worlds": 50,
    "median_pushes": 8.0,
-   "mean_pushes": 7.72
+   "mean_pushes": 7.6
   },
   "sweep": {
    "closed": 50,
    "worlds": 50,
    "median_pushes": 6.0,
-   "mean_pushes": 5.92
+   "mean_pushes": 5.88
   }
  },
  "rows": [
@@ -203,7 +203,7 @@
     },
     {
      "pushes": 6,
-     "success": 0.7,
+     "success": 0.825,
      "structure": [
       "mu_eff",
       "actuator_gain",
@@ -789,7 +789,7 @@
     },
     {
      "pushes": 8,
-     "success": 0.975,
+     "success": 1.0,
      "structure": [
       "mu_eff",
       "actuator_gain",
@@ -803,7 +803,7 @@
   {
    "method": "sweep",
    "closed": true,
-   "pushes": 8,
+   "pushes": 6,
    "history": [
     {
      "pushes": 4,
@@ -815,16 +815,6 @@
     },
     {
      "pushes": 6,
-     "success": 0.9,
-     "structure": [
-      "mu_eff",
-      "actuator_gain",
-      "patch_y0",
-      "patch_mu"
-     ]
-    },
-    {
-     "pushes": 8,
      "success": 1.0,
      "structure": [
       "mu_eff",
@@ -877,7 +867,7 @@
     },
     {
      "pushes": 6,
-     "success": 0.775,
+     "success": 0.825,
      "structure": [
       "mu_eff",
       "actuator_gain",
@@ -1107,7 +1097,7 @@
   {
    "method": "random",
    "closed": true,
-   "pushes": 12,
+   "pushes": 10,
    "history": [
     {
      "pushes": 4,
@@ -1135,16 +1125,6 @@
     },
     {
      "pushes": 10,
-     "success": 0.775,
-     "structure": [
-      "mu_eff",
-      "actuator_gain",
-      "patch_y0",
-      "patch_mu"
-     ]
-    },
-    {
-     "pushes": 12,
      "success": 1.0,
      "structure": [
       "mu_eff",
@@ -1211,7 +1191,7 @@
   {
    "method": "random",
    "closed": true,
-   "pushes": 6,
+   "pushes": 8,
    "history": [
     {
      "pushes": 4,
@@ -1223,6 +1203,16 @@
     },
     {
      "pushes": 6,
+     "success": 0.8,
+     "structure": [
+      "mu_eff",
+      "actuator_gain",
+      "patch_y0",
+      "patch_mu"
+     ]
+    },
+    {
+     "pushes": 8,
      "success": 1.0,
      "structure": [
       "mu_eff",
@@ -2113,7 +2103,7 @@
   {
    "method": "random",
    "closed": true,
-   "pushes": 10,
+   "pushes": 8,
    "history": [
     {
      "pushes": 4,
@@ -2133,16 +2123,6 @@
     },
     {
      "pushes": 8,
-     "success": 0.925,
-     "structure": [
-      "mu_eff",
-      "actuator_gain",
-      "patch_y0",
-      "patch_mu"
-     ]
-    },
-    {
-     "pushes": 10,
      "success": 1.0,
      "structure": [
       "mu_eff",
@@ -2383,7 +2363,7 @@
     },
     {
      "pushes": 6,
-     "success": 0.95,
+     "success": 1.0,
      "structure": [
       "mu_eff",
       "actuator_gain",
@@ -2625,7 +2605,7 @@
     },
     {
      "pushes": 6,
-     "success": 0.7,
+     "success": 0.575,
      "structure": [
       "mu_eff",
       "actuator_gain",
@@ -2895,7 +2875,7 @@
     },
     {
      "pushes": 10,
-     "success": 0.875,
+     "success": 0.625,
      "structure": [
       "mu_eff",
       "actuator_gain",
@@ -2971,7 +2951,7 @@
   {
    "method": "random",
    "closed": true,
-   "pushes": 10,
+   "pushes": 8,
    "history": [
     {
      "pushes": 4,
@@ -2983,16 +2963,6 @@
     },
     {
      "pushes": 6,
-     "success": 0.7,
-     "structure": [
-      "mu_eff",
-      "actuator_gain",
-      "patch_y0",
-      "patch_mu"
-     ]
-    },
-    {
-     "pushes": 8,
      "success": 0.875,
      "structure": [
       "mu_eff",
@@ -3002,8 +2972,8 @@
      ]
     },
     {
-     "pushes": 10,
-     "success": 1.0,
+     "pushes": 8,
+     "success": 0.95,
      "structure": [
       "mu_eff",
       "actuator_gain",
@@ -3601,7 +3571,7 @@
     },
     {
      "pushes": 6,
-     "success": 0.775,
+     "success": 0.7,
      "structure": [
       "mu_eff",
       "actuator_gain",
@@ -4157,7 +4127,7 @@
   {
    "method": "random",
    "closed": true,
-   "pushes": 8,
+   "pushes": 6,
    "history": [
     {
      "pushes": 4,
@@ -4169,16 +4139,6 @@
     },
     {
      "pushes": 6,
-     "success": 0.85,
-     "structure": [
-      "mu_eff",
-      "actuator_gain",
-      "patch_y0",
-      "patch_mu"
-     ]
-    },
-    {
-     "pushes": 8,
      "success": 1.0,
      "structure": [
       "mu_eff",
