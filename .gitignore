@@ -13,3 +13,4 @@ dashboard/dist/
 video/out/
 site/
 .claude/worktrees/
+runs/studio/

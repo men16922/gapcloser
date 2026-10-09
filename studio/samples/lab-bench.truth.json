@@ -1,0 +1,13 @@
+{
+  "name": "lab-bench",
+  "hidden": {
+    "object_mu": 0.7,
+    "table_mu": 0.7,
+    "actuator_gain": 0.88,
+    "patch_y0": 0.38,
+    "patch_mu": 0.45,
+    "camera_pitch_deg": 2.0
+  },
+  "env": "NewtonPushEnv",
+  "title": "Lab bench, first day on the real robot"
+}

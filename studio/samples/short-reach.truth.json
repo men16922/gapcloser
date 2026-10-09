@@ -1,0 +1,11 @@
+{
+  "name": "short-reach",
+  "hidden": {
+    "object_mu": 0.6,
+    "table_mu": 0.6,
+    "patch_y0": 0.33,
+    "patch_mu": 0.4
+  },
+  "env": "NewtonPushEnv",
+  "title": "Short pushes only (far table unmeasured)"
+}

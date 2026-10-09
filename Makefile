@@ -4,7 +4,7 @@
 
 PY := $(shell [ -x .venv/bin/python ] && echo .venv/bin/python || echo python3)
 
-PY_SRC := $(shell find agent sim eval dashboard server video -name '*.py' 2>/dev/null)
+PY_SRC := $(shell find agent sim eval dashboard server video studio -name '*.py' 2>/dev/null)
 
 check: lint test
 

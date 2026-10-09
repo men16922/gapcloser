@@ -23,6 +23,9 @@ from sim.push_task import FRAME_DT, PATCH_OFF, SUCCESS_TOL, TARGET_RANGE, Rollou
 
 FIELDS = ("mu_eff", "actuator_gain", "patch_y0", "patch_mu", "camera_dx", "camera_pitch_deg", "lens_k")
 
+STEP = {"mu_eff": 0.05, "actuator_gain": 0.05, "patch_y0": 0.05, "patch_mu": 0.05, "camera_dx": 0.01,
+        "camera_pitch_deg": 1.0, "lens_k": 0.05}  # initial simplex steps for the fitter
+
 MODEL_SCHEMA = {
     "type": "object",
     "properties": {
@@ -79,6 +82,14 @@ class Datum:
     track: list[float]
     target: float | None = None
     observed: float | None = None
+    start: float = 0.0  # launch position (recorded video); a friction region is fixed to the table, not the launch
+
+
+def at_start(p: ParamSet, start: float) -> ParamSet:
+    """The world as seen from a launch at `start`: the friction region moves by -start (clamped at the launch)."""
+    if not start or p["patch_y0"] >= PATCH_OFF:
+        return p
+    return p.with_(patch_y0=max(0.0, p["patch_y0"] - start))
 
 
 def to_params(model: dict, base: ParamSet) -> ParamSet:
@@ -112,13 +123,15 @@ class Workbench:
 
     def __init__(self, real_ro: Rollout, base: ParamSet, real: RealWorld | None, probe_budget: int):
         self.base, self.real, self.budget = base, real, probe_budget
-        self.data = [Datum(t.command, t.slide, t.track, t.target, t.observed) for t in real_ro.trials if not t.tipped]
+        self.data = [Datum(t.command, t.slide, t.track, t.target, t.observed, getattr(t, "start", 0.0) or 0.0)
+                     for t in real_ro.trials if not t.tipped]
         self.tipped = sum(t.tipped for t in real_ro.trials)
         self.probes_used = 0
+        self.requested: list[float] = []  # offline sessions: probe pushes recommended to the human
 
     def residuals(self, p: ParamSet) -> dict:
-        stop = [slide_distance(d.command, p) - d.stop for d in self.data]
-        launch = [(analytic_track(d.command, p, 1)[1] - d.track[1]) / FRAME_DT for d in self.data if len(d.track) > 1]
+        stop = [slide_distance(d.command, at_start(p, d.start)) - d.stop for d in self.data]
+        launch = [(analytic_track(d.command, at_start(p, d.start), 1)[1] - d.track[1]) / FRAME_DT for d in self.data if len(d.track) > 1]
         perc = [observe(d.target, p) - d.observed for d in self.data if d.target is not None and d.target == d.target]
         rms = lambda xs: round(math.sqrt(sum(x * x for x in xs) / len(xs)), 4) if xs else 0.0  # noqa: E731
         worst = sorted(((round(d.command, 2), round(e, 3)) for d, e in zip(self.data, stop)), key=lambda x: -abs(x[1]))[:3]
@@ -126,8 +139,9 @@ class Workbench:
                 "launch_speed_residual_rms_mps": rms(launch), "perception_residual_rms_m": rms(perc)}
 
     def loss(self, p: ParamSet) -> float:
-        e = sum((slide_distance(d.command, p) - d.stop) ** 2 for d in self.data)
-        e += sum(((analytic_track(d.command, p, 1)[1] - d.track[1]) / FRAME_DT * 0.05) ** 2 for d in self.data if len(d.track) > 1)
+        e = sum((slide_distance(d.command, at_start(p, d.start)) - d.stop) ** 2 for d in self.data)
+        e += sum(((analytic_track(d.command, at_start(p, d.start), 1)[1] - d.track[1]) / FRAME_DT * 0.05) ** 2
+                 for d in self.data if len(d.track) > 1)
         e += sum((observe(d.target, p) - d.observed) ** 2 for d in self.data if d.target is not None and d.target == d.target)
         return e
 
@@ -139,7 +153,7 @@ class Workbench:
             for k in range(1, len(tr) - 1):
                 v1, v2 = (tr[k] - tr[k - 1]) / FRAME_DT, (tr[k + 1] - tr[k]) / FRAME_DT
                 if v2 > 0.05:
-                    bins.setdefault(round(int(tr[k] / 0.05) * 0.05, 2), []).append((v1 - v2) / FRAME_DT / GRAVITY)
+                    bins.setdefault(round(int((tr[k] + d.start) / 0.05) * 0.05, 2), []).append((v1 - v2) / FRAME_DT / GRAVITY)
         out = [{"y_m": f"{b:.2f}-{b + 0.05:.2f}", "decel_g": round(sum(v) / len(v), 3), "n": len(v)} for b, v in sorted(bins.items())]
         return out or [{"note": "no usable tracks"}]
 
@@ -170,13 +184,33 @@ class Workbench:
         if "patch_y0" in free:  # loss is non-convex in where the region begins
             i = free.index("patch_y0")
             starts = [x0[:i] + [y] + x0[i + 1:] for y in (0.2, 0.3, 0.4, 0.5)]
+            if "patch_mu" in free:  # a region as slick as the rest is flat in y0: also start slicker and stickier
+                j, mu = free.index("patch_mu"), x0[free.index("mu_eff")] if "mu_eff" in free else x0[free.index("patch_mu")]
+                if abs(x0[j] - mu) < 0.05:
+                    starts = [st[:j] + [m] + st[j + 1:] for st in starts for m in (0.6 * mu, 1.4 * mu)]
+
+        def simplex(st):  # per-field step sizes: scipy's default (5% of x0, 0.00025 at 0) strands pitch/lens at 0
+            pts = [list(st)]
+            for i, f in enumerate(free):
+                q = list(st)
+                q[i] += STEP[f]
+                pts.append(q)
+            return pts
+
         best = min((minimize(lambda x: self.loss(build(x)), st, method="Nelder-Mead",
-                             options={"xatol": 1e-4, "fatol": 1e-10, "maxiter": 3000}) for st in starts), key=lambda r: r.fun)
+                             options={"xatol": 1e-4, "fatol": 1e-10, "maxiter": 3000, "initial_simplex": simplex(st)})
+                    for st in starts), key=lambda r: r.fun)
         fitted = from_params(build(best.x))
         return {"fitted_model": fitted, **self.test_hypothesis(fitted)}
 
     def probe_real(self, commands: list[float]) -> dict:
         cmds = [min(4.5, max(0.3, float(c))) for c in (commands or [])][: max(0, self.budget - self.probes_used)]
+        if cmds and getattr(self.real, "offline", False):  # Studio: recorded data, the pushes go to the human
+            self.probes_used += len(cmds)
+            self.requested += cmds
+            return {"queued_for_human": [round(c, 3) for c in cmds], "probe_budget_left": self.budget - self.probes_used,
+                    "note": "offline session: these pushes are recommended to the user; no new data arrives now. "
+                            "Commit the best model for the existing data."}
         if not cmds or self.real is None:
             return {"error": "probe budget exhausted", "probe_budget_left": self.budget - self.probes_used}
         self.probes_used += len(cmds)
@@ -207,7 +241,7 @@ class ToolAgentDiagnoser:
     """`real` is needed for probe experiments; without it probe_real reports an exhausted budget."""
 
     def __init__(self, llm: LLM, real: RealWorld | None = None, role: str = "diagnose", max_steps: int = 10,
-                 probe_budget: int = 12, fallback=None, on_step=None, camera_events=None):
+                 probe_budget: int = 12, fallback=None, on_step=None, camera_events=None, context: dict | None = None):
         self.llm, self.real, self.role = llm, real, role
         # optional () -> dict | None: camera evidence for this iteration (e.g. NVIDIA Cosmos Reason 2 events on the
         # real clip next to the physics tipped count). None (the default, and all benchmarks) leaves the prompt as is.
@@ -216,9 +250,13 @@ class ToolAgentDiagnoser:
         self.max_steps, self.probe_budget = max_steps, probe_budget
         self.fallback = fallback or TrajectoryDiagnoser()
         self.history: list[dict] = []
+        # optional evidence overrides for recorded user data (Studio): keys set to None are dropped
+        self.context = context
+        self.last_workbench: Workbench | None = None
 
     def diagnose(self, real: Rollout, sim: Rollout, sim_params: ParamSet) -> Diagnosis:
         wb = Workbench(real, sim_params, self.real, self.probe_budget)
+        self.last_workbench = wb
         stops = [t.slide for t in real.trials if not t.tipped] or [0.0]
         summary = {
             "target_range_m": list(TARGET_RANGE), "success_tolerance_m": SUCCESS_TOL,
@@ -229,6 +267,10 @@ class ToolAgentDiagnoser:
                         "real_stop_m": round(r.slide, 3), "sim_predicted_stop_m": round(s.slide, 3)}
                        for r, s in list(zip(real.trials, sim.trials))[::2]],
         }
+        if self.context:
+            summary.update(self.context)
+            summary = {k: v for k, v in summary.items() if v is not None}
+            summary["trials"] = [{k: v for k, v in t.items() if v == v} for t in summary.get("trials", [])]  # drop NaN
         cam = self.camera_events() if callable(self.camera_events) else self.camera_events
         if cam:
             summary["camera_events"] = cam
