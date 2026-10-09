@@ -56,6 +56,9 @@ button, input, select { font: inherit; color: inherit; }
 .engine { margin-left: auto; display: flex; gap: 8px; align-items: center; color: var(--muted); font-size: 13px; }
 .engine i { width: 7px; height: 7px; background: var(--green); display: inline-block; }
 .engine.off i { background: var(--dim); }
+.lang { display: inline-flex; border: 1px solid var(--line); }
+.lang button { background: none; border: 0; padding: 5px 9px; cursor: pointer; font: 600 12px/1 var(--f-mono); color: var(--muted); }
+.lang button[aria-pressed="true"] { background: var(--raised); color: var(--fg); box-shadow: inset 0 -2px 0 var(--green); }
 
 /* layout */
 .studio { display: grid; grid-template-columns: 260px minmax(0, 1fr); min-height: calc(100vh - 60px); }
@@ -251,6 +254,27 @@ pre.code .s { color: #e3b867; }
 .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--raised); border: 1px solid var(--green); padding: 8px 14px; font-size: 13.5px; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
 .toast.on { opacity: 1; }
 
+/* Ask GapCloser */
+.askfab { position: fixed; right: 20px; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); z-index: 20; background: var(--green); color: #000; border: 0; padding: 12px 18px; font: 700 15px/1 var(--f-display); letter-spacing: 0.04em; cursor: pointer; box-shadow: 0 6px 24px rgba(0,0,0,0.5); }
+.askfab:hover { background: var(--green-hi); }
+.chat { position: fixed; right: 20px; bottom: calc(76px + env(safe-area-inset-bottom, 0px)); z-index: 21; width: min(420px, calc(100vw - 32px)); max-height: min(640px, calc(100vh - 120px)); display: flex; flex-direction: column; background: var(--panel); border: 1px solid var(--line); box-shadow: 0 12px 48px rgba(0,0,0,0.6); }
+.chat[hidden] { display: none; }
+.chat header { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--line); font: 600 16px/1 var(--f-display); }
+.chat .x { background: none; border: 0; color: var(--muted); font-size: 22px; line-height: 1; cursor: pointer; }
+.chat-intro { padding: 10px 14px 0; }
+.chatlog { flex: 1; overflow-y: auto; padding: 10px 14px; display: grid; gap: 10px; align-content: start; min-height: 120px; }
+.msg { max-width: 92%; padding: 8px 11px; font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
+.msg.user { justify-self: end; background: var(--raised); border: 1px solid var(--line); }
+.msg.bot { justify-self: start; border-left: 2px solid var(--green); background: #0c0e10; }
+.msg.bot ul { margin: 4px 0; padding-left: 18px; }
+.msg.err { border-left-color: var(--bad); color: var(--muted); }
+.sugg { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 14px 10px; }
+.sugg button { background: none; border: 1px solid var(--line); color: var(--muted); padding: 5px 8px; font-size: 12.5px; cursor: pointer; text-align: left; }
+.sugg button:hover { border-color: var(--dim); color: var(--fg); }
+#chat-form { display: flex; gap: 8px; padding: 10px 14px 14px; border-top: 1px solid var(--line); }
+#chat-in { flex: 1; resize: none; background: var(--bg); border: 1px solid var(--line); padding: 8px; font: 14px/1.4 var(--f-body); color: var(--fg); }
+@media (max-width: 760px) { .chat { right: 8px; left: 8px; width: auto; bottom: calc(70px + env(safe-area-inset-bottom, 0px)); } .askfab { right: 12px; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); } }
+
 @media (max-width: 1100px) {
   .hero { grid-template-columns: 1fr; }
   .charts { grid-template-columns: 1fr; }
@@ -280,6 +304,7 @@ pre.code .s { color: #e3b867; }
     <a href="#" aria-current="page">Studio</a>
   </nav>
   <div class="engine" id="engine"><i></i><span>…</span></div>
+  <div class="lang" role="group" aria-label="Language"><button type="button" data-lang="en">EN</button><button type="button" data-lang="ko">KO</button></div>
 </header>
 
 <div class="studio">
@@ -334,7 +359,7 @@ pre.code .s { color: #e3b867; }
         </div>
         <div>
           <h3>Or upload a robot log</h3>
-          <p class="small muted" style="margin-top:6px">CSV or JSON, one row per push. <code>stop</code> in metres and a <code>command</code> (or measured <code>launch_speed</code>) are required; <code>target</code>, <code>perceived</code> and a <code>track</code> (positions at 30 fps, space separated) let it separate actuator, friction and camera errors.</p>
+          <p class="small muted" style="margin-top:6px" data-ko-html="CSV 또는 JSON, 밀기 한 번에 한 줄입니다. 멈춘 거리 <code>stop</code>(미터)와 <code>command</code>(또는 측정한 <code>launch_speed</code>)는 꼭 있어야 합니다. <code>target</code>, <code>perceived</code>, <code>track</code>(30 fps 위치, 공백으로 구분)이 있으면 모터·마찰·카메라 오류를 구분할 수 있습니다.">CSV or JSON, one row per push. <code>stop</code> in metres and a <code>command</code> (or measured <code>launch_speed</code>) are required; <code>target</code>, <code>perceived</code> and a <code>track</code> (positions at 30 fps, space separated) let it separate actuator, friction and camera errors.</p>
           <p style="margin-top:10px"><code>command,stop,target,perceived,track<br>2.91,0.519,0.520,0.538,0 0.080 0.155 …</code></p>
         </div>
       </div>
@@ -401,11 +426,190 @@ pre.code .s { color: #e3b867; }
     </section>
   </main>
 </div>
+<button type="button" class="askfab" id="askfab" aria-controls="chat" aria-expanded="false">Ask</button>
+<aside class="chat" id="chat" hidden aria-label="Ask GapCloser">
+  <header><b>Ask GapCloser</b><button type="button" class="x" id="chat-x" aria-label="Close">×</button></header>
+  <p class="small muted chat-intro" id="chat-intro">Ask about this page or your result. Answers use your current session's numbers.</p>
+  <div class="chatlog" id="chatlog" aria-live="polite"></div>
+  <div class="sugg" id="chat-sugg"></div>
+  <form id="chat-form" autocomplete="off"><textarea id="chat-in" rows="2" maxlength="1200" aria-label="Question"></textarea><button class="btn primary" type="submit" id="chat-send">Send</button></form>
+</aside>
 <div class="toast" id="toast" role="status"></div>
 
 <script>
 const DATA = /*__STUDIO_DATA__*/null;
 const LIVE = DATA === null;
+
+/* ---------------------------------------------------------------- language (EN default, KO) */
+let LANG = (() => { const q = new URLSearchParams(location.search).get("lang"); if (q === "ko" || q === "en") return q;
+  try { return localStorage.getItem("gapcloser-lang") || "en"; } catch (_) { return "en"; } })();
+const T = (en, ko) => (LANG === "ko" ? ko : en);
+const KO = {
+  // chrome and steps
+  "Agent console": "에이전트 콘솔", "Studio": "Studio", "Data": "데이터", "Measure": "측정", "Diagnose": "진단", "Calibrated sim": "보정된 시뮬",
+  "Export": "내보내기", "Video or robot log": "영상 또는 로봇 로그", "Scale and pushes": "배율과 밀기", "Agent at work": "에이전트 작업",
+  "Physics, intervals, next push": "물리값, 오차 범위, 다음 실험", "Newton, Isaac Lab, report": "Newton, Isaac Lab, 보고서",
+  "Agent off: offline fitting": "에이전트 꺼짐: 오프라인 피팅",
+  // data step
+  "Fit your simulator to the real world": "시뮬레이터를 현실에 맞추세요",
+  "Show GapCloser how something actually slides on your table: a phone video, or the push log your robot already writes. You get the physics that differs from your simulator, how sure that is, which pushes would settle the rest, and a config for NVIDIA Newton or Isaac Lab.": "물건이 실제 탁자에서 어떻게 미끄러지는지 보여 주세요. 폰 영상이나 로봇이 이미 남기는 밀기 기록이면 됩니다. 시뮬레이터와 다른 물리값, 그 확실한 정도, 남은 의문을 풀 다음 실험, 그리고 NVIDIA Newton·Isaac Lab용 설정을 받습니다.",
+  "No video at hand? Simulate your table": "영상이 없나요? 탁자를 시뮬레이션하세요",
+  'Set the physics of the "real" table, and NVIDIA Newton produces the measurements: a phone-style video it renders, or a robot\'s push log. GapCloser then has to work out your settings from the data alone; you see how close it got at the end.': "\"진짜 탁자\"의 물리를 정하면 NVIDIA Newton이 측정 데이터를 만듭니다. 폰으로 찍은 듯한 영상이나 로봇의 밀기 기록입니다. GapCloser는 데이터만 보고 여러분의 설정을 알아내야 하고, 마지막에 얼마나 맞혔는지 확인할 수 있습니다.",
+  "Phone video": "폰 영상", "Robot log": "로봇 로그", "Table friction": "탁자 마찰",
+  "A region with different friction (spill, mat, worn spot)": "마찰이 다른 구간 (엎지른 물, 매트, 닳은 자리)",
+  "Region starts at": "구간 시작 위치", "Friction in the region": "구간 안의 마찰", "Robot motor strength": "로봇 모터 세기", "Robot camera tilt": "로봇 카메라 기울기",
+  "Pushes": "밀기 횟수", "Longest push slides": "가장 긴 밀기 거리", "Run in NVIDIA Newton": "NVIDIA Newton으로 실행",
+  "Or open a recorded example": "또는 기록된 예시 열기", "Film your own table": "직접 탁자 찍기",
+  "Lay a sheet of A4 or Letter paper flat on the table, beside the path.": "물건이 지나갈 길 옆에 A4(또는 Letter) 용지를 평평하게 놓습니다.",
+  "Hold the phone still (or prop it up) so the sheet and the whole path are in view.": "용지와 길 전체가 보이게 폰을 고정합니다.",
+  "Flick the object 6–10 times from the same spot, short and long. Let it stop each time.": "같은 자리에서 물건을 6~10번, 짧게도 길게도 튕깁니다. 매번 멈출 때까지 둡니다.",
+  "Use slow motion (120 fps) or 60 fps if your phone has it: motion blur at 30 fps makes launch speeds read low.": "가능하면 슬로모션(120fps)이나 60fps로 찍으세요. 30fps는 흔들림 때문에 출발 속도가 낮게 읽힙니다.",
+  "Choose a video or log": "영상 또는 로그 선택", "or drop it here": "또는 여기에 끌어다 놓기", "Or upload a robot log": "또는 로봇 로그 올리기",
+  "Uploads run on the live server (make serve, then open /studio). The samples above replay recorded runs.": "업로드는 라이브 서버에서 됩니다 (make serve 후 /studio). 위 예시는 기록된 실행을 재생합니다.",
+  "Simulation runs on the live server (make serve, then /studio).": "시뮬레이션은 라이브 서버에서 됩니다 (make serve 후 /studio).",
+  "Phone video: a box on a table": "폰 영상: 탁자 위 상자",
+  "Seven hand flicks filmed from the side, an A4 sheet for scale. Something about this table is off. Synthetic: rendered by NVIDIA Newton from physics the Studio never sees.": "옆에서 찍은 손 튕기기 7번, 배율용 A4 용지. 이 탁자에는 뭔가 다른 점이 있습니다. 합성 영상: Studio가 모르는 물리로 NVIDIA Newton이 렌더링했습니다.",
+  "Robot log: first day on the real bench": "로봇 로그: 실제 작업대 첫날",
+  "20 pushes (16 aimed at targets, 4 probes) with camera tracks, from a policy trained in the nominal sim.": "기본 시뮬레이터로 학습한 정책의 밀기 20번 (목표 16번, 탐색 4번), 카메라 궤적 포함.",
+  "Robot log: short pushes only": "로봇 로그: 짧은 밀기만",
+  "8 short pushes. The far half of the table was never measured: watch the Studio refuse to be certain.": "짧은 밀기 8번. 탁자 먼 쪽은 측정한 적이 없습니다. Studio가 함부로 확신하지 않는 모습을 보세요.",
+  // measure
+  "Measure the pushes": "밀기 측정", "Your pushes": "기록된 밀기", "Sheet": "용지", "Object height (cm)": "물체 높이 (cm)", "Track pushes": "밀기 추적",
+  "Tracking…": "추적 중…",
+  "Drag the four green handles onto the corners of the sheet: its known size gives scale, and its perspective gives the camera's height and angle. The orange ring marks the object.": "초록 점 네 개를 용지 모서리에 맞추세요. 용지 크기로 배율을, 원근으로 카메라 높이와 각도를 알아냅니다. 주황 원은 물체 위치입니다.",
+  "The height removes parallax: the camera sees the middle of the object, not its footprint.": "높이를 알면 시차를 보정합니다. 카메라는 물체 바닥이 아니라 가운데를 보기 때문입니다.",
+  "The object is found automatically (the thing that moves). Click it on the frame to choose it yourself.": "물체는 자동으로 찾습니다 (움직이는 것). 직접 고르려면 화면에서 물체를 클릭하세요.",
+  "Corners pre-placed for this sample; adjust them if you like.": "이 예시는 모서리가 미리 맞춰져 있습니다. 필요하면 조정하세요.",
+  "Corners pre-placed where the sheet sits in the simulated scene; adjust them if you like.": "시뮬레이션 속 용지 위치에 모서리를 미리 맞췄습니다. 필요하면 조정하세요.",
+  "Recorded session: corners pre-placed, tracking replays the recorded result.": "기록된 세션: 모서리가 미리 맞춰져 있고, 추적은 기록된 결과를 재생합니다.",
+  "Click-drag the handles. Any corner order works.": "점을 끌어서 옮기세요. 모서리 순서는 상관없습니다.",
+  "Tracked paths (green) and the object as the video plays.": "영상 재생에 맞춰 추적한 경로(초록)와 물체를 표시합니다.",
+  "Camera height": "카메라 높이", "Focal length": "초점 거리", "Pushes in this take": "이 촬영의 밀기", "All pushes": "전체 밀기", "Farthest stop": "가장 먼 정지 위치",
+  "Recovered from the sheet alone: no calibration pattern, no phone metadata.": "용지만으로 복원했습니다. 보정 패턴이나 폰 메타데이터는 쓰지 않았습니다.",
+  "Re-place corners": "모서리 다시 맞추기", "Diagnose these pushes": "이 밀기들 진단하기",
+  "Each push from release (fastest frame) to rest, along the push direction. Positions share one table frame across takes.": "각 밀기를 손을 뗀 순간(가장 빠른 프레임)부터 멈출 때까지 밀기 방향으로 쟀습니다. 여러 촬영이 같은 탁자 좌표를 씁니다.",
+  "The log as GapCloser read it. Tipped pushes are left out of the fit.": "GapCloser가 읽은 로그입니다. 넘어진 밀기는 피팅에서 뺍니다.",
+  "Push": "밀기", "Launch speed": "출발 속도", "Command": "명령값", "Slide (m)": "미끄러진 거리 (m)", "Released at (m)": "출발 위치 (m)",
+  "Target (m)": "목표 (m)", "Perceived (m)": "카메라 인식 (m)", "tipped": "넘어짐",
+  // diagnose
+  "Find what differs": "다른 점 찾기",
+  "An agent works through your measurements like a scientist: inspect the evidence, propose which physical effects exist, fit each candidate, and ask for more pushes where the data can't decide. The numbers always come from a least-squares fit and a bootstrap over your pushes, never from the language model.": "에이전트가 과학자처럼 측정값을 검토합니다. 증거를 살피고, 어떤 물리 효과가 있는지 가설을 세우고, 각 가설을 맞춰 보고, 데이터로 결정할 수 없으면 밀기를 더 요청합니다. 숫자는 언어 모델이 아니라 항상 최소제곱 피팅과 부트스트랩으로 계산합니다.",
+  "Nemotron agent": "Nemotron 에이전트", "Offline fit": "오프라인 피팅",
+  "Fits a fixed library of structures and keeps the simplest that explains the data. No LLM, a few seconds.": "정해진 모델 목록을 모두 맞춰 보고 데이터를 설명하는 가장 단순한 것을 고릅니다. LLM 없이 몇 초면 됩니다.",
+  "Run diagnosis": "진단 실행", "Recorded run: replays the agent's real tool calls.": "기록된 실행: 에이전트의 실제 도구 호출을 재생합니다.",
+  "Deceleration in g, binned every 5 cm of table.": "감속도(g)를 탁자 5 cm마다 묶어 보여 줍니다.",
+  // results
+  "Your calibrated simulator": "보정된 시뮬레이터", "Your table, measured": "측정된 탁자", "The table along the push, measured": "밀기 방향으로 측정한 탁자",
+  "slick 0.2": "미끄러움 0.2", "grippy 1.0": "거침 1.0", "Pause": "일시정지", "Play": "재생", "calibrated sim": "보정된 시뮬", "your current sim": "현재 시뮬",
+  "friction map": "마찰 지도", "Same launch speed and spot as each real push; the boxes are the simulators' predictions.": "실제 각 밀기와 같은 속도·위치로 출발시켰을 때 시뮬레이터가 예측한 상자 위치입니다.",
+  "A push policy trained in each simulator, landing within 3 cm on targets 0.2–0.6 m of your table": "각 시뮬레이터로 학습한 밀기 정책이 탁자 위 0.2–0.6 m 목표에 3 cm 안으로 세울 확률",
+  "current sim": "현재 시뮬", "depends on the unmeasured table": "측정 안 된 탁자에 달려 있음", "agent model cross-checked": "에이전트 모델 교차검증 통과",
+  "agent overruled": "에이전트 모델 기각",
+  "Model predictions: rollouts of the fitted model across the plausible worlds, with your measured scatter as noise. Verify on the real robot.": "모델 예측입니다. 가능한 세계들에서 피팅한 모델을 돌렸고, 측정된 흩어짐을 잡음으로 넣었습니다. 실제 로봇으로 확인하세요.",
+  "What differs from your simulator": "시뮬레이터와 다른 점",
+  "Measured value with its 90% interval (bootstrap: refit on resampled pushes). Grey tick: your current simulator.": "측정값과 90% 범위입니다 (부트스트랩: 밀기를 다시 뽑아 반복 피팅). 회색 눈금은 현재 시뮬레이터 값입니다.",
+  "Parameter": "항목", "Your sim": "현재 시뮬", "Measured": "측정값", "90% interval": "90% 범위", "Hidden truth": "숨겨진 정답", "none": "없음",
+  "differs from your sim": "현재 시뮬과 다름", "within noise of your sim": "현재 시뮬과 오차 범위 안",
+  "Cube-table friction": "물체-탁자 마찰", "Actuator gain": "모터 세기", "Friction region starts at": "마찰 구간 시작 위치", "Friction in that region": "그 구간의 마찰",
+  "Camera offset": "카메라 위치 오차", "Camera pitch error": "카메라 기울기 오차", "Lens distortion": "렌즈 왜곡",
+  "The evidence": "근거", "Where it stops": "멈추는 위치",
+  "Your pushes against the calibrated model (band: 90% of plausible models) and your current sim.": "실제 밀기와 보정된 모델(띠: 가능한 모델의 90%), 현재 시뮬레이터를 비교합니다.",
+  "your pushes": "실제 밀기", "calibrated": "보정됨", "Friction along the table": "탁자 위치별 마찰",
+  "Deceleration seen in the tracks (bars) and the friction the calibrated sim uses (line, band).": "궤적에서 본 감속(막대)과 보정된 시뮬레이터의 마찰(선, 띠)입니다.",
+  "measured": "측정", "unmeasured": "미측정", "Success by target distance": "목표 거리별 성공률",
+  "Predicted for a policy trained in each sim (within 3 cm).": "각 시뮬레이터로 학습한 정책의 예상 성공률 (3 cm 이내).",
+  "launch speed (m/s)": "출발 속도 (m/s)", "slide (m)": "미끄러진 거리 (m)", "position on the table (m)": "탁자 위 위치 (m)", "friction μ": "마찰 μ",
+  "target distance (m)": "목표 거리 (m)", "predicted success": "예상 성공률", "launch": "출발", "target range": "목표 범위",
+  "ticks: where your pushes stopped": "눈금: 밀기가 멈춘 위치", "target range the robot must hit (0.2–0.6 m)": "로봇이 맞혀야 할 목표 범위 (0.2–0.6 m)",
+  "Next experiment": "다음 실험", "Where the plausible models disagree most about where the object stops, inside the range your robot works in.": "로봇 작업 범위 안에서, 가능한 모델들이 멈출 위치를 가장 다르게 예측하는 곳입니다.",
+  "Load take 2: the pushes it asked for": "두 번째 촬영 불러오기: 요청한 밀기", "Run these pushes in NVIDIA Newton": "이 밀기들을 NVIDIA Newton으로 실행",
+  "Export the calibrated config": "보정된 설정 내보내기", "Add a video of these pushes": "이 밀기들을 찍은 영상 추가", "Keep the sheet where it was.": "용지는 그 자리에 두세요.",
+  "Add the pushes you ran (CSV/JSON)": "실행한 밀기 추가 (CSV/JSON)", "Same columns as your first log; they are merged and you diagnose again.": "첫 로그와 같은 열이어야 합니다. 합친 뒤 다시 진단합니다.",
+  // export
+  "Take it to your simulator": "시뮬레이터로 가져가기", "Intervals become domain-randomization ranges: train on what the real table can plausibly be, nothing wider.": "오차 범위가 도메인 랜덤화 범위가 됩니다. 실제 탁자일 수 있는 범위로만 학습합니다.",
+  "Report": "보고서", "Copy": "복사", "Download": "다운로드",
+  "Material values for newton.ModelBuilder.ShapeConfig, plus the measured friction region.": "newton.ModelBuilder.ShapeConfig용 재질 값과 측정한 마찰 구간입니다.",
+  "An EventTermCfg that randomizes the object's material over the measured interval at startup.": "시작할 때 물체 재질을 측정 범위 안에서 무작위로 정하는 EventTermCfg입니다.",
+  "A one-page report to share.": "공유용 한 쪽짜리 보고서입니다.", "Everything above, machine-readable (gapcloser.calibration/v1).": "위 내용을 모두 담은 기계용 형식입니다 (gapcloser.calibration/v1).",
+  // chat
+  "Ask": "질문", "Ask GapCloser": "GapCloser에게 질문", "Send": "보내기", "Thinking…": "생각 중…", "Close": "닫기",
+  "Ask about this page or your result. Answers use your current session's numbers.": "이 화면이나 결과에 대해 물어보세요. 현재 세션의 숫자로 답합니다.",
+  "Ask needs the live server with a language model (make serve with GAPCLOSER_LLM=tokenfactory).": "질문 기능은 언어 모델이 연결된 라이브 서버에서 됩니다 (GAPCLOSER_LLM=tokenfactory로 make serve).",
+};
+const KO_RX = [
+  [/^(\d+) pushes$/, "밀기 $1개"], [/^(\d+) pushes tracked$/, "밀기 $1개 추적됨"], [/^(\d+) agent steps$/, "에이전트 $1단계"],
+  [/^offline fit$/, "오프라인 피팅"], [/^Diagnose (\d+) pushes$/, "밀기 $1개 진단하기"], [/^take (\d+)$/, "$1번째 촬영"], [/^Take (\d+)( ✓)?$/, "$1번째 촬영$2"],
+  [/^push (\d+) · (.*)$/, "밀기 $1 · $2"], [/^table past ([\d.]+) m unmeasured$/, "$1 m 너머 미측정"],
+  [/^your (\d+) pushes stop in here$/, "밀기 $1개가 여기서 멈춤"], [/^Recorded with (.*) · NVIDIA Newton$/, "$1 · NVIDIA Newton으로 기록"],
+  [/^Agent: (.*)$/, "에이전트: $1"], [/^motor ([\d.]+)× · camera tilt (-?[\d.]+)°$/, "모터 $1× · 카메라 기울기 $2°"],
+  [/^Still unexplained: (.*)$/, (m, a) => "아직 설명 못 함: " + tx(a)], [/^Newton is simulating (\d+) flicks and rendering the phone video \(about 2-3 s per push\)…$/, "Newton이 튕기기 $1번을 시뮬레이션하고 폰 영상을 렌더링하는 중입니다 (밀기당 약 2~3초)…"],
+  [/^Newton is running (\d+) robot pushes…$/, "Newton이 로봇 밀기 $1번을 실행하는 중입니다…"],
+  [/^Your simulated table \(phone video\)$/, "시뮬레이션한 탁자 (폰 영상)"], [/^Your simulated robot log$/, "시뮬레이션한 로봇 로그"],
+];
+// strings that come from the server (notes, reasons, sources): translated where they are shown
+const KO_SERVER = [
+  [/^Models disagree by ±([\d.]+) cm here; your pushes stop by ([\d.]+) m, so the table beyond is unmeasured$/i, "가능한 모델들이 여기서 ±$1 cm 엇갈립니다. 지금까지 $2 m까지만 밀어서 그 너머는 측정되지 않았습니다"],
+  [/^Models disagree by ±([\d.]+) cm here$/i, "가능한 모델들이 여기서 ±$1 cm 엇갈립니다"],
+  [/^Camera recovered from the sheet: ([\d.]+) m above the table, focal (\d+) px$/i, "용지로 카메라를 복원했습니다: 탁자 위 $1 m, 초점 거리 $2 px"],
+  [/^Release points spread over ±(\d+) cm; positions are measured from their median$/i, "출발 위치가 ±$1 cm 흩어져 있어 그 중앙값을 기준으로 쟀습니다"],
+  [/^No tracks: launch speed and position-dependent friction cannot be separated from stops alone$/i, "궤적이 없어 멈춘 거리만으로는 출발 속도와 위치별 마찰을 구분할 수 없습니다"],
+  [/^(\d+) tipped push\(es\) are excluded from the fit \(the sliding model does not cover tipping\)$/i, "넘어진 밀기 $1개는 피팅에서 뺐습니다 (미끄럼 모델은 넘어짐을 다루지 않음)"],
+  [/^offline structure search \(simplest model within noise of the best\)(.*)$/, (m, rest) => "오프라인 구조 탐색 (잡음 안에서 가장 단순한 모델)" + tx(rest)],
+  [/^Nemotron agent \(([^)]*)\)(.*)$/, (m, a, rest) => `Nemotron 에이전트 (${a})` + tx(rest)],
+  [/^cross-check \(agent model overruled\)(.*)$/, (m, rest) => "교차검증 (에이전트 모델 기각)" + tx(rest)],
+  [/^; friction region past ([\d.]+) m dropped \(no push measured it\)$/, "; $1 m 너머 마찰 구간은 제외 (측정한 밀기 없음)"],
+  [/^stops not explained \(> 1 cm rms\): the structure is missing an effect$/, "멈춘 위치가 설명되지 않음 (> 1 cm rms): 빠진 효과가 있습니다"],
+  [/^launch speeds disagree with the model.*$/, "출발 속도가 모델과 맞지 않음: 마찰과 모터 세기를 맞바꿔 멈춘 거리만 맞췄을 수 있습니다. 모터 세기를 풀어 보세요"],
+  [/^perceived target distances not explained.*$/, "카메라가 본 목표 거리가 설명되지 않음: 카메라 기울기나 렌즈 왜곡을 넣어 보세요"],
+  [/^your settings, simulated in NVIDIA Newton$/, "여러분의 설정 (NVIDIA Newton 시뮬레이션)"],
+  [/^region start measured from the median release point \(([-+\d.]+) cm from the simulator origin\)$/, "구간 시작은 출발 위치 중앙값 기준입니다 (시뮬레이터 원점에서 $1 cm)"],
+];
+function tr1(text) {
+  const k = text.trim();
+  if (!k) return text;
+  if (KO[k]) return text.replace(k, KO[k]);
+  const dot = k.endsWith(".") && !k.endsWith("…") ? "." : "", core = dot ? k.slice(0, -1) : k;
+  for (const [rx, rep] of [...KO_RX, ...KO_SERVER]) {
+    if (rx.test(core)) return text.replace(k, core.replace(rx, rep) + dot);
+  }
+  if (dot && KO[core]) return text.replace(k, KO[core] + ".");
+  return text;
+}
+function tx(s) { return LANG === "ko" && s ? tr1(String(s)) : s; }
+const ORIG = new WeakMap(), SET = new WeakMap();  // original English text / the value this translator wrote
+let translating = false;
+function translateNode(n) {
+  if (!ORIG.has(n)) ORIG.set(n, n.nodeValue);
+  const en = ORIG.get(n), want = LANG === "ko" ? tr1(en) : en;
+  if (n.nodeValue !== want) { SET.set(n, want); n.nodeValue = want; }
+}
+function translateTree(root) {
+  translating = true;
+  try {
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: n => n.parentElement && n.parentElement.closest("script,style,pre,code,textarea,.chatlog") ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT });
+    let n; while ((n = w.nextNode())) translateNode(n);
+    root.querySelectorAll && root.querySelectorAll("[data-ko-html]").forEach(el => { if (!el.dataset.enHtml) el.dataset.enHtml = el.innerHTML; el.innerHTML = LANG === "ko" ? el.dataset.koHtml : el.dataset.enHtml; });
+  } finally { translating = false; }
+}
+new MutationObserver(muts => {
+  if (translating) return;
+  translating = true;
+  try {
+    for (const m of muts) {
+      if (m.type === "characterData") { if (SET.get(m.target) === m.target.nodeValue) continue; ORIG.set(m.target, m.target.nodeValue); translateNode(m.target); continue; }
+      m.addedNodes.forEach(n => { if (n.nodeType === 3) { if (!(n.parentElement && n.parentElement.closest("script,style,pre,code,textarea,.chatlog"))) translateNode(n); } else if (n.nodeType === 1) { translating = false; translateTree(n); translating = true; } });
+    }
+  } finally { translating = false; }
+}).observe(document.documentElement, { childList: true, characterData: true, subtree: true });
+function setLang(l) {
+  LANG = l;
+  try { localStorage.setItem("gapcloser-lang", l); } catch (_) {}
+  document.documentElement.lang = l;
+  document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.lang === l)));
+  translateTree(document.body);
+  if (state.s) { const st = state.step; go(st); if (st === "diag") replayNotebook(); } else renderSteps();
+  if (typeof renderChat === "function") renderChat();
+}
 const $ = (s, el = document) => el.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const fmt = (v, d = 2) => v == null || Number.isNaN(v) ? "–" : Number(v).toFixed(d);
@@ -495,7 +699,7 @@ function renderSteps() {
     const cls = [state.step === s.id ? "cur" : "", state.done.has(s.id) ? "done" : ""].join(" ");
     const dis = i >= reach ? "disabled" : "";
     return `<li class="${cls}"><button data-step="${s.id}" ${dis} ${state.step === s.id ? 'aria-current="step"' : ""}>
-      <span class="n">${state.done.has(s.id) ? "✓" : i + 1}</span><span><b>${s.name}</b><small>${esc(state.summaries[s.id] || s.hint)}</small></span></button></li>`;
+      <span class="n">${state.done.has(s.id) ? "✓" : i + 1}</span><span><b>${s.name}</b><small>${esc((v => Array.isArray(v) ? T(v[0], v[1]) : v)(state.summaries[s.id]) || s.hint)}</small></span></button></li>`;
   }).join("");
   $("#steps").querySelectorAll("button").forEach(b => b.onclick = () => go(b.dataset.step));
 }
@@ -507,6 +711,7 @@ function go(step) {
   if (step === "diag") renderDiagChoice();
   if (step === "results") renderResults();
   if (step === "export") renderExport();
+  if (!$("#chat").hidden) renderChat();
   scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
 }
 function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("on"); setTimeout(() => t.classList.remove("on"), 1800); }
@@ -563,7 +768,7 @@ function drawSimView() {
   const tr = `<line x1="${X(0.2)}" x2="${X(0.6)}" y1="40" y2="40" stroke="#76b900" stroke-width="3"/><text x="${X(0.2)}" y="32" class="lbl">target range the robot must hit (0.2–0.6 m)</text>`;
   const extra = kind === "log" ? `<text x="${x0}" y="${H - 26}" class="lbl">motor ${w.actuator_gain.toFixed(2)}× · camera tilt ${w.camera_pitch_deg.toFixed(1)}°</text>` : "";
   $("#simview").innerHTML = `<svg viewBox="0 0 ${W} ${H}"><rect width="${W}" height="${H}" fill="#0b0d0f"/>${tr}${bands}${cover}${extra}${ticks}<text x="${X(0) - 4}" y="98" text-anchor="end" class="lbl">launch</text></svg>
-    <p class="small muted" style="margin-top:8px">GapCloser never sees this picture. ${w.patch_y0 != null && reach < w.patch_y0 + 0.03 ? "Your pushes stop before the region starts: watch it refuse to guess, then ask for longer pushes." : w.patch_y0 != null ? "Few pushes reach the region: expect wide intervals until you run the pushes it asks for." : ""}</p>`;
+    <p class="small muted" style="margin-top:8px">${T("GapCloser never sees this picture.", "GapCloser는 이 그림을 보지 못합니다.")} ${w.patch_y0 != null && reach < w.patch_y0 + 0.03 ? T("Your pushes stop before the region starts: watch it refuse to guess, then ask for longer pushes.", "밀기가 구간 시작 전에 멈춥니다. 추측하지 않고 더 길게 밀어 달라고 하는지 보세요.") : w.patch_y0 != null ? T("Few pushes reach the region: expect wide intervals until you run the pushes it asks for.", "구간까지 가는 밀기가 적어서, 추천 실험을 하기 전까지는 오차 범위가 넓게 나옵니다.") : ""}</p>`;
 }
 function initSimLab() {
   if (!LIVE) { $("#simlab").querySelectorAll("input,button").forEach(e => e.disabled = true); $("#sim-note").textContent = "Simulation runs on the live server (make serve, then /studio)."; drawSimView(); return; }
@@ -738,15 +943,25 @@ const TOOL_WORDS = {
   commit: "Committed a simulator",
   text: "Thought out loud",
 };
+const TOOL_WORDS_KO = {
+  decel_profile: "탁자 위치별로 얼마나 빨리 느려지는지 쟀습니다",
+  perception_check: "카메라가 본 목표 거리와 실제 거리를 비교했습니다",
+  fit_hypothesis: "모델을 맞춰 봤습니다",
+  test_hypothesis: "모델을 검증했습니다",
+  probe_real: "밀기를 더 요청했습니다",
+  commit: "시뮬레이터를 확정했습니다",
+  text: "생각을 정리했습니다",
+};
 const FIELD_WORDS = { mu_eff: "friction", actuator_gain: "actuator gain", patch_y0: "region start", patch_mu: "region friction", camera_dx: "camera offset", camera_pitch_deg: "camera pitch", lens_k: "lens distortion" };
+const FIELD_WORDS_KO = { mu_eff: "마찰", actuator_gain: "모터 세기", patch_y0: "구간 시작", patch_mu: "구간 마찰", camera_dx: "카메라 위치 오차", camera_pitch_deg: "카메라 기울기", lens_k: "렌즈 왜곡" };
 function structureWords(free) {
   const f = new Set(free || []); const out = [];
-  if (f.has("mu_eff")) out.push("friction");
-  if (f.has("actuator_gain")) out.push("actuator gain");
-  if (f.has("patch_y0") || f.has("patch_mu")) out.push("a friction region");
-  if (f.has("camera_dx") || f.has("camera_pitch_deg")) out.push("camera pose");
-  if (f.has("lens_k")) out.push("lens distortion");
-  return out.join(" + ") || "nothing";
+  if (f.has("mu_eff")) out.push(T("friction", "마찰"));
+  if (f.has("actuator_gain")) out.push(T("actuator gain", "모터 세기"));
+  if (f.has("patch_y0") || f.has("patch_mu")) out.push(T("a friction region", "마찰 구간"));
+  if (f.has("camera_dx") || f.has("camera_pitch_deg")) out.push(T("camera pose", "카메라 자세"));
+  if (f.has("lens_k")) out.push(T("lens distortion", "렌즈 왜곡"));
+  return out.join(" + ") || T("nothing", "없음");
 }
 function nbItem(cls, who, what, detail) {
   const li = document.createElement("li"); li.className = cls;
@@ -756,17 +971,17 @@ function nbItem(cls, who, what, detail) {
 function stepDetail(step) {
   const r = step.result;
   if (step.tool === "decel_profile" && Array.isArray(r)) return `<div class="detail">Deceleration in g, binned every 5 cm of table.</div>` + miniBars(r.filter(b => b.decel_g != null));
-  if (step.tool === "perception_check" && Array.isArray(r)) return r.length ? `<div class="detail">${r.length} targets: perceived ${r.slice(0, 3).map(x => `<span class="num">${fmt(x.perceived_m, 3)}</span> for <span class="num">${fmt(x.true_m, 3)}</span>`).join(", ")}…</div>` : `<div class="detail">No aimed pushes in this data: perception cannot be checked.</div>`;
+  if (step.tool === "perception_check" && Array.isArray(r)) return r.length ? `<div class="detail">${T(`${r.length} targets: perceived`, `목표 ${r.length}개: 실제 거리 대비 카메라가 본 거리`)} ${r.slice(0, 3).map(x => T(`<span class="num">${fmt(x.perceived_m, 3)}</span> for <span class="num">${fmt(x.true_m, 3)}</span>`, `<span class="num">${fmt(x.true_m, 3)}</span> → <span class="num">${fmt(x.perceived_m, 3)}</span>`)).join(", ")}…</div>` : `<div class="detail">${T("No aimed pushes in this data: perception cannot be checked.", "목표를 겨눈 밀기가 없어 카메라 인식은 확인할 수 없습니다.")}</div>`;
   if ((step.tool === "fit_hypothesis" || step.tool === "test_hypothesis") && r && typeof r === "object") {
     const free = step.args && step.args.free;
     const m = r.fitted_model || (step.args && step.args.model) || {};
-    const vals = Object.entries(m).filter(([k, x]) => x != null && (free ? free.includes(k) : true) && FIELD_WORDS[k]).map(([k, x]) => `${FIELD_WORDS[k]} <span class="num">${fmt(x, 3)}</span>`).join(", ");
+    const vals = Object.entries(m).filter(([k, x]) => x != null && (free ? free.includes(k) : true) && FIELD_WORDS[k]).map(([k, x]) => `${LANG === "ko" ? FIELD_WORDS_KO[k] : FIELD_WORDS[k]} <span class="num">${fmt(x, 3)}</span>`).join(", ");
     const un = (r.unexplained || []).map(u => `<div class="flag">Still unexplained: ${esc(u)}</div>`).join("");
-    return `<div class="detail">${free ? `Free: ${structureWords(free)}. ` : ""}${vals}</div><div class="detail">Stops off by <span class="num">${fmt((r.stop_residual_rms_m || 0) * 100, 1)} cm</span> rms${r.perception_residual_rms_m ? `, perception <span class="num">${fmt(r.perception_residual_rms_m * 1000, 1)} mm</span>` : ""}.</div>${un}`;
+    return `<div class="detail">${free ? `${T("Free", "맞춘 항목")}: ${structureWords(free)}. ` : ""}${vals}</div><div class="detail">${T("Stops off by", "멈춘 위치 오차")} <span class="num">${fmt((r.stop_residual_rms_m || 0) * 100, 1)} cm</span> rms${r.perception_residual_rms_m ? `, ${T("perception", "카메라 인식")} <span class="num">${fmt(r.perception_residual_rms_m * 1000, 1)} mm</span>` : ""}.</div>${un}`;
   }
   if (step.tool === "probe_real" && r) {
     const q = r.queued_for_human || (r.results || []).map(x => x.command);
-    return `<div class="detail">${r.queued_for_human ? "Recorded data has no robot attached, so these go to you as next-experiment cards:" : "Pushes run:"} commands <span class="num">${(q || []).map(c => fmt(c, 2)).join(", ")}</span></div>`;
+    return `<div class="detail">${r.queued_for_human ? T("Recorded data has no robot attached, so these go to you as next-experiment cards:", "기록된 데이터라 로봇이 없으므로, 이 밀기들은 '다음 실험' 카드로 전달됩니다:") : T("Pushes run:", "실행한 밀기:")} ${T("commands", "명령값")} <span class="num">${(q || []).map(c => fmt(c, 2)).join(", ")}</span></div>`;
   }
   if (step.tool === "commit") return `<blockquote>${esc((step.args || {}).explanation || "")}</blockquote>`;
   if (step.tool === "text") return `<div class="detail">${esc(step.text || "")}</div>`;
@@ -781,39 +996,55 @@ function miniBars(bins) {
            (i % 2 === 0 ? `<text x="${pad + i * bw}" y="${h - 5}">${b.y_m.split("-")[0]}</text>` : ""); }).join("");
   return `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Deceleration along the table">${bars}<text x="0" y="12">g</text><line x1="${pad}" x2="${w}" y1="${h - 18}" y2="${h - 18}" stroke="#2b3035"/></svg>`;
 }
-async function runDiagnosis() {
-  const agent = document.querySelector('input[name="mode"]:checked')?.value === "agent";
-  $("#nb").innerHTML = ""; $("#err-diag").textContent = ""; $("#run").disabled = true;
+function nbHandler(who) {
   let live = null;
-  const who = agent ? prettyModel(LIVE ? state.status.model : DATA.model) : "offline";
-  const onEvent = e => {
-    if (live) { live.classList.remove("live"); live.classList.add("ok"); live = null; }
-    if (e.type === "stage" && e.stage === "data") nbItem("ok", "Studio", `Read ${e.pushes} pushes`, `<div class="detail">They reach from <span class="num">${fmt(e.coverage_m[0])}</span> to <span class="num">${fmt(e.coverage_m[1])} m</span> along the table.</div>${(e.notes || []).map(n => `<div class="detail">${esc(n[0].toUpperCase() + n.slice(1))}.</div>`).join("")}`);
-    if (e.type === "stage" && e.stage === "agent") live = nbItem("live", who, "Starting the investigation", "");
+  const settle = () => { if (live) { live.classList.remove("live"); live.classList.add("ok"); live = null; } };
+  const on = e => {
+    settle();
+    if (e.type === "stage" && e.stage === "data") nbItem("ok", "Studio", T(`Read ${e.pushes} pushes`, `밀기 ${e.pushes}개를 읽었습니다`), `<div class="detail">${T(`They reach from <span class="num">${fmt(e.coverage_m[0])}</span> to <span class="num">${fmt(e.coverage_m[1])} m</span> along the table.`, `탁자 위 <span class="num">${fmt(e.coverage_m[0])}</span>–<span class="num">${fmt(e.coverage_m[1])} m</span> 범위에서 멈췄습니다.`)}</div>${(e.notes || []).map(n => `<div class="detail">${esc(tx(n[0].toUpperCase() + n.slice(1)))}.</div>`).join("")}`);
+    if (e.type === "stage" && e.stage === "agent") live = nbItem("live", who, T("Starting the investigation", "조사를 시작합니다"), "");
     if (e.type === "stage" && e.stage === "note") nbItem("warn", "Studio", esc(e.message), "");
     if (e.type === "agent_step") {
       const s = e.step; const un = s.result && s.result.unexplained && s.result.unexplained.length;
-      const title = s.tool === "fit_hypothesis" ? `Fitted: ${structureWords(s.args && s.args.free)}` : s.tool === "test_hypothesis" ? `Tested: ${structureWords(Object.keys((s.args || {}).model || {}).filter(k => { const x = s.args.model[k]; return x != null && x !== 0 && !(k === "actuator_gain" && x === 1); }))}` : TOOL_WORDS[s.tool] || s.tool;
+      const title = s.tool === "fit_hypothesis" ? `${T("Fitted", "피팅")}: ${structureWords(s.args && s.args.free)}` : s.tool === "test_hypothesis" ? `${T("Tested", "검증")}: ${structureWords(Object.keys((s.args || {}).model || {}).filter(k => { const x = s.args.model[k]; return x != null && x !== 0 && !(k === "actuator_gain" && x === 1); }))}` : (LANG === "ko" ? TOOL_WORDS_KO[s.tool] : TOOL_WORDS[s.tool]) || s.tool;
       live = nbItem(s.tool === "commit" ? "ok" : un ? "warn" : "live", who, esc(title), stepDetail(s));
     }
     if (e.type === "cross_check") {
       const c = e.cross_check;
-      nbItem(c.adopted === "agent" ? "ok" : "warn", "Studio cross-check", c.adopted === "agent" ? "The agent's model explains everything a library search can" : "Overruled the agent's model",
-        `<div class="detail">Misfit (residuals over their noise floors): agent <span class="num">${fmt(c.agent_misfit)}</span>, library search <span class="num">${fmt(c.search_misfit)}</span>.${c.reason ? " " + esc(c.reason) : ""}</div>`);
+      nbItem(c.adopted === "agent" ? "ok" : "warn", T("Studio cross-check", "Studio 교차검증"), c.adopted === "agent" ? T("The agent's model explains everything a library search can", "에이전트 모델이 라이브러리 탐색만큼 데이터를 모두 설명합니다") : T("Overruled the agent's model", "에이전트 모델을 기각했습니다"),
+        `<div class="detail">${T("Misfit (residuals over their noise floors): agent", "설명 못 한 정도(잔차 ÷ 잡음 기준): 에이전트")} <span class="num">${fmt(c.agent_misfit)}</span>, ${T("library search", "라이브러리 탐색")} <span class="num">${fmt(c.search_misfit)}</span>.${c.reason ? " " + esc(c.reason) : ""}</div>`);
     }
-    if (e.type === "stage" && e.stage === "fit") live = nbItem("live", "Studio", "Fitting the numbers and their uncertainty", `<div class="detail">Least squares on every push, then the same fit on resampled sets of pushes (bootstrap) for 90% intervals.</div>`);
-    if (e.type === "calibration") { const c = e.calibration; nbItem("ok", "Studio", `Calibrated: ${structureWords(c.structure)}`, `<div class="detail">Chosen by ${esc(c.chosen_by)}. Stops now off by <span class="num">${fmt(c.residuals.stop_residual_rms_m * 100, 1)} cm</span> rms.</div>`); }
-    if (e.type === "next") { const n = e.next_experiment; nbItem(n.settled ? "ok" : "warn", "Studio", n.settled ? "No further pushes needed" : `Suggested ${n.suggestions.length} more pushes`, `<div class="detail">Largest disagreement between plausible models inside the working range: <span class="num">±${fmt(n.max_disagreement_in_range_m * 100, 1)} cm</span>.</div>`); }
+    if (e.type === "stage" && e.stage === "fit") live = nbItem("live", "Studio", T("Fitting the numbers and their uncertainty", "숫자와 불확실성을 계산합니다"), `<div class="detail">${T("Least squares on every push, then the same fit on resampled sets of pushes (bootstrap) for 90% intervals.", "모든 밀기에 최소제곱 피팅을 하고, 밀기를 다시 뽑은 묶음마다 같은 피팅을 반복해(부트스트랩) 90% 범위를 냅니다.")}</div>`);
+    if (e.type === "calibration") { const c = e.calibration; nbItem("ok", "Studio", `${T("Calibrated", "보정 완료")}: ${structureWords(c.structure)}`, `<div class="detail">${T("Chosen by", "선택")}: ${esc(tx(c.chosen_by))}. ${T("Stops now off by", "멈춘 위치 오차")} <span class="num">${fmt(c.residuals.stop_residual_rms_m * 100, 1)} cm</span> rms.</div>`); }
+    if (e.type === "next") { const n = e.next_experiment; nbItem(n.settled ? "ok" : "warn", "Studio", n.settled ? T("No further pushes needed", "더 밀어 볼 필요가 없습니다") : T(`Suggested ${n.suggestions.length} more pushes`, `밀기 ${n.suggestions.length}개를 더 추천했습니다`), `<div class="detail">${T("Largest disagreement between plausible models inside the working range:", "작업 범위 안에서 가능한 모델들이 가장 크게 엇갈리는 정도:")} <span class="num">±${fmt(n.max_disagreement_in_range_m * 100, 1)} cm</span>.</div>`); }
   };
+  return { on, settle };
+}
+function nbDone() {
+  const btn = document.createElement("li"); btn.className = "ok";
+  btn.innerHTML = `<div class="what">${T(`Done in ${fmt(state.result.seconds, 1)} s`, `${fmt(state.result.seconds, 1)}초 만에 완료`)}</div><div class="row" style="margin-top:10px"><button class="btn primary" id="to-res">${T("See the calibrated simulator", "보정된 시뮬레이터 보기")}</button></div>`;
+  $("#nb").appendChild(btn); $("#to-res").onclick = () => go("results");
+}
+function replayNotebook() {  // after a language switch: redraw the notebook from the recorded events
+  if (!state.nb || !state.nb.events.length) return;
+  $("#nb").innerHTML = "";
+  const h = nbHandler(state.nb.who);
+  state.nb.events.forEach(h.on); h.settle();
+  if (state.result) nbDone();
+}
+async function runDiagnosis() {
+  const agent = document.querySelector('input[name="mode"]:checked')?.value === "agent";
+  $("#nb").innerHTML = ""; $("#err-diag").textContent = ""; $("#run").disabled = true;
+  const who = agent ? prettyModel(LIVE ? state.status.model : DATA.model) : T("offline", "오프라인");
+  state.nb = { who, events: [] };
+  const h = nbHandler(who);
   try {
-    state.result = await be.analyze(state.s.id, agent, onEvent);
-    if (live) { live.classList.remove("live"); live.classList.add("ok"); }
+    state.result = await be.analyze(state.s.id, agent, e => { state.nb.events.push(e); h.on(e); });
+    h.settle();
     state.truth = null;
     state.done.add("diag");
-    state.summaries.diag = state.result.agent ? `${state.result.agent.steps} agent steps` : "offline fit";
-    const btn = document.createElement("li"); btn.className = "ok";
-    btn.innerHTML = `<div class="what">Done in ${fmt(state.result.seconds, 1)} s</div><div class="row" style="margin-top:10px"><button class="btn primary" id="to-res">See the calibrated simulator</button></div>`;
-    $("#nb").appendChild(btn); $("#to-res").onclick = () => go("results");
+    state.summaries.diag = state.result.agent ? [`${state.result.agent.steps} agent steps`, `에이전트 ${state.result.agent.steps}단계`] : ["offline fit", "오프라인 피팅"];
+    nbDone();
     renderSteps();
   } catch (e) { $("#err-diag").textContent = e.message; }
   $("#run").disabled = false;
@@ -832,9 +1063,9 @@ function renderResults() {
   const r = state.result; if (!r) return;
   const c = r.calibration, s = state.s;
   state.done.add("results");
-  state.summaries.results = structureWords(c.structure);
+  state.summaries.results = [((L) => { const keep = LANG; LANG = L; const w = structureWords(c.structure); LANG = keep; return w; })("en"), ((L) => { const keep = LANG; LANG = L; const w = structureWords(c.structure); LANG = keep; return w; })("ko")];
   renderSteps();
-  $("#r-lede").textContent = `${s.session.pushes.length} pushes, ${c.chosen_by}. Stops in the calibrated sim match yours within ${fmt(c.residuals.stop_residual_rms_m * 100, 1)} cm rms.`;
+  $("#r-lede").textContent = T(`${s.session.pushes.length} pushes, ${c.chosen_by}. Stops in the calibrated sim match yours within ${fmt(c.residuals.stop_residual_rms_m * 100, 1)} cm rms.`, `밀기 ${s.session.pushes.length}개, ${tx(c.chosen_by)}. 보정된 시뮬레이터의 멈춘 위치가 실제와 ${fmt(c.residuals.stop_residual_rms_m * 100, 1)} cm(rms) 안에서 맞습니다.`);
   // hero: friction painted on the table
   const ov = r.overlay && r.overlay[String(Math.max(0, s.videos.length - 1))];
   const v = s.videos[s.videos.length - 1];
@@ -846,7 +1077,7 @@ function renderResults() {
       return `<text x="${q[0]}" y="${q[1]}" text-anchor="middle" style="${txt};font-size:${fs}px">μ ${fmt(g.mu)}</text>`; }).join("");
     const unm = ov.unmeasured_poly ? `<polygon points="${ov.unmeasured_poly.map(p => p.join(",")).join(" ")}" fill="url(#hatch2)"/>` : "";
     const r0 = ov.reach_px && ov.reach_px[0];
-    const reach = ov.reach_px ? `<line x1="${ov.reach_px[0][0]}" y1="${ov.reach_px[0][1]}" x2="${ov.reach_px[1][0]}" y2="${ov.reach_px[1][1]}" stroke="#fff" stroke-width="2" stroke-dasharray="7 5" vector-effect="non-scaling-stroke"/><text x="${(ov.reach_px[0][0] + ov.reach_px[1][0]) / 2}" y="${Math.min(ov.reach_px[0][1], ov.reach_px[1][1]) - fs * 0.4}" text-anchor="middle" style="${txt};font-weight:500;font-size:${v.width / 62 / kz}px">${ov.unmeasured_poly ? `no push got past ${fmt(ov.reach_m)} m` : `measured to ${fmt(ov.reach_m)} m`}</text>` : "";
+    const reach = ov.reach_px ? `<line x1="${ov.reach_px[0][0]}" y1="${ov.reach_px[0][1]}" x2="${ov.reach_px[1][0]}" y2="${ov.reach_px[1][1]}" stroke="#fff" stroke-width="2" stroke-dasharray="7 5" vector-effect="non-scaling-stroke"/><text x="${(ov.reach_px[0][0] + ov.reach_px[1][0]) / 2}" y="${Math.min(ov.reach_px[0][1], ov.reach_px[1][1]) - fs * 0.4}" text-anchor="middle" style="${txt};font-weight:500;font-size:${v.width / 62 / kz}px">${ov.unmeasured_poly ? T(`no push got past ${fmt(ov.reach_m)} m`, `${fmt(ov.reach_m)} m 너머는 측정 안 됨`) : T(`measured to ${fmt(ov.reach_m)} m`, `${fmt(ov.reach_m)} m까지 측정`)}</text>` : "";
     const hasGhosts = ov.ghosts && ov.ghosts.length;
     const media = hasGhosts ? `<video src="${esc(be.media(v.file))}" muted loop playsinline preload="auto" width="${v.width}" height="${v.height}" aria-label="Your video with the simulators' predictions overlaid"></video>`
                             : `<img src="${esc(be.media(v.frame))}" alt="Your table with the measured friction painted on it" width="${v.width}" height="${v.height}">`;
@@ -870,7 +1101,7 @@ function renderResults() {
   const weak = by.findIndex(x => x < 0.9);
   const lo = p.target_range_m[0], hi = p.target_range_m[1];
   const chips = [];
-  chips.push(`<span class="chip ${c.residuals.stop_residual_rms_m < 0.01 ? "g" : "w"}">stops ±${fmt(c.residuals.stop_residual_rms_m * 100, 1)} cm</span>`);
+  chips.push(`<span class="chip ${c.residuals.stop_residual_rms_m < 0.01 ? "g" : "w"}">${T("stops", "멈춘 위치")} ±${fmt(c.residuals.stop_residual_rms_m * 100, 1)} cm</span>`);
   if (r.agent && r.agent.cross_check) chips.push(`<span class="chip ${r.agent.cross_check.adopted === "agent" ? "g" : "w"}">${r.agent.cross_check.adopted === "agent" ? "agent model cross-checked" : "agent overruled"}</span>`);
   if (p.unmeasured_whatif) chips.push(`<span class="chip w">table past ${fmt(p.measured_reach_m)} m unmeasured</span>`);
   $("#r-verdict").innerHTML = `
@@ -880,20 +1111,20 @@ function renderResults() {
       <div class="arrow" aria-hidden="true">→</div>
       <div><div class="big after ${p.unmeasured_whatif ? "span" : ""}">${p.unmeasured_whatif && p.after.hi - p.after.lo > 0.1 ? `${Math.round(p.after.lo * 100)}–${pct(p.after.hi)}` : pct(p.after.median)}</div><div class="what">calibrated sim</div><div class="range">${p.unmeasured_whatif ? "depends on the unmeasured table" : `90%: ${pct(p.after.lo)}–${pct(p.after.hi)}`}</div></div>
     </div>
-    <div class="by">${weak < 0 ? "Holds across the whole target range." : `Weakest beyond ${fmt(lo + (hi - lo) * weak / by.length)} m${p.unmeasured_whatif ? ", where no push has measured the table yet" : ""}.`}</div>
+    <div class="by">${weak < 0 ? T("Holds across the whole target range.", "목표 범위 전체에서 유지됩니다.") : T(`Weakest beyond ${fmt(lo + (hi - lo) * weak / by.length)} m${p.unmeasured_whatif ? ", where no push has measured the table yet" : ""}.`, `${fmt(lo + (hi - lo) * weak / by.length)} m 너머에서 가장 약합니다${p.unmeasured_whatif ? ". 그 구간은 아직 밀어 본 적이 없습니다" : ""}.`)}</div>
     <div class="chips">${chips.join("")}</div>
     <div class="caveat">Model predictions: rollouts of the fitted model across the plausible worlds, with your measured scatter as noise. Verify on the real robot.</div>`;
   // forest
   $("#r-forest").innerHTML = forest(c.gap, state.truth);
-  $("#r-truth").innerHTML = (state.s.sample || state.s.simulated) ? (state.truth ? `<span class="small muted">Hidden physics from ${esc(state.truth.source)} shown as white diamonds${state.truth.note ? `; ${esc(state.truth.note)}` : ""}.</span>` : `<button class="btn" id="reveal">Reveal the hidden physics</button><span class="small muted">${state.s.simulated ? "Your settings were never shown to GapCloser." : "This sample came from a world GapCloser never saw."} Compare after the fact.</span>`) : "";
+  $("#r-truth").innerHTML = (state.s.sample || state.s.simulated) ? (state.truth ? `<span class="small muted">${T(`Hidden physics from ${esc(state.truth.source)} shown as white diamonds${state.truth.note ? `; ${esc(state.truth.note)}` : ""}.`, `숨겨진 물리(${esc(tx(state.truth.source))})를 흰 마름모로 표시했습니다${state.truth.note ? `. ${esc(tx(state.truth.note))}` : ""}.`)}</span>` : `<button class="btn" id="reveal">${T("Reveal the hidden physics", "숨겨진 물리 공개")}</button><span class="small muted">${state.s.simulated ? T("Your settings were never shown to GapCloser.", "여러분이 정한 값은 GapCloser에 보여준 적이 없습니다.") : T("This sample came from a world GapCloser never saw.", "이 샘플은 GapCloser가 본 적 없는 세계에서 나왔습니다.")} ${T("Compare after the fact.", "결과와 비교해 보세요.")}</span>`) : "";
   if ($("#reveal")) $("#reveal").onclick = async () => { state.truth = await be.truth(state.s.id); renderResults(); };
   // charts
   $("#r-charts").innerHTML = chartStops(c) + chartFriction(c) + chartSuccess(c);
   // next
   const n = r.next_experiment;
   let nx = n.settled ? `<div class="settled">The pushes you have settle the model over the whole working range (models agree within ±${fmt(n.max_disagreement_in_range_m * 100, 1)} cm).</div>` :
-    `<div class="next">${n.suggestions.map(x => `<div class="card"><div class="t">Push to ${fmt(x.predicted_stop_m)} m</div><div class="small num muted">${x.command != null ? `command ${fmt(x.command)}` : `launch ≈ ${fmt(x.launch_speed_mps, 1)} m/s`}</div><p>${esc(x.why[0].toUpperCase() + x.why.slice(1))}.</p></div>`).join("")}</div>`;
-  if (n.agent_requests && n.agent_requests.length) nx += `<p class="asks">The agent also asked for commands ${n.agent_requests.map(a => `<span class="num">${fmt(a.command)}</span>${a.useful ? "" : " (off the target range)"}`).join(", ")}.</p>`;
+    `<div class="next">${n.suggestions.map(x => `<div class="card"><div class="t">${T(`Push to ${fmt(x.predicted_stop_m)} m`, `${fmt(x.predicted_stop_m)} m까지 밀기`)}</div><div class="small num muted">${x.command != null ? `${T("command", "명령값")} ${fmt(x.command)}` : `${T("launch", "출발 속도")} ≈ ${fmt(x.launch_speed_mps, 1)} m/s`}</div><p>${esc(tx(x.why[0].toUpperCase() + x.why.slice(1)))}.</p></div>`).join("")}</div>`;
+  if (n.agent_requests && n.agent_requests.length) nx += `<p class="asks">${T("The agent also asked for commands", "에이전트가 요청한 명령값")} ${n.agent_requests.map(a => `<span class="num">${fmt(a.command)}</span>${a.useful ? "" : T(" (off the target range)", " (목표 범위 밖)")}`).join(", ")}.</p>`;
   const more = moreAction();
   $("#r-next").innerHTML = nx + (more ? `<div class="row" style="margin-top:14px">${more}</div>` : "") + `<div class="row" style="margin-top:22px"><button class="btn primary" id="to-x">Export the calibrated config</button></div>`;
   if ($("#more")) $("#more").onclick = addTake;
@@ -979,7 +1210,7 @@ function strip1d(c, s) {
   const stops = s.session.pushes.map(p => `<line x1="${X(p.start + p.stop)}" x2="${X(p.start + p.stop)}" y1="146" y2="160" stroke="#eceeef" stroke-width="2"/>`).join("");
   const tr = c.predicted.target_range_m;
   const ticks = [0, 0.2, 0.4, 0.6, 0.8].map(t => `<text x="${X(t)}" y="${H - 12}" text-anchor="middle">${t.toFixed(1)} m</text>`).join("");
-  const unm = reach < ymax ? `<rect x="${X(reach)}" y="70" width="${X(ymax) - X(reach)}" height="70" fill="url(#hatch)"/><line x1="${X(reach)}" x2="${X(reach)}" y1="58" y2="150" stroke="#fff" stroke-dasharray="5 4"/><text x="${X(reach) + 6}" y="62" class="lbl">no push got past ${fmt(reach)} m</text>` : "";
+  const unm = reach < ymax ? `<rect x="${X(reach)}" y="70" width="${X(ymax) - X(reach)}" height="70" fill="url(#hatch)"/><line x1="${X(reach)}" x2="${X(reach)}" y1="58" y2="150" stroke="#fff" stroke-dasharray="5 4"/><text x="${X(reach) + 6}" y="62" class="lbl">${T(`no push got past ${fmt(reach)} m`, `${fmt(reach)} m 너머는 측정 안 됨`)}</text>` : "";
   return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Friction along the push path">
     <defs><pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="rgba(0,0,0,0.45)"/><line x1="0" y1="0" x2="0" y2="8" stroke="#69717a" stroke-width="2"/></pattern></defs>
     <rect width="${W}" height="${H}" fill="#0b0d0f"/>
@@ -1090,9 +1321,64 @@ function renderExport() {
   $("#x-dl").onclick = () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type: "text/plain" })); a.download = t.file; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); toast("Downloaded " + t.file); };
 }
 
+/* ---------------------------------------------------------------- Ask GapCloser (Nemotron, grounded in this session) */
+const SUGG = {
+  data: [["What does this tool do, in simple words?", "이 도구가 하는 일을 쉽게 설명해 줘"], ["How should I film my table?", "탁자는 어떻게 찍어야 해?"], ["What do the simulation sliders mean?", "시뮬레이션 슬라이더는 각각 무슨 뜻이야?"]],
+  measure: [["Why do I place handles on the sheet's corners?", "왜 용지 모서리에 점을 맞춰?"], ["What is parallax and why does height matter?", "시차가 뭐고 높이는 왜 필요해?"]],
+  diag: [["What is the agent doing right now?", "에이전트가 지금 뭘 하고 있어?"], ["Why not just trust the AI's numbers?", "왜 AI가 낸 숫자를 그냥 쓰지 않아?"]],
+  results: [["Explain my result in simple words", "내 결과를 쉽게 설명해 줘"], ["How sure is this?", "이 결과는 얼마나 확실해?"], ["What should I do next?", "다음에 뭘 하면 돼?"]],
+  export: [["How do I use this in Isaac Lab?", "Isaac Lab에서는 어떻게 써?"], ["What do the randomization ranges mean?", "랜덤화 범위는 무슨 뜻이야?"]],
+};
+state.chat = [];
+function mdLite(t) {
+  const lines = esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").split(/\n/);
+  let out = "", inList = false;
+  for (const l of lines) {
+    const m = l.match(/^\s*(?:[-*•]|\d+\.)\s+(.*)$/);
+    if (m) { if (!inList) { out += "<ul>"; inList = true; } out += `<li>${m[1]}</li>`; continue; }
+    if (inList) { out += "</ul>"; inList = false; }
+    out += l.trim() ? `<p style="margin:4px 0">${l}</p>` : "";
+  }
+  return out + (inList ? "</ul>" : "");
+}
+function renderChat() {
+  if (!$("#chat")) return;
+  $("#askfab").textContent = T("Ask", "질문");
+  $("#chat-in").placeholder = T("Ask a question…", "질문을 입력하세요…");
+  $("#chatlog").innerHTML = state.chat.map(m => `<div class="msg ${m.role === "user" ? "user" : m.err ? "bot err" : "bot"}">${m.role === "user" ? esc(m.content) : mdLite(m.content)}</div>`).join("") +
+    (state.chatBusy ? `<div class="msg bot">${T("Thinking…", "생각 중…")}</div>` : "");
+  $("#chatlog").scrollTop = $("#chatlog").scrollHeight;
+  const sg = SUGG[state.step] || SUGG.data;
+  $("#chat-sugg").innerHTML = LIVE ? sg.map(([en, ko]) => `<button type="button">${esc(T(en, ko))}</button>`).join("") : "";
+  $("#chat-sugg").querySelectorAll("button").forEach(b => b.onclick = () => askChat(b.textContent));
+  const off = !LIVE || (state.status && state.status.provider === "none");
+  $("#chat-in").disabled = off || state.chatBusy; $("#chat-send").disabled = off || state.chatBusy;
+  if (off) $("#chat-intro").textContent = T("Ask needs the live server with a language model (make serve with GAPCLOSER_LLM=tokenfactory).", "질문 기능은 언어 모델이 연결된 라이브 서버에서 됩니다 (GAPCLOSER_LLM=tokenfactory로 make serve).");
+}
+async function askChat(q) {
+  q = (q || "").trim(); if (!q || state.chatBusy) return;
+  state.chat.push({ role: "user", content: q }); state.chatBusy = true; renderChat();
+  try {
+    const body = { sid: state.s && state.s.id, lang: LANG, step: state.step, messages: state.chat.filter(m => !m.err).map(m => ({ role: m.role, content: m.content })) };
+    const r = await call(fetch("/api/studio/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }));
+    state.chat.push({ role: "assistant", content: r.answer });
+  } catch (e) { state.chat.push({ role: "assistant", content: e.message, err: true }); }
+  state.chatBusy = false; renderChat();
+}
+function initChat() {
+  const open = v => { $("#chat").hidden = !v; $("#askfab").setAttribute("aria-expanded", String(v)); if (v) { renderChat(); $("#chat-in").focus(); } };
+  $("#askfab").onclick = () => open($("#chat").hidden);
+  $("#chat-x").onclick = () => open(false);
+  $("#chat-form").onsubmit = ev => { ev.preventDefault(); const q = $("#chat-in").value; $("#chat-in").value = ""; askChat(q); };
+  $("#chat-in").onkeydown = ev => { if (ev.key === "Enter" && !ev.shiftKey) { ev.preventDefault(); $("#chat-form").requestSubmit(); } };
+  document.addEventListener("keydown", ev => { if (ev.key === "Escape" && !$("#chat").hidden) open(false); });
+}
+
 /* ---------------------------------------------------------------- boot */
+document.querySelectorAll(".lang button").forEach(b => b.onclick = () => setLang(b.dataset.lang));
+initChat();
 renderSteps();
-initData();
+initData().then(() => setLang(LANG));
 </script>
 </body>
 </html>

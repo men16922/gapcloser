@@ -110,3 +110,26 @@ def test_simulated_robot_log_round_trip(tmp_path):
     assert t["model"]["actuator_gain"] == 0.85
     more = c.post(f"/api/studio/sessions/{s['id']}/simulate-more", json={"commands": [3.0, 3.4]}).json()
     assert more["added_pushes"] == 2 and len(more["session"]["pushes"]) == 10
+
+
+def test_chat_is_grounded_in_the_session_and_answers_in_the_chosen_language(tmp_path):
+    from agent.llm import RecordedLLM
+
+    (tmp_path / "demo").mkdir(parents=True, exist_ok=True)
+    llm = RecordedLLM({"diagnose": [{"text": "<think>x</think>마찰은 0.70입니다.", "model": "scripted"}]})
+    c = TestClient(create_app(llm=llm, env_name="analytic", render=False, data_dir=tmp_path))
+    s = c.post("/api/studio/sessions", data={"sample": "lab-bench"}).json()
+    c.post(f"/api/studio/sessions/{s['id']}/analyze", json={"agent": False})
+    events(c, s["id"])
+    r = c.post("/api/studio/chat", json={"sid": s["id"], "lang": "ko", "step": "results",
+                                         "messages": [{"role": "user", "content": "마찰이 얼마야?"}]}).json()
+    assert r["answer"] == "마찰은 0.70입니다." and r["left"] == 29
+    system = llm.calls[0][1][0]["content"]
+    assert "Korean" in system and "Cube-table friction" in system and "revealed_truth" not in system
+    assert c.post("/api/studio/chat", json={"messages": [{"role": "assistant", "content": "hi"}]}).status_code == 422
+
+
+def test_chat_without_llm_says_how_to_enable_it(tmp_path):
+    c = client(tmp_path)
+    r = c.post("/api/studio/chat", json={"messages": [{"role": "user", "content": "hello"}]})
+    assert r.status_code == 503 and "GAPCLOSER_LLM" in r.json()["detail"]

@@ -9,6 +9,7 @@
   POST /api/studio/sessions/{sid}/logs           multipart: file -> append more pushes to a robot-log session
   POST /api/studio/sessions/{sid}/videos/{i}/track   {"corners": [x,y]*4, "sheet": "a4", "object_px": [x,y]?, "object_height_m"?}
   POST /api/studio/sessions/{sid}/analyze        {"agent": true|false} -> streams on /events
+  POST /api/studio/chat                          {"sid"?, "messages": [...], "lang": "en"|"ko", "step"?} -> {"answer"}
   GET  /api/studio/sessions/{sid}/events         Server-Sent Events: stage, agent_step*, calibration, next, done, overlay, result, end | error
   GET  /api/studio/sessions/{sid}                session, tracked videos, last result
   GET  /api/studio/sessions/{sid}/export/{fmt}   json | newton | isaaclab | markdown | csv
@@ -37,6 +38,7 @@ SAMPLE_DIR = ROOT / "studio" / "samples"
 MAX_UPLOAD = 120 * 1024 * 1024
 MAX_SESSIONS = 60
 AGENT_TURNS = 8
+CHAT_CAP = 30  # questions per session (each one LLM call against the shared budget)
 VIDEO_EXT = (".mp4", ".mov", ".m4v", ".webm", ".avi", ".mkv")
 
 SAMPLES = [
@@ -69,6 +71,13 @@ class SimulateRequest(BaseModel):
     seed: int = 0
 
 
+class ChatRequest(BaseModel):
+    sid: str | None = None
+    messages: list[dict] = Field(..., min_length=1, max_length=40)
+    lang: str = Field("en", pattern="^(en|ko)$")
+    step: str | None = Field(None, max_length=20)
+
+
 class MorePushesRequest(BaseModel):
     speeds: list[float] | None = Field(None, max_length=8)  # video: launch speeds (m/s)
     commands: list[float] | None = Field(None, max_length=8)  # robot log: commands
@@ -88,6 +97,7 @@ class StudioSession:
         self.world: dict | None = None  # simulated session: the visitor's hidden physics (ground truth)
         self.origin_offset = 0.0  # simulated video: median release of take 1 from the simulator origin
         self.object_height: float | None = None
+        self.truth_shown: dict | None = None  # set when the visitor reveals the hidden physics
 
     def push(self, e: dict) -> None:
         with self.cond:
@@ -457,6 +467,34 @@ def mount_studio(app: FastAPI, llm, budget, data_dir: Path, budgeted_llm_cls) ->
         threading.Thread(target=worker, args=(s, req.agent), daemon=True).start()
         return {"ok": True, "agent": bool(req.agent and llm is not None)}
 
+    chat_counts: dict[str, int] = {}
+
+    @app.post("/api/studio/chat")
+    def chat(req: ChatRequest):
+        """Questions about the Studio and the visitor's current result, answered by Nemotron in EN or KO."""
+        from studio import chat as ch
+
+        if llm is None:
+            raise HTTPException(503, "Ask needs a language model: start the server with GAPCLOSER_LLM=tokenfactory.")
+        last = req.messages[-1]
+        if last.get("role") != "user" or not str(last.get("content") or "").strip():
+            raise HTTPException(422, "The last message must be your question.")
+        key = req.sid or "-"
+        if chat_counts.get(key, 0) >= CHAT_CAP:
+            raise HTTPException(429, f"This session reached {CHAT_CAP} questions. Start a new session to ask more.")
+        s = sessions.get(req.sid) if req.sid else None
+        # the hidden physics is part of the context only after the visitor revealed it on the page
+        shown = {"model": s.truth_shown} if s is not None and s.truth_shown else None
+        summary = ch.session_summary(s.public() if s else None, shown, req.step)
+        try:
+            text = ch.answer(budgeted_llm_cls(llm, budget, 1), req.messages, req.lang, summary)
+        except RuntimeError as e:  # budget exhausted
+            raise HTTPException(429, str(e)) from None
+        except Exception as e:  # noqa: BLE001 - provider hiccup: tell the visitor, keep the page alive
+            raise HTTPException(502, f"The model did not answer ({type(e).__name__}). Please try again.") from None
+        chat_counts[key] = chat_counts.get(key, 0) + 1
+        return {"answer": text, "left": CHAT_CAP - chat_counts[key]}
+
     @app.get("/api/studio/sessions/{sid}/events")
     def events(sid: str):
         s = get(sid)
@@ -516,6 +554,7 @@ def mount_studio(app: FastAPI, llm, budget, data_dir: Path, budgeted_llm_cls) ->
             from studio.simulate import truth as sim_truth
 
             out = sim_truth(s.world)
+            s.truth_shown = out["model"]
             if s.kind == "video" and out["model"].get("patch_y0") is not None:
                 out["model"]["patch_y0"] = round(out["model"]["patch_y0"] - s.origin_offset, 4)
                 out["note"] = (f"region start measured from the median release point "
@@ -532,6 +571,7 @@ def mount_studio(app: FastAPI, llm, budget, data_dir: Path, budgeted_llm_cls) ->
             o = starts[len(starts) // 2]
             out["model"]["patch_y0"] = round(out["model"]["patch_y0"] - o, 4)
             out["note"] = f"region start measured from the median release point ({o * 100:+.1f} cm from the simulator origin)"
+        s.truth_shown = out["model"]
         return out
 
     @app.get("/api/studio/files/{sid}/{name}")
