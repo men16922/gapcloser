@@ -9,7 +9,8 @@ Deadline: 2026-10-30 10:00 PDT (KST 10-31 02:00). Target: submit 10-29.
 - [x] `make demo` reproduces the recorded scenarios from a fresh clone (Newton, no LLM needed).
 - [x] Dashboard: static (`make site` → `site/index.html`, self-contained ~4 MB) and live (`make serve`).
 - [x] Docker image builds from the repo and ran a full live run on Token Factory (actuator_gain 0.8 + camera pitch 3° → estimates 0.799 / 3.0 → 100%, 1 LLM call).
-- [x] Demo video: `make video` → `video/out/tether_demo.mp4` (1080p, 164 s; ElevenLabs narration with `python -m video.make_video --voice elevenlabs`, macOS `say` otherwise; numbers read from the recorded runs and `runs/proof/*.json`). Opens with real objects (EV-RealPhys).
+- [x] Demo film: `make film` → `video/out/tether_film.mp4` (1080p, 2:00, 31 MB): motion graphics rendered in headless Chrome, ElevenLabs narration, generated music bed; every number from `runs/proof/*.json` and the recorded runs. Opens on real footage (EV-RealPhys). The earlier screen-capture cut is `make video`.
+- [ ] Upload the film to YouTube or Vimeo (public or unlisted) for the Devpost video URL.
 - [x] README, LICENSE (Apache-2.0), Devpost draft (`docs/submission/DEVPOST.md`), storyboard.
 - [x] Token Factory spend so far ≈ $0.06 of $25.
 

@@ -1,6 +1,6 @@
 # Tether — Sim2Real self-closing agent (Nebius x NVIDIA hackathon)
 # Gate must stay OFFLINE + DETERMINISTIC: no GPU, no network, no Nebius/Token Factory calls.
-.PHONY: check test lint smoke-local demo dashboard replays franka-mesh serve docker site video studio-samples studio-record studio-bench prove cross-engine real-check prove-real real-benchmark pages
+.PHONY: check test lint smoke-local demo dashboard replays franka-mesh serve docker site video studio-samples studio-record studio-bench prove cross-engine real-check prove-real real-benchmark pages film
 
 PY := $(shell [ -x .venv/bin/python ] && echo .venv/bin/python || echo python3)
 
@@ -77,7 +77,13 @@ site:  # static public site (Overview, Studio, Agent console replaying recorded 
 pages: site  # publish site/ on GitHub Pages (gh-pages branch)
 	scripts/deploy_pages.sh
 
-# demo video (Chrome + ffmpeg + macOS say); start `make serve` first to include the live scene
+# demo film: motion-graphics scenes rendered in headless Chrome, ElevenLabs narration (.env), generated music bed
+film:  # -> video/out/tether_film.mp4 (needs make real-benchmark and the Newton renders below)
+	-$(PY) -m studio.rollout_video brake-log
+	-$(PY) -m studio.train_montage brake-log
+	$(PY) -m video.v3.render --voice elevenlabs
+
+# earlier screen-capture video (Chrome + ffmpeg + macOS say); start `make serve` first to include the live scene
 video:  # demo video: screen captures (needs make serve), Newton rollout and training montage, narration
 	$(PY) -m video.capture
 	$(PY) -m studio.rollout_video brake-log
