@@ -1,0 +1,82 @@
+{
+ "chat:diagnose": [
+  {
+   "content": "",
+   "tool_calls": [
+    {
+     "id": "chatcmpl-tool-84f2b0a3a0e03769",
+     "name": "decel_profile",
+     "arguments": "{}"
+    }
+   ],
+   "model": "nvidia/nemotron-3-super-120b-a12b",
+   "prompt_tokens": 2662,
+   "completion_tokens": 31
+  },
+  {
+   "content": "",
+   "tool_calls": [
+    {
+     "id": "chatcmpl-tool-b4de50be2e5932f5",
+     "name": "perception_check",
+     "arguments": "{}"
+    }
+   ],
+   "model": "nvidia/nemotron-3-super-120b-a12b",
+   "prompt_tokens": 3064,
+   "completion_tokens": 53
+  },
+  {
+   "content": "",
+   "tool_calls": [
+    {
+     "id": "chatcmpl-tool-9b809d901ab2689c",
+     "name": "fit_hypothesis",
+     "arguments": "{\"model\": {\"mu_eff\": 0.5, \"actuator_gain\": 1, \"patch_y0\": null, \"patch_mu\": null, \"camera_dx\": 0, \"camera_pitch_deg\": 0, \"lens_k\": 0}, \"free\": [\"mu_eff\", \"actuator_gain\", \"camera_dx\"]}"
+    }
+   ],
+   "model": "nvidia/nemotron-3-super-120b-a12b",
+   "prompt_tokens": 3277,
+   "completion_tokens": 604
+  },
+  {
+   "content": "",
+   "tool_calls": [
+    {
+     "id": "chatcmpl-tool-b08fed195c7d1d0f",
+     "name": "fit_hypothesis",
+     "arguments": "{\"model\": {\"mu_eff\": 0.637, \"actuator_gain\": 0.8681, \"patch_y0\": null, \"patch_mu\": null, \"camera_dx\": 0.014, \"camera_pitch_deg\": 0, \"lens_k\": 0}, \"free\": [\"mu_eff\", \"actuator_gain\", \"camera_dx\", \"camera_pitch_deg\"]}"
+    }
+   ],
+   "model": "nvidia/nemotron-3-super-120b-a12b",
+   "prompt_tokens": 3630,
+   "completion_tokens": 154
+  },
+  {
+   "content": "",
+   "tool_calls": [
+    {
+     "id": "chatcmpl-tool-847aab180ba2d1f3",
+     "name": "fit_hypothesis",
+     "arguments": "{\"model\": {\"mu_eff\": 0.637, \"actuator_gain\": 0.868, \"patch_y0\": 0.3, \"patch_mu\": 0.5, \"camera_dx\": 0.001, \"camera_pitch_deg\": 1.9, \"lens_k\": 0}, \"free\": [\"mu_eff\", \"actuator_gain\", \"patch_y0\", \"patch_mu\", \"camera_dx\", \"camera_pitch_deg\"]}"
+    }
+   ],
+   "model": "nvidia/nemotron-3-super-120b-a12b",
+   "prompt_tokens": 3979,
+   "completion_tokens": 303
+  },
+  {
+   "content": "",
+   "tool_calls": [
+    {
+     "id": "chatcmpl-tool-97e82989998a4f75",
+     "name": "commit",
+     "arguments": "{\"model\": {\"mu_eff\": 0.696, \"actuator_gain\": 0.8718, \"patch_y0\": 0.3761, \"patch_mu\": 0.4489, \"camera_dx\": 0.0009, \"camera_pitch_deg\": 1.877, \"lens_k\": 0}, \"explanation\": \"Added a friction patch from ~0.38m with reduced friction, slight camera pitch (~1.9\u00b0), and adjusted mu_eff and actuator_gain to match stops within ~1\u202fcm.\"}"
+    }
+   ],
+   "model": "nvidia/nemotron-3-super-120b-a12b",
+   "prompt_tokens": 4341,
+   "completion_tokens": 271
+  }
+ ]
+}

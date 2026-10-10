@@ -126,7 +126,7 @@ def test_chat_is_grounded_in_the_session_and_answers_in_the_chosen_language(tmp_
                                          "messages": [{"role": "user", "content": "마찰이 얼마야?"}]}).json()
     assert r["answer"] == "마찰은 0.70입니다." and r["left"] == 29
     system = llm.calls[0][1][0]["content"]
-    assert "Korean" in system and "Cube-table friction" in system and "revealed_truth" not in system
+    assert "Korean" in system and "Box-table friction" in system and "revealed_truth" not in system  # the domain's own label
     assert c.post("/api/studio/chat", json={"messages": [{"role": "assistant", "content": "hi"}]}).status_code == 422
 
 
@@ -215,3 +215,44 @@ def test_uploaded_video_gets_its_sheet_corners_found(tmp_path):
     s = c.post("/api/studio/sessions", files={"file": ("my-table.mp4", path.read_bytes(), "video/mp4")}).json()
     v = s["videos"][0]
     assert v["corners_auto"] and len(v["corners_hint"]) == 4
+
+
+def test_eviction_never_drops_a_busy_session_and_retracking_clears_the_old_analysis(tmp_path, monkeypatch):
+    import server.studio_api as api
+
+    monkeypatch.setattr(api, "MAX_SESSIONS", 2)
+    c = client(tmp_path)
+    csv = (SAMPLE_DIR / "lab-bench.csv").read_text()
+    up = lambda: c.post("/api/studio/sessions", files={"file": ("b.csv", csv, "text/csv")})  # noqa: E731
+    a, b = up().json(), up().json()
+    sessions = c.app.state.studio_sessions
+    sessions[a["id"]].done = sessions[b["id"]].done = False  # both mid-analysis
+    assert up().status_code == 429  # no idle session to make room with
+    sessions[b["id"]].done = True
+    assert up().status_code == 200 and a["id"] in sessions and b["id"] not in sessions
+    # a second analysis of the same session while one runs is refused
+    assert c.post(f"/api/studio/sessions/{a['id']}/analyze", json={"agent": False}).status_code == 429
+    sessions[a["id"]].done = True
+    assert c.post(f"/api/studio/sessions/{a['id']}/analyze", json={"agent": False}).status_code == 200
+    events(c, a["id"])
+    v = c.post("/api/studio/sessions", data={"sample": "flick"}).json()
+    r = c.post(f"/api/studio/sessions/{v['id']}/videos/0/track", json={"corners": v["videos"][0]["corners_hint"]})
+    assert r.status_code == 200
+    c.post(f"/api/studio/sessions/{v['id']}/analyze", json={"agent": False})
+    events(c, v["id"])
+    assert c.get(f"/api/studio/sessions/{v['id']}").json()["result"] is not None
+    c.post(f"/api/studio/sessions/{v['id']}/videos/0/track", json={"corners": v["videos"][0]["corners_hint"]})
+    assert c.get(f"/api/studio/sessions/{v['id']}").json()["result"] is None  # stale analysis dropped
+
+
+def test_chat_context_names_fields_the_way_the_domain_does(tmp_path):
+    from studio.chat import session_summary
+    from studio.domains import FIELD_LABELS
+
+    c = client(tmp_path)
+    s = c.post("/api/studio/sessions", data={"sample": "press-line"}).json()
+    c.post(f"/api/studio/sessions/{s['id']}/analyze", json={"agent": False})
+    events(c, s["id"])
+    out = session_summary(c.get(f"/api/studio/sessions/{s['id']}").json(), None, "results")
+    whats = {g["field"]: g["what"] for g in out["calibration"]["differences"]}
+    assert whats["mu_eff"] == FIELD_LABELS["factory"]["mu_eff"] and whats["actuator_gain"] == FIELD_LABELS["factory"]["actuator_gain"]

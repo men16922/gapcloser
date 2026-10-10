@@ -18,6 +18,11 @@ friction correlates with the dynamometer at r 0.70 but its error (0.068) is not 
 other surfaces (0.058). The clips confirm the model and the tracker on real footage; pinning the value down needs
 what Tether asks for and these clips lack, a reference of known size and a known frame rate.
 
+Which friction law? (scale-free, by BIC on each tracked slide): constant deceleration (dry Coulomb sliding, Tether's
+model) is best on 36 of 45 slides; deceleration proportional to speed (viscous) is decisively worse on 35 (median
+delta BIC 22.8); a mixed law is decisively better on 5, with a median viscous share of 1% at launch. Real sliding on
+these surfaces is Coulomb, which is the model Tether fits and the pattern check tests against.
+
 Run: .venv/bin/python -m eval.real_friction --download   (fetches the two real-split zips, ~310 MB, to runs/real_data)
      .venv/bin/python -m eval.real_friction <unzipped-dir> ...                    -> runs/proof/real_friction.json
 """
@@ -68,6 +73,48 @@ def rest_blob(frames: list[np.ndarray]) -> tuple[float, float, float] | None:
     return max(big, key=score)
 
 
+def laws(s: np.ndarray) -> dict:
+    """Which friction law explains one slide best, by BIC (n log(RSS/n) + k log n), on distance-to-rest s(t) in frames:
+    coulomb  constant deceleration (dry sliding, Tether's model)                  s = s0 - v0 t + a t^2 / 2
+    viscous  deceleration proportional to speed (lubricated or drag-dominated)    s = c + b exp(-t / tau)
+    mixed    both                                     dv/dt = -a - v / tau, integrated in closed form
+    Scale-free: no size reference or frame rate is needed to compare shapes."""
+    from scipy.optimize import curve_fit
+
+    t = np.arange(len(s), dtype=float)
+    n = len(s)
+
+    def bic(pred, k):
+        rss = max(float(np.sum((s - pred) ** 2)), 1e-12)
+        return n * np.log(rss / n) + k * np.log(n)
+
+    out = {}
+    A = np.stack([np.ones_like(t), t, 0.5 * t * t], axis=1)
+    coef, *_ = np.linalg.lstsq(A, s, rcond=None)
+    out["coulomb"] = bic(A @ coef, 3)
+    v0 = max(1e-3, -coef[1])
+
+    def visc(t, c, b, tau):
+        return c + b * np.exp(-t / tau)
+
+    def mixed(t, s0, v0, a, tau):
+        return s0 - ((v0 + a * tau) * tau * (1 - np.exp(-t / tau)) - a * tau * t)
+
+    try:
+        pv, _ = curve_fit(visc, t, s, p0=(s[-1], s[0] - s[-1], max(2.0, n / 3)), bounds=([-np.inf, 0, 0.3], [np.inf, np.inf, 1e4]), maxfev=20000)
+        out["viscous"] = bic(visc(t, *pv), 3)
+    except Exception:  # noqa: BLE001
+        out["viscous"] = float("inf")
+    try:
+        pm, _ = curve_fit(mixed, t, s, p0=(s[0], v0, max(1e-4, coef[2]), 50.0), bounds=([-np.inf, 0, 0, 0.3], [np.inf, np.inf, np.inf, 1e5]), maxfev=20000)
+        out["mixed"] = bic(mixed(t, *pm), 4)
+        out["mixed_viscous_share"] = round(float((pm[1] / pm[3]) / (pm[2] + pm[1] / pm[3] + 1e-12)), 3)  # at launch
+    except Exception:  # noqa: BLE001
+        out["mixed"] = float("inf")
+    out["best"] = min(("coulomb", "viscous", "mixed"), key=lambda k: out[k])
+    return {k: (round(float(v), 2) if isinstance(v, (float, np.floating)) else v) for k, v in out.items()}
+
+
 def decel(path: Path) -> dict | None:
     frames = read(path)
     rb = rest_blob(frames)
@@ -100,7 +147,21 @@ def decel(path: Path) -> dict | None:
     coef, *_ = np.linalg.lstsq(A, s, rcond=None)
     pred = A @ coef
     r2 = 1 - float(np.sum((s - pred) ** 2) / max(np.sum((s - s.mean()) ** 2), 1e-12))
-    return {"decel": float(coef[2]) * 900.0, "r2": round(r2, 4), "frames": int(a1 - a0), "slide_sizes": round(float(s[0]), 2)}
+    return {"decel": float(coef[2]) * 900.0, "r2": round(r2, 4), "frames": int(a1 - a0), "slide_sizes": round(float(s[0]), 2),
+            "laws": laws(s)}
+
+
+def law_summary(used: list[dict]) -> dict:
+    """Coulomb vs viscous vs mixed over the tracked slides: wins by BIC, and how decisive (delta BIC > 6 is strong)."""
+    rs = [r["laws"] for r in used if "laws" in r]
+    if not rs:
+        return {}
+    d_visc = [r["viscous"] - r["coulomb"] for r in rs if np.isfinite(r["viscous"])]
+    d_mix = [r["coulomb"] - r["mixed"] for r in rs if np.isfinite(r["mixed"])]
+    return {"slides": len(rs), "best": {k: int(sum(r["best"] == k for r in rs)) for k in ("coulomb", "viscous", "mixed")},
+            "coulomb_beats_viscous_strongly": int(sum(d > 6 for d in d_visc)), "median_bic_viscous_minus_coulomb": round(float(np.median(d_visc)), 1),
+            "mixed_beats_coulomb_strongly": int(sum(d > 6 for d in d_mix)),
+            "median_viscous_share_at_launch": round(float(np.median([r.get("mixed_viscous_share", 0) for r in rs])), 3)}
 
 
 def main(dirs: list[str]) -> dict:
@@ -148,7 +209,8 @@ def main(dirs: list[str]) -> dict:
            "pairs": pairs, "pairs_scored": len(scored),
            "mae": round(float(np.mean(err)), 4) if err else None, "median_rel_err": round(float(np.median(rel)), 3) if rel else None,
            "pearson_r": round(float(np.corrcoef(mt, mp)[0, 1]), 3) if len(scored) > 2 else None,
-           "baseline_mae_no_measurement": round(float(np.mean(base)), 4) if base else None, "rows": rows}
+           "baseline_mae_no_measurement": round(float(np.mean(base)), 4) if base else None,
+           "friction_law": law_summary(used), "rows": rows}
     (ROOT / "runs" / "proof").mkdir(parents=True, exist_ok=True)
     (ROOT / "runs" / "proof" / "real_friction.json").write_text(json.dumps(out, indent=1))
     print(json.dumps({k: v for k, v in out.items() if k not in ("rows", "pairs")}, indent=1))

@@ -21,13 +21,21 @@ HEAD = ('<!doctype html><html lang="en"><head><meta charset="utf-8">'
         '</head><body style="margin:0">')
 
 
+SHARED_CSS = HERE / "shared" / "base.css"
+
+
+def with_shared(html: str) -> str:
+    """Inline the shared design system (tokens, top bar, buttons) where a page asks for it."""
+    return html.replace("/*__SHARED_CSS__*/", SHARED_CSS.read_text(), 1)
+
+
 def _script_safe(s: str) -> str:
     return s.replace("</", "<\\/")
 
 
 def _template(bundle_json: str) -> str:
     """template.html with the bundle, three.js and the Franka meshes substituted."""
-    tpl = (HERE / "template.html").read_text()
+    tpl = with_shared((HERE / "template.html").read_text())
     three = THREE.read_text() if THREE.exists() else ""
     if three.startswith("console.warn("):  # silence the UMD-deprecation banner, keep the expression valid
         three = "void(" + three[len("console.warn("):]
@@ -80,14 +88,16 @@ def build_studio(rec_dir: Path = STUDIO_REC, out_dir: Path = HERE / "dist", cons
     studio.standalone.html (sessions + media inlined; replays the recorded Nemotron runs offline)."""
     from studio.domains import page_data
 
-    tpl = (HERE / "studio.html").read_text()
+    tpl = with_shared((HERE / "studio.html").read_text())
     tpl = tpl.replace("/*__STUDIO_DOMAINS__*/null", _script_safe(json.dumps(page_data(), separators=(",", ":"))), 1)
     out_dir.mkdir(parents=True, exist_ok=True)
     live = out_dir / "studio.live.html"
     live.write_text(tpl.replace("__HOME_URL__", "/"))
     tpl = tpl.replace("__HOME_URL__", os.environ.get("GAPCLOSER_HOME_URL", ""))  # the published overview, if any
     outs = [live]
-    order = ["flick", "lab-bench", "short-reach", "stop-line", "brake-log", "press-line"]
+    from server.studio_session import SAMPLES
+
+    order = [x["id"] for x in SAMPLES]  # the server's catalog: same samples, same order as the live page
     recs = [json.loads((rec_dir / f"{k}.json").read_text()) for k in order if (rec_dir / f"{k}.json").exists()]
     if not recs:
         return outs
@@ -132,7 +142,7 @@ def build_home(out_dir: Path = HERE / "dist") -> list[Path]:
     for key, src in (("flick", "flick-video.mp4"), ("stop-line", "stop-line-video.mp4"), ("press-line", "press-line-frame.jpg")):
         data = (samples / src).read_bytes() if src.endswith(".jpg") else first_frame_jpeg(samples / src)[0]
         img[key] = "data:image/jpeg;base64," + base64.b64encode(data).decode()
-    html = (HERE / "home.html").read_text().replace(
+    html = with_shared((HERE / "home.html").read_text()).replace(
         "/*__HOME_STATIC__*/null", _script_safe(json.dumps({"console": console, "studio": studio, "img": img})), 1)
     for tag in ("<!doctype html>", '<html lang="en">', "<head>", "</head>", "<body>", "</body>", "</html>",
                 '<meta charset="utf-8">', '<meta name="viewport" content="width=device-width, initial-scale=1">'):

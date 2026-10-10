@@ -17,7 +17,8 @@ judges distance) covers three domains:
 Built for the Nebius × NVIDIA Global AI Hackathon (Physical AI track). Runs on a laptop at near-zero cost:
 
 - Physics and rendering: **NVIDIA Newton** (Warp, CPU)
-- Reasoning: **NVIDIA Nemotron 3 Super** on **Nebius Token Factory**
+- Reasoning: **NVIDIA Nemotron 3 Super** on **Nebius Token Factory**, also runnable as an **NVIDIA NeMo Agent
+  Toolkit** workflow (`integrations/nat_tether`)
 - Eyes: **NVIDIA Cosmos Reason 2**, running locally (optional)
 
 `make serve`, then open:
@@ -26,7 +27,7 @@ Built for the Nebius × NVIDIA Global AI Hackathon (Physical AI track). Runs on 
 |---|---|
 | http://localhost:8000/ | Overview: the route, the three domains, the evidence |
 | http://localhost:8000/console | Agent console: Nemotron fixing hidden worlds, Gap-Bench |
-| http://localhost:8000/studio | Studio: your data (or a world you simulate) → calibrated simulator → retrain in parallel Newton worlds → Newton replay → export |
+| http://localhost:8000/studio | Studio, in three steps: Data (example, simulate, or upload) → Analysis (tracking, then the agent) → Results (calibrated sim, retrain in parallel Newton worlds, export with a Newton replay) |
 
 ```mermaid
 flowchart LR
@@ -34,6 +35,7 @@ flowchart LR
     M --> A[Diagnose<br/>Nemotron 3 Super tool agent<br/>on Nebius Token Factory]
     A --> F[Calibrate<br/>least squares + bootstrap<br/>90% intervals, next experiment]
     X[Library search] -. cross-check .-> F
+    F --> P[Pattern check<br/>speed or position effects<br/>the model still misses]
     F --> V[Verify<br/>replay every run in NVIDIA Newton]
     F --> R[Retrain<br/>16 parallel Newton worlds:<br/>current / wide DR / Tether ranges]
     R --> H[Score in the hidden world<br/>+ Newton-rendered rollouts]
@@ -93,14 +95,14 @@ from the API with Nemotron 3 Super on Token Factory:
 
 | Sample | Measured (90% interval) | Hidden truth |
 |---|---|---|
-| Phone video, take 1 (7 flicks, reach 0.46 m) | friction 0.555 (0.530–0.578); slick region from ~0.37 m, still wide (0.27–0.42); headline shown as a range because part of the table is unmeasured | 0.55; region from 0.364 m*, μ 0.30 |
-| Phone video, + take 2 (the 4 longer pushes it asked for) | 0.555 (0.524–0.578); region from 0.376 m (0.363–0.395), μ 0.282 (0.269–0.303) | 0.55; 0.364 m*; 0.30 |
-| Robot log, lab bench (20 pushes) | friction 0.696 (0.682–0.709), gain 0.872 (0.864–0.880), region 0.376 m / μ 0.449, camera pitch 1.9° (1.6–2.2) | 0.70, 0.88, 0.38 m / 0.45, 2.0° |
-| Robot log, short pushes only (reach 0.29 m) | friction 0.604 (0.58–0.65), gain 0.99. It does **not** invent a region it never measured; it asks for pushes to 0.45–0.62 m | 0.60; region from 0.33 m |
+| Phone video, take 1 (7 flicks, reach 0.46 m) | friction 0.553 (0.542–0.574); slick region from ~0.36 m, still wide (0.33–0.43), its friction not yet pinned down (0.03–0.32); headline shown as a range because part of the table is unmeasured | 0.55; region from 0.364 m*, μ 0.30 |
+| Phone video, + take 2 (the 4 longer pushes it asked for) | 0.553 (0.541–0.565); region from 0.362 m (0.348–0.380), μ 0.302 (0.293–0.312) | 0.55; 0.364 m*; 0.30 |
+| Robot log, lab bench (20 pushes) | friction 0.701 (0.691–0.708), gain 0.875 (0.864–0.885), region 0.377 m / μ 0.453, camera pitch 2.3° (−3.1–4.8: the agent also freed lens distortion and camera offset, which trade off against pitch) | 0.70, 0.88, 0.38 m / 0.45, 2.0° |
+| Robot log, short pushes only (reach 0.29 m) | friction 0.609 (0.59–0.64), gain 1.00. Nemotron proposed a slick region at 0.25 m; the cross-check left it out (it improved the stops by 0.8 mm, within noise). Asks for pushes to 0.47–0.64 m | 0.60; region from 0.33 m, never reached |
 
 \* Measured from the median release point of take 1, which is 0.4 cm behind the simulator origin.
 
-Every hidden value lies inside its 90% interval. The intervals refit on resampled pushes, and for video each
+21 of the 22 hidden values of the six Studio examples lie inside their 90% intervals (`make prove`); the pusher log's oily-section start is estimated at 0.291 m (truth 0.300 m) and its interval stops 0.1 mm short. The intervals refit on resampled pushes, and for video each
 resample also redraws the systematic error: sheet scale ±1%, tracked speed ±1.5% and stop ±3 mm. Without that
 term the take-2 intervals were too narrow and missed the truth.
 
@@ -110,21 +112,90 @@ recovery from the sheet gives 0.481 m height and 579 px focal length (true: 0.48
 
 **Limits, measured.** A harsher render of the same scene adds a textured table, hand-held shake, motion blur
 and heavy compression, all at 30 fps. On it, stops stay within about 4 cm, but launch speeds read 10–15% low
-and the friction region is not pinned down. Film in slow motion or at 60 fps. A real phone video has not been
-run yet.
+and the friction region is not pinned down. Film in slow motion or at 60 fps. On 52 public real clips (IDPP,
+`make real-check`) the tracker follows 45 and constant deceleration fits each tracked slide (median R² 0.9985), but
+without a size reference or known frame rate the friction value itself is not identified (error 0.068 vs 0.058 for
+guessing the mean). Real objects with independently measured friction: see the EV-RealPhys benchmark below.
 
-**Does the next-experiment card save real pushes?** (`make studio-bench`) Every method starts from the same 4
-short pushes and adds 2 per round until a policy trained in the calibrated simulator reaches 95% real success:
+### Data from a different engine: MuJoCo hidden worlds (`make cross-engine`)
 
-| Real pushes to 95% | analytic, 50 worlds | NVIDIA Newton, 20 worlds |
+Tether fits a Newton-family model, so data made by Newton only checks self-consistency. Here every "real" push comes
+from **MuJoCo** instead: soft contacts, and a paddle that pushes the object up to speed rather than an assigned
+velocity. In three of the four conditions, the world also has an effect the fitter has no field for. 24 random hidden
+worlds per condition. The robot's first-day log (14 aimed pushes + 4 probes) is analysed offline. Then a policy is
+trained in each simulator and run in the hidden MuJoCo world (24 targets, ±3 cm):
+
+| Hidden world (MuJoCo) | Current sim | Domain randomization, best width | DR over the hidden worlds' own distribution* | Exact hidden parameters | **Tether** (95% CI) | Pattern check flags it |
+|---|---|---|---|---|---|---|
+| In-menu effects only | 9% | 12% | 25% | 82% | **89%** (85–92) | 2/24 (false alarms) |
+| + friction that depends on speed | 10% | 12% | 26% | 58% | **83%** (75–92) | 24/24 as "depends on speed" |
+| + a second friction region | 10% | 13% | 25% | 85% | **83%** (76–90) | 15/24 as "changes along the surface" |
+| + the table tilted 1.5–3° | 8% | 9% | 26% | 33% | **90%** (87–93) | 4/24 (a tilt is indistinguishable from friction, and needs no flag) |
+
+\* No user knows this distribution; it is the most favourable possible DR baseline. Domain randomization was swept
+over 25/50/75/100% of each parameter's range around the current sim, and the best width is shown. Tether is at least
+as good as the best DR in 94 of 96 worlds. Stop error on 12 held-out pushes is 1.6–2.0 cm (median) for the
+calibrated sim vs 18–30 cm for the current one. That is about the scatter of MuJoCo's contact launch (1–2% in speed).
+
+"Exact hidden parameters" means training on MuJoCo's own parameter values. It loses wherever the engine's behaviour
+differs from its parameters (effective friction is a few % lower) or an off-menu effect acts. Tether fits the
+behaviour, so off-menu effects cost little inside the measured range. The pattern check (`studio/structure.py`)
+replaces a size threshold that flagged 23 of 24 in-menu worlds: it looks for deceleration that changes with speed or
+along the surface, after subtracting the model.
+
+### Real objects, real video, independently measured friction (`make real-benchmark`)
+
+**EV-RealPhys** (Kandukuri, Strecke, Stueckler 2023, MPI, CC BY-SA 4.0) is a public research benchmark. YCB objects
+are pushed by hand across a real table and filmed at 30 Hz, with motion capture and a camera calibrated to the table.
+Each object's friction on that table was measured separately, by tilting the table and timing ten slides. Tether never
+sees those values. Two ways in, both through Tether's own fitter:
+
+- **Log:** the motion-capture centre of mass, as a robot would log it.
+- **Video:** Tether's tracker on the RGB frames, with pixels placed on the table using the dataset's camera calibration
+  (the role the A4 sheet plays in the Studio). One click per clip marks the object at rest.
+
+| Object | Tilt test | Tether, log (90%) | Tether, video (90%) | Pushes log / video |
+|---|---|---|---|---|
+| mug | 0.110 | 0.115 (0.110–0.123) | 0.120 (0.114–0.127) | 10 / 8 |
+| mustard bottle | 0.159 | 0.156 (0.137–0.163) | 0.164 (0.160–0.168) | 10 / 7 |
+| bleach cleanser | 0.169 | 0.159 (0.155–0.165) | 0.181 (0.153–0.198) | 10 / 5 |
+| pitcher | 0.220 | 0.216 (0.210–0.225) | 0.229 (0.201–0.260) | 10 / 4 |
+| cracker box | 0.280 | 0.208 (0.201–0.213) | 0.173 (0.170–0.178) | 5 / 1 |
+
+Four of five objects land within ±0.05 of the tilt test on both paths. Mean error is 0.019 for the log path
+(median 0.005) and 0.029 for the video path (median 0.011). The paper's own physics-based estimator on the same real
+sequences has a mean error of 0.082 (median 0.025). The cracker box is off on every path. On real data the 90%
+intervals are too narrow: they contain the tilt-test value for 3 of 5 objects (log) and 2 of 5 (video).
+
+Two things this benchmark changed in Tether:
+
+- **The fit now reads the shape of each slide**, meaning how long the object takes to stop, not only its launch speed
+  and stopping distance. The dataset's clock groups 240 Hz poses with 60 Hz images, so a launch speed read off a few
+  frames can be 20–30% off. Fitting the timing pins friction anyway.
+- **Implausible tracks are dropped and reported.** A track that runs backwards, jumps by more than 3 g, or stops far
+  too soon for its speed is the tracker losing the object (a ruler pushing a white bottle across a white table), not
+  physics.
+
+### Real footage: which friction law? (`make real-check`)
+
+The tracker follows 45 of 52 public slow-motion slides (IDPP, Apache-2.0). Each slide is compared, scale-free, by BIC:
+
+- **Coulomb** (constant deceleration, Tether's model) is best on 36 of 45.
+- **Viscous** (deceleration proportional to speed) is decisively worse on 35 (median ΔBIC 22.8).
+- **Mixed** (both) is decisively better on 5, with a median viscous share of 1% at launch.
+
+**Does the next-experiment card save hidden-world pushes?** (`make studio-bench`) Every method starts from the same 4
+short pushes and adds 2 per round until a policy trained in the calibrated simulator reaches 95% hidden-world success:
+
+| Hidden-world pushes to 95% | analytic, 50 worlds (2026-10-11) | NVIDIA Newton, 20 worlds (2026-10-09, earlier fitter) |
 |---|---|---|
-| Studio's suggested pushes | **5.8** | **5.8** |
-| Hand-written long-to-short sweep | 5.9 | 6.2 |
-| Random pushes | 7.7 | 7.9 |
+| Studio's suggested pushes | **5.76** | **5.8** |
+| Hand-written long-to-short sweep | 5.76 | 6.2 |
+| Random pushes | 6.84 | 7.9 |
 
-Honest reading: the suggestions need about 25% fewer real pushes than random ones. They are about as good as a
-sweep that an engineer who already knows to push long would write. The difference is that the suggestions
-adapt to the table, so you do not need to know that in advance.
+Honest reading: with the fitter that reads the whole slide, every strategy needs fewer pushes, and the suggestions
+need about 16% fewer than random ones. They tie a sweep that an engineer who already knows to push long would write.
+The difference is that the suggestions adapt to the table, so you do not need to know that in advance.
 
 ## How it works
 
@@ -138,7 +209,7 @@ flowchart LR
   C[Cosmos Reason 2<br/>watches real clips] -.events.-> D
 ```
 
-**Task:** a Franka arm pushes a cube so that it stops on a target line. There are 20 targets between 0.2 and 0.6 m, and a push succeeds if the cube stops within ±3 cm.
+**Task:** a cube is launched at the commanded speed so that it stops on a target line (a kinematic Franka shows the strike; it does not touch the cube). There are 20 targets between 0.2 and 0.6 m, and a push succeeds if the cube stops within ±3 cm.
 
 **The "real" world:** a second Newton world whose physics is hidden from the agent.
 
@@ -148,21 +219,21 @@ flowchart LR
   - **lens distortion**
   - combinations of these
 
-**The agent never sees the hidden values.** It sees only what a real robot would log: where each cube stopped, camera tracks of the cube, and perceived vs known target positions. It can also pay for extra real pushes.
+**The agent never sees the hidden values.** It sees only what a real robot would log: where each cube stopped, camera tracks of the cube, and perceived vs known target positions. It can also pay for extra hidden-world pushes.
 
 **Nemotron as a scientist:** Nemotron 3 Super on Token Factory works through tool calls. Each step is shown in the dashboard's lab notebook.
 
 1. `decel_profile` and `perception_check` look at the evidence.
 2. The agent proposes model *structures* (uniform friction, gain, a friction strip, camera offset, lens).
 3. `fit_hypothesis` fits each structure's numbers by least squares. The LLM chooses the structure and the optimizer does the arithmetic.
-4. `probe_real` designs extra real pushes when the data does not cover the target range.
+4. `probe_real` designs extra hidden-world pushes when the data does not cover the target range.
 5. `commit` hands over a simulator to retrain on.
 
 **Measured, never estimated:** every success rate comes from rolling the policy out in the hidden world.
 
 ## Results
 
-### Gap-Bench (NVIDIA Newton, 15 hidden worlds per tier, mean real success ± 95% CI)
+### Gap-Bench (NVIDIA Newton, 15 hidden worlds per tier, mean hidden-world success ± 95% CI)
 
 | Tier | Nominal sim | Domain rand. | Rule-based agent | System-ID baseline | **Nemotron tool agent** |
 |---|---|---|---|---|---|
@@ -171,7 +242,7 @@ flowchart LR
 | Compound: strip + lens + 1 param | 22% | 14% | 54% ±15 | 97% ±4 | **96% ±6** |
 
 - **Rule-based tuning breaks outside its map.** The rule-based agent adjusts a fixed set of known parameters from tracked motion, and it stays at 54–83% when the world has effects it has no parameter for.
-- **The Nemotron agent closes those gaps** in about 2 iterations, using about 40–50 real pushes.
+- **The Nemotron agent closes those gaps** in about 2 iterations, using about 40–50 hidden-world pushes.
 - **Honest comparison:** the System-ID baseline fits a hand-ordered library of model structures with the same least-squares fitter and matches the agent. A smaller 6-worlds-per-tier run showed the agent ahead on compound worlds (99% vs 93%), but that gap disappeared at 15 worlds per tier. So the claim is not "LLM beats system identification". It is that Nemotron reaches system-ID accuracy **on its own**:
   - it chooses which structures to try
   - it designs its own experiments
@@ -198,7 +269,7 @@ All of these were recorded with Nemotron 3 Super on Token Factory and run in New
 | Lens distortion | k = −0.30 /m | 25% → **100%** | 65% | 100% |
 | Three faults | weak motor, strip, lens | 0% → **100%** | 80% | 100% |
 
-In *Three faults*, the agent's first model fit the data perfectly. But the real pushes only reached 0.40 m, so the agent spent 3 probe pushes past that point. Its model then missed by 5.75 cm, so it added a friction strip at 0.40 m with μ 0.50 and the error dropped to 0.06 cm. The hidden truth was 0.40 m and μ 0.50.
+In *Three faults*, the agent's first model fit the data perfectly. But the hidden-world pushes only reached 0.40 m, so the agent spent 3 probe pushes past that point. Its model then missed by 5.75 cm, so it added a friction strip at 0.40 m with μ 0.50 and the error dropped to 0.06 cm. The hidden truth was 0.40 m and μ 0.50.
 
 The closed-world scenarios (slippery cube, shifted camera, sticky table, weak motor) also close from 0% to 100%.
 
@@ -208,7 +279,7 @@ The closed-world scenarios (slippery cube, shifted camera, sticky table, weak mo
 
 ```bash
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt pytest httpx
-make check            # offline gate: 67 tests, no network, no credits
+make check            # offline gate: 99 tests, no network, no credits
 make demo             # record 5 Newton scenarios + build the dashboard (~30 s; add --llm local via eval.record_demo for Nemotron)
 open dashboard/dist/gapcloser.standalone.html
 make replays          # 3D viewer data only: per-frame Newton poses for the recorded bundle (no LLM)
@@ -229,7 +300,7 @@ Static page and demo video:
 
 ```bash
 make site     # site/index.html, self-contained (recorded runs + clips)
-make video    # video/out/gapcloser_demo.mp4: dashboard captures + Newton clips + narration (Chrome, ffmpeg, macOS say)
+make video    # video/out/tether_demo.mp4: page captures, Newton rollout and montage, narration (needs make serve, Chrome, ffmpeg, macOS say)
 ```
 
 Benchmarks:

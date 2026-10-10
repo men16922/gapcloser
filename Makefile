@@ -1,6 +1,6 @@
 # Tether — Sim2Real self-closing agent (Nebius x NVIDIA hackathon)
 # Gate must stay OFFLINE + DETERMINISTIC: no GPU, no network, no Nebius/Token Factory calls.
-.PHONY: check test lint smoke-local demo dashboard replays franka-mesh serve docker site video studio-samples studio-record studio-bench prove
+.PHONY: check test lint smoke-local demo dashboard replays franka-mesh serve docker site video studio-samples studio-record studio-bench prove cross-engine real-check prove-real real-benchmark
 
 PY := $(shell [ -x .venv/bin/python ] && echo .venv/bin/python || echo python3)
 
@@ -48,6 +48,15 @@ studio-record:
 real-check:  # public real footage (IDPP, ~310 MB download): tracker + sliding model on 52 real clips
 	$(PY) -m eval.real_friction --download
 
+cross-engine:  # hidden worlds made by a second engine (MuJoCo, contact launch, off-menu effects): pip install -r requirements-eval.txt
+	$(PY) -m eval.cross_engine --worlds 24
+
+real-benchmark:  # EV-RealPhys real objects (1.7 GB download, CC BY-SA 4.0): Tether vs tilt-test friction -> runs/proof/real_benchmark.json
+	$(PY) -m eval.real_benchmark --download
+
+prove-real:  # your own real clips + tilt-test angles (video/real/truth.json, see reference/06) -> runs/proof/real_calibration.json
+	$(PY) -m eval.prove_real
+
 prove:  # recompute every headline number (no network, ~5 min) -> runs/proof/PROOF.md
 	$(PY) -m eval.prove
 
@@ -70,6 +79,7 @@ video:  # demo video: screen captures (needs make serve), Newton rollout and tra
 	$(PY) -m video.capture
 	$(PY) -m studio.rollout_video brake-log
 	$(PY) -m studio.train_montage brake-log
+	-$(PY) -m video.real_benchmark_overlay  # needs EV-RealPhys (make real-benchmark); the scene is skipped without it
 	$(PY) -m video.make_video
 
 # ===== overnight harness targets (append to your Makefile) =====

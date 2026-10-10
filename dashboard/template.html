@@ -6,70 +6,16 @@
 /* Layout: Isaac/Omniverse-style tool console. Top bar → scenario tabs → 3 panes
    (agent timeline | sim-vs-real evidence | outcome + belief). Single dark theme by choice,
    tokens taken from nvidia.com CSS (see docs/design/REFERENCE.md). */
-:root {
-  color-scheme: dark;
-  --bg: #000000;          /* page */
-  --panel: #111111;       /* gray-950 */
-  --raised: #1a1a1a;      /* gray-900, brand black-1 */
-  --line: #333333;        /* gray-700 hairline */
-  --line-soft: #222222;   /* gray-800 */
-  --fg: #eeeeee;          /* gray-100 */
-  --muted: #999999;       /* gray-400 */
-  --dim: #666666;         /* gray-600 */
-  --green: #76b900;       /* brand green: the one accent */
-  --green-hi: #91c733;    /* brand green hover */
-  --green-wash: rgba(118, 185, 0, 0.12);
-  --warn: #d9a13b;
-  --bad: #e2574c;
-  --bad-wash: rgba(226, 87, 76, 0.14);
-  --f-display: "Barlow Semi Condensed", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
-  --f-body: "Barlow", "Helvetica Neue", Arial, sans-serif;
-  --f-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px;
-}
-* { box-sizing: border-box; }
-html, body { background: var(--bg); color: var(--fg); }
-body { font: 15px/1.45 var(--f-body); padding-inline: 16px; padding-block: 0 32px; }
-:lang(ko) body { word-break: keep-all; }
-.wrap { max-width: 1480px; margin: 0 auto; }
-h1, h2, h3 { font-family: var(--f-display); font-weight: 600; margin: 0; text-wrap: balance; }
+/*__SHARED_CSS__*/
+body { line-height: 1.45; padding-block: 0 32px; }
+.wrap { max-width: 1480px; margin: 0 auto; padding-inline: 16px; }
 .label { font: 600 11px/1 var(--f-display); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
-.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
-button { font: inherit; color: inherit; }
-:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
-
-/* top bar */
-.top { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s4) var(--s5); padding-block: var(--s4); border-bottom: 1px solid var(--line); }
-.brand { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s3); }
-.brand h1 { font-size: 26px; letter-spacing: 0.01em; }
-.brand h1 b { color: var(--green); font-weight: 700; }
-.mark { width: 22px; height: 14px; margin-right: 8px; vertical-align: 1px; display: inline-block; }
-.brand .sub { color: var(--muted); font-size: 14px; }
-.studio-link { color: var(--fg); font-size: 14px; border: 1px solid var(--green); padding: 4px 9px; text-decoration: none; }
-.studio-link:hover { background: var(--green-wash); }
-.studio-link[href=""] { display: none; }
-.flow { display: flex; gap: 0; border: 1px solid var(--line); }
-.flow a { display: grid; grid-template-columns: auto auto; column-gap: 8px; align-items: baseline; padding: 6px 12px; color: var(--muted); text-decoration: none; font-size: 15px; font-weight: 600; }
-.flow a + a { border-left: 1px solid var(--line); }
-.flow a i { font-style: normal; grid-row: span 2; font-size: 12px; color: var(--dim); border: 1px solid var(--line); width: 18px; height: 18px; display: inline-grid; place-items: center; align-self: center; }
-.flow a small { grid-column: 2; font-size: 12px; font-weight: 400; color: var(--dim); }
-.flow a[aria-current="page"] { color: var(--fg); box-shadow: inset 0 -2px 0 var(--green); }
-.flow a[aria-current="page"] i { border-color: var(--green); color: var(--green); }
-.flow a:hover { color: var(--fg); }
-.flow a[href=""] { display: none; }
-.domhead { margin: 18px 0 0; font-size: 13px; color: var(--muted); }
+.stackline { display: flex; flex-wrap: wrap; gap: 4px 18px; padding-block: var(--s3) 0; }
+.stackline .chip { border: 0; padding: 0; color: var(--dim); }  /* the stack, as a quiet credit line */
 .tryit { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; border-left: 3px solid var(--green); background: var(--green-wash); padding: 10px 14px; }
 .tryit a { color: #000; background: var(--green); padding: 6px 12px; font-weight: 600; text-decoration: none; }
 .tryit a:hover { background: var(--green-hi, #91c733); }
 .tryit span { font-size: 13.5px; color: var(--muted); }
-.domains { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--line); margin: 14px 0 4px; }
-.domains a { display: grid; gap: 2px; padding: 12px 16px; color: var(--fg); text-decoration: none; border-right: 1px solid var(--line); }
-.domains a:last-child { border-right: 0; }
-.domains a:hover { background: var(--green-wash); }
-.domains b { font-size: 16px; }
-.domains span { font-size: 13px; color: var(--muted); }
-.domains[data-off] { display: none; }
-@media (max-width: 640px) { .domains { grid-template-columns: 1fr; } .domains a { border-right: 0; border-bottom: 1px solid var(--line); } }
 .intro { border: 1px solid var(--line); background: var(--panel); margin-top: var(--s4); padding: var(--s4) var(--s5); display: grid; gap: var(--s3); }
 .intro[hidden] { display: none; }
 .intro .ih { display: flex; justify-content: space-between; gap: var(--s3); align-items: baseline; }
@@ -81,10 +27,6 @@ button { font: inherit; color: inherit; }
 .intro .note { margin: 0; font-size: 13.5px; color: var(--muted); max-width: 110ch; }
 .intro-open { background: none; border: 1px solid var(--line); color: var(--muted); cursor: pointer; padding: 4px 9px; font: 600 12px/1 var(--f-display); letter-spacing: 0.06em; }
 @media (max-width: 720px) { .intro ol { grid-template-columns: minmax(0, 1fr); } }
-.stack { margin-left: auto; display: flex; flex-wrap: wrap; gap: var(--s2); }
-.lang { display: inline-flex; border: 1px solid var(--line); }
-.lang button { background: none; border: 0; padding: 5px 9px; cursor: pointer; font: 600 12px/1 var(--f-mono); color: var(--muted); }
-.lang button[aria-pressed="true"] { background: var(--raised); color: var(--fg); box-shadow: inset 0 -2px 0 var(--green); }
 .chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border: 1px solid var(--line); font: 500 12px/1.2 var(--f-mono); color: var(--muted); white-space: nowrap; }
 .chip i { width: 6px; height: 6px; background: var(--green); display: inline-block; }
 .chip.pending i { background: var(--warn); }
@@ -102,10 +44,6 @@ button { font: inherit; color: inherit; }
 .scn h2 { font-size: 34px; line-height: 1.05; }
 .scn p { margin: var(--s2) 0 0; color: var(--muted); max-width: 70ch; }
 .controls { display: flex; gap: var(--s2); }
-.btn { background: var(--raised); border: 1px solid var(--line); padding: 8px 14px; cursor: pointer; font: 600 13px/1 var(--f-display); letter-spacing: 0.08em; text-transform: uppercase; }
-.btn:hover { border-color: var(--dim); }
-.btn.primary { background: var(--green); border-color: var(--green); color: #000; }
-.btn.primary:hover { background: var(--green-hi); border-color: var(--green-hi); }
 
 .kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border: 1px solid var(--line); margin-bottom: var(--s4); }
 .kpi { padding: var(--s3) var(--s4); border-right: 1px solid var(--line); display: grid; gap: 6px; }
@@ -392,7 +330,6 @@ td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
   .clips { grid-template-columns: minmax(0, 1fr); }
   .scn { grid-template-columns: minmax(0, 1fr); }
   .scn h2 { font-size: 28px; }
-  .stack { margin-left: 0; }
   .chip { white-space: normal; overflow-wrap: anywhere; }
   .v3 .stage { aspect-ratio: 4 / 3; }
   .v3.split .stage { aspect-ratio: 3 / 4; }
@@ -413,15 +350,13 @@ td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
 @media (prefers-reduced-motion: reduce) { .tl li.live .ico, .spin, .tab .pill.run i, .chip.run i { animation: none; } }
 </style>
 
+<header class="tbar">
+  <a class="brand" href="__HOME_URL__"><svg class="mark" viewBox="0 0 22 14" aria-hidden="true"><rect x="0" y="0" width="6" height="6" fill="#6e6e6e"/><rect x="16" y="8" width="6" height="6" fill="#76b900"/><path d="M3 6 L19 8" stroke="#76b900" stroke-width="1.6"/></svg><b>Tether</b></a>
+  <nav class="tnav" aria-label="Tether"><a href="__HOME_URL__" id="home-link">Overview</a><a id="studio-link" href="__STUDIO_URL__">Studio</a><a href="#" aria-current="page">Agent console</a></nav>
+  <div class="tslot"><div class="lang" role="group" aria-label="Language"><button type="button" data-lang="en">EN</button><button type="button" data-lang="ko">KO</button></div></div>
+</header>
 <div class="wrap">
-  <div class="top">
-    <div class="brand"><a href="__HOME_URL__" style="text-decoration:none;color:inherit"><h1><svg class="mark" viewBox="0 0 22 14" aria-hidden="true"><rect x="0" y="0" width="6" height="6" fill="#69717a"/><rect x="16" y="8" width="6" height="6" fill="#76b900"/><path d="M3 6 L19 8" stroke="#76b900" stroke-width="1.6"/></svg>Tether</h1></a><span class="sub">Sim2Real agent console</span></div>
-    <nav class="flow" aria-label="Tether"><a href="__HOME_URL__" id="home-link"><i>0</i>Overview<small>What Tether does</small></a><a href="#" aria-current="page"><i>1</i>Agent console<small>How the AI works</small></a><a id="studio-link" href="__STUDIO_URL__"><i>2</i>Studio<small>Your own data, three domains</small></a></nav>
-    <div class="stack" id="stack"></div>
-    <div class="lang" role="group" aria-label="Language"><button type="button" data-lang="en">EN</button><button type="button" data-lang="ko">KO</button></div>
-  </div>
-  <p class="domhead" id="domhead"></p>
-  <nav class="domains" id="domains" aria-label="Domains in Studio"></nav>
+  <div class="stackline" id="stack" aria-label="Built with"></div>
   <section class="intro" id="intro" aria-label="What is this"></section>
   <nav class="picker" id="tabs" aria-label="Scenarios"></nav>
   <main id="main"></main>
@@ -448,16 +383,6 @@ function studioLink(truth, title) {
   const href = live ? `${base}?${q}#robot` : `${base}#robot`;
   const note = skipped.length ? (ko ? `Studio 가상 탁자에는 ${skipped.map(k => names[k][1]).join(", ")} 설정이 없어 제외합니다.` : `Studio's virtual table has no ${skipped.map(k => names[k][0]).join(", ")} setting; left out.`) : "";
   return `<div class="tryit" data-notr="1"><a href="${href}">${ko ? "이 상황을 Studio에서 직접 해 보기" : "Run this case yourself in Studio"}</a><span>${ko ? (live ? "같은 마찰·구간·모터 값으로 가상 탁자를 설정해 둡니다. 데이터를 만든 뒤 AI 진단부터 내보내기까지 이어서 진행할 수 있습니다." : "Studio를 로봇 조작 탭으로 엽니다.") : (live ? "Opens Studio's virtual table with the same friction, strip and motor, then video or log, diagnosis and export." : "Opens Studio on the robot tab.")} ${note}</span></div>`;
-}
-function renderDomains() {  // the three Studio domains (studio/domains.py); hidden when there is no Studio to link to
-  const base = document.getElementById("studio-link").getAttribute("href"), nav = document.getElementById("domains");
-  nav.dataset.off = "1"; document.getElementById("domhead").textContent = ""; return;  // the overview page lists the fields
-  const ko = LANG === "ko";
-  document.getElementById("domhead").textContent = ko ? "② Studio에서 내 데이터로 해 보기: 업무를 고릅니다. 아래 예시들은 ①의 작동 원리를 보여 줍니다." : "② Try it on your own data in Studio: pick a domain. The examples below show how the AI works (①).";
-  nav.innerHTML = [["robot", "Robot manipulation", "로봇 조작", "Arm pushes a box to a line", "로봇 팔이 상자를 선까지 밀기"],
-    ["driving", "Autonomous vehicles", "자율주행 차량", "Car brakes to a stop line · CARLA export", "차량이 정지선에 맞춰 제동 · CARLA 내보내기"],
-    ["factory", "Factory inspection", "제조 검사", "Pusher slides a part to inspection", "푸셔가 부품을 검사 위치로 밀기"]]
-    .map(([id, en, k, den, dko]) => `<a href="${base}#${id}" data-notr="1"><b>Studio · ${ko ? k : en}</b><span>${ko ? dko : den}</span></a>`).join("");
 }
 /* EN (default) / KO. Whole sentences where word order differs go through tl(en, ko) in the render code; labels and
    recurring phrases are translated in the DOM as they render (exact table + patterns). Model-written reasoning and
@@ -586,7 +511,7 @@ function tr1(text) {
   return text;
 }
 const ORIG = new WeakMap(), SET = new WeakMap();
-const SKIP = "script,style,pre,code,textarea,.raw,.why,.fitcard .vals,.diff,.brand h1";
+const SKIP = "script,style,pre,code,textarea,.raw,.why,.fitcard .vals,.diff,.brand b";
 function trNode(n) {
   if (!ORIG.has(n)) ORIG.set(n, n.nodeValue);
   const en = ORIG.get(n), want = LANG === "ko" ? tr1(en) : en;
@@ -1755,8 +1680,8 @@ function boot(B, LIVE) {
       <p class="note">${tl("Every example uses the same task (a robot arm pushing a box onto a line) on purpose: what changes from tab to tab is the hidden cause in the “real” world. Press “Reveal truth” to see whether the AI found it. Physics: NVIDIA Newton. To try your own table or video, open the Studio.", "모든 예시는 같은 과제입니다(로봇 팔로 상자를 목표선에 세우기). 탭마다 다른 것은 실제 환경에 숨긴 원인입니다. ‘정답 보기’로 AI가 맞혔는지 확인할 수 있습니다. 물리 계산은 NVIDIA Newton이 합니다. 내 데이터로 해 보려면 Studio를 이용합니다.")}</p>`;
     $("#intro-x").onclick = () => { try { localStorage.setItem(introKey, "1"); } catch (_) {} el.hidden = true; };
   }
-  renderIntro(); renderDomains();
-  document.querySelectorAll(".lang button").forEach((b) => (b.onclick = () => setLang(b.dataset.lang, () => { renderIntro(); renderDomains(); renderTabs(); render(); })));
+  renderIntro();
+  document.querySelectorAll(".lang button").forEach((b) => (b.onclick = () => setLang(b.dataset.lang, () => { renderIntro(); renderTabs(); render(); })));
   render();
   setLang(LANG);
 }

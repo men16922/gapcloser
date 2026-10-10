@@ -65,6 +65,8 @@ def session_summary(state: dict | None, truth: dict | None = None, step: str | N
     d = D.get(state.get("domain"))
     out = _summary(state, truth, step)
     out["domain"] = {"name": d.name["en"], "words": d.words["en"], "success_means": d.tolerance_label["en"]}
+    for g in (out.get("calibration") or {}).get("differences", []):  # every domain names the fields its own way
+        g["what"] = D.FIELD_LABELS[d.id].get(g.get("field"), g["what"])
     if d.scale == 1.0:
         return out
     k, kv = d.scale, d.speed_scale * 3.6
@@ -77,11 +79,9 @@ def session_summary(state: dict | None, truth: dict | None = None, step: str | N
     cal = out.get("calibration")
     if cal:
         for g in cal["differences"]:
-            f = next((f for f, lab in D.FIELD_LABELS["robot"].items() if lab == g["what"]), None) or g.get("field")
             if g["unit"] == "m":
                 g["current_sim"], g["measured"] = L(g["current_sim"]), L(g["measured"])
                 g["interval90"] = [L(x) for x in g["interval90"]]
-            g["what"] = D.FIELD_LABELS[d.id].get(f, g["what"]) if f else g["what"]
         cal["stop_residual_m"] = round(cal.pop("stop_residual_cm") / 100 * k, 3)
     ps = out.get("predicted_success")
     if ps:

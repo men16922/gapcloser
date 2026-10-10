@@ -1,0 +1,4 @@
+# Replays the recorded Nemotron run (integrations/nat_tether/recorded/lab-bench.json) under NAT: no network, no key.
+workflow:
+  _type: tether_calibrate
+  replay: integrations/nat_tether/recorded/lab-bench.json

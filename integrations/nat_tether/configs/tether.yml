@@ -1,0 +1,14 @@
+# Tether under NVIDIA NeMo Agent Toolkit: Nemotron 3 Super on Nebius Token Factory drives the calibration agent.
+#   pip install -e integrations/nat_tether        (plus Tether's requirements.txt)
+#   export NEBIUS_API_KEY=...
+#   nat run --config_file integrations/nat_tether/configs/tether.yml --input lab-bench
+llms:
+  nemotron:
+    _type: openai
+    base_url: https://api.tokenfactory.nebius.com/v1/
+    model_name: nvidia/nemotron-3-super-120b-a12b
+    temperature: 0.2
+
+workflow:
+  _type: tether_calibrate
+  llm_name: nemotron

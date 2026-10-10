@@ -44,7 +44,7 @@ class Push:
         nan = float("nan")
         cmd = self.command if self.command is not None else self.launch_speed
         return Trial(self.target if self.target is not None else nan, self.perceived if self.perceived is not None else nan,
-                     float(cmd), self.stop, list(self.track), self.tipped, self.start)
+                     float(cmd), self.stop, list(self.track), self.tipped, self.start, self.command is None)
 
 
 @dataclass

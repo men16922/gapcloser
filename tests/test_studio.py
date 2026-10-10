@@ -285,3 +285,72 @@ def test_carla_export_runs_against_the_carla_api_shape():
     assert rec["attrs"]["extent_x"] == 3000.0 and rec["attrs"]["extent_y"] == 175.0  # 30 m and 1.75 m in cm
     start = round(m["patch_y0"] * 25, 2)  # full-scale metres from the brake point
     assert rec["spawned"].location.x == pytest.approx(10.0 + start + 30.0, abs=0.01)
+
+
+
+def test_real_table_validation_runs_end_to_end_on_a_clip_with_a_tilt_angle(tmp_path, monkeypatch):
+    import math
+    import shutil
+
+    import eval.prove_real as pr
+
+    shutil.copyfile(SAMPLES / "flick-video.mp4", tmp_path / "table.mp4")
+    (tmp_path / "truth.json").write_text(json.dumps({"table": {"tilt_kinetic_deg": math.degrees(math.atan(0.55)), "object_height_cm": 6.0},
+                                                     "missing": {"tilt_kinetic_deg": 20.0}}))
+    monkeypatch.setattr(pr, "OUT", tmp_path / "out.json")
+    out = pr.main(tmp_path)
+    row = next(r for r in out["rows"] if r["clip"] == "table")
+    assert row["pushes"] == 7 and abs(row["error_vs_tilt"]) < 0.05 and row["within_tol"]
+    assert next(r for r in out["rows"] if r["clip"] == "missing")["error"] == "video not found"
+    assert out["pass"] is False  # one pair is not three
+
+
+def test_trajectory_shape_pins_friction_when_the_launch_speed_is_mismeasured():
+    """Real clocks jitter (EV-RealPhys groups 240 Hz poses with 60 Hz images): a launch speed read off a few frames
+    can be 20% off. The shape of the whole slide (how long it takes to stop) still gives friction."""
+    import random
+
+    from studio.fit import calibrate
+    from studio.session import Push, Session
+
+    rng, mu, g = random.Random(4), 0.16, 9.81
+    pushes = []
+    for v0 in (0.9, 1.1, 1.3, 1.5, 1.7, 1.9):
+        stop = v0 * v0 / (2 * mu * g)
+        T = v0 / (mu * g)
+        times = [k / 30 + rng.uniform(-0.01, 0.01) for k in range(int(T * 30) + 5)]
+        track = [round(v0 * min(t, T) - 0.5 * mu * g * min(t, T) ** 2, 4) for t in times]
+        track[0] = 0.0
+        pushes.append(Push(round(stop, 4), None, round(v0 * rng.choice((0.8, 1.2)), 3), track=track, origin="video"))
+    cal = calibrate(Session("jitter", "video", pushes), n_boot=0)
+    assert abs(cal.model["mu_eff"] - mu) < 0.01, cal.model
+
+
+def test_tracks_that_cannot_be_slides_are_flagged():
+    from studio.video import implausible
+
+    clean = [0.0, 0.04, 0.075, 0.105, 0.13, 0.15, 0.165, 0.175, 0.18, 0.18]
+    assert implausible(clean, 30.0, 1.25) is None
+    assert implausible([0.0, 0.05, 0.1, 0.06, 0.08, 0.09], 30.0) == "runs backwards"
+    assert implausible([0.0, 0.04, 0.4, 0.45, 0.9, 0.92, 0.93], 30.0) == "jumps"
+    assert implausible([0.0, 0.03, 0.05, 0.06, 0.06, 0.06], 30.0, 2.4) == "stops too soon for its speed"
+
+
+def test_a_friction_region_the_agent_adds_within_noise_is_left_out():
+    """The short-reach log never reaches its slick region; an agent that fits one anyway (it lowers the stop error
+    by under a millimetre) is overruled by the same within-noise rule the offline search uses."""
+    from agent.llm import RecordedLLM
+    from agent.tool_agent import from_params
+
+    s = load((SAMPLES / "short-reach.csv").read_text(), "short-reach.csv", "sr")
+    free = ["mu_eff", "actuator_gain", "patch_y0", "patch_mu"]
+    start = {**from_params(ParamSet.nominal()), "patch_y0": 0.25, "patch_mu": 0.5}
+
+    def call(name, args, i):
+        return {"content": "", "model": "scripted", "tool_calls": [{"id": f"c{i}", "name": name, "arguments": json.dumps(args)}]}
+
+    llm = RecordedLLM({"chat:diagnose": [call("fit_hypothesis", {"model": start, "free": free}, 0),
+                                         call("commit", {"model": {**start, "mu_eff": 0.61, "actuator_gain": 1.0}, "explanation": "a region"}, 1)]})
+    res = analyze(s, llm, n_boot=0)
+    assert res.agent["cross_check"]["adopted"] == "agent without region"
+    assert "patch_y0" not in res.calibration.structure and res.calibration.model["patch_y0"] is None

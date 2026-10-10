@@ -18,3 +18,5 @@ runs/studio/
 # real recordings (the visitor's room): never committed
 video/real/
 runs/real_data/
+*.egg-info/
+.pytest_cache/

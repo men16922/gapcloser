@@ -9,6 +9,7 @@ Run: .venv/bin/python -m studio.train_montage brake-log  ->  video/out/montage-b
 from __future__ import annotations
 
 import json
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -22,7 +23,7 @@ from studio.fonts import font
 from sim.push_task import SUCCESS_TOL, frictions, observe, unobserve
 from studio.fit import calibrate
 from studio.session import load
-from studio.train import GRID, TablePolicy, hidden_params, train, training_worlds
+from studio.train import GRID, hidden_params, table_policy, train, training_worlds
 
 ROOT = Path(__file__).resolve().parent.parent
 TILE_W, TILE_H, COLS = 448, 252, 4
@@ -111,36 +112,39 @@ def montage(sample: str, out: Path) -> dict:
     k = GRID.index(TARGET) if TARGET in GRID else min(range(len(GRID)), key=lambda i: abs(GRID[i] - TARGET))
     targets = [unobserve(GRID[k], w) for w in worlds]  # where each world's camera puts the line
     tmp = Path(tempfile.mkdtemp())
-    episodes = []
-    idx = 0
-    for it in (0, 1, 3, len(hist) - 1):
-        pol = TablePolicy(hist[it])
-        cmds = [pol.command(observe(t, w)) for t, w in zip(targets, worlds)]
-        a = idx
-        idx, hits = render_episode(worlds, cmds, targets, domain, tmp, idx)
-        episodes.append((it, a, idx, hits))
-    fd = font("display", 54)
-    fm = font("mono", 24)
-    frames = tmp / "out"
-    frames.mkdir()
-    j = 0
-    for it, a, z, hits in episodes:
-        for i in range(a, z):
-            g = Image.open(tmp / f"g{i:05d}.png")
-            im = Image.new("RGB", (1920, 1080))
-            im.paste(g.resize((1792, 1008)), (64, 64))
-            d = ImageDraw.Draw(im)
-            d.rectangle((64, 0, 1856, 62), fill=(0, 0, 0))
-            d.text((64, 8), f"16 parallel training worlds, Tether's measured ranges · iteration {it}", font=fd, fill=(238, 238, 238))
-            if i > z - 20:
-                d.text((1300, 22), f"{sum(hits)}/16 on the line", font=fm, fill=(118, 185, 0) if sum(hits) > 12 else (226, 87, 76))
-            d.rectangle((64, 1072, 1856, 1080), fill=(0, 0, 0))
-            im.save(frames / f"f{j:05d}.png")
-            j += 1
-    out.parent.mkdir(parents=True, exist_ok=True)
-    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", "24", "-i", str(frames / "f%05d.png"), "-r", "30", "-c:v", "libx264",
-                    "-pix_fmt", "yuv420p", "-crf", "21", str(out)], check=True)
-    return {"out": str(out), "episodes": [(it, sum(h)) for it, _, _, h in episodes]}
+    try:
+        episodes = []
+        idx = 0
+        for it in (0, 1, 3, len(hist) - 1):
+            pol = table_policy(hist[it])
+            cmds = [pol.command(observe(t, w)) for t, w in zip(targets, worlds)]
+            a = idx
+            idx, hits = render_episode(worlds, cmds, targets, domain, tmp, idx)
+            episodes.append((it, a, idx, hits))
+        fd = font("display", 54)
+        fm = font("mono", 24)
+        frames = tmp / "out"
+        frames.mkdir()
+        j = 0
+        for it, a, z, hits in episodes:
+            for i in range(a, z):
+                g = Image.open(tmp / f"g{i:05d}.png")
+                im = Image.new("RGB", (1920, 1080))
+                im.paste(g.resize((1792, 1008)), (64, 64))
+                d = ImageDraw.Draw(im)
+                d.rectangle((64, 0, 1856, 62), fill=(0, 0, 0))
+                d.text((64, 8), f"16 parallel training worlds, Tether's measured ranges · iteration {it}", font=fd, fill=(238, 238, 238))
+                if i > z - 20:
+                    d.text((1300, 22), f"{sum(hits)}/16 on the line", font=fm, fill=(118, 185, 0) if sum(hits) > 12 else (226, 87, 76))
+                d.rectangle((64, 1072, 1856, 1080), fill=(0, 0, 0))
+                im.save(frames / f"f{j:05d}.png")
+                j += 1
+        out.parent.mkdir(parents=True, exist_ok=True)
+        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", "24", "-i", str(frames / "f%05d.png"), "-r", "30", "-c:v", "libx264",
+                        "-pix_fmt", "yuv420p", "-crf", "21", str(out)], check=True)
+        return {"out": str(out), "episodes": [(it, sum(h)) for it, _, _, h in episodes]}
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
 
 
 if __name__ == "__main__":

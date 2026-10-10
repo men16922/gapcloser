@@ -8,6 +8,11 @@ from the recorded benchmark files where it needs the Nemotron agent. Writes runs
   5. Gap-Bench              recorded Nemotron runs (runs/bench/open_newton_super_n15.json), quoted, not re-run
   6. Phone robustness       the same table filmed clean and hand-held/blurred/compressed, measured end to end with
                             automatic sheet detection (eval.robustness; skipped with --quick)
+  7. Second engine          hidden worlds made by MuJoCo (contact launch, off-menu effects), quoted from
+                            runs/proof/cross_engine.json (`make cross-engine`, ~1 h)
+  8. Real footage           52 public slow-motion clips (IDPP), quoted from runs/proof/real_friction.json (`make real-check`)
+  9. Real objects           EV-RealPhys: YCB objects pushed across a real table, friction measured separately by a tilt
+                            test; quoted from runs/proof/real_benchmark.json (`make real-benchmark`)
 
 Run: .venv/bin/python -m eval.prove [--quick]     (about 5 minutes on a laptop CPU; --quick: 8 worlds, fewer iterations)
 """
@@ -94,8 +99,13 @@ def gap_bench() -> dict:
     return {tier: {m: round(v["mean"], 3) for m, v in row.items()} for tier, row in d.items()}
 
 
+def quoted(name: str) -> dict | None:
+    path = OUT / name
+    return json.loads(path.read_text()) if path.exists() else None
+
+
 def pct(x) -> str:
-    return "–" if x is None else f"{round(x * 100)}%"
+    return "–" if x is None else f"{int(x * 100 + 0.5 + 1e-9)}%"  # half up (0.575 -> 58%), like the video and the docs
 
 
 def report(p: dict) -> str:
@@ -131,7 +141,69 @@ def report(p: dict) -> str:
             iv = r["intervals"]
             L.append(f"| {r['condition']} | {r['corner_err_px']} px | {r['pushes_found']}/{r['pushes_true']} | {r['launch_speed_bias'] * 100:+.1f}% | "
                      f"{sum(r['inside'].values())}/{len(r['inside'])} | {iv['mu_eff']}, {iv['patch_y0']}, {iv['patch_mu']} |")
-    L += ["", "Limits: all data is synthetic (NVIDIA Newton) so the truth is known; a real phone video has not been validated yet."]
+    ce = p.get("cross_engine")
+    if ce:
+        L += ["", f"## 7. Second engine: hidden worlds made by {ce['engine']} (quoted from `make cross-engine`)", "",
+              "The \"real\" pushes come from MuJoCo instead of Newton: soft contacts, a paddle that pushes the object up to speed "
+              "instead of an assigned velocity, and in three conditions an effect the fitter has no field for. The Studio analyses "
+              "each first-day log offline; policies are trained in each simulator and run in the hidden MuJoCo world (24 targets, "
+              "±3 cm). DR: domain randomization around the current sim at 25-100% of each parameter's range (best width shown); "
+              "DR oracle: randomized over the hidden worlds' own distribution, which no user knows.", "",
+              "| Condition | Worlds | Current sim | Best DR | DR oracle | Exact parameters | **Tether** | Tether ≥ best DR | Left unexplained flagged | Hold-out stop error: Tether / current |",
+              "|---|---|---|---|---|---|---|---|---|---|"]
+        for cond, row in ce["summary"].items():
+            m = row["success_mean"]
+            bd = row["best_dr_width"]
+            L.append(f"| {cond} | {row['worlds']} | {pct(m['current'])} | {pct(m[bd])} ({bd[3:]}) | {pct(m['dr oracle'])} | {pct(m['exact params'])} | "
+                     f"**{pct(m['tether'])}** | {row['tether_beats_best_dr'] + row['tether_ties_best_dr']}/{row['worlds']} | "
+                     f"{row['flagged']}/{row['worlds']} | {row['holdout_rms_m']['tether'] * 100:.1f} / {row['holdout_rms_m']['current'] * 100:.1f} cm |")
+        L += ["", "\"Exact parameters\" trains on the hidden world's own MuJoCo parameter values: it misses where MuJoCo's contact "
+              "behaves differently from its parameters (a few % in friction) or where an off-menu effect acts; Tether fits the "
+              "behaviour, not the parameter. Interval coverage of MuJoCo's parameter values: "
+              + ", ".join(f"{c} {pct(r['coverage'])}" for c, r in ce["summary"].items()) + " (the parameter is not the behaviour here)."]
+    rf = p.get("real_footage")
+    if rf:
+        fl = rf.get("friction_law") or {}
+        L += ["", "## 8. Real footage (IDPP, quoted from `make real-check`)", "",
+              f"{rf['clips_used']} of {rf['clips_total']} real slow-motion slides tracked. Which friction law explains each slide "
+              f"(scale-free, BIC): Coulomb (constant deceleration, Tether's model) best on {fl.get('best', {}).get('coulomb')} of "
+              f"{fl.get('slides')}; viscous decisively worse on {fl.get('coulomb_beats_viscous_strongly')}; a mixed law decisively better on "
+              f"{fl.get('mixed_beats_coulomb_strongly')}. The friction *value* is not identifiable from these clips (no size reference, unknown "
+              f"slow-motion factor): leave-one-surface-out error {rf['mae']} vs {rf['baseline_mae_no_measurement']} for guessing the mean."]
+    rb = p.get("real_benchmark")
+    if rb:
+        L += ["", "## 9. Real objects with independently measured friction (EV-RealPhys, quoted from `make real-benchmark`)", "",
+              "YCB objects pushed by hand across a real table, filmed at 30 Hz (RealSense D455, RGB only here) with motion capture; "
+              "each object's friction was measured separately by tilting the table (Kandukuri et al. 2023, Table 5). Tether never "
+              "sees those values. Log: the motion-capture centre of mass as a robot log. Video: Tether's tracker on the RGB "
+              "frames, pixels put on the table with the dataset's camera calibration, one click per clip at the rest position.", "",
+              "| Object | Tilt test | Tether, log (90%) | Tether, video (90%) | Pushes log / video |", "|---|---|---|---|---|"]
+        for o in rb["objects"]:
+            lg, vd = o.get("log") or {}, o.get("video") or {}
+            fmt = lambda r: f"{r['mu']:.3f} ({r['interval'][0]:.3f}–{r['interval'][1]:.3f})" if r else "–"  # noqa: E731
+            L.append(f"| {o['object']} | {o['mu_tilt_test']:.3f} | {fmt(lg)} | {fmt(vd)} | {o['pushes'].get('log', 0)} / {o['pushes'].get('video', 0)} |")
+        sm = rb["summary"]
+        L += ["", f"Mean absolute error: log {sm['log']['mean_abs_error']:.3f} (median {sm['log']['median_abs_error']:.3f}), "
+              f"video {sm['video']['mean_abs_error']:.3f} (median {sm['video']['median_abs_error']:.3f}); within ±0.05: "
+              f"{sm['log']['within_0_05']}/{sm['log']['objects']} and {sm['video']['within_0_05']}/{sm['video']['objects']}. "
+              f"The paper's own estimator on the same real sequences: mean {rb['paper_estimator_on_real']['mean_abs_error']}, "
+              f"median {rb['paper_estimator_on_real']['median_abs_error']}. Intervals are too narrow on real data: they contain the "
+              f"tilt-test value for {sum(bool((o.get('log') or {}).get('inside_interval')) for o in rb['objects'])} of 5 (log) and "
+              f"{sum(bool((o.get('video') or {}).get('inside_interval')) for o in rb['objects'])} of 5 (video)."]
+    rc = p.get("real_calibration")
+    if rc:
+        L += ["", "## 10. Real table, end to end (quoted from `make prove-real`)", "",
+              "| Clip | Pushes | Tether friction (90%) | Tilt test tan(θk) | Error |", "|---|---|---|---|---|"]
+        for r in rc["rows"]:
+            if r.get("error"):
+                L.append(f"| {r['clip']} | – | {r['error']} | | |")
+            else:
+                L.append(f"| {r['clip']} | {r['pushes']} | {r['mu']:.3f} ({r['mu_interval'][0]:.3f}–{r['mu_interval'][1]:.3f}) | "
+                         f"{r['mu_tilt_kinetic']} | {r['error_vs_tilt']:+.3f} |")
+        L += ["", f"Within ±0.05 of the tilt test: {rc['within_0_05']} of {rc['scored']} pairs."]
+    L += ["", "Limits: sections 1-6 use synthetic data (NVIDIA Newton) so the truth is known; section 7 uses a second engine; "
+          "section 8 is real footage without a scale reference; section 9 is real objects and real video with an independent "
+          "friction measurement, calibrated by the dataset's camera calibration instead of a sheet of paper."]
     return "\n".join(L) + "\n"
 
 
@@ -150,6 +222,14 @@ def main() -> None:
     print("4/4 next experiment", flush=True)
     p["next_experiment"] = next_experiment(a.quick)
     p["gap_bench"] = gap_bench()
+    p["cross_engine"] = quoted("cross_engine.json")
+    if p["cross_engine"]:
+        p["cross_engine"] = {k: p["cross_engine"][k] for k in ("engine", "summary")}
+    rf = quoted("real_friction.json")
+    p["real_footage"] = {k: v for k, v in rf.items() if k not in ("rows", "pairs")} if rf else None
+    p["real_calibration"] = quoted("real_calibration.json")
+    rb = quoted("real_benchmark.json")
+    p["real_benchmark"] = {k: v for k, v in rb.items() if k != "rows"} if rb else None
     if not a.quick:
         from eval.robustness import main as robustness
 

@@ -110,8 +110,46 @@ def clip_pair(sim: Path, real: Path, labels: tuple[str, str], results: tuple[str
 
 
 # ---------- rendering ----------
+NARRATOR = "say"  # or "elevenlabs" (--voice elevenlabs): ELEVENLAB_API_KEY and ELEVENLAB_ACTOR (voice id or name) in .env
+TTS_CACHE = OUT / "tts-cache"  # ElevenLabs audio per sentence, so a rebuild does not spend credits twice
+
+
+def _elevenlabs(text: str, out: Path) -> None:
+    import hashlib
+    import json as js
+    import os
+    import urllib.request
+
+    from agent.llm import load_dotenv
+
+    load_dotenv()
+    key = os.environ.get("ELEVENLAB_API_KEY") or os.environ.get("ELEVENLABS_API_KEY")
+    actor = os.environ.get("ELEVENLAB_ACTOR") or os.environ.get("ELVENLAB_ACTOR") or os.environ.get("ELEVENLABS_VOICE")
+    if not key or not actor:
+        raise SystemExit("ElevenLabs narration needs ELEVENLAB_API_KEY and ELEVENLAB_ACTOR in .env")
+    TTS_CACHE.mkdir(parents=True, exist_ok=True)
+    cached = TTS_CACHE / (hashlib.sha256(f"{actor}|{text}".encode()).hexdigest()[:20] + ".mp3")
+    if not cached.exists():
+        voice = actor
+        if not (len(actor) >= 16 and actor.isalnum()):  # a name: look its id up
+            req = urllib.request.Request("https://api.elevenlabs.io/v1/voices", headers={"xi-api-key": key})
+            voices = js.loads(urllib.request.urlopen(req, timeout=60).read())["voices"]
+            voice = next((v["voice_id"] for v in voices if v["name"].lower() == actor.lower()), None)
+            if voice is None:
+                raise SystemExit(f"no ElevenLabs voice named {actor!r} on this account")
+        body = js.dumps({"text": text, "model_id": "eleven_multilingual_v2",
+                         "voice_settings": {"stability": 0.5, "similarity_boost": 0.75}}).encode()
+        req = urllib.request.Request(f"https://api.elevenlabs.io/v1/text-to-speech/{voice}", data=body, method="POST",
+                                     headers={"xi-api-key": key, "Content-Type": "application/json", "Accept": "audio/mpeg"})
+        cached.write_bytes(urllib.request.urlopen(req, timeout=120).read())
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(cached), str(out)], check=True)
+
+
 def tts(text: str, out: Path) -> float:
-    subprocess.run(["say", "-v", VOICE, "-r", "178", "-o", str(out), text], check=True)
+    if NARRATOR == "elevenlabs":
+        _elevenlabs(text, out)
+    else:
+        subprocess.run(["say", "-v", VOICE, "-r", "178", "-o", str(out), text], check=True)
     return duration(out)
 
 
@@ -200,7 +238,13 @@ def build_scenes(work: Path, caps: Path) -> list[Scene]:
     v = stop["verify"]
     v_cal, v_cur = v["rms_calibrated_m"] * 25, v["rms_current_m"] * 25  # driving runs at 1:25 (Froude); full-size metres
     pp = press["stages"][-1]["result"]["calibration"]["predicted"]
-    pc = lambda x: int(x * 100 + 0.5)  # noqa: E731
+    pc = lambda x: int(x * 100 + 0.5 + 1e-9)  # noqa: E731  half up, as in PROOF.md
+    ce = json.loads((ROOT / "runs/proof/cross_engine.json").read_text())["summary"]
+    rbp = ROOT / "runs/proof/real_benchmark.json"
+    rb = json.loads(rbp.read_text()) if rbp.exists() else None
+    inm = ce["in-menu"]["success_mean"]
+    cross_rows = [(f"{c:<13s}", f"{pc(r['success_mean'][r['best_dr_width']]):>3d}%", f"{pc(r['success_mean']['dr oracle']):>3d}%",
+                   f"{pc(r['success_mean']['tether']):>3d}%") for c, r in ce.items()]
 
     clips = ROOT / "runs/demo"
     res = lambda m, w: f"{(m['clip'][w + '_slide'] - m['clip']['target']) * 100:+.1f} cm " + (  # noqa: E731
@@ -216,43 +260,47 @@ def build_scenes(work: Path, caps: Path) -> list[Scene]:
               image=card([("Tether", FONT_D, 150, FG), ("Tie your simulator to the real world", FONT_B, 56, FG),
                           ("NVIDIA Newton  ·  Nemotron 3 Super on Nebius Token Factory", FONT_B, 40, GREEN)], work / "title.png",
                          footer="Nebius × NVIDIA Global AI Hackathon · Physical AI track"), min_s=6),
-        Scene("02_problem", f"A policy trained in simulation pushes a cube onto the green line. In simulation it lands. "
-                            f"In the real world it stops {short_cm:.0f} centimeters short. Robots, cars and production lines all hit this gap.", frames=pair0, min_s=9),
-        Scene("03_overview", "Tether reads how things really slide and stop, from a video or the logs a robot, car or line already writes, "
-                             "and ties the simulator to them.", image=c("home_hero")),
-        Scene("04_road", "Pick a domain. Here, autonomous driving: a car braking to a stop line, filmed from the roadside. "
-                         "A painted box of known size gives the scale and the camera pose.", frames=road, min_s=7),
-        Scene("05_measure", "Tether recovers the camera from the box, tracks every run with parallax correction, "
-                            "and measures each launch speed and stopping distance.", image=zoom("studio_tracked", (255, 40, 1920, 990)), zoom=False),
-        Scene("06_agent", "Nemotron 3 Super works as a tool-using agent. It profiles deceleration along the road, finds friction dropping after eight and a half meters, "
-                          "and asks for longer runs. The numbers come from least squares, and a library search cross-checks the agent.", image=zoom("studio_diag", (270, 0, 1265, 560)), zoom=False, min_s=12),
-        Scene("07_results", "The calibrated simulator: friction painted on the road, a ninety percent interval for every value, "
-                            "ghost cars replaying each run in the old and the new simulator, and the runs that would settle the rest.",
+        Scene("02_problem", f"A policy trained in simulation lands the cube on the line. In the real world it stops {short_cm:.0f} centimeters short.",
+              frames=pair0, min_s=7),
+        *([Scene("02b_realobj", f"Real objects from a public benchmark, pushed across a real table and filmed at thirty hertz: Tether's friction "
+                                f"lands within five hundredths of a separate tilt test for {rb['summary']['video']['within_0_05']} of {rb['summary']['video']['objects']}.",
+                  frames=video_frames(ROOT / "video/out/real-benchmark.mp4", work / "realobj"), min_s=10)]
+          if rb and (ROOT / "video/out/real-benchmark.mp4").exists() else []),
+        Scene("03_overview", "Tether reads how things really slide and stop, from a video or a log, and ties the simulator to them.", image=c("home_hero")),
+        Scene("04_road", "Here, driving: a car braking to a stop line. A painted box of known size gives the scale and the camera pose.", frames=road, min_s=7),
+        Scene("05_measure", "Tether recovers the camera, tracks every run, and measures launch speed and stopping distance.", image=zoom("studio_tracked", (255, 40, 1920, 990)), zoom=False),
+        Scene("06_agent", "Nemotron 3 Super, as a tool agent, finds friction dropping after eight and a half meters and asks for longer runs. "
+                          "The numbers come from least squares.", image=zoom("studio_diag", (270, 0, 1265, 560)), zoom=False, min_s=9),
+        Scene("07_results", "The calibrated simulator: friction painted on the road, an interval for every value, and ghost cars replaying each run.",
               image=zoom("studio_results", (270, 60, 1920, 1000)), zoom=False),
-        Scene("08_truth", "Revealing the hidden physics: road friction, the start of the wet section, and its friction all fall inside the intervals.",
-              image=zoom("studio_truth", (270, 120, 1920, 900)), zoom=False),
-        Scene("09_verify", f"Before export, every run is replayed in NVIDIA Newton with the exported physics. "
-                           f"About {v_cal * 100:.0f} centimeters of stopping error at full scale, against {v_cur:.1f} meters for the current simulator.",
+        Scene("09_verify", f"Every run is replayed in NVIDIA Newton with the exported physics: about {v_cal * 100:.0f} centimeters of stopping error, "
+                           f"against {v_cur:.1f} meters before.",
               image=zoom("studio_verify", (270, 80, 1920, 1000)), zoom=False, min_s=9),
-        Scene("09b_retrain", "Does it matter for learning? Tether retrains the policy three ways in parallel NVIDIA Newton worlds: on the current simulator, "
-                             "on wide domain randomization, and on Tether's measured ranges. Scored in the hidden real world: forty two, zero, and one hundred percent.",
-              image=zoom("studio_retrain", (270, 60, 1920, 1000)), zoom=False, min_s=11),
-        Scene("09b2_montage", "Inside training: sixteen parallel Newton worlds, each with physics drawn from Tether's ranges. "
-                              "At first the cars stop short of the line. By the third iteration all sixteen stop on it.",
+        Scene("09b_retrain", "Retrained three ways in parallel NVIDIA Newton worlds and scored in the hidden world: the current simulator forty two percent, "
+                             "wide randomization zero, Tether's ranges one hundred.",
+              image=zoom("studio_retrain", (270, 60, 1920, 1000)), zoom=False, min_s=9),
+        Scene("09b2_montage", "Training runs in sixteen parallel Newton worlds drawn from Tether's ranges. By the third iteration every car stops on the line.",
               frames=video_frames(ROOT / "video/out/montage-brake-log.mp4", work / "montage"), min_s=8),
-        Scene("09c_rollout", "Here are the three policies braking in the hidden world, rendered by Newton. Only the Tether-trained car stops on the line every time.",
+        Scene("09c_rollout", "In the hidden world, only the Tether-trained car stops on the line every time.",
               frames=video_frames(ROOT / "video/out/rollout-brake-log.mp4", work / "rollout"), min_s=8),
         Scene("10_export", "Then export to NVIDIA Newton, Isaac Lab, and for driving, CARLA.", image=c("studio_carla")),
-        Scene("11_domains", f"One physics covers three jobs. In factory inspection, a pneumatic pusher on an oily rail goes from "
-                            f"{pc(pp['before']['median'])} to {pc(pp['after']['median'])} percent predicted hits on the inspection window.",
+        Scene("11_domains", f"The same physics covers factory inspection: a pusher on an oily rail goes from "
+                            f"{pc(pp['before']['median'])} to {pc(pp['after']['median'])} percent predicted hits.",
               image=zoom("factory_results", (270, 60, 1920, 1000)), zoom=False),
-        Scene("12_console", "The agent console shows why an agent: on the hardest open-world faults, fixed rules reach fifty four percent, "
-                            "the Nemotron agent ninety six.", image=c("console_bench")),
-        Scene("13_stack", "Newton on a laptop CPU, Nemotron on Nebius Token Factory for about a cent per diagnosis. Days of hand-tuning become one session.",
+        Scene("11b_cross", f"Not just Newton grading Newton: on hidden worlds from MuJoCo, Tether reaches {pc(inm['tether'])} percent; "
+                           f"the best domain randomization, {pc(inm[ce['in-menu']['best_dr_width']])}.",
+              image=card([("A different engine makes the data", FONT_D, 84, FG),
+                          ("MuJoCo hidden worlds · 24 per row · success in the hidden world", FONT_B, 36, MUTED),
+                          ("               best DR   DR oracle   Tether", FONT_M, 38, MUTED)]
+                         + [(f"{a}  {b:>8s}  {c:>9s}   {d:>6s}", FONT_M, 38, GREEN if i == 0 else FG) for i, (a, b, c, d) in enumerate(cross_rows)]
+                         + [("DR oracle: randomized over the true distribution, which no user knows.", FONT_B, 30, MUTED)], work / "cross.png"), min_s=10),
+        Scene("12_console", "In the agent console, Nemotron fixes effects that rules cannot, matching a system identification baseline, "
+                            "and explains every fix.", image=c("console_bench"), min_s=9),
+        Scene("13_stack", "Newton on a laptop CPU, Nemotron on Token Factory for about a cent per diagnosis.",
               image=card([("How it works", FONT_D, 96, FG),
                           ("data → measure → diagnose → calibrate → verify → retrain in Newton → export", FONT_B, 40, FG),
                           ("Physics + rendering:  NVIDIA Newton (Warp, CPU)", FONT_M, 34, MUTED),
-                          (f"Agent:  {model} on Nebius Token Factory", FONT_M, 34, MUTED),
+                          ("Agent:  Nemotron 3 Super on Nebius Token Factory (also as a NeMo Agent Toolkit workflow)", FONT_M, 30, MUTED),
                           ("Exports:  NVIDIA Newton · Isaac Lab · CARLA", FONT_M, 34, MUTED)], work / "stack.png"), min_s=8),
         Scene("14_end", "Tether.", image=card([("Tether", FONT_D, 150, FG), ("Sim-to-real, tethered.", FONT_B, 48, MUTED)],
                                                  work / "end.png", footer="Apache-2.0 · not affiliated with or endorsed by NVIDIA or Nebius"), min_s=4),
@@ -263,8 +311,11 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", type=Path, default=OUT / "tether_demo.mp4")
     ap.add_argument("--caps", type=Path, default=OUT / "caps", help="screens from `python -m video.capture`")
+    ap.add_argument("--voice", choices=["say", "elevenlabs"], default="say", help="narration: macOS say or ElevenLabs (.env)")
     a = ap.parse_args()
-    for tool in ("ffmpeg", "ffprobe", "say"):
+    global NARRATOR
+    NARRATOR = a.voice
+    for tool in ("ffmpeg", "ffprobe") + (("say",) if a.voice == "say" else ()):
         if not shutil.which(tool):
             raise SystemExit(f"{tool} not found")
     work = OUT / "work"

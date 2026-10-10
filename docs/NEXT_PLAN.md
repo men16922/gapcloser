@@ -1,8 +1,17 @@
 # Next Plan
 
-Last Updated: 2026-10-09
+Last Updated: 2026-10-11
 
 Rolling plan containing open work only. Completed history is in `docs/COMPLETED_SUMMARY.md`.
+
+## Priority 0 — B → S plan (authoritative: `docs/plans/2026-10-11-s-level-plan.md`)
+
+- [x] [auto] Phase 0: overstated claims fixed in README/DEVPOST/reference; per-take Newton replay and retraining recorded (no dead buttons on the shared page); Korean coverage test for server sentences; session store safety (busy sessions never evicted, atomic analyse/train start, readable Newton errors, temp dirs removed); dead code removed.
+- [x] [auto] W1 evidence: MuJoCo hidden worlds with contact launch and 3 off-menu effects (Tether 83-89% vs best DR 9-13%), DR width sweep, pattern check, friction-law BIC on IDPP (Coulomb 36/45). Agent necessity repositioned honestly (ties System-ID).
+- [x] [auto] W2 NVIDIA stack: NeMo Agent Toolkit workflow (integrations/nat_tether), Isaac Lab export with real region/gain config. Cosmos gate deferred (no tipped real clips to score).
+- [x] [auto] W3 product: shared design system, Studio in 3 phases, one headline. Open: 3D before/after in Studio.
+- [ ] [auto] W4 engineering (rest): server-side unit conversion, single domain source, studio_api router split, shared i18n, studio.html modules.
+- [ ] [manual] W1f: 15-minute real recording (3 object–surface pairs, A4 sheet, tilt-test ground truth).
 
 ## Priority 0 — Studio product (plan: `docs/plans/2026-10-09-studio-product.md`)
 

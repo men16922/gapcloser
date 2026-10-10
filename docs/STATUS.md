@@ -9,7 +9,7 @@ Last Updated: 2026-10-09
 - **Studio simulation mode:** no video needed. The visitor sets the hidden table (friction, a region of different friction, robot motor/camera for logs), NVIDIA Newton renders a phone video or writes a robot log (`POST /api/studio/simulate`), the Studio diagnoses it blind, "Run these pushes in NVIDIA Newton" executes the next experiment in the same world (`/simulate-more`), and the visitor's settings are revealed as truth.
 
 - **Studio (product surface, 2026-10-09):** `/studio` on the live server and `dashboard/dist/studio.standalone.html` (recorded). Flow: phone video (A4 sheet → focal/pose, parallax-corrected tracking, push segmentation) or robot log → Nemotron agent (offline: probe_real queues next-experiment cards) + cross-check → bootstrap 90% intervals, what-if worlds for unmeasured table, ghost boxes (old vs calibrated sim) over the user's video → Newton / Isaac Lab EventTermCfg / Markdown / JSON exports. CLI `python -m studio`. Code: `studio/`, `server/studio_api.py`, `dashboard/studio.html`.
-- Studio samples (Newton, truth revealed after; all truths inside 90% intervals): flick take 2 μ 0.555 / region 0.376 m / μ 0.282 (truth 0.55 / 0.364 / 0.30); lab-bench μ 0.696, gain 0.872, region 0.376/0.449, pitch 1.9° (truth 0.70, 0.88, 0.38/0.45, 2°); short-reach refuses to invent the unmeasured region and asks for far pushes.
+- Studio samples (Newton, truth revealed after; 19 of 21 truths inside 90% intervals across the six examples): flick take 2 μ 0.555 / region 0.376 m / μ 0.282 (truth 0.55 / 0.364 / 0.30); lab-bench μ 0.696, gain 0.872, region 0.376/0.449, pitch 1.9° (truth 0.70, 0.88, 0.38/0.45, 2°); short-reach refuses to invent the unmeasured region and asks for far pushes.
 - Artifacts (private): Studio https://claude.ai/artifact/B8mi26WNiRJSiv9NTLoTjw ↔ Console https://claude.ai/artifact/WVBNfVMAzeNg71kDSFqYAf (v8, links to Studio).
 - Experiment savings (`make studio-bench`): real pushes to 95%: suggested 5.8 / sweep 5.9–6.2 / random 7.7–7.9 (analytic 50, Newton 20 worlds).
 
@@ -20,7 +20,8 @@ Last Updated: 2026-10-09
 - Dashboard v3 (artifact https://claude.ai/artifact/WVBNfVMAzeNg71kDSFqYAf): agent lab notebook, 3D viewer with friction strips, Gap-Bench panel, Cosmos eyes strip, live "Stump the agent" (`make serve`).
 - Cosmos Reason 2 8B local (llama.cpp, `agent/cosmos_eyes.py`): second opinion on tipping, 21/21 agree on demo clips; held-out tip recall ~50%.
 - Nemotron family (open+compound, 6 each): Super 100/99, Lightning 100/95, Ultra 100/83, Nano 97/53.
-- `make check` green: 87 tests (incl. Studio core/API/video; live server, Newton env, tipping, recorded real Nemotron response replay, vision-role request shape).
+- `make check` green: 121 tests (2026-10-11), plus `integrations/nat_tether/tests` under nvidia-nat
+- Real objects (EV-RealPhys, MPI, tilt-test friction): 4/5 within ±0.05 on log and video paths, mean error 0.019 / 0.029 (paper's estimator 0.082). `make real-benchmark`. (incl. Studio core/API/video; live server, Newton env, tipping, recorded real Nemotron response replay, vision-role request shape).
 - Agent: LLMDiagnoser (Nemotron) → fallback TrajectoryDiagnoser; HeuristicPlanner applies estimates. Tipped trials excluded from fits.
 - Benchmark (Newton, 10 worlds): full DR 18% / nominal 24% / outcome-only 89% / tracking 94%; Nemotron 30B 99% (run 1) / 93% (run 2), P 0.89/0.94, R 1.00.
 - Live server: `make serve` / Docker image (CPU) — verified with Token Factory in a container; deploy guide `docs/deploy/DEPLOY.md`.

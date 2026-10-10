@@ -23,7 +23,7 @@ import time
 
 from agent.tool_agent import to_params
 from sim.params import ParamSet
-from sim.push_task import SUCCESS_TOL, TARGET_RANGE, eval_targets, observe, unobserve
+from sim.push_task import SUCCESS_TOL, TARGET_RANGE, TablePolicy, eval_targets, observe, unobserve
 from studio.fit import Calibration, fit_base
 from studio.session import Session
 
@@ -34,19 +34,9 @@ LR = 0.5
 CONDITIONS = {"current": "Your current simulator", "wide": "Wide domain randomization", "tether": "Tether's measured ranges"}
 
 
-class TablePolicy:
-    def __init__(self, cmds: list[float]):
-        self.cmds = list(cmds)
-
-    def command(self, o: float) -> float:
-        g, c = GRID, self.cmds
-        if o <= g[0]:
-            return c[0] * math.sqrt(max(o, 0.0) / g[0])
-        if o >= g[-1]:
-            return c[-1] * math.sqrt(o / g[-1])
-        i = min(int((o - g[0]) / (g[1] - g[0])), len(g) - 2)
-        u = (o - g[i]) / (g[i + 1] - g[i])
-        return c[i] + u * (c[i + 1] - c[i])
+def table_policy(cmds: list[float]) -> TablePolicy:
+    """The command table over the Studio's perceived-distance grid (the lookup sim.push_task shares)."""
+    return TablePolicy(GRID, tuple(cmds))
 
 
 def training_worlds(cond: str, session: Session, cal: Calibration, n: int | None = None, seed: int = 0) -> list[ParamSet]:
@@ -87,16 +77,16 @@ def train(session: Session, cal: Calibration, hidden: ParamSet | None, iters: in
            "target_range_m": list(TARGET_RANGE), "hidden_known": hidden is not None, "conditions": {}}
     for cond, label in CONDITIONS.items():
         worlds = training_worlds(cond, session, cal)
-        pol = TablePolicy([init * math.sqrt(g) for g in GRID])
+        table = [init * math.sqrt(g) for g in GRID]
         curve_train, curve_real, lanes, history = [], [], [], []
         for it in range(iters + 1):
             # every world tries every table point: the target it aims at is what that world's camera reports there
-            history.append([round(c, 5) for c in pol.cmds])
+            history.append([round(c, 5) for c in table])
             ws, cmds, tgts, ks = [], [], [], []
             for w in worlds:
                 for k, o in enumerate(GRID):
                     ws.append(w)
-                    cmds.append(pol.cmds[k])
+                    cmds.append(table[k])
                     tgts.append(unobserve(o, w))
                     ks.append(k)
             trials = _push(ws, cmds)
@@ -105,6 +95,7 @@ def train(session: Session, cal: Calibration, hidden: ParamSet | None, iters: in
             real = None
             if hidden is not None:
                 obs = [observe(t, hidden) for t in real_targets]
+                pol = table_policy(table)
                 rt = _push([hidden] * len(real_targets), [pol.command(o) for o in obs])
                 real = round(sum(abs(tr.slide - t) <= SUCCESS_TOL for tr, t in zip(rt, real_targets)) / len(real_targets), 3)
             curve_real.append(real)
@@ -121,10 +112,10 @@ def train(session: Session, cal: Calibration, hidden: ParamSet | None, iters: in
             for k in range(len(GRID)):
                 ratios = sorted(t / max(tr.slide, 1e-3) for tr, t, kk in zip(trials, tgts, ks) if kk == k)
                 r = ratios[len(ratios) // 2]
-                pol.cmds[k] *= r ** (0.5 * LR)  # noqa: module-level LR read at call time
+                table[k] *= r ** (0.5 * LR)  # noqa: module-level LR read at call time
         distinct = len({(w["object_mu"], w["table_mu"], w["actuator_gain"], w["patch_y0"], w["patch_mu"]) for w in worlds})
         out["conditions"][cond] = {"label": label, "train": curve_train, "real": curve_real, "final_real": curve_real[-1],
-                                   "policy": [round(c, 4) for c in pol.cmds], "lanes": lanes, "history": history, "distinct_worlds": distinct,
+                                   "policy": [round(c, 4) for c in table], "lanes": lanes, "history": history, "distinct_worlds": distinct,
                                    "mu_range": [round(min((w["object_mu"] + w["table_mu"]) / 2 for w in worlds), 3),
                                                 round(max((w["object_mu"] + w["table_mu"]) / 2 for w in worlds), 3)]}
     out["seconds"] = round(time.time() - t0, 1)

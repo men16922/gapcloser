@@ -1,0 +1,8598 @@
+{
+ "engine": "MuJoCo 3.12.0",
+ "seconds": 2159.6,
+ "summary": {
+  "in-menu": {
+   "worlds": 24,
+   "success_mean": {
+    "current": 0.085,
+    "dr 25%": 0.087,
+    "dr 50%": 0.097,
+    "dr 75%": 0.092,
+    "dr 100%": 0.122,
+    "dr oracle": 0.245,
+    "tether": 0.889,
+    "exact params": 0.818
+   },
+   "success_ci95": {
+    "current": [
+     0.005,
+     0.165
+    ],
+    "dr 25%": [
+     0.009,
+     0.165
+    ],
+    "dr 50%": [
+     0.017,
+     0.178
+    ],
+    "dr 75%": [
+     0.022,
+     0.162
+    ],
+    "dr 100%": [
+     0.03,
+     0.213
+    ],
+    "dr oracle": [
+     0.111,
+     0.378
+    ],
+    "tether": [
+     0.854,
+     0.924
+    ],
+    "exact params": [
+     0.738,
+     0.897
+    ]
+   },
+   "best_dr_width": "dr 100%",
+   "tether_beats_best_dr": 24,
+   "tether_ties_best_dr": 0,
+   "flagged": 2,
+   "size_flagged": 23,
+   "findings": {
+    "speed": 0,
+    "position": 2
+   },
+   "holdout_rms_m": {
+    "tether": 0.0173,
+    "current": 0.2747
+   },
+   "coverage": 0.883,
+   "values": 120
+  },
+  "speed": {
+   "worlds": 24,
+   "success_mean": {
+    "current": 0.102,
+    "dr 25%": 0.097,
+    "dr 50%": 0.115,
+    "dr 75%": 0.109,
+    "dr 100%": 0.109,
+    "dr oracle": 0.264,
+    "tether": 0.832,
+    "exact params": 0.575
+   },
+   "success_ci95": {
+    "current": [
+     0.007,
+     0.198
+    ],
+    "dr 25%": [
+     0.006,
+     0.188
+    ],
+    "dr 50%": [
+     0.016,
+     0.213
+    ],
+    "dr 75%": [
+     0.025,
+     0.194
+    ],
+    "dr 100%": [
+     0.035,
+     0.184
+    ],
+    "dr oracle": [
+     0.131,
+     0.397
+    ],
+    "tether": [
+     0.746,
+     0.917
+    ],
+    "exact params": [
+     0.459,
+     0.69
+    ]
+   },
+   "best_dr_width": "dr 50%",
+   "tether_beats_best_dr": 22,
+   "tether_ties_best_dr": 1,
+   "flagged": 24,
+   "size_flagged": 24,
+   "findings": {
+    "speed": 24,
+    "position": 0
+   },
+   "holdout_rms_m": {
+    "tether": 0.0204,
+    "current": 0.3029
+   },
+   "coverage": 0.474,
+   "values": 114
+  },
+  "two regions": {
+   "worlds": 24,
+   "success_mean": {
+    "current": 0.101,
+    "dr 25%": 0.095,
+    "dr 50%": 0.109,
+    "dr 75%": 0.104,
+    "dr 100%": 0.127,
+    "dr oracle": 0.245,
+    "tether": 0.826,
+    "exact params": 0.854
+   },
+   "success_ci95": {
+    "current": [
+     0.004,
+     0.197
+    ],
+    "dr 25%": [
+     0.005,
+     0.186
+    ],
+    "dr 50%": [
+     0.013,
+     0.206
+    ],
+    "dr 75%": [
+     0.018,
+     0.19
+    ],
+    "dr 100%": [
+     0.029,
+     0.225
+    ],
+    "dr oracle": [
+     0.123,
+     0.367
+    ],
+    "tether": [
+     0.755,
+     0.898
+    ],
+    "exact params": [
+     0.792,
+     0.916
+    ]
+   },
+   "best_dr_width": "dr 100%",
+   "tether_beats_best_dr": 23,
+   "tether_ties_best_dr": 0,
+   "flagged": 15,
+   "size_flagged": 23,
+   "findings": {
+    "speed": 0,
+    "position": 15
+   },
+   "holdout_rms_m": {
+    "tether": 0.0158,
+    "current": 0.1832
+   },
+   "coverage": 0.568,
+   "values": 118
+  },
+  "slope": {
+   "worlds": 24,
+   "success_mean": {
+    "current": 0.078,
+    "dr 25%": 0.082,
+    "dr 50%": 0.092,
+    "dr 75%": 0.082,
+    "dr 100%": 0.094,
+    "dr oracle": 0.255,
+    "tether": 0.897,
+    "exact params": 0.33
+   },
+   "success_ci95": {
+    "current": [
+     0.007,
+     0.149
+    ],
+    "dr 25%": [
+     0.01,
+     0.153
+    ],
+    "dr 50%": [
+     0.015,
+     0.169
+    ],
+    "dr 75%": [
+     0.014,
+     0.149
+    ],
+    "dr 100%": [
+     0.021,
+     0.166
+    ],
+    "dr oracle": [
+     0.118,
+     0.392
+    ],
+    "tether": [
+     0.867,
+     0.928
+    ],
+    "exact params": [
+     0.216,
+     0.443
+    ]
+   },
+   "best_dr_width": "dr 100%",
+   "tether_beats_best_dr": 24,
+   "tether_ties_best_dr": 0,
+   "flagged": 4,
+   "size_flagged": 23,
+   "findings": {
+    "speed": 1,
+    "position": 3
+   },
+   "holdout_rms_m": {
+    "tether": 0.0179,
+    "current": 0.241
+   },
+   "coverage": 0.65,
+   "values": 120
+  }
+ },
+ "rows": [
+  {
+   "world": 0,
+   "condition": "in-menu",
+   "hidden": {
+    "object_mu": 0.5535707990794184,
+    "table_mu": 0.5535707990794184,
+    "actuator_gain": 0.9959203351281736,
+    "patch_y0": 0.4348421168047459,
+    "patch_mu": 0.3264379440046939,
+    "camera_pitch_deg": 0.03920636531135546
+   },
+   "effects": {},
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0195,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.003,
+     "t": -0.7
+    },
+    "position": {
+     "from_m": 0.616,
+     "step": -0.0073,
+     "t": -1.7
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0184,
+    "current": 0.2704
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.083,
+    "tether": 0.833,
+    "exact params": 0.708
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": true
+   },
+   "intervals": {
+    "mu_eff": [
+     0.5118,
+     0.5458
+    ],
+    "actuator_gain": [
+     0.9796,
+     1.0093
+    ],
+    "camera_dx": [
+     -0.0025,
+     0.0059
+    ],
+    "camera_pitch_deg": [
+     -0.8132,
+     0.2891
+    ],
+    "patch_y0": [
+     0.3716,
+     0.4771
+    ],
+    "patch_mu": [
+     0.3147,
+     0.3454
+    ]
+   }
+  },
+  {
+   "world": 0,
+   "condition": "speed",
+   "hidden": {
+    "object_mu": 0.5535707990794184,
+    "table_mu": 0.5535707990794184,
+    "actuator_gain": 0.9959203351281736,
+    "patch_y0": 0.4348421168047459,
+    "patch_mu": 0.3264379440046939,
+    "camera_pitch_deg": 0.03920636531135546
+   },
+   "effects": {
+    "speed_slope": 0.14549270045140214
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0205,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "speed"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0508,
+     "t": 11.7
+    },
+    "position": {
+     "from_m": 0.375,
+     "step": -0.0526,
+     "t": -11.0
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0238,
+    "current": 0.1981
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.625,
+    "tether": 0.875,
+    "exact params": 0.917
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": false,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.4986,
+     0.5242
+    ],
+    "actuator_gain": [
+     0.9438,
+     0.9683
+    ],
+    "camera_dx": [
+     -0.0021,
+     0.0059
+    ],
+    "camera_pitch_deg": [
+     -0.8136,
+     0.2793
+    ],
+    "patch_y0": [
+     0.4223,
+     0.5029
+    ],
+    "patch_mu": [
+     0.3348,
+     0.3743
+    ]
+   }
+  },
+  {
+   "world": 0,
+   "condition": "two regions",
+   "hidden": {
+    "object_mu": 0.5535707990794184,
+    "table_mu": 0.5535707990794184,
+    "actuator_gain": 0.9959203351281736,
+    "patch_y0": 0.4348421168047459,
+    "patch_mu": 0.3264379440046939,
+    "camera_pitch_deg": 0.03920636531135546
+   },
+   "effects": {
+    "region2": [
+     0.6112831749594682,
+     0.5852325889081461
+    ]
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0229,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "position"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.0033,
+     "t": -0.2
+    },
+    "position": {
+     "from_m": 0.656,
+     "step": 0.1045,
+     "t": 7.7
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.021,
+    "current": 0.188
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.083,
+    "tether": 0.875,
+    "exact params": 0.708
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.4721,
+     0.5489
+    ],
+    "actuator_gain": [
+     0.9766,
+     1.0124
+    ],
+    "camera_dx": [
+     -0.0021,
+     0.0059
+    ],
+    "camera_pitch_deg": [
+     -0.8136,
+     0.2793
+    ],
+    "patch_y0": [
+     0.3085,
+     0.7607
+    ],
+    "patch_mu": [
+     0.4603,
+     0.6502
+    ]
+   }
+  },
+  {
+   "world": 0,
+   "condition": "slope",
+   "hidden": {
+    "object_mu": 0.5535707990794184,
+    "table_mu": 0.5535707990794184,
+    "actuator_gain": 0.9959203351281736,
+    "patch_y0": 0.4348421168047459,
+    "patch_mu": 0.3264379440046939,
+    "camera_pitch_deg": 0.03920636531135546
+   },
+   "effects": {
+    "slope_deg": 2.26029753461503
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0332,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0034,
+     "t": 0.8
+    },
+    "position": {
+     "from_m": 0.397,
+     "step": 0.0129,
+     "t": 2.7
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0169,
+    "current": 0.3552
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 0.875,
+    "exact params": 0.083
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.4761,
+     0.5319
+    ],
+    "actuator_gain": [
+     0.975,
+     1.0215
+    ],
+    "camera_dx": [
+     -0.0021,
+     0.0059
+    ],
+    "camera_pitch_deg": [
+     -0.8136,
+     0.2891
+    ],
+    "patch_y0": [
+     0.4012,
+     0.5204
+    ],
+    "patch_mu": [
+     0.2589,
+     0.2955
+    ]
+   }
+  },
+  {
+   "world": 1,
+   "condition": "in-menu",
+   "hidden": {
+    "object_mu": 0.6143231729824536,
+    "table_mu": 0.6143231729824536,
+    "actuator_gain": 0.8646311203492069,
+    "patch_y0": 0.3523817278083611,
+    "patch_mu": 0.3925308932292256,
+    "camera_pitch_deg": 1.4648843625997632
+   },
+   "effects": {},
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0223,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.022,
+     "t": 4.5
+    },
+    "position": {
+     "from_m": 0.288,
+     "step": -0.0235,
+     "t": -5.2
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0193,
+    "current": 0.0428
+   },
+   "success": {
+    "current": 0.417,
+    "dr 25%": 0.542,
+    "dr 50%": 0.583,
+    "dr 75%": 0.542,
+    "dr 100%": 0.792,
+    "dr oracle": 0.042,
+    "tether": 0.875,
+    "exact params": 0.833
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": true
+   },
+   "intervals": {
+    "mu_eff": [
+     0.5565,
+     0.6188
+    ],
+    "actuator_gain": [
+     0.8494,
+     0.8763
+    ],
+    "camera_dx": [
+     -0.0017,
+     0.0039
+    ],
+    "camera_pitch_deg": [
+     0.8371,
+     1.7975
+    ],
+    "patch_y0": [
+     0.2141,
+     0.3634
+    ],
+    "patch_mu": [
+     0.3757,
+     0.4575
+    ]
+   }
+  },
+  {
+   "world": 1,
+   "condition": "speed",
+   "hidden": {
+    "object_mu": 0.6143231729824536,
+    "table_mu": 0.6143231729824536,
+    "actuator_gain": 0.8646311203492069,
+    "patch_y0": 0.3523817278083611,
+    "patch_mu": 0.3925308932292256,
+    "camera_pitch_deg": 1.4648843625997632
+   },
+   "effects": {
+    "speed_slope": 0.14671386781969742
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg"
+   ],
+   "stop_rms_m": 0.0271,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "speed"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0955,
+     "t": 15.6
+    },
+    "position": {
+     "from_m": 0.328,
+     "step": -0.1538,
+     "t": -19.7
+    }
+   },
+   "tipped": 1,
+   "holdout_rms_m": {
+    "tether": 0.0209,
+    "current": 0.0216
+   },
+   "success": {
+    "current": 0.75,
+    "dr 25%": 0.75,
+    "dr 50%": 0.833,
+    "dr 75%": 0.75,
+    "dr 100%": 0.667,
+    "dr oracle": 0.042,
+    "tether": 0.792,
+    "exact params": 0.875
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": false,
+    "camera_pitch_deg": true
+   },
+   "intervals": {
+    "mu_eff": [
+     0.4813,
+     0.5387
+    ],
+    "actuator_gain": [
+     0.797,
+     0.8437
+    ],
+    "camera_dx": [
+     -0.002,
+     0.0043
+    ],
+    "camera_pitch_deg": [
+     0.8655,
+     1.7047
+    ]
+   }
+  },
+  {
+   "world": 1,
+   "condition": "two regions",
+   "hidden": {
+    "object_mu": 0.6143231729824536,
+    "table_mu": 0.6143231729824536,
+    "actuator_gain": 0.8646311203492069,
+    "patch_y0": 0.3523817278083611,
+    "patch_mu": 0.3925308932292256,
+    "camera_pitch_deg": 1.4648843625997632
+   },
+   "effects": {
+    "region2": [
+     0.5205451544589426,
+     0.7328603762206023
+    ]
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0246,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "position"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0493,
+     "t": 2.2
+    },
+    "position": {
+     "from_m": 0.208,
+     "step": -0.0428,
+     "t": -6.5
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0191,
+    "current": 0.0213
+   },
+   "success": {
+    "current": 0.458,
+    "dr 25%": 0.583,
+    "dr 50%": 0.75,
+    "dr 75%": 0.708,
+    "dr 100%": 0.917,
+    "dr oracle": 0.042,
+    "tether": 0.875,
+    "exact params": 0.917
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.4958,
+     0.6148
+    ],
+    "actuator_gain": [
+     0.8382,
+     0.8771
+    ],
+    "camera_dx": [
+     -0.0017,
+     0.0039
+    ],
+    "camera_pitch_deg": [
+     0.8371,
+     1.797
+    ],
+    "patch_y0": [
+     0.2127,
+     0.5427
+    ],
+    "patch_mu": [
+     0.4761,
+     0.7481
+    ]
+   }
+  },
+  {
+   "world": 1,
+   "condition": "slope",
+   "hidden": {
+    "object_mu": 0.6143231729824536,
+    "table_mu": 0.6143231729824536,
+    "actuator_gain": 0.8646311203492069,
+    "patch_y0": 0.3523817278083611,
+    "patch_mu": 0.3925308932292256,
+    "camera_pitch_deg": 1.4648843625997632
+   },
+   "effects": {
+    "slope_deg": 2.5386341189929764
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0351,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "speed"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0372,
+     "t": 4.3
+    },
+    "position": {
+     "from_m": 0.389,
+     "step": -0.0643,
+     "t": -9.3
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.037,
+    "current": 0.0998
+   },
+   "success": {
+    "current": 0.125,
+    "dr 25%": 0.167,
+    "dr 50%": 0.375,
+    "dr 75%": 0.5,
+    "dr 100%": 0.583,
+    "dr oracle": 0.125,
+    "tether": 0.792,
+    "exact params": 0.083
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": true
+   },
+   "intervals": {
+    "mu_eff": [
+     0.5052,
+     0.5649
+    ],
+    "actuator_gain": [
+     0.839,
+     0.8688
+    ],
+    "camera_dx": [
+     -0.0017,
+     0.0039
+    ],
+    "camera_pitch_deg": [
+     0.8371,
+     1.797
+    ],
+    "patch_y0": [
+     0.2306,
+     0.3877
+    ],
+    "patch_mu": [
+     0.3405,
+     0.3993
+    ]
+   }
+  },
+  {
+   "world": 2,
+   "condition": "in-menu",
+   "hidden": {
+    "object_mu": 0.3923555553031483,
+    "table_mu": 0.3923555553031483,
+    "actuator_gain": 0.9061904419185839,
+    "patch_y0": 0.26813410749836786,
+    "patch_mu": 0.2718605591503546,
+    "camera_pitch_deg": 0.9671924127061953
+   },
+   "effects": {},
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0168,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0024,
+     "t": 1.5
+    },
+    "position": {
+     "from_m": 0.245,
+     "step": 0.0104,
+     "t": 2.7
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0143,
+    "current": 0.3958
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 1.0,
+    "exact params": 0.917
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": true
+   },
+   "intervals": {
+    "mu_eff": [
+     0.386,
+     0.4544
+    ],
+    "actuator_gain": [
+     0.9002,
+     0.9296
+    ],
+    "camera_dx": [
+     -0.0026,
+     0.0031
+    ],
+    "camera_pitch_deg": [
+     0.3069,
+     1.1164
+    ],
+    "patch_y0": [
+     0.2145,
+     0.2802
+    ],
+    "patch_mu": [
+     0.2672,
+     0.2772
+    ]
+   }
+  },
+  {
+   "world": 2,
+   "condition": "speed",
+   "hidden": {
+    "object_mu": 0.3923555553031483,
+    "table_mu": 0.3923555553031483,
+    "actuator_gain": 0.9061904419185839,
+    "patch_y0": 0.26813410749836786,
+    "patch_mu": 0.2718605591503546,
+    "camera_pitch_deg": 0.9671924127061953
+   },
+   "effects": {
+    "speed_slope": 0.11696858223856672
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0138,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "speed"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0399,
+     "t": 20.7
+    },
+    "position": {
+     "from_m": 0.245,
+     "step": -0.0348,
+     "t": -8.6
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0122,
+    "current": 0.3415
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 0.958,
+    "exact params": 0.958
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": false,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.3368,
+     0.3699
+    ],
+    "actuator_gain": [
+     0.8602,
+     0.8914
+    ],
+    "camera_dx": [
+     -0.0026,
+     0.0031
+    ],
+    "camera_pitch_deg": [
+     0.3073,
+     1.1164
+    ],
+    "patch_y0": [
+     0.2422,
+     0.2708
+    ],
+    "patch_mu": [
+     0.2769,
+     0.2875
+    ]
+   }
+  },
+  {
+   "world": 2,
+   "condition": "two regions",
+   "hidden": {
+    "object_mu": 0.3923555553031483,
+    "table_mu": 0.3923555553031483,
+    "actuator_gain": 0.9061904419185839,
+    "patch_y0": 0.26813410749836786,
+    "patch_mu": 0.2718605591503546,
+    "camera_pitch_deg": 0.9671924127061953
+   },
+   "effects": {
+    "region2": [
+     0.4188811052677255,
+     0.47494013950491193
+    ]
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0117,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.0041,
+     "t": -0.6
+    },
+    "position": {
+     "from_m": 0.205,
+     "step": -0.0381,
+     "t": -6.8
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0131,
+    "current": 0.2275
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 0.958,
+    "exact params": 0.875
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": false,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.3402,
+     0.3665
+    ],
+    "actuator_gain": [
+     0.8906,
+     0.9207
+    ],
+    "camera_dx": [
+     -0.0026,
+     0.0031
+    ],
+    "camera_pitch_deg": [
+     0.3069,
+     1.1164
+    ],
+    "patch_y0": [
+     0.4192,
+     0.5268
+    ],
+    "patch_mu": [
+     0.4548,
+     0.4853
+    ]
+   }
+  },
+  {
+   "world": 2,
+   "condition": "slope",
+   "hidden": {
+    "object_mu": 0.3923555553031483,
+    "table_mu": 0.3923555553031483,
+    "actuator_gain": 0.9061904419185839,
+    "patch_y0": 0.26813410749836786,
+    "patch_mu": 0.2718605591503546,
+    "camera_pitch_deg": 0.9671924127061953
+   },
+   "effects": {
+    "slope_deg": -2.5864484816430315
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0182,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0025,
+     "t": 1.3
+    },
+    "position": {
+     "from_m": 0.383,
+     "step": -0.0082,
+     "t": -2.7
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0122,
+    "current": 0.2811
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 1.0,
+    "exact params": 0.208
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.3756,
+     0.4584
+    ],
+    "actuator_gain": [
+     0.8915,
+     0.9217
+    ],
+    "camera_dx": [
+     -0.0026,
+     0.0031
+    ],
+    "camera_pitch_deg": [
+     0.3073,
+     1.1164
+    ],
+    "patch_y0": [
+     0.2201,
+     0.5283
+    ],
+    "patch_mu": [
+     0.3034,
+     0.3259
+    ]
+   }
+  },
+  {
+   "world": 3,
+   "condition": "in-menu",
+   "hidden": {
+    "object_mu": 0.3688461513664307,
+    "table_mu": 0.3688461513664307,
+    "actuator_gain": 1.1437676972795723,
+    "patch_y0": 0.4429515562251134,
+    "patch_mu": 0.23833981105061663,
+    "camera_pitch_deg": 0.5778135228928538
+   },
+   "effects": {},
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0352,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0006,
+     "t": 0.6
+    },
+    "position": {
+     "from_m": 0.282,
+     "step": -0.0118,
+     "t": -3.4
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0233,
+    "current": 0.9542
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 1.0,
+    "exact params": 1.0
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": true
+   },
+   "intervals": {
+    "mu_eff": [
+     0.3534,
+     0.3814
+    ],
+    "actuator_gain": [
+     1.1313,
+     1.1603
+    ],
+    "camera_dx": [
+     -0.002,
+     0.0036
+    ],
+    "camera_pitch_deg": [
+     0.0033,
+     0.9066
+    ],
+    "patch_y0": [
+     0.4171,
+     0.491
+    ],
+    "patch_mu": [
+     0.234,
+     0.2415
+    ]
+   }
+  },
+  {
+   "world": 3,
+   "condition": "speed",
+   "hidden": {
+    "object_mu": 0.3688461513664307,
+    "table_mu": 0.3688461513664307,
+    "actuator_gain": 1.1437676972795723,
+    "patch_y0": 0.4429515562251134,
+    "patch_mu": 0.23833981105061663,
+    "camera_pitch_deg": 0.5778135228928538
+   },
+   "effects": {
+    "speed_slope": -0.16890850221964565
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0545,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "speed"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.0409,
+     "t": -56.6
+    },
+    "position": {
+     "from_m": 0.584,
+     "step": 0.1192,
+     "t": 31.4
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0383,
+    "current": 1.325
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 0.0,
+    "exact params": 0.667
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": false,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.4286,
+     1.1497
+    ],
+    "actuator_gain": [
+     1.2599,
+     1.3
+    ],
+    "camera_dx": [
+     -0.0025,
+     0.0036
+    ],
+    "camera_pitch_deg": [
+     0.0033,
+     0.9813
+    ],
+    "patch_y0": [
+     0.15,
+     0.5625
+    ],
+    "patch_mu": [
+     0.2009,
+     0.2135
+    ]
+   }
+  },
+  {
+   "world": 3,
+   "condition": "two regions",
+   "hidden": {
+    "object_mu": 0.3688461513664307,
+    "table_mu": 0.3688461513664307,
+    "actuator_gain": 1.1437676972795723,
+    "patch_y0": 0.4429515562251134,
+    "patch_mu": 0.23833981105061663,
+    "camera_pitch_deg": 0.5778135228928538
+   },
+   "effects": {
+    "region2": [
+     0.6152978146163903,
+     0.4014755712284274
+    ]
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0225,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.0018,
+     "t": -0.5
+    },
+    "position": {
+     "from_m": 0.282,
+     "step": -0.0302,
+     "t": -8.1
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0148,
+    "current": 0.631
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 0.875,
+    "exact params": 1.0
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": false,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.3359,
+     0.3521
+    ],
+    "actuator_gain": [
+     1.1297,
+     1.1554
+    ],
+    "camera_dx": [
+     -0.002,
+     0.0036
+    ],
+    "camera_pitch_deg": [
+     0.0016,
+     0.9066
+    ],
+    "patch_y0": [
+     0.6908,
+     0.9506
+    ],
+    "patch_mu": [
+     0.3901,
+     0.419
+    ]
+   }
+  },
+  {
+   "world": 3,
+   "condition": "slope",
+   "hidden": {
+    "object_mu": 0.3688461513664307,
+    "table_mu": 0.3688461513664307,
+    "actuator_gain": 1.1437676972795723,
+    "patch_y0": 0.4429515562251134,
+    "patch_mu": 0.23833981105061663,
+    "camera_pitch_deg": 0.5778135228928538
+   },
+   "effects": {
+    "slope_deg": 2.808225438095176
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0179,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0007,
+     "t": 0.7
+    },
+    "position": {
+     "from_m": 0.205,
+     "step": -0.0314,
+     "t": -21.7
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0315,
+    "current": 1.3097
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 0.917,
+    "exact params": 0.0
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": false,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.286,
+     0.3135
+    ],
+    "actuator_gain": [
+     1.1261,
+     1.1589
+    ],
+    "camera_dx": [
+     -0.002,
+     0.0036
+    ],
+    "camera_pitch_deg": [
+     0.0033,
+     0.9066
+    ],
+    "patch_y0": [
+     0.4561,
+     0.5611
+    ],
+    "patch_mu": [
+     0.1855,
+     0.1908
+    ]
+   }
+  },
+  {
+   "world": 4,
+   "condition": "in-menu",
+   "hidden": {
+    "object_mu": 0.42087234281307306,
+    "table_mu": 0.42087234281307306,
+    "actuator_gain": 0.8052502579323617,
+    "patch_y0": 0.35567625323409574,
+    "patch_mu": 0.19691157821073998,
+    "camera_pitch_deg": -1.5489586860103544
+   },
+   "effects": {},
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0224,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0026,
+     "t": 1.0
+    },
+    "position": {
+     "from_m": 0.331,
+     "step": 0.0247,
+     "t": 6.1
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0187,
+    "current": 0.2751
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.25,
+    "dr 75%": 0.333,
+    "dr 100%": 0.375,
+    "dr oracle": 0.75,
+    "tether": 0.917,
+    "exact params": 0.917
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": true
+   },
+   "intervals": {
+    "mu_eff": [
+     0.4236,
+     0.4639
+    ],
+    "actuator_gain": [
+     0.7961,
+     0.8408
+    ],
+    "camera_dx": [
+     -0.0015,
+     0.0242
+    ],
+    "camera_pitch_deg": [
+     -5.0,
+     -1.1458
+    ],
+    "patch_y0": [
+     0.3354,
+     0.3827
+    ],
+    "patch_mu": [
+     0.1842,
+     0.1975
+    ]
+   }
+  },
+  {
+   "world": 4,
+   "condition": "speed",
+   "hidden": {
+    "object_mu": 0.42087234281307306,
+    "table_mu": 0.42087234281307306,
+    "actuator_gain": 0.8052502579323617,
+    "patch_y0": 0.35567625323409574,
+    "patch_mu": 0.19691157821073998,
+    "camera_pitch_deg": -1.5489586860103544
+   },
+   "effects": {
+    "speed_slope": -0.1731905294736684
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0259,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "speed"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.0424,
+     "t": -19.2
+    },
+    "position": {
+     "from_m": 0.331,
+     "step": 0.0875,
+     "t": 25.1
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0196,
+    "current": 0.3628
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.167,
+    "dr 75%": 0.292,
+    "dr 100%": 0.333,
+    "dr oracle": 0.75,
+    "tether": 0.917,
+    "exact params": 0.5
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": false,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.4811,
+     0.5184
+    ],
+    "actuator_gain": [
+     0.8529,
+     0.9007
+    ],
+    "camera_dx": [
+     -0.0009,
+     0.0234
+    ],
+    "camera_pitch_deg": [
+     -5.0,
+     -1.1985
+    ],
+    "patch_y0": [
+     0.3339,
+     0.385
+    ],
+    "patch_mu": [
+     0.1754,
+     0.1872
+    ]
+   }
+  },
+  {
+   "world": 4,
+   "condition": "two regions",
+   "hidden": {
+    "object_mu": 0.42087234281307306,
+    "table_mu": 0.42087234281307306,
+    "actuator_gain": 0.8052502579323617,
+    "patch_y0": 0.35567625323409574,
+    "patch_mu": 0.19691157821073998,
+    "camera_pitch_deg": -1.5489586860103544
+   },
+   "effects": {
+    "region2": [
+     0.5069585913351504,
+     0.29589850925113326
+    ]
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0175,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "position"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0181,
+     "t": 3.1
+    },
+    "position": {
+     "from_m": 0.571,
+     "step": 0.0432,
+     "t": 12.0
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0183,
+    "current": 0.1869
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.25,
+    "dr 75%": 0.333,
+    "dr 100%": 0.375,
+    "dr oracle": 0.833,
+    "tether": 0.958,
+    "exact params": 1.0
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": false,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.4174,
+     0.4552
+    ],
+    "actuator_gain": [
+     0.7938,
+     0.8304
+    ],
+    "camera_dx": [
+     -0.0015,
+     0.0029
+    ],
+    "camera_pitch_deg": [
+     -1.7652,
+     -1.1458
+    ],
+    "patch_y0": [
+     0.2838,
+     0.3365
+    ],
+    "patch_mu": [
+     0.26,
+     0.2788
+    ]
+   }
+  },
+  {
+   "world": 4,
+   "condition": "slope",
+   "hidden": {
+    "object_mu": 0.42087234281307306,
+    "table_mu": 0.42087234281307306,
+    "actuator_gain": 0.8052502579323617,
+    "patch_y0": 0.35567625323409574,
+    "patch_mu": 0.19691157821073998,
+    "camera_pitch_deg": -1.5489586860103544
+   },
+   "effects": {
+    "slope_deg": -2.7100641222786925
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0212,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.007,
+     "t": 1.8
+    },
+    "position": {
+     "from_m": 0.309,
+     "step": 0.0143,
+     "t": 2.8
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0137,
+    "current": 0.1527
+   },
+   "success": {
+    "current": 0.333,
+    "dr 25%": 0.417,
+    "dr 50%": 0.542,
+    "dr 75%": 0.583,
+    "dr 100%": 0.625,
+    "dr oracle": 0.0,
+    "tether": 0.958,
+    "exact params": 0.5
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.458,
+     0.4923
+    ],
+    "actuator_gain": [
+     0.7967,
+     0.828
+    ],
+    "camera_dx": [
+     -0.0015,
+     0.0029
+    ],
+    "camera_pitch_deg": [
+     -1.7752,
+     -1.1458
+    ],
+    "patch_y0": [
+     0.2995,
+     0.3834
+    ],
+    "patch_mu": [
+     0.2279,
+     0.261
+    ]
+   }
+  },
+  {
+   "world": 5,
+   "condition": "in-menu",
+   "hidden": {
+    "object_mu": 0.45887435614934663,
+    "table_mu": 0.45887435614934663,
+    "actuator_gain": 0.810528906228676,
+    "patch_y0": 0.3427868922446569,
+    "patch_mu": 0.2671379900230788,
+    "camera_pitch_deg": 1.71213564259266
+   },
+   "effects": {},
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0185,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0135,
+     "t": 3.1
+    },
+    "position": {
+     "from_m": 0.152,
+     "step": -0.0176,
+     "t": -3.5
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0193,
+    "current": 0.1697
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.042,
+    "dr 50%": 0.042,
+    "dr 75%": 0.125,
+    "dr 100%": 0.25,
+    "dr oracle": 0.292,
+    "tether": 0.875,
+    "exact params": 0.833
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": true
+   },
+   "intervals": {
+    "mu_eff": [
+     0.4459,
+     0.478
+    ],
+    "actuator_gain": [
+     0.8016,
+     0.8373
+    ],
+    "camera_dx": [
+     -0.0007,
+     0.0031
+    ],
+    "camera_pitch_deg": [
+     1.3352,
+     1.8772
+    ],
+    "patch_y0": [
+     0.2825,
+     0.3608
+    ],
+    "patch_mu": [
+     0.261,
+     0.2816
+    ]
+   }
+  },
+  {
+   "world": 5,
+   "condition": "speed",
+   "hidden": {
+    "object_mu": 0.45887435614934663,
+    "table_mu": 0.45887435614934663,
+    "actuator_gain": 0.810528906228676,
+    "patch_y0": 0.3427868922446569,
+    "patch_mu": 0.2671379900230788,
+    "camera_pitch_deg": 1.71213564259266
+   },
+   "effects": {
+    "speed_slope": -0.19515874907522202
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0236,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "speed"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.0555,
+     "t": -11.5
+    },
+    "position": {
+     "from_m": 0.293,
+     "step": 0.0853,
+     "t": 19.7
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0284,
+    "current": 0.2556
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.042,
+    "dr 50%": 0.042,
+    "dr 75%": 0.042,
+    "dr 100%": 0.083,
+    "dr oracle": 0.833,
+    "tether": 0.917,
+    "exact params": 0.375
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": false,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.5143,
+     0.5405
+    ],
+    "actuator_gain": [
+     0.8616,
+     0.8999
+    ],
+    "camera_dx": [
+     -0.0007,
+     0.0031
+    ],
+    "camera_pitch_deg": [
+     1.3352,
+     1.8772
+    ],
+    "patch_y0": [
+     0.3001,
+     0.3647
+    ],
+    "patch_mu": [
+     0.235,
+     0.2501
+    ]
+   }
+  },
+  {
+   "world": 5,
+   "condition": "two regions",
+   "hidden": {
+    "object_mu": 0.45887435614934663,
+    "table_mu": 0.45887435614934663,
+    "actuator_gain": 0.810528906228676,
+    "patch_y0": 0.3427868922446569,
+    "patch_mu": 0.2671379900230788,
+    "camera_pitch_deg": 1.71213564259266
+   },
+   "effects": {
+    "region2": [
+     0.5047098333144517,
+     0.461665143231288
+    ]
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "lens_k",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0207,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "position"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0185,
+     "t": 1.1
+    },
+    "position": {
+     "from_m": 0.572,
+     "step": 0.0863,
+     "t": 8.9
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0117,
+    "current": 0.0987
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.042,
+    "dr 50%": 0.042,
+    "dr 75%": 0.125,
+    "dr 100%": 0.25,
+    "dr oracle": 0.292,
+    "tether": 0.875,
+    "exact params": 0.875
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.3829,
+     0.4721
+    ],
+    "actuator_gain": [
+     0.79,
+     0.8354
+    ],
+    "camera_dx": [
+     -0.0106,
+     0.0115
+    ],
+    "camera_pitch_deg": [
+     -1.9395,
+     5.0
+    ],
+    "lens_k": [
+     -0.0631,
+     0.0774
+    ],
+    "patch_y0": [
+     0.1873,
+     0.6798
+    ],
+    "patch_mu": [
+     0.3664,
+     0.6201
+    ]
+   }
+  },
+  {
+   "world": 5,
+   "condition": "slope",
+   "hidden": {
+    "object_mu": 0.45887435614934663,
+    "table_mu": 0.45887435614934663,
+    "actuator_gain": 0.810528906228676,
+    "patch_y0": 0.3427868922446569,
+    "patch_mu": 0.2671379900230788,
+    "camera_pitch_deg": 1.71213564259266
+   },
+   "effects": {
+    "slope_deg": 1.7456828227245762
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0229,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0031,
+     "t": 0.7
+    },
+    "position": {
+     "from_m": 0.37,
+     "step": 0.0127,
+     "t": 4.4
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0179,
+    "current": 0.2141
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.125,
+    "dr oracle": 0.833,
+    "tether": 0.875,
+    "exact params": 0.167
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.4126,
+     0.4496
+    ],
+    "actuator_gain": [
+     0.8063,
+     0.8417
+    ],
+    "camera_dx": [
+     -0.0007,
+     0.0031
+    ],
+    "camera_pitch_deg": [
+     1.3352,
+     1.8772
+    ],
+    "patch_y0": [
+     0.3304,
+     0.4245
+    ],
+    "patch_mu": [
+     0.2174,
+     0.2388
+    ]
+   }
+  },
+  {
+   "world": 6,
+   "condition": "in-menu",
+   "hidden": {
+    "object_mu": 0.5836058516438345,
+    "table_mu": 0.5836058516438345,
+    "actuator_gain": 1.024102097771712,
+    "patch_y0": 0.3499546304413583,
+    "patch_mu": 0.37860546020870683,
+    "camera_pitch_deg": -0.21335059200221185
+   },
+   "effects": {},
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0238,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0007,
+     "t": 0.2
+    },
+    "position": {
+     "from_m": 0.872,
+     "step": -0.0113,
+     "t": -3.2
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0161,
+    "current": 0.2791
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 0.792,
+    "exact params": 0.75
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": true
+   },
+   "intervals": {
+    "mu_eff": [
+     0.5033,
+     0.5613
+    ],
+    "actuator_gain": [
+     1.0018,
+     1.0441
+    ],
+    "camera_dx": [
+     -0.0036,
+     0.0026
+    ],
+    "camera_pitch_deg": [
+     -0.4886,
+     0.2733
+    ],
+    "patch_y0": [
+     0.2894,
+     0.4993
+    ],
+    "patch_mu": [
+     0.3466,
+     0.3907
+    ]
+   }
+  },
+  {
+   "world": 6,
+   "condition": "speed",
+   "hidden": {
+    "object_mu": 0.5836058516438345,
+    "table_mu": 0.5836058516438345,
+    "actuator_gain": 1.024102097771712,
+    "patch_y0": 0.3499546304413583,
+    "patch_mu": 0.37860546020870683,
+    "camera_pitch_deg": -0.21335059200221185
+   },
+   "effects": {
+    "speed_slope": -0.15553962285970394
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.027,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "speed"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.0697,
+     "t": -10.9
+    },
+    "position": {
+     "from_m": 0.433,
+     "step": 0.1187,
+     "t": 19.9
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0298,
+    "current": 0.4166
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 0.917,
+    "exact params": 0.292
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": false,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.5504,
+     0.6688
+    ],
+    "actuator_gain": [
+     1.0806,
+     1.131
+    ],
+    "camera_dx": [
+     -0.0187,
+     0.0028
+    ],
+    "camera_pitch_deg": [
+     -0.5852,
+     2.2216
+    ],
+    "patch_y0": [
+     0.3085,
+     0.5045
+    ],
+    "patch_mu": [
+     0.2997,
+     0.3406
+    ]
+   }
+  },
+  {
+   "world": 6,
+   "condition": "two regions",
+   "hidden": {
+    "object_mu": 0.5836058516438345,
+    "table_mu": 0.5836058516438345,
+    "actuator_gain": 1.024102097771712,
+    "patch_y0": 0.3499546304413583,
+    "patch_mu": 0.37860546020870683,
+    "camera_pitch_deg": -0.21335059200221185
+   },
+   "effects": {
+    "region2": [
+     0.4744894268898852,
+     0.6900201972353528
+    ]
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0134,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0183,
+     "t": 1.8
+    },
+    "position": {
+     "from_m": 0.472,
+     "step": 0.0403,
+     "t": 3.4
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0136,
+    "current": 0.1648
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.25,
+    "tether": 0.875,
+    "exact params": 0.833
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": false,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.5085,
+     0.5434
+    ],
+    "actuator_gain": [
+     1.0044,
+     1.0405
+    ],
+    "camera_dx": [
+     -0.0036,
+     0.0026
+    ],
+    "camera_pitch_deg": [
+     -0.4886,
+     0.2733
+    ],
+    "patch_y0": [
+     0.47,
+     0.6231
+    ],
+    "patch_mu": [
+     0.6138,
+     0.7679
+    ]
+   }
+  },
+  {
+   "world": 6,
+   "condition": "slope",
+   "hidden": {
+    "object_mu": 0.5836058516438345,
+    "table_mu": 0.5836058516438345,
+    "actuator_gain": 1.024102097771712,
+    "patch_y0": 0.3499546304413583,
+    "patch_mu": 0.37860546020870683,
+    "camera_pitch_deg": -0.21335059200221185
+   },
+   "effects": {
+    "slope_deg": -1.7815620170129263
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0231,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "position"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.0089,
+     "t": -1.2
+    },
+    "position": {
+     "from_m": 0.428,
+     "step": 0.0514,
+     "t": 7.1
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0184,
+    "current": 0.2341
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.417,
+    "tether": 0.833,
+    "exact params": 0.75
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": true
+   },
+   "intervals": {
+    "mu_eff": [
+     0.5767,
+     0.6385
+    ],
+    "actuator_gain": [
+     1.0128,
+     1.0606
+    ],
+    "camera_dx": [
+     -0.0043,
+     0.0026
+    ],
+    "camera_pitch_deg": [
+     -0.4886,
+     0.3906
+    ],
+    "patch_y0": [
+     0.3258,
+     0.4436
+    ],
+    "patch_mu": [
+     0.3737,
+     0.4036
+    ]
+   }
+  },
+  {
+   "world": 7,
+   "condition": "in-menu",
+   "hidden": {
+    "object_mu": 0.47517330484874865,
+    "table_mu": 0.47517330484874865,
+    "actuator_gain": 1.1491796701620793,
+    "patch_y0": 0.44913832833123984,
+    "patch_mu": 0.33360238701328604,
+    "camera_pitch_deg": 1.039048107489747
+   },
+   "effects": {},
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0259,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0036,
+     "t": 2.4
+    },
+    "position": {
+     "from_m": 0.402,
+     "step": -0.0272,
+     "t": -7.5
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.024,
+    "current": 0.5874
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 1.0,
+    "exact params": 0.958
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": true
+   },
+   "intervals": {
+    "mu_eff": [
+     0.4027,
+     0.4587
+    ],
+    "actuator_gain": [
+     1.1092,
+     1.1559
+    ],
+    "camera_dx": [
+     -0.002,
+     0.0031
+    ],
+    "camera_pitch_deg": [
+     0.5057,
+     1.2456
+    ],
+    "patch_y0": [
+     0.3873,
+     0.5198
+    ],
+    "patch_mu": [
+     0.3311,
+     0.3422
+    ]
+   }
+  },
+  {
+   "world": 7,
+   "condition": "speed",
+   "hidden": {
+    "object_mu": 0.47517330484874865,
+    "table_mu": 0.47517330484874865,
+    "actuator_gain": 1.1491796701620793,
+    "patch_y0": 0.44913832833123984,
+    "patch_mu": 0.33360238701328604,
+    "camera_pitch_deg": 1.039048107489747
+   },
+   "effects": {
+    "speed_slope": 0.1482520235800732
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "lens_k"
+   ],
+   "stop_rms_m": 0.026,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "speed"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0595,
+     "t": 17.2
+    },
+    "position": {
+     "from_m": 0.42,
+     "step": -0.1183,
+     "t": -30.2
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0249,
+    "current": 0.4625
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 0.667,
+    "exact params": 0.75
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": false,
+    "camera_pitch_deg": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.3763,
+     0.3886
+    ],
+    "actuator_gain": [
+     1.0449,
+     1.0776
+    ],
+    "camera_dx": [
+     0.002,
+     0.0193
+    ],
+    "camera_pitch_deg": [
+     -5.0,
+     0.4145
+    ],
+    "lens_k": [
+     0.0068,
+     0.1406
+    ]
+   }
+  },
+  {
+   "world": 7,
+   "condition": "two regions",
+   "hidden": {
+    "object_mu": 0.47517330484874865,
+    "table_mu": 0.47517330484874865,
+    "actuator_gain": 1.1491796701620793,
+    "patch_y0": 0.44913832833123984,
+    "patch_mu": 0.33360238701328604,
+    "camera_pitch_deg": 1.039048107489747
+   },
+   "effects": {
+    "region2": [
+     0.645694895367044,
+     0.5570564385444615
+    ]
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0216,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "position"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0156,
+     "t": 2.8
+    },
+    "position": {
+     "from_m": 0.382,
+     "step": -0.0531,
+     "t": -8.3
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0188,
+    "current": 0.4163
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 0.667,
+    "exact params": 0.958
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": false,
+    "camera_pitch_deg": true,
+    "patch_y0": false,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.3911,
+     0.4386
+    ],
+    "actuator_gain": [
+     1.1077,
+     1.1461
+    ],
+    "camera_dx": [
+     -0.002,
+     0.0183
+    ],
+    "camera_pitch_deg": [
+     -1.3838,
+     1.2461
+    ],
+    "patch_y0": [
+     0.6649,
+     0.8408
+    ],
+    "patch_mu": [
+     0.5521,
+     0.6142
+    ]
+   }
+  },
+  {
+   "world": 7,
+   "condition": "slope",
+   "hidden": {
+    "object_mu": 0.47517330484874865,
+    "table_mu": 0.47517330484874865,
+    "actuator_gain": 1.1491796701620793,
+    "patch_y0": 0.44913832833123984,
+    "patch_mu": 0.33360238701328604,
+    "camera_pitch_deg": 1.039048107489747
+   },
+   "effects": {
+    "slope_deg": -1.8751730728404126
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0202,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0005,
+     "t": 0.3
+    },
+    "position": {
+     "from_m": 0.401,
+     "step": -0.0092,
+     "t": -2.7
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0126,
+    "current": 0.5122
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 1.0,
+    "exact params": 0.708
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.477,
+     0.5072
+    ],
+    "actuator_gain": [
+     1.1294,
+     1.1644
+    ],
+    "camera_dx": [
+     -0.002,
+     0.0031
+    ],
+    "camera_pitch_deg": [
+     0.5057,
+     1.2456
+    ],
+    "patch_y0": [
+     0.442,
+     0.4724
+    ],
+    "patch_mu": [
+     0.3561,
+     0.3699
+    ]
+   }
+  },
+  {
+   "world": 8,
+   "condition": "in-menu",
+   "hidden": {
+    "object_mu": 0.49187474765699746,
+    "table_mu": 0.49187474765699746,
+    "actuator_gain": 0.8803830655627669,
+    "patch_y0": 0.30780798946284044,
+    "patch_mu": 0.2317059862833378,
+    "camera_pitch_deg": 1.331439432052035
+   },
+   "effects": {},
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0361,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.0043,
+     "t": -1.0
+    },
+    "position": {
+     "from_m": 0.559,
+     "step": -0.0116,
+     "t": -3.6
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0255,
+    "current": 0.327
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.333,
+    "tether": 0.917,
+    "exact params": 0.917
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": true,
+    "camera_pitch_deg": false,
+    "patch_y0": true,
+    "patch_mu": true
+   },
+   "intervals": {
+    "mu_eff": [
+     0.4821,
+     0.5183
+    ],
+    "actuator_gain": [
+     0.8721,
+     0.8995
+    ],
+    "camera_dx": [
+     0.0019,
+     0.0078
+    ],
+    "camera_pitch_deg": [
+     0.4194,
+     1.1161
+    ],
+    "patch_y0": [
+     0.2817,
+     0.3085
+    ],
+    "patch_mu": [
+     0.2276,
+     0.2385
+    ]
+   }
+  },
+  {
+   "world": 8,
+   "condition": "speed",
+   "hidden": {
+    "object_mu": 0.49187474765699746,
+    "table_mu": 0.49187474765699746,
+    "actuator_gain": 0.8803830655627669,
+    "patch_y0": 0.30780798946284044,
+    "patch_mu": 0.2317059862833378,
+    "camera_pitch_deg": 1.331439432052035
+   },
+   "effects": {
+    "speed_slope": -0.18804406423999212
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.05,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "speed"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.0512,
+     "t": -14.6
+    },
+    "position": {
+     "from_m": 0.299,
+     "step": 0.1051,
+     "t": 31.7
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0318,
+    "current": 0.451
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.25,
+    "tether": 0.708,
+    "exact params": 0.25
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": false,
+    "camera_pitch_deg": false,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.5548,
+     0.6345
+    ],
+    "actuator_gain": [
+     0.9548,
+     0.9833
+    ],
+    "camera_dx": [
+     0.0019,
+     0.0078
+    ],
+    "camera_pitch_deg": [
+     0.4194,
+     1.1161
+    ],
+    "patch_y0": [
+     0.2745,
+     0.3783
+    ],
+    "patch_mu": [
+     0.2022,
+     0.2208
+    ]
+   }
+  },
+  {
+   "world": 8,
+   "condition": "two regions",
+   "hidden": {
+    "object_mu": 0.49187474765699746,
+    "table_mu": 0.49187474765699746,
+    "actuator_gain": 0.8803830655627669,
+    "patch_y0": 0.30780798946284044,
+    "patch_mu": 0.2317059862833378,
+    "camera_pitch_deg": 1.331439432052035
+   },
+   "effects": {
+    "region2": [
+     0.4860699736183539,
+     0.38260535907071996
+    ]
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0303,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "position"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.027,
+     "t": -1.8
+    },
+    "position": {
+     "from_m": 0.299,
+     "step": -0.0567,
+     "t": -5.8
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.023,
+    "current": 0.1989
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.333,
+    "tether": 0.708,
+    "exact params": 0.958
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": true,
+    "camera_pitch_deg": false,
+    "patch_y0": false,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.4877,
+     0.5638
+    ],
+    "actuator_gain": [
+     0.8722,
+     0.904
+    ],
+    "camera_dx": [
+     0.0019,
+     0.0078
+    ],
+    "camera_pitch_deg": [
+     0.4194,
+     1.1161
+    ],
+    "patch_y0": [
+     0.15,
+     0.25
+    ],
+    "patch_mu": [
+     0.341,
+     0.3613
+    ]
+   }
+  },
+  {
+   "world": 8,
+   "condition": "slope",
+   "hidden": {
+    "object_mu": 0.49187474765699746,
+    "table_mu": 0.49187474765699746,
+    "actuator_gain": 0.8803830655627669,
+    "patch_y0": 0.30780798946284044,
+    "patch_mu": 0.2317059862833378,
+    "camera_pitch_deg": 1.331439432052035
+   },
+   "effects": {
+    "slope_deg": -1.9491641545462801
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0182,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.0033,
+     "t": -0.8
+    },
+    "position": {
+     "from_m": 0.6,
+     "step": -0.0067,
+     "t": -2.2
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0201,
+    "current": 0.248
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.083,
+    "dr 100%": 0.208,
+    "dr oracle": 0.708,
+    "tether": 0.875,
+    "exact params": 0.583
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": false,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.494,
+     0.5393
+    ],
+    "actuator_gain": [
+     0.8746,
+     0.9107
+    ],
+    "camera_dx": [
+     0.0019,
+     0.0078
+    ],
+    "camera_pitch_deg": [
+     0.4194,
+     1.1161
+    ],
+    "patch_y0": [
+     0.2883,
+     0.3436
+    ],
+    "patch_mu": [
+     0.2583,
+     0.2697
+    ]
+   }
+  },
+  {
+   "world": 9,
+   "condition": "in-menu",
+   "hidden": {
+    "object_mu": 0.530179912213321,
+    "table_mu": 0.530179912213321,
+    "actuator_gain": 1.0963042676584125,
+    "patch_y0": 0.3273027063411869,
+    "patch_mu": 0.39096140850153627,
+    "camera_pitch_deg": 1.7365488665140223
+   },
+   "effects": {},
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0161,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0045,
+     "t": 2.5
+    },
+    "position": {
+     "from_m": 0.448,
+     "step": -0.0235,
+     "t": -6.8
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0167,
+    "current": 0.4095
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 0.833,
+    "exact params": 0.875
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": true
+   },
+   "intervals": {
+    "mu_eff": [
+     0.4428,
+     0.5149
+    ],
+    "actuator_gain": [
+     1.0712,
+     1.1097
+    ],
+    "camera_dx": [
+     -0.0024,
+     0.0034
+    ],
+    "camera_pitch_deg": [
+     1.1432,
+     1.9853
+    ],
+    "patch_y0": [
+     0.2718,
+     0.4664
+    ],
+    "patch_mu": [
+     0.3833,
+     0.3973
+    ]
+   }
+  },
+  {
+   "world": 9,
+   "condition": "speed",
+   "hidden": {
+    "object_mu": 0.530179912213321,
+    "table_mu": 0.530179912213321,
+    "actuator_gain": 1.0963042676584125,
+    "patch_y0": 0.3273027063411869,
+    "patch_mu": 0.39096140850153627,
+    "camera_pitch_deg": 1.7365488665140223
+   },
+   "effects": {
+    "speed_slope": -0.145927897430989
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0181,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "speed"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.0556,
+     "t": -24.1
+    },
+    "position": {
+     "from_m": 0.35,
+     "step": 0.1038,
+     "t": 22.5
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0181,
+    "current": 0.5606
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 1.0,
+    "exact params": 0.5
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": false,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.5041,
+     0.9696
+    ],
+    "actuator_gain": [
+     1.1591,
+     1.2004
+    ],
+    "camera_dx": [
+     -0.0024,
+     0.0034
+    ],
+    "camera_pitch_deg": [
+     1.1432,
+     1.9853
+    ],
+    "patch_y0": [
+     0.15,
+     0.5182
+    ],
+    "patch_mu": [
+     0.3311,
+     0.3488
+    ]
+   }
+  },
+  {
+   "world": 9,
+   "condition": "two regions",
+   "hidden": {
+    "object_mu": 0.530179912213321,
+    "table_mu": 0.530179912213321,
+    "actuator_gain": 1.0963042676584125,
+    "patch_y0": 0.3273027063411869,
+    "patch_mu": 0.39096140850153627,
+    "camera_pitch_deg": 1.7365488665140223
+   },
+   "effects": {
+    "region2": [
+     0.45542275333090126,
+     0.6649807597305532
+    ]
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0122,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "position"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0119,
+     "t": 0.8
+    },
+    "position": {
+     "from_m": 0.708,
+     "step": -0.0982,
+     "t": -6.2
+    }
+   },
+   "tipped": 2,
+   "holdout_rms_m": {
+    "tether": 0.013,
+    "current": 0.2421
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 0.958,
+    "exact params": 0.833
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": false,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.4679,
+     0.5004
+    ],
+    "actuator_gain": [
+     1.0721,
+     1.1089
+    ],
+    "camera_dx": [
+     -0.0023,
+     0.004
+    ],
+    "camera_pitch_deg": [
+     1.0669,
+     2.0741
+    ],
+    "patch_y0": [
+     0.5215,
+     0.7244
+    ],
+    "patch_mu": [
+     0.6563,
+     0.8378
+    ]
+   }
+  },
+  {
+   "world": 9,
+   "condition": "slope",
+   "hidden": {
+    "object_mu": 0.530179912213321,
+    "table_mu": 0.530179912213321,
+    "actuator_gain": 1.0963042676584125,
+    "patch_y0": 0.3273027063411869,
+    "patch_mu": 0.39096140850153627,
+    "camera_pitch_deg": 1.7365488665140223
+   },
+   "effects": {
+    "slope_deg": 2.3440220085891488
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0163,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "position"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0098,
+     "t": 3.6
+    },
+    "position": {
+     "from_m": 0.191,
+     "step": -0.0423,
+     "t": -11.4
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0285,
+    "current": 0.5103
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 0.833,
+    "exact params": 0.167
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.3871,
+     0.4528
+    ],
+    "actuator_gain": [
+     1.0557,
+     1.0984
+    ],
+    "camera_dx": [
+     -0.0024,
+     0.0034
+    ],
+    "camera_pitch_deg": [
+     1.1432,
+     1.9853
+    ],
+    "patch_y0": [
+     0.3016,
+     0.5677
+    ],
+    "patch_mu": [
+     0.3409,
+     0.3531
+    ]
+   }
+  },
+  {
+   "world": 10,
+   "condition": "in-menu",
+   "hidden": {
+    "object_mu": 0.3502452216750067,
+    "table_mu": 0.3502452216750067,
+    "actuator_gain": 0.8734010951553639,
+    "patch_y0": 0.4320543856208363,
+    "patch_mu": 0.20699358905530477,
+    "camera_pitch_deg": 2.4017947058714606
+   },
+   "effects": {},
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0183,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0005,
+     "t": 0.2
+    },
+    "position": {
+     "from_m": 0.506,
+     "step": 0.0134,
+     "t": 5.2
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0074,
+    "current": 0.4398
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 0.958,
+    "exact params": 1.0
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": true
+   },
+   "intervals": {
+    "mu_eff": [
+     0.3374,
+     0.3622
+    ],
+    "actuator_gain": [
+     0.8684,
+     0.9007
+    ],
+    "camera_dx": [
+     -0.0015,
+     0.0074
+    ],
+    "camera_pitch_deg": [
+     1.2411,
+     2.4609
+    ],
+    "patch_y0": [
+     0.42,
+     0.5097
+    ],
+    "patch_mu": [
+     0.1996,
+     0.2078
+    ]
+   }
+  },
+  {
+   "world": 10,
+   "condition": "speed",
+   "hidden": {
+    "object_mu": 0.3502452216750067,
+    "table_mu": 0.3502452216750067,
+    "actuator_gain": 0.8734010951553639,
+    "patch_y0": 0.4320543856208363,
+    "patch_mu": 0.20699358905530477,
+    "camera_pitch_deg": 2.4017947058714606
+   },
+   "effects": {
+    "speed_slope": -0.14114563650046386
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0251,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "speed"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.0369,
+     "t": -15.6
+    },
+    "position": {
+     "from_m": 0.467,
+     "step": 0.0632,
+     "t": 22.1
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0108,
+    "current": 0.5415
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 0.958,
+    "exact params": 0.75
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": false,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.3797,
+     0.4242
+    ],
+    "actuator_gain": [
+     0.9236,
+     0.9579
+    ],
+    "camera_dx": [
+     -0.0015,
+     0.0074
+    ],
+    "camera_pitch_deg": [
+     1.2411,
+     2.4609
+    ],
+    "patch_y0": [
+     0.3875,
+     0.545
+    ],
+    "patch_mu": [
+     0.1838,
+     0.1957
+    ]
+   }
+  },
+  {
+   "world": 10,
+   "condition": "two regions",
+   "hidden": {
+    "object_mu": 0.3502452216750067,
+    "table_mu": 0.3502452216750067,
+    "actuator_gain": 0.8734010951553639,
+    "patch_y0": 0.4320543856208363,
+    "patch_mu": 0.20699358905530477,
+    "camera_pitch_deg": 2.4017947058714606
+   },
+   "effects": {
+    "region2": [
+     0.6031010691361589,
+     0.3675251041767128
+    ]
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0194,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.0204,
+     "t": -2.0
+    },
+    "position": {
+     "from_m": 0.326,
+     "step": -0.0296,
+     "t": -5.8
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0157,
+    "current": 0.2918
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 0.833,
+    "exact params": 1.0
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.3078,
+     0.4058
+    ],
+    "actuator_gain": [
+     0.8585,
+     0.9016
+    ],
+    "camera_dx": [
+     -0.0015,
+     0.0074
+    ],
+    "camera_pitch_deg": [
+     1.2411,
+     2.4609
+    ],
+    "patch_y0": [
+     0.15,
+     0.999
+    ],
+    "patch_mu": [
+     0.3222,
+     0.6537
+    ]
+   }
+  },
+  {
+   "world": 10,
+   "condition": "slope",
+   "hidden": {
+    "object_mu": 0.3502452216750067,
+    "table_mu": 0.3502452216750067,
+    "actuator_gain": 0.8734010951553639,
+    "patch_y0": 0.4320543856208363,
+    "patch_mu": 0.20699358905530477,
+    "camera_pitch_deg": 2.4017947058714606
+   },
+   "effects": {
+    "slope_deg": 2.251800022826168
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0159,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0012,
+     "t": 0.5
+    },
+    "position": {
+     "from_m": 0.646,
+     "step": 0.0104,
+     "t": 5.5
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.016,
+    "current": 0.614
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 0.875,
+    "exact params": 0.042
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.2897,
+     0.3161
+    ],
+    "actuator_gain": [
+     0.8673,
+     0.8907
+    ],
+    "camera_dx": [
+     -0.0015,
+     0.0074
+    ],
+    "camera_pitch_deg": [
+     1.2411,
+     2.4609
+    ],
+    "patch_y0": [
+     0.4196,
+     0.5032
+    ],
+    "patch_mu": [
+     0.1639,
+     0.1687
+    ]
+   }
+  },
+  {
+   "world": 11,
+   "condition": "in-menu",
+   "hidden": {
+    "object_mu": 0.5288409746356766,
+    "table_mu": 0.5288409746356766,
+    "actuator_gain": 0.8255634203417943,
+    "patch_y0": 0.37589098244680486,
+    "patch_mu": 0.36149097096615973,
+    "camera_pitch_deg": -1.1511220657492864
+   },
+   "effects": {},
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0112,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0001,
+     "t": 0.0
+    },
+    "position": {
+     "from_m": 0.446,
+     "step": 0.0379,
+     "t": 8.8
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0132,
+    "current": 0.068
+   },
+   "success": {
+    "current": 0.458,
+    "dr 25%": 0.625,
+    "dr 50%": 0.75,
+    "dr 75%": 0.625,
+    "dr 100%": 0.792,
+    "dr oracle": 0.0,
+    "tether": 0.958,
+    "exact params": 0.958
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.5162,
+     0.5458
+    ],
+    "actuator_gain": [
+     0.8191,
+     0.8474
+    ],
+    "camera_dx": [
+     -0.0022,
+     0.0022
+    ],
+    "camera_pitch_deg": [
+     -1.5299,
+     -0.7254
+    ],
+    "patch_y0": [
+     0.3615,
+     0.4121
+    ],
+    "patch_mu": [
+     0.3153,
+     0.355
+    ]
+   }
+  },
+  {
+   "world": 11,
+   "condition": "speed",
+   "hidden": {
+    "object_mu": 0.5288409746356766,
+    "table_mu": 0.5288409746356766,
+    "actuator_gain": 0.8255634203417943,
+    "patch_y0": 0.37589098244680486,
+    "patch_mu": 0.36149097096615973,
+    "camera_pitch_deg": -1.1511220657492864
+   },
+   "effects": {
+    "speed_slope": 0.149391971673227
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0115,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "speed"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0616,
+     "t": 7.4
+    },
+    "position": {
+     "from_m": 0.346,
+     "step": -0.0163,
+     "t": -2.3
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0141,
+    "current": 0.0368
+   },
+   "success": {
+    "current": 0.667,
+    "dr 25%": 0.708,
+    "dr 50%": 0.792,
+    "dr 75%": 0.667,
+    "dr 100%": 0.542,
+    "dr oracle": 0.0,
+    "tether": 0.917,
+    "exact params": 0.833
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": false,
+    "camera_pitch_deg": true,
+    "patch_y0": false,
+    "patch_mu": true
+   },
+   "intervals": {
+    "mu_eff": [
+     0.508,
+     0.5305
+    ],
+    "actuator_gain": [
+     0.7982,
+     0.8211
+    ],
+    "camera_dx": [
+     -0.0022,
+     0.0022
+    ],
+    "camera_pitch_deg": [
+     -1.5299,
+     -0.7254
+    ],
+    "patch_y0": [
+     0.3853,
+     0.411
+    ],
+    "patch_mu": [
+     0.3468,
+     0.3835
+    ]
+   }
+  },
+  {
+   "world": 11,
+   "condition": "two regions",
+   "hidden": {
+    "object_mu": 0.5288409746356766,
+    "table_mu": 0.5288409746356766,
+    "actuator_gain": 0.8255634203417943,
+    "patch_y0": 0.37589098244680486,
+    "patch_mu": 0.36149097096615973,
+    "camera_pitch_deg": -1.1511220657492864
+   },
+   "effects": {
+    "region2": [
+     0.5292486912687957,
+     0.6596008668332541
+    ]
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0125,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.0101,
+     "t": -0.8
+    },
+    "position": {
+     "from_m": 0.366,
+     "step": -0.0215,
+     "t": -1.7
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0174,
+    "current": 0.0385
+   },
+   "success": {
+    "current": 0.458,
+    "dr 25%": 0.667,
+    "dr 50%": 0.875,
+    "dr 75%": 0.75,
+    "dr 100%": 0.792,
+    "dr oracle": 0.0,
+    "tether": 0.917,
+    "exact params": 0.958
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.5146,
+     0.5476
+    ],
+    "actuator_gain": [
+     0.8181,
+     0.8465
+    ],
+    "camera_dx": [
+     -0.0022,
+     0.0022
+    ],
+    "camera_pitch_deg": [
+     -1.5299,
+     -0.7254
+    ],
+    "patch_y0": [
+     0.2138,
+     0.3837
+    ],
+    "patch_mu": [
+     0.4081,
+     0.4693
+    ]
+   }
+  },
+  {
+   "world": 11,
+   "condition": "slope",
+   "hidden": {
+    "object_mu": 0.5288409746356766,
+    "table_mu": 0.5288409746356766,
+    "actuator_gain": 0.8255634203417943,
+    "patch_y0": 0.37589098244680486,
+    "patch_mu": 0.36149097096615973,
+    "camera_pitch_deg": -1.1511220657492864
+   },
+   "effects": {
+    "slope_deg": -2.5468685413335823
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0067,
+   "size_flag": false,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0001,
+     "t": 0.0
+    },
+    "position": {
+     "from_m": 0.142,
+     "step": -0.0226,
+     "t": -2.1
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.008,
+    "current": 0.0227
+   },
+   "success": {
+    "current": 0.708,
+    "dr 25%": 0.667,
+    "dr 50%": 0.583,
+    "dr 75%": 0.167,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 0.958,
+    "exact params": 0.583
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.5498,
+     0.5754
+    ],
+    "actuator_gain": [
+     0.8138,
+     0.8393
+    ],
+    "camera_dx": [
+     -0.0022,
+     0.0022
+    ],
+    "camera_pitch_deg": [
+     -1.5299,
+     -0.7254
+    ],
+    "patch_y0": [
+     0.3674,
+     0.4228
+    ],
+    "patch_mu": [
+     0.3637,
+     0.4117
+    ]
+   }
+  },
+  {
+   "world": 12,
+   "condition": "in-menu",
+   "hidden": {
+    "object_mu": 0.3892148892584765,
+    "table_mu": 0.3892148892584765,
+    "actuator_gain": 0.9164049689121718,
+    "patch_y0": 0.4428152433187528,
+    "patch_mu": 0.2636588969288637,
+    "camera_pitch_deg": -1.910041602902246
+   },
+   "effects": {},
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0098,
+   "size_flag": false,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0039,
+     "t": 1.7
+    },
+    "position": {
+     "from_m": 0.792,
+     "step": -0.0065,
+     "t": -3.8
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0113,
+    "current": 0.3642
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 0.958,
+    "exact params": 1.0
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": true
+   },
+   "intervals": {
+    "mu_eff": [
+     0.3714,
+     0.4013
+    ],
+    "actuator_gain": [
+     0.905,
+     0.935
+    ],
+    "camera_dx": [
+     -0.0033,
+     0.001
+    ],
+    "camera_pitch_deg": [
+     -2.1254,
+     -1.5027
+    ],
+    "patch_y0": [
+     0.4062,
+     0.4577
+    ],
+    "patch_mu": [
+     0.2594,
+     0.2703
+    ]
+   }
+  },
+  {
+   "world": 12,
+   "condition": "speed",
+   "hidden": {
+    "object_mu": 0.3892148892584765,
+    "table_mu": 0.3892148892584765,
+    "actuator_gain": 0.9164049689121718,
+    "patch_y0": 0.4428152433187528,
+    "patch_mu": 0.2636588969288637,
+    "camera_pitch_deg": -1.910041602902246
+   },
+   "effects": {
+    "speed_slope": 0.16994432022048045
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0088,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "speed"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0597,
+     "t": 14.6
+    },
+    "position": {
+     "from_m": 0.511,
+     "step": -0.0498,
+     "t": -17.9
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0115,
+    "current": 0.2918
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 1.0,
+    "exact params": 0.958
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": false,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.3445,
+     0.3655
+    ],
+    "actuator_gain": [
+     0.8583,
+     0.8854
+    ],
+    "camera_dx": [
+     -0.0033,
+     0.001
+    ],
+    "camera_pitch_deg": [
+     -2.1254,
+     -1.5027
+    ],
+    "patch_y0": [
+     0.4283,
+     0.4649
+    ],
+    "patch_mu": [
+     0.2842,
+     0.2912
+    ]
+   }
+  },
+  {
+   "world": 12,
+   "condition": "two regions",
+   "hidden": {
+    "object_mu": 0.3892148892584765,
+    "table_mu": 0.3892148892584765,
+    "actuator_gain": 0.9164049689121718,
+    "patch_y0": 0.4428152433187528,
+    "patch_mu": 0.2636588969288637,
+    "camera_pitch_deg": -1.910041602902246
+   },
+   "effects": {
+    "region2": [
+     0.622960322611739,
+     0.41263427301288097
+    ]
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0155,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "position"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.0022,
+     "t": -0.2
+    },
+    "position": {
+     "from_m": 0.272,
+     "step": -0.0478,
+     "t": -8.8
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.014,
+    "current": 0.2745
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 0.875,
+    "exact params": 1.0
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.347,
+     0.3963
+    ],
+    "actuator_gain": [
+     0.8972,
+     0.936
+    ],
+    "camera_dx": [
+     -0.0035,
+     0.001
+    ],
+    "camera_pitch_deg": [
+     -2.126,
+     -1.4276
+    ],
+    "patch_y0": [
+     0.2677,
+     0.9274
+    ],
+    "patch_mu": [
+     0.3592,
+     0.5198
+    ]
+   }
+  },
+  {
+   "world": 12,
+   "condition": "slope",
+   "hidden": {
+    "object_mu": 0.3892148892584765,
+    "table_mu": 0.3892148892584765,
+    "actuator_gain": 0.9164049689121718,
+    "patch_y0": 0.4428152433187528,
+    "patch_mu": 0.2636588969288637,
+    "camera_pitch_deg": -1.910041602902246
+   },
+   "effects": {
+    "slope_deg": -2.2894333167537333
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0144,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0024,
+     "t": 0.7
+    },
+    "position": {
+     "from_m": 0.589,
+     "step": 0.0094,
+     "t": 3.6
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0185,
+    "current": 0.2758
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 1.0,
+    "exact params": 0.5
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.4242,
+     0.4458
+    ],
+    "actuator_gain": [
+     0.9163,
+     0.9409
+    ],
+    "camera_dx": [
+     -0.0033,
+     0.001
+    ],
+    "camera_pitch_deg": [
+     -2.1248,
+     -1.5027
+    ],
+    "patch_y0": [
+     0.4241,
+     0.4818
+    ],
+    "patch_mu": [
+     0.2925,
+     0.3086
+    ]
+   }
+  },
+  {
+   "world": 13,
+   "condition": "in-menu",
+   "hidden": {
+    "object_mu": 0.4608745770019085,
+    "table_mu": 0.4608745770019085,
+    "actuator_gain": 0.8353662081348469,
+    "patch_y0": 0.26197868058821533,
+    "patch_mu": 0.31759164529061273,
+    "camera_pitch_deg": -1.6116093590081693
+   },
+   "effects": {},
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0185,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0061,
+     "t": 1.4
+    },
+    "position": {
+     "from_m": 0.455,
+     "step": 0.0151,
+     "t": 4.4
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0202,
+    "current": 0.1701
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.042,
+    "dr 75%": 0.083,
+    "dr 100%": 0.083,
+    "dr oracle": 0.875,
+    "tether": 0.875,
+    "exact params": 0.833
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": true
+   },
+   "intervals": {
+    "mu_eff": [
+     0.4307,
+     0.479
+    ],
+    "actuator_gain": [
+     0.83,
+     0.8634
+    ],
+    "camera_dx": [
+     -0.0042,
+     0.005
+    ],
+    "camera_pitch_deg": [
+     -2.4597,
+     -1.0798
+    ],
+    "patch_y0": [
+     0.2542,
+     0.2918
+    ],
+    "patch_mu": [
+     0.3071,
+     0.3197
+    ]
+   }
+  },
+  {
+   "world": 13,
+   "condition": "speed",
+   "hidden": {
+    "object_mu": 0.4608745770019085,
+    "table_mu": 0.4608745770019085,
+    "actuator_gain": 0.8353662081348469,
+    "patch_y0": 0.26197868058821533,
+    "patch_mu": 0.31759164529061273,
+    "camera_pitch_deg": -1.6116093590081693
+   },
+   "effects": {
+    "speed_slope": 0.10178739017127475
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0193,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "speed"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0341,
+     "t": 7.2
+    },
+    "position": {
+     "from_m": 0.295,
+     "step": -0.0257,
+     "t": -8.8
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0195,
+    "current": 0.1438
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.083,
+    "dr 75%": 0.125,
+    "dr 100%": 0.125,
+    "dr oracle": 0.75,
+    "tether": 0.875,
+    "exact params": 1.0
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": true
+   },
+   "intervals": {
+    "mu_eff": [
+     0.3886,
+     0.4511
+    ],
+    "actuator_gain": [
+     0.8023,
+     0.8394
+    ],
+    "camera_dx": [
+     -0.0042,
+     0.005
+    ],
+    "camera_pitch_deg": [
+     -2.4597,
+     -1.0798
+    ],
+    "patch_y0": [
+     0.2491,
+     0.3027
+    ],
+    "patch_mu": [
+     0.3168,
+     0.3326
+    ]
+   }
+  },
+  {
+   "world": 13,
+   "condition": "two regions",
+   "hidden": {
+    "object_mu": 0.4608745770019085,
+    "table_mu": 0.4608745770019085,
+    "actuator_gain": 0.8353662081348469,
+    "patch_y0": 0.26197868058821533,
+    "patch_mu": 0.31759164529061273,
+    "camera_pitch_deg": -1.6116093590081693
+   },
+   "effects": {
+    "region2": [
+     0.40107281124521327,
+     0.5884033515290816
+    ]
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0131,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "position"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0114,
+     "t": 0.7
+    },
+    "position": {
+     "from_m": 0.415,
+     "step": 0.0637,
+     "t": 5.9
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0165,
+    "current": 0.0737
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.042,
+    "dr 75%": 0.083,
+    "dr 100%": 0.208,
+    "dr oracle": 0.625,
+    "tether": 1.0,
+    "exact params": 0.792
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": false,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.4064,
+     0.4492
+    ],
+    "actuator_gain": [
+     0.8225,
+     0.8599
+    ],
+    "camera_dx": [
+     -0.0042,
+     0.005
+    ],
+    "camera_pitch_deg": [
+     -2.4597,
+     -1.0798
+    ],
+    "patch_y0": [
+     0.4371,
+     0.567
+    ],
+    "patch_mu": [
+     0.5591,
+     0.7171
+    ]
+   }
+  },
+  {
+   "world": 13,
+   "condition": "slope",
+   "hidden": {
+    "object_mu": 0.4608745770019085,
+    "table_mu": 0.4608745770019085,
+    "actuator_gain": 0.8353662081348469,
+    "patch_y0": 0.26197868058821533,
+    "patch_mu": 0.31759164529061273,
+    "camera_pitch_deg": -1.6116093590081693
+   },
+   "effects": {
+    "slope_deg": -1.9524752847059421
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0154,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0095,
+     "t": 1.7
+    },
+    "position": {
+     "from_m": 0.17,
+     "step": 0.0191,
+     "t": 4.1
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0165,
+    "current": 0.1227
+   },
+   "success": {
+    "current": 0.125,
+    "dr 25%": 0.208,
+    "dr 50%": 0.25,
+    "dr 75%": 0.208,
+    "dr 100%": 0.333,
+    "dr oracle": 0.333,
+    "tether": 0.917,
+    "exact params": 0.542
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.4707,
+     0.5177
+    ],
+    "actuator_gain": [
+     0.8264,
+     0.8508
+    ],
+    "camera_dx": [
+     -0.0042,
+     0.005
+    ],
+    "camera_pitch_deg": [
+     -2.4597,
+     -1.0798
+    ],
+    "patch_y0": [
+     0.1976,
+     0.2677
+    ],
+    "patch_mu": [
+     0.3351,
+     0.3617
+    ]
+   }
+  },
+  {
+   "world": 14,
+   "condition": "in-menu",
+   "hidden": {
+    "object_mu": 0.6016828137246777,
+    "table_mu": 0.6016828137246777,
+    "actuator_gain": 0.9565987071253576,
+    "patch_y0": 0.2881368830580732,
+    "patch_mu": 0.4028677174940529,
+    "camera_pitch_deg": -1.8451645814169015
+   },
+   "effects": {},
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.015,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0016,
+     "t": 0.3
+    },
+    "position": {
+     "from_m": 0.384,
+     "step": 0.0235,
+     "t": 3.8
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0075,
+    "current": 0.1837
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.042,
+    "dr 50%": 0.042,
+    "dr 75%": 0.083,
+    "dr 100%": 0.125,
+    "dr oracle": 0.875,
+    "tether": 0.917,
+    "exact params": 0.708
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": true
+   },
+   "intervals": {
+    "mu_eff": [
+     0.5617,
+     0.6162
+    ],
+    "actuator_gain": [
+     0.9488,
+     0.9749
+    ],
+    "camera_dx": [
+     -0.0025,
+     0.0012
+    ],
+    "camera_pitch_deg": [
+     -2.0245,
+     -1.5201
+    ],
+    "patch_y0": [
+     0.2684,
+     0.3325
+    ],
+    "patch_mu": [
+     0.3841,
+     0.4033
+    ]
+   }
+  },
+  {
+   "world": 14,
+   "condition": "speed",
+   "hidden": {
+    "object_mu": 0.6016828137246777,
+    "table_mu": 0.6016828137246777,
+    "actuator_gain": 0.9565987071253576,
+    "patch_y0": 0.2881368830580732,
+    "patch_mu": 0.4028677174940529,
+    "camera_pitch_deg": -1.8451645814169015
+   },
+   "effects": {
+    "speed_slope": -0.13363505278969265
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0145,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "speed"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.053,
+     "t": -9.6
+    },
+    "position": {
+     "from_m": 0.385,
+     "step": 0.0843,
+     "t": 14.5
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0159,
+    "current": 0.2549
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.083,
+    "dr 100%": 0.125,
+    "dr oracle": 0.75,
+    "tether": 0.833,
+    "exact params": 0.25
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": false,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.594,
+     0.6965
+    ],
+    "actuator_gain": [
+     0.9937,
+     1.0273
+    ],
+    "camera_dx": [
+     -0.0025,
+     0.0012
+    ],
+    "camera_pitch_deg": [
+     -2.0245,
+     -1.5201
+    ],
+    "patch_y0": [
+     0.2477,
+     0.3479
+    ],
+    "patch_mu": [
+     0.3497,
+     0.3706
+    ]
+   }
+  },
+  {
+   "world": 14,
+   "condition": "two regions",
+   "hidden": {
+    "object_mu": 0.6016828137246777,
+    "table_mu": 0.6016828137246777,
+    "actuator_gain": 0.9565987071253576,
+    "patch_y0": 0.2881368830580732,
+    "patch_mu": 0.4028677174940529,
+    "camera_pitch_deg": -1.8451645814169015
+   },
+   "effects": {
+    "region2": [
+     0.45823992257563384,
+     0.6119921589834687
+    ]
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0173,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "position"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.0126,
+     "t": -0.7
+    },
+    "position": {
+     "from_m": 0.484,
+     "step": 0.0725,
+     "t": 5.4
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0083,
+    "current": 0.1212
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.042,
+    "dr 50%": 0.042,
+    "dr 75%": 0.083,
+    "dr 100%": 0.125,
+    "dr oracle": 0.708,
+    "tether": 0.958,
+    "exact params": 0.792
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.5132,
+     0.6365
+    ],
+    "actuator_gain": [
+     0.9386,
+     0.9805
+    ],
+    "camera_dx": [
+     -0.0025,
+     0.0012
+    ],
+    "camera_pitch_deg": [
+     -2.0245,
+     -1.5201
+    ],
+    "patch_y0": [
+     0.15,
+     0.6178
+    ],
+    "patch_mu": [
+     0.5148,
+     0.7205
+    ]
+   }
+  },
+  {
+   "world": 14,
+   "condition": "slope",
+   "hidden": {
+    "object_mu": 0.6016828137246777,
+    "table_mu": 0.6016828137246777,
+    "actuator_gain": 0.9565987071253576,
+    "patch_y0": 0.2881368830580732,
+    "patch_mu": 0.4028677174940529,
+    "camera_pitch_deg": -1.8451645814169015
+   },
+   "effects": {
+    "slope_deg": 2.3724665239116005
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0283,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0063,
+     "t": 1.3
+    },
+    "position": {
+     "from_m": 0.446,
+     "step": -0.0242,
+     "t": -5.6
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0196,
+    "current": 0.2483
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.25,
+    "tether": 0.792,
+    "exact params": 0.042
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.5017,
+     0.5524
+    ],
+    "actuator_gain": [
+     0.9435,
+     0.9714
+    ],
+    "camera_dx": [
+     -0.0025,
+     0.0012
+    ],
+    "camera_pitch_deg": [
+     -2.0245,
+     -1.5201
+    ],
+    "patch_y0": [
+     0.2089,
+     0.3653
+    ],
+    "patch_mu": [
+     0.3409,
+     0.3752
+    ]
+   }
+  },
+  {
+   "world": 15,
+   "condition": "in-menu",
+   "hidden": {
+    "object_mu": 0.6396718056700252,
+    "table_mu": 0.6396718056700252,
+    "actuator_gain": 0.840777795673897,
+    "patch_y0": 0.3341511234492842,
+    "patch_mu": 0.3287015633771782,
+    "camera_pitch_deg": -1.1510251140470085
+   },
+   "effects": {},
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0222,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.013,
+     "t": 1.1
+    },
+    "position": {
+     "from_m": 0.369,
+     "step": -0.0285,
+     "t": -4.7
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0136,
+    "current": 0.0571
+   },
+   "success": {
+    "current": 0.458,
+    "dr 25%": 0.5,
+    "dr 50%": 0.375,
+    "dr 75%": 0.292,
+    "dr 100%": 0.25,
+    "dr oracle": 0.0,
+    "tether": 0.792,
+    "exact params": 0.75
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": true
+   },
+   "intervals": {
+    "mu_eff": [
+     0.5724,
+     0.6259
+    ],
+    "actuator_gain": [
+     0.8168,
+     0.853
+    ],
+    "camera_dx": [
+     -0.0037,
+     0.0011
+    ],
+    "camera_pitch_deg": [
+     -1.2157,
+     -0.4092
+    ],
+    "patch_y0": [
+     0.2883,
+     0.3938
+    ],
+    "patch_mu": [
+     0.2899,
+     0.3839
+    ]
+   }
+  },
+  {
+   "world": 15,
+   "condition": "speed",
+   "hidden": {
+    "object_mu": 0.6396718056700252,
+    "table_mu": 0.6396718056700252,
+    "actuator_gain": 0.840777795673897,
+    "patch_y0": 0.3341511234492842,
+    "patch_mu": 0.3287015633771782,
+    "camera_pitch_deg": -1.1510251140470085
+   },
+   "effects": {
+    "speed_slope": -0.17773840286834436
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.021,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "speed"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.0607,
+     "t": -7.3
+    },
+    "position": {
+     "from_m": 0.291,
+     "step": 0.0838,
+     "t": 13.3
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0198,
+    "current": 0.1266
+   },
+   "success": {
+    "current": 0.5,
+    "dr 25%": 0.375,
+    "dr 50%": 0.333,
+    "dr 75%": 0.167,
+    "dr 100%": 0.25,
+    "dr oracle": 0.0,
+    "tether": 0.917,
+    "exact params": 0.292
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": false,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.6163,
+     0.6952
+    ],
+    "actuator_gain": [
+     0.864,
+     0.9116
+    ],
+    "camera_dx": [
+     -0.0187,
+     0.0289
+    ],
+    "camera_pitch_deg": [
+     -5.0,
+     1.3424
+    ],
+    "patch_y0": [
+     0.2871,
+     0.3428
+    ],
+    "patch_mu": [
+     0.2751,
+     0.3186
+    ]
+   }
+  },
+  {
+   "world": 15,
+   "condition": "two regions",
+   "hidden": {
+    "object_mu": 0.6396718056700252,
+    "table_mu": 0.6396718056700252,
+    "actuator_gain": 0.840777795673897,
+    "patch_y0": 0.3341511234492842,
+    "patch_mu": 0.3287015633771782,
+    "camera_pitch_deg": -1.1510251140470085
+   },
+   "effects": {
+    "region2": [
+     0.48091243757571855,
+     0.6078170789467803
+    ]
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0173,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "position"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0055,
+     "t": 0.3
+    },
+    "position": {
+     "from_m": 0.329,
+     "step": -0.0712,
+     "t": -5.3
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.013,
+    "current": 0.0215
+   },
+   "success": {
+    "current": 0.875,
+    "dr 25%": 0.75,
+    "dr 50%": 0.458,
+    "dr 75%": 0.333,
+    "dr 100%": 0.125,
+    "dr oracle": 0.0,
+    "tether": 0.917,
+    "exact params": 0.75
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": false,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.569,
+     0.6251
+    ],
+    "actuator_gain": [
+     0.8185,
+     0.8504
+    ],
+    "camera_dx": [
+     -0.0037,
+     0.0011
+    ],
+    "camera_pitch_deg": [
+     -1.2157,
+     -0.4092
+    ],
+    "patch_y0": [
+     0.2249,
+     0.308
+    ],
+    "patch_mu": [
+     0.4321,
+     0.4902
+    ]
+   }
+  },
+  {
+   "world": 15,
+   "condition": "slope",
+   "hidden": {
+    "object_mu": 0.6396718056700252,
+    "table_mu": 0.6396718056700252,
+    "actuator_gain": 0.840777795673897,
+    "patch_y0": 0.3341511234492842,
+    "patch_mu": 0.3287015633771782,
+    "camera_pitch_deg": -1.1510251140470085
+   },
+   "effects": {
+    "slope_deg": 2.5176861798429795
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0143,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0036,
+     "t": 0.7
+    },
+    "position": {
+     "from_m": 0.304,
+     "step": 0.0164,
+     "t": 2.9
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0062,
+    "current": 0.1123
+   },
+   "success": {
+    "current": 0.458,
+    "dr 25%": 0.458,
+    "dr 50%": 0.458,
+    "dr 75%": 0.375,
+    "dr 100%": 0.25,
+    "dr oracle": 0.0,
+    "tether": 0.958,
+    "exact params": 0.167
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.5474,
+     0.5883
+    ],
+    "actuator_gain": [
+     0.8279,
+     0.8593
+    ],
+    "camera_dx": [
+     -0.0037,
+     0.0011
+    ],
+    "camera_pitch_deg": [
+     -1.2157,
+     -0.4092
+    ],
+    "patch_y0": [
+     0.3261,
+     0.3582
+    ],
+    "patch_mu": [
+     0.2578,
+     0.2891
+    ]
+   }
+  },
+  {
+   "world": 16,
+   "condition": "in-menu",
+   "hidden": {
+    "object_mu": 0.7869180752984113,
+    "table_mu": 0.7869180752984113,
+    "actuator_gain": 1.081194026078725,
+    "patch_y0": 0.3108290299741979,
+    "patch_mu": 0.5630080393112246,
+    "camera_pitch_deg": -1.446448892827803
+   },
+   "effects": {},
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0195,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "position"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0166,
+     "t": 1.5
+    },
+    "position": {
+     "from_m": 0.189,
+     "step": 0.0577,
+     "t": 4.7
+    }
+   },
+   "tipped": 5,
+   "holdout_rms_m": {
+    "tether": 0.0209,
+    "current": 0.1701
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.042,
+    "dr 75%": 0.042,
+    "dr 100%": 0.125,
+    "dr oracle": 0.458,
+    "tether": 0.75,
+    "exact params": 0.333
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": true
+   },
+   "intervals": {
+    "mu_eff": [
+     0.6664,
+     0.7739
+    ],
+    "actuator_gain": [
+     1.0511,
+     1.0912
+    ],
+    "camera_dx": [
+     -0.0037,
+     -0.0008
+    ],
+    "camera_pitch_deg": [
+     -1.5615,
+     -1.1557
+    ],
+    "patch_y0": [
+     0.2511,
+     0.4317
+    ],
+    "patch_mu": [
+     0.5128,
+     0.5644
+    ]
+   }
+  },
+  {
+   "world": 16,
+   "condition": "speed",
+   "hidden": {
+    "object_mu": 0.7869180752984113,
+    "table_mu": 0.7869180752984113,
+    "actuator_gain": 1.081194026078725,
+    "patch_y0": 0.3108290299741979,
+    "patch_mu": 0.5630080393112246,
+    "camera_pitch_deg": -1.446448892827803
+   },
+   "effects": {
+    "speed_slope": -0.17528456497659248
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0232,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "speed"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.106,
+     "t": -17.3
+    },
+    "position": {
+     "from_m": 0.432,
+     "step": 0.1623,
+     "t": 22.9
+    }
+   },
+   "tipped": 4,
+   "holdout_rms_m": {
+    "tether": 0.0281,
+    "current": 0.3139
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.042,
+    "dr 100%": 0.0,
+    "dr oracle": 0.458,
+    "tether": 0.708,
+    "exact params": 0.083
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": false,
+    "camera_pitch_deg": true,
+    "patch_y0": false,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.6942,
+     0.8684
+    ],
+    "actuator_gain": [
+     1.1393,
+     1.1942
+    ],
+    "camera_dx": [
+     -0.0052,
+     0.0001
+    ],
+    "camera_pitch_deg": [
+     -1.6479,
+     -0.9541
+    ],
+    "patch_y0": [
+     0.313,
+     0.5242
+    ],
+    "patch_mu": [
+     0.4058,
+     0.4571
+    ]
+   }
+  },
+  {
+   "world": 16,
+   "condition": "two regions",
+   "hidden": {
+    "object_mu": 0.7869180752984113,
+    "table_mu": 0.7869180752984113,
+    "actuator_gain": 1.081194026078725,
+    "patch_y0": 0.3108290299741979,
+    "patch_mu": 0.5630080393112246,
+    "camera_pitch_deg": -1.446448892827803
+   },
+   "effects": {
+    "region2": [
+     0.48983897723373215,
+     0.952771355805475
+    ]
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0189,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.0306,
+     "t": -1.5
+    },
+    "position": {
+     "from_m": 0.269,
+     "step": -0.0443,
+     "t": -3.1
+    }
+   },
+   "tipped": 6,
+   "holdout_rms_m": {
+    "tether": 0.0106,
+    "current": 0.0421
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.042,
+    "dr 75%": 0.042,
+    "dr 100%": 0.125,
+    "dr oracle": 0.458,
+    "tether": 0.583,
+    "exact params": 0.667
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": false,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.6713,
+     0.721
+    ],
+    "actuator_gain": [
+     1.0526,
+     1.0914
+    ],
+    "camera_dx": [
+     -0.0045,
+     -0.0016
+    ],
+    "camera_pitch_deg": [
+     -1.4556,
+     -0.9739
+    ],
+    "patch_y0": [
+     0.5125,
+     0.5734
+    ],
+    "patch_mu": [
+     0.8403,
+     1.053
+    ]
+   }
+  },
+  {
+   "world": 16,
+   "condition": "slope",
+   "hidden": {
+    "object_mu": 0.7869180752984113,
+    "table_mu": 0.7869180752984113,
+    "actuator_gain": 1.081194026078725,
+    "patch_y0": 0.3108290299741979,
+    "patch_mu": 0.5630080393112246,
+    "camera_pitch_deg": -1.446448892827803
+   },
+   "effects": {
+    "slope_deg": 2.933641246474714
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0381,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "position"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.02,
+     "t": 2.3
+    },
+    "position": {
+     "from_m": 0.277,
+     "step": -0.0643,
+     "t": -10.2
+    }
+   },
+   "tipped": 1,
+   "holdout_rms_m": {
+    "tether": 0.0311,
+    "current": 0.1841
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.042,
+    "dr oracle": 0.583,
+    "tether": 0.833,
+    "exact params": 0.083
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": true
+   },
+   "intervals": {
+    "mu_eff": [
+     0.523,
+     0.6621
+    ],
+    "actuator_gain": [
+     1.0258,
+     1.0913
+    ],
+    "camera_dx": [
+     -0.0036,
+     0.0018
+    ],
+    "camera_pitch_deg": [
+     -1.8679,
+     -1.0815
+    ],
+    "patch_y0": [
+     0.2122,
+     0.8236
+    ],
+    "patch_mu": [
+     0.23,
+     0.8418
+    ]
+   }
+  },
+  {
+   "world": 17,
+   "condition": "in-menu",
+   "hidden": {
+    "object_mu": 0.5274235866824244,
+    "table_mu": 0.5274235866824244,
+    "actuator_gain": 1.0990319155954307,
+    "patch_y0": 0.3783671313180921,
+    "patch_mu": 0.2532159720126537,
+    "camera_pitch_deg": 2.4465084875508616
+   },
+   "effects": {},
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0272,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "position"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.0006,
+     "t": -0.3
+    },
+    "position": {
+     "from_m": 0.314,
+     "step": -0.0495,
+     "t": -7.7
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.029,
+    "current": 0.64
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 0.875,
+    "exact params": 0.833
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": true
+   },
+   "intervals": {
+    "mu_eff": [
+     0.4714,
+     0.51
+    ],
+    "actuator_gain": [
+     1.084,
+     1.1071
+    ],
+    "camera_dx": [
+     -0.0011,
+     0.0049
+    ],
+    "camera_pitch_deg": [
+     1.7334,
+     2.5642
+    ],
+    "patch_y0": [
+     0.3705,
+     0.4249
+    ],
+    "patch_mu": [
+     0.25,
+     0.2591
+    ]
+   }
+  },
+  {
+   "world": 17,
+   "condition": "speed",
+   "hidden": {
+    "object_mu": 0.5274235866824244,
+    "table_mu": 0.5274235866824244,
+    "actuator_gain": 1.0990319155954307,
+    "patch_y0": 0.3783671313180921,
+    "patch_mu": 0.2532159720126537,
+    "camera_pitch_deg": 2.4465084875508616
+   },
+   "effects": {
+    "speed_slope": -0.11644024492039241
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0347,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "speed"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.0351,
+     "t": -14.4
+    },
+    "position": {
+     "from_m": 0.655,
+     "step": 0.0456,
+     "t": 20.9
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0178,
+    "current": 0.822
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 0.708,
+    "exact params": 0.417
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": false,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.5051,
+     1.1807
+    ],
+    "actuator_gain": [
+     1.1677,
+     1.2021
+    ],
+    "camera_dx": [
+     -0.0011,
+     0.0049
+    ],
+    "camera_pitch_deg": [
+     1.7334,
+     2.5637
+    ],
+    "patch_y0": [
+     0.15,
+     0.5198
+    ],
+    "patch_mu": [
+     0.2256,
+     0.2395
+    ]
+   }
+  },
+  {
+   "world": 17,
+   "condition": "two regions",
+   "hidden": {
+    "object_mu": 0.5274235866824244,
+    "table_mu": 0.5274235866824244,
+    "actuator_gain": 1.0990319155954307,
+    "patch_y0": 0.3783671313180921,
+    "patch_mu": 0.2532159720126537,
+    "camera_pitch_deg": 2.4465084875508616
+   },
+   "effects": {
+    "region2": [
+     0.5658143872624962,
+     0.4363973576158863
+    ]
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.021,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "position"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0038,
+     "t": 0.3
+    },
+    "position": {
+     "from_m": 0.294,
+     "step": -0.1258,
+     "t": -12.8
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.034,
+    "current": 0.4073
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 0.167,
+    "exact params": 0.833
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": false,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.3996,
+     0.4648
+    ],
+    "actuator_gain": [
+     1.0617,
+     1.0942
+    ],
+    "camera_dx": [
+     -0.0011,
+     0.0049
+    ],
+    "camera_pitch_deg": [
+     1.7339,
+     2.5642
+    ],
+    "patch_y0": [
+     0.2066,
+     0.983
+    ],
+    "patch_mu": [
+     0.4123,
+     0.4947
+    ]
+   }
+  },
+  {
+   "world": 17,
+   "condition": "slope",
+   "hidden": {
+    "object_mu": 0.5274235866824244,
+    "table_mu": 0.5274235866824244,
+    "actuator_gain": 1.0990319155954307,
+    "patch_y0": 0.3783671313180921,
+    "patch_mu": 0.2532159720126537,
+    "camera_pitch_deg": 2.4465084875508616
+   },
+   "effects": {
+    "slope_deg": -2.5738999120210346
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0252,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.0028,
+     "t": -1.3
+    },
+    "position": {
+     "from_m": 0.282,
+     "step": 0.0233,
+     "t": 4.2
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0308,
+    "current": 0.4902
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 0.833,
+    "exact params": 0.333
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": false,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.5701,
+     0.6296
+    ],
+    "actuator_gain": [
+     1.0945,
+     1.1312
+    ],
+    "camera_dx": [
+     -0.0011,
+     0.0049
+    ],
+    "camera_pitch_deg": [
+     1.7339,
+     2.5642
+    ],
+    "patch_y0": [
+     0.3483,
+     0.3704
+    ],
+    "patch_mu": [
+     0.292,
+     0.3018
+    ]
+   }
+  },
+  {
+   "world": 18,
+   "condition": "in-menu",
+   "hidden": {
+    "object_mu": 0.44595951585988514,
+    "table_mu": 0.44595951585988514,
+    "actuator_gain": 0.8903971452515671,
+    "patch_y0": 0.4045379379545646,
+    "patch_mu": 0.24469202283197275,
+    "camera_pitch_deg": -1.018376187005268
+   },
+   "effects": {},
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0187,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.0035,
+     "t": -1.2
+    },
+    "position": {
+     "from_m": 0.621,
+     "step": -0.0079,
+     "t": -2.6
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0149,
+    "current": 0.296
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.417,
+    "tether": 0.917,
+    "exact params": 0.958
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": true
+   },
+   "intervals": {
+    "mu_eff": [
+     0.4309,
+     0.4521
+    ],
+    "actuator_gain": [
+     0.8762,
+     0.9054
+    ],
+    "camera_dx": [
+     -0.0024,
+     0.0041
+    ],
+    "camera_pitch_deg": [
+     -1.4733,
+     -0.6732
+    ],
+    "patch_y0": [
+     0.3746,
+     0.4207
+    ],
+    "patch_mu": [
+     0.2403,
+     0.2531
+    ]
+   }
+  },
+  {
+   "world": 18,
+   "condition": "speed",
+   "hidden": {
+    "object_mu": 0.44595951585988514,
+    "table_mu": 0.44595951585988514,
+    "actuator_gain": 0.8903971452515671,
+    "patch_y0": 0.4045379379545646,
+    "patch_mu": 0.24469202283197275,
+    "camera_pitch_deg": -1.018376187005268
+   },
+   "effects": {
+    "speed_slope": 0.10990157105223819
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0169,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "speed"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0453,
+     "t": 13.2
+    },
+    "position": {
+     "from_m": 0.38,
+     "step": -0.034,
+     "t": -10.2
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0214,
+    "current": 0.2356
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.75,
+    "tether": 0.958,
+    "exact params": 0.917
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": false,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.4012,
+     0.4218
+    ],
+    "actuator_gain": [
+     0.8421,
+     0.868
+    ],
+    "camera_dx": [
+     -0.0024,
+     0.0041
+    ],
+    "camera_pitch_deg": [
+     -1.4733,
+     -0.6732
+    ],
+    "patch_y0": [
+     0.3552,
+     0.4145
+    ],
+    "patch_mu": [
+     0.2543,
+     0.2729
+    ]
+   }
+  },
+  {
+   "world": 18,
+   "condition": "two regions",
+   "hidden": {
+    "object_mu": 0.44595951585988514,
+    "table_mu": 0.44595951585988514,
+    "actuator_gain": 0.8903971452515671,
+    "patch_y0": 0.4045379379545646,
+    "patch_mu": 0.24469202283197275,
+    "camera_pitch_deg": -1.018376187005268
+   },
+   "effects": {
+    "region2": [
+     0.548052132304841,
+     0.3687988332145364
+    ]
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0168,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0031,
+     "t": 0.3
+    },
+    "position": {
+     "from_m": 0.601,
+     "step": 0.0354,
+     "t": 4.6
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0138,
+    "current": 0.2134
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.417,
+    "tether": 0.833,
+    "exact params": 1.0
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": false,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.4298,
+     0.4543
+    ],
+    "actuator_gain": [
+     0.8803,
+     0.9076
+    ],
+    "camera_dx": [
+     -0.0024,
+     0.0041
+    ],
+    "camera_pitch_deg": [
+     -1.4733,
+     -0.6732
+    ],
+    "patch_y0": [
+     0.3002,
+     0.3524
+    ],
+    "patch_mu": [
+     0.3337,
+     0.3499
+    ]
+   }
+  },
+  {
+   "world": 18,
+   "condition": "slope",
+   "hidden": {
+    "object_mu": 0.44595951585988514,
+    "table_mu": 0.44595951585988514,
+    "actuator_gain": 0.8903971452515671,
+    "patch_y0": 0.4045379379545646,
+    "patch_mu": 0.24469202283197275,
+    "camera_pitch_deg": -1.018376187005268
+   },
+   "effects": {
+    "slope_deg": 2.8287046778162632
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0251,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.0043,
+     "t": -1.4
+    },
+    "position": {
+     "from_m": 0.705,
+     "step": -0.01,
+     "t": -3.9
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0237,
+    "current": 0.4679
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 0.958,
+    "exact params": 0.042
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.3697,
+     0.4023
+    ],
+    "actuator_gain": [
+     0.8726,
+     0.8999
+    ],
+    "camera_dx": [
+     -0.0024,
+     0.0041
+    ],
+    "camera_pitch_deg": [
+     -1.4733,
+     -0.6732
+    ],
+    "patch_y0": [
+     0.3832,
+     0.4133
+    ],
+    "patch_mu": [
+     0.1927,
+     0.1991
+    ]
+   }
+  },
+  {
+   "world": 19,
+   "condition": "in-menu",
+   "hidden": {
+    "object_mu": 0.38302934902479085,
+    "table_mu": 0.38302934902479085,
+    "actuator_gain": 0.8315410105366756,
+    "patch_y0": 0.3665469596335104,
+    "patch_mu": 0.2002875312426271,
+    "camera_pitch_deg": 0.506419217909694
+   },
+   "effects": {},
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.02,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0013,
+     "t": 0.4
+    },
+    "position": {
+     "from_m": 0.315,
+     "step": -0.0161,
+     "t": -3.3
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0163,
+    "current": 0.3507
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 0.875,
+    "exact params": 0.917
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": false,
+    "patch_mu": true
+   },
+   "intervals": {
+    "mu_eff": [
+     0.3659,
+     0.3806
+    ],
+    "actuator_gain": [
+     0.8235,
+     0.8447
+    ],
+    "camera_dx": [
+     -0.0031,
+     0.0031
+    ],
+    "camera_pitch_deg": [
+     0.0295,
+     1.0056
+    ],
+    "patch_y0": [
+     0.3678,
+     0.4081
+    ],
+    "patch_mu": [
+     0.1951,
+     0.2049
+    ]
+   }
+  },
+  {
+   "world": 19,
+   "condition": "speed",
+   "hidden": {
+    "object_mu": 0.38302934902479085,
+    "table_mu": 0.38302934902479085,
+    "actuator_gain": 0.8315410105366756,
+    "patch_y0": 0.3665469596335104,
+    "patch_mu": 0.2002875312426271,
+    "camera_pitch_deg": 0.506419217909694
+   },
+   "effects": {
+    "speed_slope": -0.17385230346328695
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0248,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "speed"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.0374,
+     "t": -20.7
+    },
+    "position": {
+     "from_m": 0.416,
+     "step": 0.0552,
+     "t": 18.4
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0217,
+    "current": 0.4533
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.042,
+    "tether": 0.958,
+    "exact params": 0.542
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": false,
+    "camera_pitch_deg": true,
+    "patch_y0": false,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.4136,
+     0.4379
+    ],
+    "actuator_gain": [
+     0.8831,
+     0.9073
+    ],
+    "camera_dx": [
+     -0.0031,
+     0.0031
+    ],
+    "camera_pitch_deg": [
+     0.0295,
+     1.0062
+    ],
+    "patch_y0": [
+     0.3673,
+     0.4284
+    ],
+    "patch_mu": [
+     0.181,
+     0.1929
+    ]
+   }
+  },
+  {
+   "world": 19,
+   "condition": "two regions",
+   "hidden": {
+    "object_mu": 0.38302934902479085,
+    "table_mu": 0.38302934902479085,
+    "actuator_gain": 0.8315410105366756,
+    "patch_y0": 0.3665469596335104,
+    "patch_mu": 0.2002875312426271,
+    "camera_pitch_deg": 0.506419217909694
+   },
+   "effects": {
+    "region2": [
+     0.4952287284557617,
+     0.37285113837561323
+    ]
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "lens_k",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0175,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "position"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.0149,
+     "t": -1.2
+    },
+    "position": {
+     "from_m": 0.355,
+     "step": -0.0479,
+     "t": -5.7
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0158,
+    "current": 0.1997
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 0.917,
+    "exact params": 0.917
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.3308,
+     0.402
+    ],
+    "actuator_gain": [
+     0.812,
+     0.8472
+    ],
+    "camera_dx": [
+     -0.0137,
+     0.0046
+    ],
+    "camera_pitch_deg": [
+     -1.4358,
+     5.0
+    ],
+    "lens_k": [
+     -0.1082,
+     0.0508
+    ],
+    "patch_y0": [
+     0.15,
+     0.8423
+    ],
+    "patch_mu": [
+     0.3291,
+     0.6545
+    ]
+   }
+  },
+  {
+   "world": 19,
+   "condition": "slope",
+   "hidden": {
+    "object_mu": 0.38302934902479085,
+    "table_mu": 0.38302934902479085,
+    "actuator_gain": 0.8315410105366756,
+    "patch_y0": 0.3665469596335104,
+    "patch_mu": 0.2002875312426271,
+    "camera_pitch_deg": 0.506419217909694
+   },
+   "effects": {
+    "slope_deg": -2.985840262977245
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0106,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.011,
+     "t": 3.2
+    },
+    "position": {
+     "from_m": 0.533,
+     "step": 0.0096,
+     "t": 3.2
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0164,
+    "current": 0.2051
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.958,
+    "tether": 0.917,
+    "exact params": 0.167
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.4216,
+     0.4471
+    ],
+    "actuator_gain": [
+     0.8212,
+     0.8467
+    ],
+    "camera_dx": [
+     -0.0031,
+     0.0031
+    ],
+    "camera_pitch_deg": [
+     0.0295,
+     1.0062
+    ],
+    "patch_y0": [
+     0.3488,
+     0.3927
+    ],
+    "patch_mu": [
+     0.2426,
+     0.2547
+    ]
+   }
+  },
+  {
+   "world": 20,
+   "condition": "in-menu",
+   "hidden": {
+    "object_mu": 0.5172668209669526,
+    "table_mu": 0.5172668209669526,
+    "actuator_gain": 0.9586228366533471,
+    "patch_y0": 0.4418269344974626,
+    "patch_mu": 0.3078344648984606,
+    "camera_pitch_deg": 0.37285622714973776
+   },
+   "effects": {},
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0186,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.001,
+     "t": -0.2
+    },
+    "position": {
+     "from_m": 0.687,
+     "step": -0.0151,
+     "t": -5.4
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.018,
+    "current": 0.2743
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.167,
+    "tether": 0.917,
+    "exact params": 0.792
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": true
+   },
+   "intervals": {
+    "mu_eff": [
+     0.4761,
+     0.5147
+    ],
+    "actuator_gain": [
+     0.9388,
+     0.9711
+    ],
+    "camera_dx": [
+     -0.0002,
+     0.0024
+    ],
+    "camera_pitch_deg": [
+     0.1169,
+     0.4941
+    ],
+    "patch_y0": [
+     0.3862,
+     0.451
+    ],
+    "patch_mu": [
+     0.3055,
+     0.3225
+    ]
+   }
+  },
+  {
+   "world": 20,
+   "condition": "speed",
+   "hidden": {
+    "object_mu": 0.5172668209669526,
+    "table_mu": 0.5172668209669526,
+    "actuator_gain": 0.9586228366533471,
+    "patch_y0": 0.4418269344974626,
+    "patch_mu": 0.3078344648984606,
+    "camera_pitch_deg": 0.37285622714973776
+   },
+   "effects": {
+    "speed_slope": -0.19453045275279846
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0285,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "speed"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.0642,
+     "t": -18.3
+    },
+    "position": {
+     "from_m": 0.489,
+     "step": 0.0959,
+     "t": 22.2
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0282,
+    "current": 0.427
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 1.0,
+    "exact params": 0.375
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": false,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.5382,
+     0.5941
+    ],
+    "actuator_gain": [
+     1.0272,
+     1.0626
+    ],
+    "camera_dx": [
+     -0.03,
+     0.0177
+    ],
+    "camera_pitch_deg": [
+     -1.7667,
+     4.6945
+    ],
+    "patch_y0": [
+     0.3614,
+     0.482
+    ],
+    "patch_mu": [
+     0.2567,
+     0.2799
+    ]
+   }
+  },
+  {
+   "world": 20,
+   "condition": "two regions",
+   "hidden": {
+    "object_mu": 0.5172668209669526,
+    "table_mu": 0.5172668209669526,
+    "actuator_gain": 0.9586228366533471,
+    "patch_y0": 0.4418269344974626,
+    "patch_mu": 0.3078344648984606,
+    "camera_pitch_deg": 0.37285622714973776
+   },
+   "effects": {
+    "region2": [
+     0.5691260127921842,
+     0.5593786182285879
+    ]
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0184,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "position"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.0193,
+     "t": -1.5
+    },
+    "position": {
+     "from_m": 0.327,
+     "step": -0.0556,
+     "t": -7.7
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0172,
+    "current": 0.1795
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.25,
+    "tether": 0.875,
+    "exact params": 0.833
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.456,
+     0.5351
+    ],
+    "actuator_gain": [
+     0.9337,
+     0.9771
+    ],
+    "camera_dx": [
+     -0.0002,
+     0.0027
+    ],
+    "camera_pitch_deg": [
+     0.1156,
+     0.4941
+    ],
+    "patch_y0": [
+     0.2045,
+     0.7004
+    ],
+    "patch_mu": [
+     0.4659,
+     0.5452
+    ]
+   }
+  },
+  {
+   "world": 20,
+   "condition": "slope",
+   "hidden": {
+    "object_mu": 0.5172668209669526,
+    "table_mu": 0.5172668209669526,
+    "actuator_gain": 0.9586228366533471,
+    "patch_y0": 0.4418269344974626,
+    "patch_mu": 0.3078344648984606,
+    "camera_pitch_deg": 0.37285622714973776
+   },
+   "effects": {
+    "slope_deg": -2.7867724774536557
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0118,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.0009,
+     "t": -0.2
+    },
+    "position": {
+     "from_m": 0.33,
+     "step": -0.0148,
+     "t": -3.3
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0161,
+    "current": 0.1877
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.875,
+    "tether": 0.958,
+    "exact params": 0.5
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.5304,
+     0.5583
+    ],
+    "actuator_gain": [
+     0.9442,
+     0.9679
+    ],
+    "camera_dx": [
+     -0.0002,
+     0.0024
+    ],
+    "camera_pitch_deg": [
+     0.1169,
+     0.4941
+    ],
+    "patch_y0": [
+     0.4334,
+     0.4855
+    ],
+    "patch_mu": [
+     0.3328,
+     0.3658
+    ]
+   }
+  },
+  {
+   "world": 21,
+   "condition": "in-menu",
+   "hidden": {
+    "object_mu": 0.739936550511,
+    "table_mu": 0.739936550511,
+    "actuator_gain": 0.8639897005225399,
+    "patch_y0": 0.28082706378521216,
+    "patch_mu": 0.5346242242927242,
+    "camera_pitch_deg": 1.589009747298241
+   },
+   "effects": {},
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0145,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0226,
+     "t": 3.1
+    },
+    "position": {
+     "from_m": 0.278,
+     "step": 0.0356,
+     "t": 5.8
+    }
+   },
+   "tipped": 1,
+   "holdout_rms_m": {
+    "tether": 0.0233,
+    "current": 0.0294
+   },
+   "success": {
+    "current": 0.708,
+    "dr 25%": 0.333,
+    "dr 50%": 0.208,
+    "dr 75%": 0.042,
+    "dr 100%": 0.083,
+    "dr oracle": 0.0,
+    "tether": 0.917,
+    "exact params": 0.625
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": true
+   },
+   "intervals": {
+    "mu_eff": [
+     0.6523,
+     0.7472
+    ],
+    "actuator_gain": [
+     0.847,
+     0.8904
+    ],
+    "camera_dx": [
+     -0.0046,
+     -0.0
+    ],
+    "camera_pitch_deg": [
+     1.5334,
+     2.0766
+    ],
+    "patch_y0": [
+     0.2392,
+     0.4237
+    ],
+    "patch_mu": [
+     0.4113,
+     0.5402
+    ]
+   }
+  },
+  {
+   "world": 21,
+   "condition": "speed",
+   "hidden": {
+    "object_mu": 0.739936550511,
+    "table_mu": 0.739936550511,
+    "actuator_gain": 0.8639897005225399,
+    "patch_y0": 0.28082706378521216,
+    "patch_mu": 0.5346242242927242,
+    "camera_pitch_deg": 1.589009747298241
+   },
+   "effects": {
+    "speed_slope": -0.15838080858689524
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0119,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "speed"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.1333,
+     "t": -10.2
+    },
+    "position": {
+     "from_m": 0.18,
+     "step": 0.1427,
+     "t": 16.0
+    }
+   },
+   "tipped": 1,
+   "holdout_rms_m": {
+    "tether": 0.027,
+    "current": 0.0299
+   },
+   "success": {
+    "current": 0.542,
+    "dr 25%": 0.458,
+    "dr 50%": 0.5,
+    "dr 75%": 0.417,
+    "dr 100%": 0.333,
+    "dr oracle": 0.0,
+    "tether": 0.917,
+    "exact params": 0.083
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": false,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.7148,
+     0.8279
+    ],
+    "actuator_gain": [
+     0.8916,
+     0.9349
+    ],
+    "camera_dx": [
+     -0.0049,
+     -0.0
+    ],
+    "camera_pitch_deg": [
+     1.5334,
+     2.1498
+    ],
+    "patch_y0": [
+     0.2406,
+     0.3312
+    ],
+    "patch_mu": [
+     0.4149,
+     0.4683
+    ]
+   }
+  },
+  {
+   "world": 21,
+   "condition": "two regions",
+   "hidden": {
+    "object_mu": 0.739936550511,
+    "table_mu": 0.739936550511,
+    "actuator_gain": 0.8639897005225399,
+    "patch_y0": 0.28082706378521216,
+    "patch_mu": 0.5346242242927242,
+    "camera_pitch_deg": 1.589009747298241
+   },
+   "effects": {
+    "region2": [
+     0.4508842561791474,
+     0.8396700098423823
+    ]
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0098,
+   "size_flag": false,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.046,
+     "t": 2.1
+    },
+    "position": {
+     "from_m": 0.218,
+     "step": -0.0217,
+     "t": -2.2
+    }
+   },
+   "tipped": 2,
+   "holdout_rms_m": {
+    "tether": 0.0181,
+    "current": 0.0376
+   },
+   "success": {
+    "current": 0.625,
+    "dr 25%": 0.208,
+    "dr 50%": 0.125,
+    "dr 75%": 0.0,
+    "dr 100%": 0.083,
+    "dr oracle": 0.0,
+    "tether": 0.875,
+    "exact params": 0.667
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": true,
+    "camera_pitch_deg": false,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.659,
+     0.774
+    ],
+    "actuator_gain": [
+     0.8491,
+     0.8821
+    ],
+    "camera_dx": [
+     -0.0046,
+     -0.0004
+    ],
+    "camera_pitch_deg": [
+     1.6317,
+     2.0965
+    ],
+    "patch_y0": [
+     0.15,
+     0.2922
+    ],
+    "patch_mu": [
+     0.5852,
+     0.6176
+    ]
+   }
+  },
+  {
+   "world": 21,
+   "condition": "slope",
+   "hidden": {
+    "object_mu": 0.739936550511,
+    "table_mu": 0.739936550511,
+    "actuator_gain": 0.8639897005225399,
+    "patch_y0": 0.28082706378521216,
+    "patch_mu": 0.5346242242927242,
+    "camera_pitch_deg": 1.589009747298241
+   },
+   "effects": {
+    "slope_deg": -2.907253865120987
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0168,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0063,
+     "t": 0.6
+    },
+    "position": {
+     "from_m": 0.334,
+     "step": -0.0395,
+     "t": -3.4
+    }
+   },
+   "tipped": 2,
+   "holdout_rms_m": {
+    "tether": 0.0125,
+    "current": 0.0515
+   },
+   "success": {
+    "current": 0.125,
+    "dr 25%": 0.042,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.0,
+    "tether": 0.958,
+    "exact params": 0.833
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": true
+   },
+   "intervals": {
+    "mu_eff": [
+     0.6698,
+     0.8066
+    ],
+    "actuator_gain": [
+     0.8556,
+     0.8937
+    ],
+    "camera_dx": [
+     -0.0037,
+     0.0002
+    ],
+    "camera_pitch_deg": [
+     1.4409,
+     2.0898
+    ],
+    "patch_y0": [
+     0.1736,
+     0.4709
+    ],
+    "patch_mu": [
+     0.3661,
+     0.6401
+    ]
+   }
+  },
+  {
+   "world": 22,
+   "condition": "in-menu",
+   "hidden": {
+    "object_mu": 0.4622743548931623,
+    "table_mu": 0.4622743548931623,
+    "actuator_gain": 0.8664302330871411,
+    "patch_y0": 0.3978848779633303,
+    "patch_mu": 0.338440979706113,
+    "camera_pitch_deg": -1.5170510229850565
+   },
+   "effects": {},
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0125,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.009,
+     "t": 2.2
+    },
+    "position": {
+     "from_m": 0.313,
+     "step": -0.0127,
+     "t": -3.6
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0059,
+    "current": 0.1586
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.042,
+    "dr 100%": 0.0,
+    "dr oracle": 0.667,
+    "tether": 0.958,
+    "exact params": 1.0
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": true
+   },
+   "intervals": {
+    "mu_eff": [
+     0.4477,
+     0.4662
+    ],
+    "actuator_gain": [
+     0.8566,
+     0.8803
+    ],
+    "camera_dx": [
+     -0.0021,
+     0.0039
+    ],
+    "camera_pitch_deg": [
+     -2.0321,
+     -1.2344
+    ],
+    "patch_y0": [
+     0.3331,
+     0.4264
+    ],
+    "patch_mu": [
+     0.3294,
+     0.3613
+    ]
+   }
+  },
+  {
+   "world": 22,
+   "condition": "speed",
+   "hidden": {
+    "object_mu": 0.4622743548931623,
+    "table_mu": 0.4622743548931623,
+    "actuator_gain": 0.8664302330871411,
+    "patch_y0": 0.3978848779633303,
+    "patch_mu": 0.338440979706113,
+    "camera_pitch_deg": -1.5170510229850565
+   },
+   "effects": {
+    "speed_slope": 0.19095422098787998
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "lens_k"
+   ],
+   "stop_rms_m": 0.0143,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "speed"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.1089,
+     "t": 16.2
+    },
+    "position": {
+     "from_m": 0.333,
+     "step": -0.087,
+     "t": -16.9
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0101,
+    "current": 0.1048
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.042,
+    "dr 100%": 0.042,
+    "dr oracle": 0.458,
+    "tether": 0.917,
+    "exact params": 0.667
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": false,
+    "camera_pitch_deg": true
+   },
+   "intervals": {
+    "mu_eff": [
+     0.3981,
+     0.4168
+    ],
+    "actuator_gain": [
+     0.8114,
+     0.8351
+    ],
+    "camera_dx": [
+     -0.0179,
+     0.009
+    ],
+    "camera_pitch_deg": [
+     -4.6229,
+     3.7257
+    ],
+    "lens_k": [
+     -0.1124,
+     0.0799
+    ]
+   }
+  },
+  {
+   "world": 22,
+   "condition": "two regions",
+   "hidden": {
+    "object_mu": 0.4622743548931623,
+    "table_mu": 0.4622743548931623,
+    "actuator_gain": 0.8664302330871411,
+    "patch_y0": 0.3978848779633303,
+    "patch_mu": 0.338440979706113,
+    "camera_pitch_deg": -1.5170510229850565
+   },
+   "effects": {
+    "region2": [
+     0.5762639018529617,
+     0.6106848577173233
+    ]
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0162,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "position"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0155,
+     "t": 1.4
+    },
+    "position": {
+     "from_m": 0.313,
+     "step": -0.0627,
+     "t": -9.6
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0127,
+    "current": 0.1122
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.042,
+    "dr 100%": 0.0,
+    "dr oracle": 0.667,
+    "tether": 0.875,
+    "exact params": 1.0
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": false,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.4138,
+     0.4461
+    ],
+    "actuator_gain": [
+     0.8479,
+     0.8692
+    ],
+    "camera_dx": [
+     -0.0021,
+     0.0039
+    ],
+    "camera_pitch_deg": [
+     -2.0321,
+     -1.2349
+    ],
+    "patch_y0": [
+     0.5846,
+     0.6828
+    ],
+    "patch_mu": [
+     0.5652,
+     0.8619
+    ]
+   }
+  },
+  {
+   "world": 22,
+   "condition": "slope",
+   "hidden": {
+    "object_mu": 0.4622743548931623,
+    "table_mu": 0.4622743548931623,
+    "actuator_gain": 0.8664302330871411,
+    "patch_y0": 0.3978848779633303,
+    "patch_mu": 0.338440979706113,
+    "camera_pitch_deg": -1.5170510229850565
+   },
+   "effects": {
+    "slope_deg": 2.9605231229463054
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0172,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0033,
+     "t": 1.1
+    },
+    "position": {
+     "from_m": 0.358,
+     "step": -0.0087,
+     "t": -2.2
+    }
+   },
+   "tipped": 0,
+   "holdout_rms_m": {
+    "tether": 0.0179,
+    "current": 0.2531
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.0,
+    "dr oracle": 0.25,
+    "tether": 0.917,
+    "exact params": 0.0
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": false
+   },
+   "intervals": {
+    "mu_eff": [
+     0.3917,
+     0.4185
+    ],
+    "actuator_gain": [
+     0.8546,
+     0.8874
+    ],
+    "camera_dx": [
+     -0.0021,
+     0.0039
+    ],
+    "camera_pitch_deg": [
+     -2.0321,
+     -1.2344
+    ],
+    "patch_y0": [
+     0.3596,
+     0.4812
+    ],
+    "patch_mu": [
+     0.27,
+     0.2948
+    ]
+   }
+  },
+  {
+   "world": 23,
+   "condition": "in-menu",
+   "hidden": {
+    "object_mu": 0.7775611335388903,
+    "table_mu": 0.7775611335388903,
+    "actuator_gain": 1.1087664139932443,
+    "patch_y0": 0.3707068429566887,
+    "patch_mu": 0.4482151371296991,
+    "camera_pitch_deg": -1.9808015931752598
+   },
+   "effects": {},
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0146,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.0153,
+     "t": -1.6
+    },
+    "position": {
+     "from_m": 0.526,
+     "step": 0.0333,
+     "t": 3.6
+    }
+   },
+   "tipped": 6,
+   "holdout_rms_m": {
+    "tether": 0.0136,
+    "current": 0.219
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.042,
+    "dr oracle": 0.917,
+    "tether": 0.625,
+    "exact params": 0.208
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": true
+   },
+   "intervals": {
+    "mu_eff": [
+     0.6753,
+     0.734
+    ],
+    "actuator_gain": [
+     1.0904,
+     1.1215
+    ],
+    "camera_dx": [
+     -0.0037,
+     0.0041
+    ],
+    "camera_pitch_deg": [
+     -2.7479,
+     -1.5609
+    ],
+    "patch_y0": [
+     0.3626,
+     0.4756
+    ],
+    "patch_mu": [
+     0.395,
+     0.4541
+    ]
+   }
+  },
+  {
+   "world": 23,
+   "condition": "speed",
+   "hidden": {
+    "object_mu": 0.7775611335388903,
+    "table_mu": 0.7775611335388903,
+    "actuator_gain": 1.1087664139932443,
+    "patch_y0": 0.3707068429566887,
+    "patch_mu": 0.4482151371296991,
+    "camera_pitch_deg": -1.9808015931752598
+   },
+   "effects": {
+    "speed_slope": 0.10871866775226324
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0178,
+   "size_flag": true,
+   "flagged": true,
+   "findings": [
+    "speed"
+   ],
+   "structure_tests": {
+    "speed": {
+     "per_mps": 0.0558,
+     "t": 4.4
+    },
+    "position": {
+     "from_m": 0.345,
+     "step": -0.027,
+     "t": -1.7
+    }
+   },
+   "tipped": 10,
+   "holdout_rms_m": {
+    "tether": 0.0157,
+    "current": 0.1088
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.125,
+    "dr oracle": 0.625,
+    "tether": 0.542,
+    "exact params": 0.542
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": true
+   },
+   "intervals": {
+    "mu_eff": [
+     0.7097,
+     0.7998
+    ],
+    "actuator_gain": [
+     1.0615,
+     1.1096
+    ],
+    "camera_dx": [
+     -0.0045,
+     0.0022
+    ],
+    "camera_pitch_deg": [
+     -2.2748,
+     -1.3938
+    ],
+    "patch_y0": [
+     0.3123,
+     0.4143
+    ],
+    "patch_mu": [
+     0.403,
+     0.5074
+    ]
+   }
+  },
+  {
+   "world": 23,
+   "condition": "two regions",
+   "hidden": {
+    "object_mu": 0.7775611335388903,
+    "table_mu": 0.7775611335388903,
+    "actuator_gain": 1.1087664139932443,
+    "patch_y0": 0.3707068429566887,
+    "patch_mu": 0.4482151371296991,
+    "camera_pitch_deg": -1.9808015931752598
+   },
+   "effects": {
+    "region2": [
+     0.5120311479591995,
+     0.8226546931426644
+    ]
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg"
+   ],
+   "stop_rms_m": 0.0132,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.052,
+     "t": -1.9
+    },
+    "position": {
+     "from_m": 0.286,
+     "step": -0.0679,
+     "t": -3.0
+    }
+   },
+   "tipped": 7,
+   "holdout_rms_m": {
+    "tether": 0.0192,
+    "current": 0.1264
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.0,
+    "dr 100%": 0.042,
+    "dr oracle": 0.917,
+    "tether": 0.583,
+    "exact params": 0.333
+   },
+   "coverage": {
+    "mu_eff": false,
+    "actuator_gain": true,
+    "camera_pitch_deg": true
+   },
+   "intervals": {
+    "mu_eff": [
+     0.6384,
+     0.6818
+    ],
+    "actuator_gain": [
+     1.0671,
+     1.1152
+    ],
+    "camera_dx": [
+     -0.0054,
+     0.0019
+    ],
+    "camera_pitch_deg": [
+     -2.2189,
+     -1.3175
+    ]
+   }
+  },
+  {
+   "world": 23,
+   "condition": "slope",
+   "hidden": {
+    "object_mu": 0.7775611335388903,
+    "table_mu": 0.7775611335388903,
+    "actuator_gain": 1.1087664139932443,
+    "patch_y0": 0.3707068429566887,
+    "patch_mu": 0.4482151371296991,
+    "camera_pitch_deg": -1.9808015931752598
+   },
+   "effects": {
+    "slope_deg": -2.0686864987336326
+   },
+   "structure": [
+    "mu_eff",
+    "actuator_gain",
+    "camera_dx",
+    "camera_pitch_deg",
+    "patch_y0",
+    "patch_mu"
+   ],
+   "stop_rms_m": 0.0243,
+   "size_flag": true,
+   "flagged": false,
+   "findings": [],
+   "structure_tests": {
+    "speed": {
+     "per_mps": -0.0016,
+     "t": -0.2
+    },
+    "position": {
+     "from_m": 0.402,
+     "step": 0.0289,
+     "t": 5.8
+    }
+   },
+   "tipped": 3,
+   "holdout_rms_m": {
+    "tether": 0.0183,
+    "current": 0.2133
+   },
+   "success": {
+    "current": 0.0,
+    "dr 25%": 0.0,
+    "dr 50%": 0.0,
+    "dr 75%": 0.042,
+    "dr 100%": 0.083,
+    "dr oracle": 0.792,
+    "tether": 0.708,
+    "exact params": 0.833
+   },
+   "coverage": {
+    "mu_eff": true,
+    "actuator_gain": true,
+    "camera_pitch_deg": true,
+    "patch_y0": true,
+    "patch_mu": true
+   },
+   "intervals": {
+    "mu_eff": [
+     0.7497,
+     0.8213
+    ],
+    "actuator_gain": [
+     1.0931,
+     1.1365
+    ],
+    "camera_dx": [
+     -0.0033,
+     0.0067
+    ],
+    "camera_pitch_deg": [
+     -3.0034,
+     -1.6607
+    ],
+    "patch_y0": [
+     0.3164,
+     0.4524
+    ],
+    "patch_mu": [
+     0.4088,
+     0.5042
+    ]
+   }
+  }
+ ]
+}

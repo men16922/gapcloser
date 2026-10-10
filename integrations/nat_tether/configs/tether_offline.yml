@@ -1,0 +1,4 @@
+# Same workflow without an LLM: the offline structure search (no network, no credits).
+#   nat run --config_file integrations/nat_tether/configs/tether_offline.yml --input press-line
+workflow:
+  _type: tether_calibrate

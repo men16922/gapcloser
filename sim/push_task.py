@@ -41,6 +41,7 @@ class Trial:
     track: list[float] = field(default_factory=list)  # cube y at frames 0..TRACK_FRAMES (camera tracking)
     tipped: bool = False  # cube rolled over instead of sliding (outside the sliding model)
     start: float = 0.0  # launch position along the push axis (recorded video data; the simulator launches at 0)
+    launch_measured: bool = False  # `command` is a measured launch speed (hand or phone push), not a robot command
 
     @property
     def success(self) -> bool:

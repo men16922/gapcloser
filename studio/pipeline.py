@@ -153,6 +153,20 @@ def analyze(session: Session, llm=None, on_event=None, n_boot: int | None = None
             check["adopted"] = "search"
             check["reason"] = ("the agent's model leaves " + "; ".join(check["unexplained"] or ["residuals"]) +
                                f" — the library structure {'+'.join(alt['free'])} explains the data")
+        # Occam: a friction region the agent added must explain the stops beyond the noise the library tolerates
+        # (the same rule the offline search uses); otherwise it is a region the data does not show
+        if check["adopted"] == "agent" and "patch_y0" in cal.structure:
+            plain = [f for f in cal.structure if f not in ("patch_y0", "patch_mu")]
+            same = next((c for c in cands if sorted(c["free"]) == sorted(plain)), None)
+            rms_region = cal.residuals["stop_residual_rms_m"]
+            if same is not None and same["stop_rms_m"] <= 1.25 * rms_region + 0.002 and misfit(same) <= 1.0:
+                y0 = cal.model.get("patch_y0") or 0.0
+                cal = calibrate(session, plain, {**same["model"], "patch_y0": None, "patch_mu": None},
+                                chosen_by="cross-check (agent's friction region within noise)", **kw)
+                cal.candidates = cands
+                check["adopted"] = "agent without region"
+                check["reason"] = (f"the friction region the agent proposed at {y0:.2f} m improves the stops by "
+                                   f"{(same['stop_rms_m'] - rms_region) * 1000:.1f} mm rms only, within noise: left out")
         agent["cross_check"] = check
         emit({"type": "cross_check", "cross_check": check})
     else:

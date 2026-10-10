@@ -16,12 +16,18 @@ import json
 import math
 from dataclasses import dataclass
 
+import numpy as np
+
 from agent.llm import LLM
 from agent.loop import Diagnosis, RealWorld, Suspect, TrajectoryDiagnoser
 from sim.params import GRAVITY, PARAM_SPACE, ParamSet, effective_friction
-from sim.push_task import FRAME_DT, PATCH_OFF, SUCCESS_TOL, TARGET_RANGE, Rollout, analytic_track, observe, slide_distance
+from sim.push_task import FRAME_DT, PATCH_OFF, SUCCESS_TOL, TARGET_RANGE, Rollout, analytic_track, frictions, observe, slide_distance
 
 FIELDS = ("mu_eff", "actuator_gain", "patch_y0", "patch_mu", "camera_dx", "camera_pitch_deg", "lens_k")
+# what a fit may report, wider than the simulator's plausible range (PARAM_SPACE, which the benchmarks sample): real
+# objects slide at friction 0.1-0.2 (EV-RealPhys mug, bottles), below a robot table's typical 0.2-1.2
+FIT_RANGE = {"object_mu": (0.03, 1.5), "patch_mu": (0.03, 1.5)}
+SHAPE_FRAMES = 6  # a push needs this many tracked frames before its trajectory shape enters the fit
 
 STEP = {"mu_eff": 0.05, "actuator_gain": 0.05, "patch_y0": 0.05, "patch_mu": 0.05, "camera_dx": 0.01,
         "camera_pitch_deg": 1.0, "lens_k": 0.05}  # initial simplex steps for the fitter
@@ -83,6 +89,7 @@ class Datum:
     target: float | None = None
     observed: float | None = None
     start: float = 0.0  # launch position (recorded video); a friction region is fixed to the table, not the launch
+    launch_measured: bool = False  # command is a measured launch speed (video), not a robot command
 
 
 def at_start(p: ParamSet, start: float) -> ParamSet:
@@ -95,8 +102,8 @@ def at_start(p: ParamSet, start: float) -> ParamSet:
 def to_params(model: dict, base: ParamSet) -> ParamSet:
     """Agent model -> simulator ParamSet (object_mu = table_mu = mu_eff; no patch = patch_y0 at nominal)."""
     def clamp(name, v):
-        p = PARAM_SPACE[name]
-        return min(p.high, max(p.low, float(v)))
+        lo, hi = FIT_RANGE.get(name, (PARAM_SPACE[name].low, PARAM_SPACE[name].high))
+        return min(hi, max(lo, float(v)))
 
     mu = clamp("object_mu", model.get("mu_eff") if model.get("mu_eff") is not None else effective_friction(base["object_mu"], base["table_mu"]))
     ch = {"object_mu": mu, "table_mu": mu}
@@ -111,6 +118,38 @@ def to_params(model: dict, base: ParamSet) -> ParamSet:
     return base.with_(**ch)
 
 
+def shape_tracks(stop: np.ndarray, y0: np.ndarray, mu1: float, mu2: float | None, n: int) -> np.ndarray:
+    """Positions at the camera clock (one row per push) of slides that end at `stop` under friction mu1, then mu2
+    from y0 (measured from each launch). The launch speed is the one each stop implies, so only the timing is
+    compared: how long the object takes to stop and how it slows. That pins friction even when the launch speed is
+    mis-measured (a frame clock with jitter, a hand still touching at the frame called release)."""
+    g = GRAVITY
+    t = np.arange(n)[None, :] * FRAME_DT
+    stop = np.maximum(stop, 1e-4)[:, None]
+
+    def uniform(a):
+        T = np.sqrt(2.0 * stop / a)
+        return np.where(t < T, stop - 0.5 * a * (T - np.minimum(t, T)) ** 2, stop)
+
+    a1 = mu1 * g
+    out = uniform(a1)
+    if mu2 is None:
+        return out
+    a2 = mu2 * g
+    y = y0[:, None]
+    inside = y <= 0.0  # launched inside the region
+    cross = (y > 0.0) & (y < stop)
+    out = np.where(inside, uniform(a2), out)
+    yc = np.clip(y, 1e-6, None)
+    T2 = np.sqrt(2.0 * np.clip(stop - yc, 0.0, None) / a2)
+    v1 = a2 * T2
+    v0 = np.sqrt(v1 * v1 + 2.0 * a1 * yc)
+    T1 = (v0 - v1) / a1
+    u = t - T1
+    two = np.where(t < T1, v0 * t - 0.5 * a1 * t * t, np.where(u < T2, yc + v1 * u - 0.5 * a2 * u * u, stop))
+    return np.where(cross, two, out)
+
+
 def from_params(p: ParamSet) -> dict:
     has_patch = p["patch_y0"] < PATCH_OFF
     return {"mu_eff": round(effective_friction(p["object_mu"], p["table_mu"]), 4), "actuator_gain": round(p["actuator_gain"], 4),
@@ -123,9 +162,31 @@ class Workbench:
 
     def __init__(self, real_ro: Rollout, base: ParamSet, real: RealWorld | None, probe_budget: int):
         self.base, self.real, self.budget = base, real, probe_budget
-        self.data = [Datum(t.command, t.slide, t.track, t.target, t.observed, getattr(t, "start", 0.0) or 0.0)
-                     for t in real_ro.trials if not t.tipped]
+        self.data = [Datum(t.command, t.slide, t.track, t.target, t.observed, getattr(t, "start", 0.0) or 0.0,
+                           bool(getattr(t, "launch_measured", False))) for t in real_ro.trials if not t.tipped]
         self.tipped = sum(t.tipped for t in real_ro.trials)
+        # tracked slides, up to a few frames past rest, for the trajectory-shape term of the loss (padded to one array)
+        self.shapes = []
+        for d in self.data:
+            tr = np.asarray(d.track, float)
+            if len(tr) < SHAPE_FRAMES or d.stop < 0.02:
+                continue
+            k = int(np.argmax(tr >= d.stop - 0.002)) if (tr >= d.stop - 0.002).any() else len(tr) - 1
+            if k + 1 >= SHAPE_FRAMES:
+                self.shapes.append((d, tr[:min(len(tr), k + 4)]))
+        n = max((len(tr) for _, tr in self.shapes), default=0)
+        self._sh_track = np.zeros((len(self.shapes), n))
+        self._sh_mask = np.zeros((len(self.shapes), n))
+        for i, (_, tr) in enumerate(self.shapes):
+            self._sh_track[i, :len(tr)], self._sh_mask[i, :len(tr)] = tr, 1.0
+        self._sh_stop = np.array([d.stop for d, _ in self.shapes])
+        self._sh_start = np.array([d.start for d, _ in self.shapes])
+        self._sh_count = self._sh_mask.sum(axis=1) if self.shapes else np.zeros(0)
+        # a measured launch speed (phone, hand) is only as good as a few frames of an uneven clock: where the whole
+        # slide was tracked, its shape decides friction and the launch speed and stop terms step aside. Robot logs keep
+        # them (the commanded speed is what identifies the actuator gain).
+        shaped = {id(d) for d, _ in self.shapes}
+        self.by_launch = [d for d in self.data if not (d.launch_measured and id(d) in shaped)]
         self.probes_used = 0
         self.requested: list[float] = []  # offline sessions: probe pushes recommended to the human
 
@@ -149,10 +210,15 @@ class Workbench:
         return out
 
     def loss(self, p: ParamSet) -> float:
-        e = sum((slide_distance(d.command, at_start(p, d.start)) - d.stop) ** 2 for d in self.data)
+        e = sum((slide_distance(d.command, at_start(p, d.start)) - d.stop) ** 2 for d in self.by_launch)
         e += sum(((analytic_track(d.command, at_start(p, d.start), 1)[1] - d.track[1]) / FRAME_DT * 0.05) ** 2
-                 for d in self.data if len(d.track) > 1)
+                 for d in self.by_launch if len(d.track) > 1)
         e += sum((observe(d.target, p) - d.observed) ** 2 for d in self.data if d.target is not None and d.target == d.target)
+        if self.shapes:  # how each tracked slide slows down: one mean-square position error per push
+            mu1, mu2, y0 = frictions(p)
+            y0s = np.maximum(0.0, y0 - self._sh_start) if mu2 is not None else np.full(len(self.shapes), np.inf)
+            m = shape_tracks(self._sh_stop, y0s, mu1, mu2, self._sh_track.shape[1])
+            e += float((((m - self._sh_track) ** 2 * self._sh_mask).sum(axis=1) / self._sh_count).sum())
         return e
 
     # --- tools -------------------------------------------------------------------------------

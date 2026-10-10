@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nat-tether"
+version = "0.1.0"
+description = "Tether's sim-to-real calibration agent as an NVIDIA NeMo Agent Toolkit workflow"
+requires-python = ">=3.11"
+dependencies = ["nvidia-nat>=1.9"]
+
+[project.entry-points."nat.components"]
+nat_tether = "nat_tether.register"
+
+[tool.setuptools.packages.find]
+where = ["src"]

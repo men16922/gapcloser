@@ -40,7 +40,7 @@ from collections import defaultdict, deque
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, StreamingResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -357,26 +357,9 @@ def create_app(llm=None, env_name: str | None = None, render: bool | None = None
         run = runs.get(rid)
         if run is None:
             raise HTTPException(404, "Unknown run.")
+        from server.sse import event_stream
 
-        def stream():
-            i = 0
-            while True:
-                with run.cond:
-                    while i >= len(run.events) and not run.done:
-                        if not run.cond.wait(timeout=15):
-                            break
-                    batch, done = run.events[i:], run.done
-                if not batch and not done:
-                    yield ": keep-alive\n\n"
-                    continue
-                for e in batch:
-                    yield f"data: {json.dumps(e)}\n\n"
-                i += len(batch)
-                if done and i >= len(run.events):
-                    return
-
-        return StreamingResponse(stream(), media_type="text/event-stream",
-                                 headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+        return event_stream(run)
 
     @app.get("/api/runs")
     def list_runs():
@@ -400,7 +383,9 @@ def create_app(llm=None, env_name: str | None = None, render: bool | None = None
     @app.get("/", response_class=HTMLResponse)
     def home():
         """Overview: what Tether does, the route Console -> Studio -> Export, the three domains."""
-        return HTMLResponse((ROOT / "dashboard" / "home.html").read_text())
+        from dashboard.build import with_shared
+
+        return HTMLResponse(with_shared((ROOT / "dashboard" / "home.html").read_text()))
 
     @app.get("/console", response_class=HTMLResponse)
     def console():

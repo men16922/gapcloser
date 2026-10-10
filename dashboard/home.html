@@ -12,41 +12,10 @@
 /* Tether home. Same tool language as Console and Studio (docs/design/REFERENCE.md): dark surfaces, square corners,
    green only for "calibrated / verified". The one loud element is the tether itself: the simulator's predicted stops
    pulled onto the real ones, drawn from a recorded run. */
-:root {
-  color-scheme: dark;
-  --bg: #050607; --panel: #101214; --raised: #171a1d; --line: #2b3035; --line-soft: #1d2125;
-  --fg: #eceeef; --muted: #9ba3aa; --dim: #69717a; --green: #76b900; --green-hi: #91c733; --green-wash: rgba(118,185,0,0.12);
-  --warn: #d9a13b; --sim: #69717a;
-  --f-display: "Barlow Semi Condensed", "Arial Narrow", Arial, sans-serif;
-  --f-body: "Barlow", "Helvetica Neue", Arial, sans-serif;
-  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
-}
-* { box-sizing: border-box; }
-html, body { margin: 0; background: var(--bg); color: var(--fg); }
-body { font: 15px/1.55 var(--f-body); }
-:lang(ko) body, :lang(ko) h1, :lang(ko) h2, :lang(ko) h3, :lang(ko) p { word-break: keep-all; }
-h1, h2, h3 { font-family: var(--f-display); font-weight: 600; margin: 0; text-wrap: balance; }
-p { margin: 0; }
+/*__SHARED_CSS__*/
+body { line-height: 1.55; }
 a { color: inherit; }
-.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
-
-/* bar: shared with Console and Studio */
-.bar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px; padding: 14px 32px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: rgba(5,6,7,0.92); backdrop-filter: blur(6px); z-index: 5; }
-.brand { display: flex; align-items: baseline; gap: 10px; text-decoration: none; }
-.brand h1 { font-size: 26px; letter-spacing: 0.01em; }
-.mark { width: 22px; height: 14px; margin-right: 8px; vertical-align: 1px; display: inline-block; }
-.brand span { color: var(--dim); font-size: 13px; }
-.bar nav { display: flex; gap: 22px; font: 600 14px/1 var(--f-display); letter-spacing: 0.03em; }
-.bar nav a { color: var(--muted); text-decoration: none; padding: 6px 0; border-bottom: 2px solid transparent; }
-.bar nav a:hover { color: var(--fg); }
-.bar nav a[aria-current="page"] { color: var(--fg); border-bottom-color: var(--green); }
-.status { margin-left: auto; display: flex; gap: 8px; align-items: center; font-size: 13px; color: var(--muted); }
-.status i { width: 7px; height: 7px; background: var(--green); display: inline-block; }
-.status.off i { background: var(--warn); }
-.lang { display: flex; border: 1px solid var(--line); }
-.lang button { all: unset; cursor: pointer; padding: 5px 9px; font: 600 12px/1 var(--f-display); color: var(--dim); }
-.lang button[aria-pressed="true"] { color: var(--fg); background: var(--raised); box-shadow: inset 0 -2px 0 var(--green); }
-.lang button:focus-visible, .btn:focus-visible, .dom a:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+.tbar .brand .sub { font-family: var(--f-body); font-size: 13px; }
 
 main { max-width: 1240px; margin: 0 auto; padding: 0 32px 64px; }
 section { padding-block: 44px; border-bottom: 1px solid var(--line-soft); }
@@ -60,10 +29,6 @@ h2.sec { font-size: 30px; margin-top: 8px; }
 .hero h2 { font-size: clamp(38px, 5vw, 58px); line-height: 1.02; letter-spacing: -0.005em; }
 .hero .lede { font-size: 17px; margin-top: 18px; }
 .ctas { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
-.btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 18px; border: 1px solid var(--line); background: var(--panel); color: var(--fg); text-decoration: none; font: 600 15px/1 var(--f-display); letter-spacing: 0.03em; cursor: pointer; }
-.btn:hover { border-color: var(--dim); }
-.btn.primary { background: var(--green); border-color: var(--green); color: #000; }
-.btn.primary:hover { background: var(--green-hi); border-color: var(--green-hi); }
 .made { margin-top: 22px; color: var(--dim); font-size: 13px; }
 .link { color: var(--muted); font: 600 15px/1 var(--f-display); text-decoration: none; padding: 11px 6px; }
 .link:hover { color: var(--fg); }
@@ -145,7 +110,6 @@ footer { color: var(--dim); font-size: 13px; padding: 26px 32px 40px; max-width:
   .pipe div + div { border-left: 0; padding-left: 0; }
 }
 @media (max-width: 640px) {
-  .bar { padding: 12px 16px; gap: 10px 18px; }
   main { padding: 0 16px 48px; }
   footer { padding-inline: 16px; }
   .status { display: none; }
@@ -159,15 +123,17 @@ footer { color: var(--dim); font-size: 13px; padding: 26px 32px 40px; max-width:
 </style>
 </head>
 <body>
-<header class="bar">
-  <a class="brand" href="/"><h1><svg class="mark" viewBox="0 0 22 14" aria-hidden="true"><rect x="0" y="0" width="6" height="6" fill="#69717a"/><rect x="16" y="8" width="6" height="6" fill="#76b900"/><path d="M3 6 L19 8" stroke="#76b900" stroke-width="1.6"/></svg>Tether</h1><span id="tagline">Sim-to-real calibration</span></a>
-  <nav aria-label="Tether">
+<header class="tbar">
+  <a class="brand" href="/"><svg class="mark" viewBox="0 0 22 14" aria-hidden="true"><rect x="0" y="0" width="6" height="6" fill="#6e6e6e"/><rect x="16" y="8" width="6" height="6" fill="#76b900"/><path d="M3 6 L19 8" stroke="#76b900" stroke-width="1.6"/></svg><b>Tether</b><span class="sub" id="tagline">Sim-to-real calibration</span></a>
+  <nav class="tnav" aria-label="Tether">
     <a href="/" aria-current="page" id="n-home">Overview</a>
-    <a href="/console" id="n-console">Agent console</a>
     <a href="/studio" id="n-studio">Studio</a>
+    <a href="/console" id="n-console">Agent console</a>
   </nav>
-  <div class="status" id="status"><i></i><span>…</span></div>
-  <div class="lang" role="group" aria-label="Language"><button type="button" data-lang="en">EN</button><button type="button" data-lang="ko">KO</button></div>
+  <div class="tslot">
+    <div class="status" id="status"><i></i><span>…</span></div>
+    <div class="lang" role="group" aria-label="Language"><button type="button" data-lang="en">EN</button><button type="button" data-lang="ko">KO</button></div>
+  </div>
 </header>
 <main id="main"></main>
 <footer><div id="foot"></div><div class="stack" id="stack"></div></footer>
@@ -217,18 +183,18 @@ function tetherSvg() {
   const ySim = 70, yReal = 182;
   const rows = TETHER.map(([real, sim, cal, kmh], i) => {
     const s = calibrated ? cal : sim, off = Math.abs(s - real) > 0.4;
-    const col = calibrated ? "#76b900" : off ? "#d9a13b" : "#9ba3aa";
+    const col = calibrated ? "#76b900" : off ? "#d9a13b" : "#a3a3a3";
     return `<line class="tl" x1="${X(s)}" y1="${ySim + 9}" x2="${X(real)}" y2="${yReal - 9}" stroke="${col}" stroke-width="${calibrated ? 1.6 : 1.2}" stroke-dasharray="${calibrated ? "0" : "4 4"}"/>
-      <rect class="mk" x="${X(s) - 6}" y="${ySim - 7}" width="12" height="14" fill="${calibrated ? "#76b900" : "#69717a"}"/>
-      <rect x="${X(real) - 6}" y="${yReal - 7}" width="12" height="14" fill="#eceeef"/>
+      <rect class="mk" x="${X(s) - 6}" y="${ySim - 7}" width="12" height="14" fill="${calibrated ? "#76b900" : "#6e6e6e"}"/>
+      <rect x="${X(real) - 6}" y="${yReal - 7}" width="12" height="14" fill="#eeeeee"/>
       ${i === TETHER.length - 1 ? `<text x="${X(real) + 10}" y="${yReal + 4}">${kmh} km/h</text>` : ""}`;
   }).join("");
-  const ticks = [0, 2, 4, 6, 8, 10, 12, 14].map(t => `<line x1="${X(t)}" x2="${X(t)}" y1="${yReal + 16}" y2="${yReal + 21}" stroke="#2b3035"/><text x="${X(t)}" y="${yReal + 36}" text-anchor="middle">${t} m</text>`).join("");
+  const ticks = [0, 2, 4, 6, 8, 10, 12, 14].map(t => `<line x1="${X(t)}" x2="${X(t)}" y1="${yReal + 16}" y2="${yReal + 21}" stroke="#333333"/><text x="${X(t)}" y="${yReal + 36}" text-anchor="middle">${t} m</text>`).join("");
   const wet = `<rect x="${X(8.82)}" y="${yReal - 16}" width="${X(14.5) - X(8.82)}" height="32" fill="rgba(76,181,230,0.16)"/><text x="${X(8.82) + 6}" y="${yReal - 22}" style="fill:#4cb5e6">${T("wet from 8.8 m", "8.8 m 지점부터 젖은 노면")}</text>`;
   const last = TETHER[TETHER.length - 1], s = calibrated ? last[2] : last[1];
   const gap = `<text x="${X(s)}" y="${ySim - 18}" text-anchor="middle" style="fill:${calibrated ? "#76b900" : "#d9a13b"};font-family:var(--f-mono)">${calibrated ? T(`${s.toFixed(1)} m (real ${last[0].toFixed(1)})`, `${s.toFixed(1)} m (실제 ${last[0].toFixed(1)})`) : T(`${s.toFixed(1)} m, ${(last[0] - s).toFixed(1)} m short`, `${s.toFixed(1)} m, ${(last[0] - s).toFixed(1)} m 모자람`)}</text>`;
   return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${T("Simulated stops tethered to real stops", "시뮬레이터가 예측한 정지 위치와 실제 정지 위치")}">
-    <line x1="${x0}" x2="${x1}" y1="${ySim}" y2="${ySim}" stroke="#2b3035"/><line x1="${x0}" x2="${x1}" y1="${yReal}" y2="${yReal}" stroke="#2b3035"/>
+    <line x1="${x0}" x2="${x1}" y1="${ySim}" y2="${ySim}" stroke="#333333"/><line x1="${x0}" x2="${x1}" y1="${yReal}" y2="${yReal}" stroke="#333333"/>
     <text class="lab" x="0" y="${ySim + 4}">${T("SIM", "시뮬")}</text><text class="lab" x="0" y="${yReal + 4}">${T("REAL", "실제")}</text>
     ${wet}${rows}${gap}${ticks}</svg>`;
 }
@@ -272,11 +238,11 @@ function render() {
   <section>
     <h2 class="sec">${T("Results", "결과")}</h2>
     <div class="ev">
-      <div><span class="big num"><em>100%</em></span><p>${T("success after retraining on Tether's ranges (4 of 6 examples; before: 0–63%)", "Tether 범위로 재학습한 정책의 성공률 (예시 6개 중 4개, 보정 전 0~63%)")}</p></div>
-      <div><span class="big num"><em>6–9</em><small> mm</small></span><p>${T("stop error when the calibrated physics is replayed in NVIDIA Newton (before: 3–25 cm)", "보정값으로 NVIDIA Newton에서 재현한 정지 위치 오차 (보정 전 3~25 cm)")}</p></div>
-      <div><span class="big num"><em>92%</em></span><p>${T("of true values fall inside Tether's 90% intervals (24 random worlds)", "실제값이 Tether의 90% 신뢰 범위 안에 든 비율 (무작위 환경 24개)")}</p></div>
+      <div><span class="big num"><em>96–100%</em></span><p>${T("hidden-world success after retraining on Tether's ranges, in 5 of 6 examples (before: 0–63%)", "Tether 범위로 재학습한 정책의 숨겨진 환경 성공률, 예시 6개 중 5개 (보정 전 0~63%)")}</p></div>
+      <div><span class="big num"><em>89%</em></span><p>${T("success when the data comes from a different engine (MuJoCo, 24 worlds); the best domain randomization reaches 12%", "다른 물리 엔진(MuJoCo)이 만든 데이터로 보정했을 때의 성공률 (세계 24개, 가장 좋은 도메인 랜덤화는 12%)")}</p></div>
+      <div><span class="big num"><em>${T("4 of 5", "5개 중 4개")}</em></span><p>${T("real objects whose friction Tether recovers within ±0.05 of a separate tilt test, from 30 Hz video (EV-RealPhys benchmark)", "실제 물체 5개 중 4개: 따로 잰 기울기 시험 값과 ±0.05 이내 (30 Hz 영상, EV-RealPhys 벤치마크)")}</p></div>
     </div>
-    <p class="note">${T("All examples are synthetic NVIDIA Newton data, so the truth is known. `make prove` recomputes every number.", "모든 예시는 실제값을 아는 NVIDIA Newton 가상 데이터입니다. 모든 수치는 `make prove`로 다시 계산할 수 있습니다.")}</p>
+    <p class="note">${T("The first two use simulated worlds whose truth is known (NVIDIA Newton, and MuJoCo as a second engine); the third is a public real-world benchmark. `make prove` recomputes every number.", "앞의 두 수치는 실제값을 아는 가상 세계(NVIDIA Newton, 다른 엔진 MuJoCo), 세 번째는 공개 실제 데이터 벤치마크입니다. 모든 수치는 `make prove`로 다시 계산할 수 있습니다.")}</p>
   </section>`;
   $("#foot").textContent = "Tether · NVIDIA Newton · NVIDIA Nemotron on Nebius Token Factory";
   document.querySelectorAll("#ttog button").forEach(b => b.onclick = () => { calibrated = b.dataset.v === "cal"; renderTether(); });
@@ -286,7 +252,7 @@ function render() {
 let STATUS = {};
 function renderStack() {
   const on = STATUS.provider && STATUS.provider !== "none";
-  $("#stack").innerHTML = [["NVIDIA Newton", T("physics and rendering (Warp)", "물리 시뮬레이션·렌더링 (Warp)")], ["NVIDIA Nemotron 3 Super 120B", STATUS.recorded ? T("on Nebius Token Factory (recorded runs)", "Nebius Token Factory (실행 기록 재생)") : on ? T("live on Nebius Token Factory", "Nebius Token Factory 연결됨") : T("off on this server", "이 서버에서는 꺼져 있음")], ["NVIDIA Cosmos Reason 2", T("optional, local: tipped or not", "선택 사항, 로컬 실행: 넘어짐 판정")], ["Isaac Lab · CARLA", T("export targets", "내보내기 형식")]]
+  $("#stack").innerHTML = [["NVIDIA Newton", T("physics and rendering (Warp)", "물리 시뮬레이션·렌더링 (Warp)")], ["NVIDIA Nemotron 3 Super 120B", STATUS.recorded ? T("on Nebius Token Factory (recorded runs)", "Nebius Token Factory (실행 기록 재생)") : on ? T("live on Nebius Token Factory", "Nebius Token Factory 연결됨") : T("off on this server", "이 서버에서는 꺼져 있음")], ["NVIDIA NeMo Agent Toolkit", T("the agent as a workflow (nat run)", "AI 에이전트를 워크플로로 실행 (nat run)")], ["NVIDIA Cosmos Reason 2", T("optional, local: tipped or not", "선택 사항, 로컬 실행: 넘어짐 판정")], ["Isaac Lab · CARLA", T("export targets", "내보내기 형식")]]
     .map(([a, b]) => `<span><b>${a}</b> · ${b}</span>`).join("");
   const st = $("#status"); st.classList.toggle("off", !on);
   st.querySelector("span").textContent = STATUS.recorded ? T("Recorded runs: Nemotron 3 Super", "Nemotron 3 Super 실행 기록 재생")

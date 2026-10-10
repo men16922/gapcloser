@@ -1,8 +1,8 @@
 # Agent Brief
 
-Last Updated: 2026-10-09
+Last Updated: 2026-10-11
 
-> ▶ NEXT SESSION: Studio is built (video/log → calibrated sim with intervals, ghost boxes, next experiment, Newton/Isaac Lab export). Next: run a REAL phone video through `/studio`, publish the Studio artifact, then video v2 around Studio.
+> ▶ NEXT SESSION: S-level plan executed (`docs/plans/2026-10-11-s-level-plan.md`, section 8). Real-object validation done on EV-RealPhys. Next: demo video with ElevenLabs narration (`python -m video.make_video --voice elevenlabs`, add a real-benchmark scene), then commit/push when the user approves.
 
 ## Snapshot
 

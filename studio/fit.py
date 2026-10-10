@@ -295,7 +295,23 @@ def calibrate(session: Session, structure: list[str] | None = None, start: dict 
         structure = [f for f in structure if f not in ("patch_y0", "patch_mu")]
         model = _fit(wb, {**model, "patch_y0": None, "patch_mu": None}, structure)["fitted_model"]
         chosen_by = (chosen_by or "Nemotron agent") + f"; friction region past {reach:.2f} m dropped (no push measured it)"
+    # the tracks can show a friction change that the stop residuals alone do not (launch scatter hides it): add the
+    # region where the deceleration steps, refit, and keep whatever pattern is still left for the report
+    from studio import structure as patterns
+
+    found = patterns.check(session, to_params(model, base))
+    step = next((f for f in found["findings"] if f["kind"] == "position"), None)
+    if step and "patch_y0" not in structure and step["from_m"] <= reach - IDENT_MARGIN:
+        before = wb.residuals(to_params(model, base))["stop_residual_rms_m"]
+        trial_structure = structure + ["patch_y0", "patch_mu"]
+        trial = _fit(wb, {**model, "patch_y0": step["from_m"], "patch_mu": max(0.05, model["mu_eff"] + step["step"])},
+                     trial_structure)["fitted_model"]
+        if wb.residuals(to_params(trial, base))["stop_residual_rms_m"] <= before * 1.05:
+            structure, model = trial_structure, trial
+            chosen_by = (chosen_by or "Nemotron agent") + f"; friction region added at {step['from_m']:.2f} m (deceleration steps there)"
+            found = patterns.check(session, to_params(model, base))
     res = wb.residuals(to_params(model, base))
+    res["patterns"] = found
     ens = bootstrap(session, model, structure, n_boot) if n_boot else []
     iv = intervals(ens, structure)
     cal = to_params(model, base)

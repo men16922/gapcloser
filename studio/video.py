@@ -245,8 +245,9 @@ def auto_object(frames: list[np.ndarray], cam: PlaneCamera | None = None) -> tup
 
 def track(frames: list[np.ndarray], obj_px: tuple[float, float], box_px: int) -> tuple[np.ndarray, np.ndarray]:
     """Per-frame object centre (pixels) and match score: normalized cross-correlation against the first-frame
-    appearance at a few scales (the object shrinks as it slides away). Search near the last position at the
-    last scale and its neighbours; the whole frame only when that fails (the object was picked up and put back)."""
+    appearance at a few scales (the object shrinks as it slides away). Search where the object should be next
+    (last position plus last motion, the window growing with speed) at the last scale and its neighbours; the
+    whole frame only when that fails (the object was picked up and put back)."""
     cv2 = _cv2()
     x, y = obj_px
     r = max(8, box_px // 2)
@@ -304,9 +305,12 @@ def track(frames: list[np.ndarray], obj_px: tuple[float, float], box_px: int) ->
             return c
         return np.array([x0_ + ce[j][0], y0_ + ce[j][1]])
 
+    vel = np.zeros(2)  # pixels per frame: a fast slide moves farther than the window between two frames
     for k, fr in enumerate(frames):
         gray = fr
-        box = (int(max(0, prev[0] - win)), int(max(0, prev[1] - win)), int(min(w_img, prev[0] + win)), int(min(h_img, prev[1] + win)))
+        ctr = prev + vel
+        w = int(max(win, 1.5 * float(np.linalg.norm(vel)) + 2 * r))
+        box = (int(max(0, ctr[0] - w)), int(max(0, ctr[1] - w)), int(min(w_img, ctr[0] + w)), int(min(h_img, ctr[1] + w)))
         mv, c, i = search(gray, box, range(max(0, si - 2), min(len(scales), si + 3)))
         if mv < 0.6:
             g = search(gray, (0, 0, w_img, h_img), range(len(scales)))
@@ -317,6 +321,7 @@ def track(frames: list[np.ndarray], obj_px: tuple[float, float], box_px: int) ->
         if color is not None and mv > 0.45:
             c = refine(fr, c, scales[i])
         out[k], score[k] = c, mv
+        vel = (c - prev) if (k > 0 and mv > 0.5) else 0.5 * vel  # trust the motion only from confident matches
         prev, si = c, i
     return out, score
 
@@ -341,6 +346,23 @@ def launch_state(s: np.ndarray, r: int, e: int, fps: float, n: int = 6) -> tuple
     if c[2] < 0:  # accelerating fit (noise): fall back to a line
         c = np.append(np.linalg.lstsq(A[:, :2], np.asarray([s[k] for k in ks]), rcond=None)[0], 0.0)
     return float(c[0]), float(c[1])
+
+
+def implausible(track: list[float], fps: float, launch_mps: float | None = None) -> str | None:
+    """Why a tracked slide cannot be a slide (None if it can): it runs backwards, it jumps (a step change of speed
+    beyond 3 g between frames), or it stops far too soon for its launch speed (friction above 1.5): the tracker
+    lost or stuck on the object, not physics."""
+    s = np.asarray(track, float)
+    if len(s) < 4:
+        return None
+    if launch_mps and s[-1] > 0 and launch_mps ** 2 / (2 * 9.81 * s[-1]) > 1.5:
+        return "stops too soon for its speed"
+    if np.min(np.diff(s)) < -0.02:
+        return "runs backwards"
+    acc = np.abs(np.diff(s, 2)) * fps * fps
+    if (acc > 3 * 9.81).sum() >= 2:
+        return "jumps"
+    return None
 
 
 def segment(s: np.ndarray, fps: float) -> list[tuple[int, int]]:
@@ -407,6 +429,7 @@ def track_video(path: Path, corners_px, sheet: str = "a4", name: str | None = No
     prior = prior or {}
     origin = float(prior["origin_from_sheet_m"]) if "origin_from_sheet_m" in prior else float(np.median([s_abs[r] for r, _ in segs]))
     pushes, debug_pushes = [], []
+    lost = 0
     from agent.loop import fit_launch
 
     for i, (r, e) in enumerate(segs):
@@ -416,6 +439,9 @@ def track_video(path: Path, corners_px, sheet: str = "a4", name: str | None = No
         s0, v0 = launch_state(s_abs, r, e, fps)
         tr_native = [s0] + list(s_abs[r + 1:e + 1]) + [rest] * 3
         tr = resample([float(x - s0) for x in tr_native], fps)
+        if implausible(tr, 30.0, float(v0)):
+            lost += 1
+            continue
         start = float(s0 - origin)
         stop = rest - float(s0)
         pushes.append(Push(round(stop, 4), None, round(float(v0), 4), None, None, False, [round(x, 4) for x in tr], "video",
@@ -426,6 +452,8 @@ def track_video(path: Path, corners_px, sheet: str = "a4", name: str | None = No
     if not pushes:
         raise SessionError("pushes were found but the object was lost during them (occluded?)")
     notes = [f"camera recovered from the sheet: {cam.height_m:.2f} m above the table, focal {cam.f / scale:.0f} px"]
+    if lost:
+        notes.append(f"{lost} push(es) left out: the tracker lost the object while it moved")
     spread = max(abs(p.start) for p in pushes)
     if spread > 0.03:
         notes.append(f"release points spread over ±{spread * 100:.0f} cm; positions are measured from their median")

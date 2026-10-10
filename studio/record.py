@@ -25,8 +25,17 @@ def events(c, sid):
     return [json.loads(line[6:]) for line in body.splitlines() if line.startswith("data: ")]
 
 
+def stage_extras(c, sid) -> dict:
+    """Newton replay and retraining for the calibration on screen, so the shared page has no dead ends per take."""
+    verify = c.post(f"/api/studio/sessions/{sid}/verify").json()
+    c.post(f"/api/studio/sessions/{sid}/train")
+    while (tr := c.get(f"/api/studio/sessions/{sid}/train").json())["status"] == "running":
+        time.sleep(1)
+    return {"verify": verify, "training": tr.get("result")}
+
+
 def record(c, sample: dict, use_agent: bool) -> dict:
-    stages = []
+    stages, extras = [], []
     s = c.post("/api/studio/sessions", data={"sample": sample["id"]}).json()
     sid = s["id"]
     if sample["kind"] == "video":
@@ -39,19 +48,17 @@ def record(c, sample: dict, use_agent: bool) -> dict:
             ev = events(c, sid)
             st = c.get(f"/api/studio/sessions/{sid}").json()
             stages.append({"videos": len(st["videos"]), "session": st["session"], "events": ev, "result": st["result"]})
+            extras.append(stage_extras(c, sid))
     else:
         c.post(f"/api/studio/sessions/{sid}/analyze", json={"agent": use_agent})
         ev = events(c, sid)
         st = c.get(f"/api/studio/sessions/{sid}").json()
         stages.append({"videos": 0, "session": st["session"], "events": ev, "result": st["result"]})
-    verify = c.post(f"/api/studio/sessions/{sid}/verify").json()  # Newton replay of the final calibration
-    c.post(f"/api/studio/sessions/{sid}/train")  # retrain and test (parallel Newton worlds)
-    while (tr := c.get(f"/api/studio/sessions/{sid}/train").json())["status"] == "running":
-        time.sleep(1)
-    training = tr.get("result")
+        extras.append(stage_extras(c, sid))
     st = c.get(f"/api/studio/sessions/{sid}").json()
     truth = c.get(f"/api/studio/sessions/{sid}/truth").json()
-    return {"sample": sample, "sid": sid, "videos": st["videos"], "stages": stages, "truth": truth, "verify": verify, "training": training}
+    return {"sample": sample, "sid": sid, "videos": st["videos"], "stages": stages, "truth": truth,
+            "verify": extras[-1]["verify"], "training": extras[-1]["training"], "stage_extras": extras}
 
 
 def main() -> None:

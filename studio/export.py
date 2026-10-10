@@ -118,14 +118,37 @@ def isaaclab_snippet(session: Session, cal: Calibration) -> str:
     ]
     if session.has_commands and "actuator_gain" in cal.structure:
         glo, ghi = _iv(cal, "actuator_gain")
-        lines += ["", f"# Actuator ({w['actuator']}): real launch speed is {cal.model['actuator_gain']:.3f}x the command ({glo:.3f}-{ghi:.3f}).",
-                  "# Apply it as the action scale of the push primitive (e.g. JointVelocityActionCfg(scale=...)),",
-                  "# or randomize the scale over that interval in your action term."]
+        g = cal.model["actuator_gain"]
+        lines += ["", "",
+                  f"# {w['actuator'].capitalize()}: the real launch speed is {g:.3f}x the command (90% {glo:.3f}-{ghi:.3f}). It belongs",
+                  "# in the push action's scale (joint names: your robot's).",
+                  f"ACTUATOR_GAIN = {g:.4f}",
+                  "push_action = mdp.JointVelocityActionCfg(asset_name=\"robot\", joint_names=[\".*\"], scale=ACTUATOR_GAIN)"]
     if cal.model.get("patch_y0") is not None:
         m = _m(cal, d)
-        lines += ["", f"# {w['region'].capitalize()}: from y = {m['patch_y0']:.3f} m the pair slides at mu {m['patch_mu']:.3f}",
-                  "# (90% " + "{:.3f}-{:.3f}".format(*_iv(cal, "patch_mu", d)) + f"). Model it as a second {w['surface']} prim with",
-                  "# sim.RigidBodyMaterialCfg(static_friction=..., dynamic_friction=...) flush with the first."]
+        mu1, mu2 = m["mu_eff"], m["patch_mu"]
+        combine = "min" if mu2 < mu1 else "max"
+        ylo, yhi = _iv(cal, "patch_y0", d)
+        lines += ["", "",
+                  f"# {w['region'].capitalize()}: from y = {m['patch_y0']:.3f} m (90% {ylo:.3f}-{yhi:.3f}) the pair slides at mu {mu2:.3f}",
+                  "# (90% " + "{:.3f}-{:.3f}".format(*_iv(cal, "patch_mu", d)) + f"). A static {w['surface']} prim whose top is flush with the first;",
+                  "# shorten the first one so it ends at REGION_Y0 (overlapping coplanar surfaces leave PhysX two materials to pick from).",
+                  f"# Its combine mode '{combine}' outranks PhysX's default 'average', so the pair takes the region's value.",
+                  "import isaaclab.sim as sim_utils",
+                  "from isaaclab.assets import AssetBaseCfg",
+                  "",
+                  f"REGION_Y0 = {m['patch_y0']:.4f}  # m along the push axis from the launch point",
+                  "SURFACE_TOP_Z = 0.0  # set to your table top height",
+                  "calibrated_region = AssetBaseCfg(",
+                  "    prim_path=\"{ENV_REGEX_NS}/CalibratedRegion\",",
+                  "    spawn=sim_utils.CuboidCfg(",
+                  f"        size=(0.4, {max(1.0, 2.0 * d.scale):.1f}, 0.002),  # across the path, along it from REGION_Y0, thin",
+                  "        collision_props=sim_utils.CollisionPropertiesCfg(),",
+                  f"        physics_material=sim_utils.RigidBodyMaterialCfg(static_friction={mu2:.4f}, dynamic_friction={mu2:.4f},",
+                  f"                                                        friction_combine_mode=\"{combine}\"),",
+                  "    ),",
+                  f"    init_state=AssetBaseCfg.InitialStateCfg(pos=(0.0, REGION_Y0 + {max(1.0, 2.0 * d.scale) / 2:.1f}, SURFACE_TOP_Z - 0.001)),",
+                  ")"]
     return "\n".join(lines) + "\n"
 
 
