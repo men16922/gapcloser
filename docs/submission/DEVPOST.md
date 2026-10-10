@@ -106,6 +106,13 @@ world whose physics the agent cannot see, let Nemotron investigate, fix the simu
   compression; automatic corners, tracking and fit end to end): 11 of 11 pushes found in both; launch speed reads
   0.8% low clean and 6.5% low on the bad video; on the bad video the intervals widen to cover the truth instead of
   narrowing around a wrong value (3/3 inside), on the clean one the region friction misses its interval by 0.004.
+- **Real footage** (52 public iPhone slow-motion clips of objects sliding to a stop on six real surfaces, with
+  dynamometer friction; IDPP real split, Apache-2.0; `python -m eval.real_friction --download`): Tether's tracker
+  follows 45 of them, and constant deceleration (the Coulomb sliding Tether fits) explains each slide with median
+  R² 0.9985. The clips have no size reference and no stated slow-motion factor, so friction itself is only known up
+  to one constant per object and camera: calibrated on the other surfaces, the predictions correlate with the
+  dynamometer (r 0.70) but are not more accurate than guessing the mean (MAE 0.068 vs 0.058). That is the reason
+  Studio asks for a sheet of known size and the frame rate.
 - **Next experiment:** reaching 95% real success takes 5.8 real runs with Tether's suggestions vs 7.6 random, about
   the same as a well-designed manual sweep (5.9).
 
@@ -141,8 +148,8 @@ world whose physics the agent cannot see, let Nemotron investigate, fix the simu
 
 ## Limits we state plainly
 
-- All data so far is synthetic (Newton-rendered video and Newton logs) so the truth can be revealed. A real phone video
-  goes through the same path but has not been validated yet.
+- The calibration results are on synthetic data (Newton-rendered video and Newton logs) so the truth can be revealed.
+  On real footage we validated the tracker and the sliding model, not yet a full calibration with a reference sheet.
 - The physics is one family: launched, sliding to a stop. No grasping, steering or lane changes.
 - The CARLA export was checked against CARLA 0.9.16's documented API and run against a stand-in module, not inside
   CARLA itself. GR00T is not used.

@@ -45,6 +45,9 @@ studio-record:
 	$(PY) -m dashboard.build
 
 # active vs passive data collection: real pushes needed to reach 95% (analytic, 50 worlds, ~30 s)
+real-check:  # public real footage (IDPP, ~310 MB download): tracker + sliding model on 52 real clips
+	$(PY) -m eval.real_friction --download
+
 prove:  # recompute every headline number (no network, ~5 min) -> runs/proof/PROOF.md
 	$(PY) -m eval.prove
 
