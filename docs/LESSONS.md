@@ -1,6 +1,6 @@
 # Lessons
 
-Last Updated: 2026-10-09
+Last Updated: 2026-10-11
 
 Repo-specific facts an agent learned the hard way, one per line, newest first. Read before
 starting work; append when a blocker, gate failure, or repair taught you something the docs did
@@ -18,7 +18,7 @@ decisions with rationale (`docs/DECISIONS.md`).
 
 ## Entries
 
-- 2026-10-09 nebius: the Token Factory key is a service account in an `aiproject` and cannot create cloud resources; VMs need `nebius profile create` (browser login), billing details saved (before that every create is PermissionDenied, even for admins), and a region with non-GPU vCPU quota (eu-north1/us-central1 had 0; eu-west1 200). Applies to: deploy/nebius_vm.sh.
+- 2026-10-11 deploy: Hugging Face Docker Spaces need PRO since 2026 (create_repo → 402); Cloud Run works but needs --no-cpu-throttling (retraining runs between polls) and max 1 instance (sessions in memory); retraining takes ~170 s there vs ~36 s on the Mac (single-threaded Warp CPU, more vCPU won't help).
 - 2026-10-09 docker: the VM's legacy builder makes `COPY --chown` parent dirs root-owned (runs/), the app then crashes on mkdir; BuildKit on the Mac hid it. Applies to: Dockerfile.
 
 - 2026-10-09 intervals: a bootstrap over pushes alone gave video intervals that excluded the truth (systematic tracking/scale error is shared by all pushes); each replicate now redraws scale/speed error too. Applies to: studio/fit.py bootstrap.
