@@ -1,11 +1,6 @@
-scripts/overnight/logs/
-scripts/overnight/STOP
-scripts/overnight/DONE
-docs/test/history/*-overnight-review-checklist.md
 .venv/
 __pycache__/
 .env
-spike/out/
 runs/live/
 runs/*.log
 runs/*.md

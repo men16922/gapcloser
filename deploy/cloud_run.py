@@ -12,6 +12,7 @@ Needs gcloud logged in with a project that has billing on. Run:
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import subprocess
 import tarfile
@@ -68,8 +69,10 @@ def main() -> None:
                         "--execution-environment", "gen2", "--set-secrets", f"NEBIUS_API_KEY={SECRET}:latest",
                         "--set-env-vars", "TETHER_MAX_SESSIONS=20", "--quiet"],
                        check=True, env={**os.environ, "CLOUDSDK_BUILDS_TIMEOUT": "1800"})
-    url = gcloud("run", "services", "describe", SERVICE, "--project", a.project, "--region", a.region,
-                 "--format=value(status.url)", check=False).stdout.strip()
+    d = json.loads(gcloud("run", "services", "describe", SERVICE, "--project", a.project, "--region", a.region,
+                          "--format=json", check=False).stdout or "{}")
+    urls = json.loads(d.get("metadata", {}).get("annotations", {}).get("run.googleapis.com/urls", "[]"))
+    url = urls[0] if urls else d.get("status", {}).get("url", "")
     print(f"live: {url}  (studio: {url}/studio, console: {url}/console)")
 
 

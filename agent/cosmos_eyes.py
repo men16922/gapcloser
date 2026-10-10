@@ -3,7 +3,7 @@
 Built on NVIDIA Cosmos. The model (`nvidia/Cosmos-Reason2-8B`, NVIDIA Open Model License) runs locally in
 llama.cpp's `llama-server` (community Q4_K_M GGUF + vision projector, see README "Cosmos eyes"). No paid API.
 
-Best config from spike/cosmos (25/26 tuning, 20/20 demo, 24/32 held-out): track the cube with a small blob
+Best config from early tuning (25/26 tuning, 20/20 demo, 24/32 held-out): track the cube with a small blob
 tracker, send 8 time-sampled 448 px close-up crops, ask *per frame* "is the cube tilted?" (no <think>,
 temperature 0), and build events in code: `slid` at the first moving frame, `tipped` at the first tilted
 frame. Tip recall on held-out clips was only 6/12 (false tips are rare), so this never replaces the Newton

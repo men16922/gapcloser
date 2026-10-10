@@ -21,7 +21,8 @@ Built for the Nebius × NVIDIA Global AI Hackathon (Physical AI track). Runs on 
   Toolkit** workflow (`integrations/nat_tether`)
 - Eyes: **NVIDIA Cosmos Reason 2**, running locally (optional)
 
-`make serve`, then open:
+**Live demo:** https://tether-454741001655.us-central1.run.app (Studio at `/studio`, agent console at `/console`; the first visit after an idle spell takes about 15 s to start).
+Locally: `make serve`, then open:
 
 | URL | Page |
 |---|---|
@@ -45,7 +46,7 @@ flowchart LR
 
 Plain-Korean guides live in `reference/`. Submission text: `docs/submission/DEVPOST.md`.
 `make prove` recomputes every headline number offline in about five minutes (`runs/proof/PROOF.md`);
-`make video` rebuilds the demo video (needs `make serve`).
+`make film` rebuilds the demo film (`video/out/tether_film.mp4`).
 
 ## Tether Studio: calibrate from your own data
 
@@ -287,20 +288,19 @@ make replays          # 3D viewer data only: per-frame Newton poses for the reco
 
 The dashboard's main visual is a three.js 3D replay of each measured push: per-frame cube and Franka FR3 link poses recorded from NVIDIA Newton, the hidden-physics cube solid and the agent's sim cube as a ghost (or split view), with orbit, scrub, speed, a lane close-up and the stop error vs the target line. three.js and the decimated Franka meshes are inlined, so the standalone page works offline; the WebP camera clips remain as a fallback.
 
-Live demo server (visitors hide physics and watch the agent):
+Live server (the same image runs the public demo on Google Cloud Run):
 
 ```bash
 make serve                      # http://localhost:8000, add TETHER_LLM=local|tokenfactory|none
 make docker && docker run --rm -p 7860:7860 -e NEBIUS_API_KEY=$NEBIUS_API_KEY tether
 ```
 
-Deployment to Hugging Face Spaces (free), a Nebius CPU VM, or GitHub Pages: [docs/deploy/DEPLOY.md](docs/deploy/DEPLOY.md).
+Public deployment on Google Cloud Run: `make deploy` ([docs/deploy/DEPLOY.md](docs/deploy/DEPLOY.md)).
 
-Static page and demo video:
+Demo film:
 
 ```bash
-make site     # site/index.html, self-contained (recorded runs + clips)
-make video    # video/out/tether_demo.mp4: page captures, Newton rollout and montage, narration (needs make serve, Chrome, ffmpeg, macOS say)
+make film     # video/out/tether_film.mp4: motion graphics in headless Chrome, ElevenLabs narration, generated music (needs make serve, ffmpeg)
 ```
 
 Benchmarks:
@@ -328,8 +328,8 @@ Model ids are resolved at runtime from the provider's model list, so no id is ha
 Built on NVIDIA Cosmos. `agent/cosmos_eyes.py` asks **NVIDIA Cosmos Reason 2 8B** what happened in each real clip
 (`slid 0.17 s → tipped 0.69 s`). It runs locally in llama.cpp at no cost, takes about 4 to 6 s per clip on an M4 Max, and uses about 9 GB of unified memory.
 The pipeline tracks the cube, sends 8 close-up crops, asks per frame "is the cube tilted?" at temperature 0 with no `<think>`, and
-builds the events in code. Cosmos is a **second opinion** next to Newton's `tipped` flag and never replaces it. In the spike
-([spike/cosmos/README.md](spike/cosmos/README.md)) it scored 88% slid-vs-tipped overall, but held-out tip recall was only 6/12, and it almost never reports a false tip.
+builds the events in code. Cosmos is a **second opinion** next to Newton's `tipped` flag and never replaces it. In tuning
+it scored 88% slid-vs-tipped overall, but held-out tip recall was only 6/12, and it almost never reports a false tip.
 On the 21 real clips in `runs/demo` it agrees with the physics flag 21/21 (5/5 tips, 0 false tips).
 
 ```bash
@@ -370,8 +370,8 @@ only, no weights redistributed).
 | `runs/bench/` | recorded Gap-Bench results (Token Factory) |
 | `dashboard/` | agent console (template + builder; static and live variants), three.js 3D replay viewer, `assets/` (vendored three.js r160, decimated Franka FR3 meshes) |
 | `server/app.py` | live server: FastAPI, SSE event stream, cost guards |
-| `Dockerfile`, `deploy/`, `docs/deploy/` | container and deployment guides |
-| `video/make_video.py` | demo video builder (numbers in the narration come from the recorded bundle) |
+| `Dockerfile`, `deploy/cloud_run.py`, `docs/deploy/` | container and the Cloud Run deployment |
+| `video/film.py`, `video/stage.html` | demo film: scenes drawn in a browser stage, narration, music (numbers read from `runs/`) |
 | `docs/` | plan, status, decisions, setup, design reference, submission drafts |
 
 ## Credits

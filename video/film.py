@@ -1,10 +1,10 @@
-"""Tether demo film (v3): motion graphics drawn in a browser stage (video/v3/stage.html), captured frame by frame
+"""Tether demo film: motion graphics drawn in a browser stage (video/stage.html), captured frame by frame
 with headless Chrome, narrated (ElevenLabs from .env, or macOS say), over a soft generated music bed that ducks
 under the voice. Every number comes from runs/proof/*.json and the recorded Studio sessions.
 
 Needs: Google Chrome, ffmpeg, the EV-RealPhys clips (make real-benchmark) and the Newton renders
 (python -m studio.rollout_video brake-log; python -m studio.train_montage brake-log).
-Run: .venv/bin/python -m video.v3.render [--voice elevenlabs|say] [--only scene]   -> video/out/tether_film.mp4
+Run: .venv/bin/python -m video.film [--voice elevenlabs|say] [--only scene]   -> video/out/tether_film.mp4
 """
 
 from __future__ import annotations
@@ -24,9 +24,10 @@ from pathlib import Path
 
 import numpy as np
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "video" / "out"
-WORK = OUT / "v3"
+WORK = OUT / "film"
+TTS_CACHE = OUT / "tts-cache"  # ElevenLabs audio per sentence, so a rebuild does not spend credits twice
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 FPS = 30
 SR = 44100
@@ -141,11 +142,44 @@ def build_data() -> dict:
 
 
 # ------------------------------------------------------------------ narration and music
-def narrate(text: str, out: Path, voice: str) -> float:
-    import video.make_video as mv
+def _elevenlabs(text: str, out: Path) -> None:
+    import hashlib
+    import os
 
-    mv.NARRATOR = voice
-    return mv.tts(text, out)
+    from agent.llm import load_dotenv
+
+    load_dotenv()
+    key = os.environ.get("ELEVENLAB_API_KEY") or os.environ.get("ELEVENLABS_API_KEY")
+    actor = os.environ.get("ELEVENLAB_ACTOR") or os.environ.get("ELVENLAB_ACTOR") or os.environ.get("ELEVENLABS_VOICE")
+    if not key or not actor:
+        raise SystemExit("ElevenLabs narration needs ELEVENLAB_API_KEY and ELEVENLAB_ACTOR (voice id or name) in .env")
+    TTS_CACHE.mkdir(parents=True, exist_ok=True)
+    cached = TTS_CACHE / (hashlib.sha256(f"{actor}|{text}".encode()).hexdigest()[:20] + ".mp3")
+    if not cached.exists():
+        voice = actor
+        if not (len(actor) >= 16 and actor.isalnum()):  # a name: look its id up
+            req = urllib.request.Request("https://api.elevenlabs.io/v1/voices", headers={"xi-api-key": key})
+            voices = json.loads(urllib.request.urlopen(req, timeout=60).read())["voices"]
+            voice = next((v["voice_id"] for v in voices if v["name"].lower() == actor.lower()), None)
+            if voice is None:
+                raise SystemExit(f"no ElevenLabs voice named {actor!r} on this account")
+        body = json.dumps({"text": text, "model_id": "eleven_multilingual_v2",
+                           "voice_settings": {"stability": 0.5, "similarity_boost": 0.75}}).encode()
+        req = urllib.request.Request(f"https://api.elevenlabs.io/v1/text-to-speech/{voice}", data=body, method="POST",
+                                     headers={"xi-api-key": key, "Content-Type": "application/json", "Accept": "audio/mpeg"})
+        cached.write_bytes(urllib.request.urlopen(req, timeout=120).read())
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(cached), str(out)], check=True)
+
+
+def narrate(text: str, out: Path, voice: str) -> float:
+    """One narration line to audio (ElevenLabs, cached; or macOS say) -> its length in seconds."""
+    if voice == "elevenlabs":
+        _elevenlabs(text, out)
+    else:
+        subprocess.run(["say", "-v", "Samantha", "-r", "178", "-o", str(out), text], check=True)
+    r = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(out)],
+                       check=True, capture_output=True, text=True)
+    return float(r.stdout.strip())
 
 
 def to_wav(src: Path, dst: Path) -> None:

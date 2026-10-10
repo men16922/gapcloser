@@ -2,7 +2,7 @@
 
 Last Updated: 2026-10-11
 
-> ▶ NEXT SESSION: S-level plan executed (`docs/plans/2026-10-11-s-level-plan.md`, section 8). Real-object validation done on EV-RealPhys. Next: demo video with ElevenLabs narration (`python -m video.make_video --voice elevenlabs`, add a real-benchmark scene), then commit/push when the user approves.
+> ▶ NEXT SESSION: S-level plan executed (`docs/plans/2026-10-11-s-level-plan.md`, section 8). Live demo on Cloud Run (https://tether-454741001655.us-central1.run.app, `make deploy`). Demo film done (`make film`). Next: the user's film feedback, then Devpost (video upload and submission are the user's).
 
 ## Snapshot
 

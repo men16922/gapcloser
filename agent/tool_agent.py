@@ -1,7 +1,7 @@
 """Nemotron as a tool-using scientist: inspect evidence, hypothesize a simulator model, fit it, run
 probe experiments on the real robot when the data cannot decide, then commit.
 
-Division of labor (found in spike/tool_agent_spike.py): the LLM chooses the *structure* of the model
+Division of labor (found in early experiments): the LLM chooses the *structure* of the model
 (which effects exist: global friction, actuator gain, a table region with different friction, camera
 offset/pitch, lens distortion) and which experiments to run; `fit_hypothesis` fits the numbers by
 least squares against every real measurement. Fitting uses the analytic surrogate (matches NVIDIA Newton

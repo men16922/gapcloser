@@ -1,10 +1,10 @@
 # Status
 
-Last Updated: 2026-10-09
+Last Updated: 2026-10-11
 
 ## Current Baseline
 
-- **Nebius AI Cloud deployment verified then taken down (2026-10-09, user request):** `deploy/nebius_vm.sh` brings it back (eu-west1, cpu-d3 2vCPU/8GB, ~10 min incl. image build, ~$0.06/h). No instances, disks or IPs left. eu-north1 and us-central1 have 0 non-GPU vCPU quota on this tenant.
+- **Public live demo (2026-10-11): Google Cloud Run** https://tether-454741001655.us-central1.run.app (`make deploy`: Cloud Build from committed files, key in Secret Manager, max 1 instance, scales to zero). Verified: pages, Nemotron analysis 42 s, Ask 2 s, video tracking 30 s, retraining 169 s. Hugging Face Docker Spaces now need PRO (402); GitHub Pages rolled back (static only).
 - **Three domains (2026-10-09):** robot manipulation, autonomous vehicles (car braking to a stop line, wet/icy section, speed control, front camera; Froude-scaled 1:25, full-size units on the page and exports, CARLA export), factory inspection (pusher, oily rail, inspection camera). Same physics and pipeline; `studio/domains.py`, tabs on the Studio data step, samples `stop-line` and `press-line`. Details: `reference/05_세가지_업무.md`.
 - **Studio simulation mode:** no video needed. The visitor sets the hidden table (friction, a region of different friction, robot motor/camera for logs), NVIDIA Newton renders a phone video or writes a robot log (`POST /api/studio/simulate`), the Studio diagnoses it blind, "Run these pushes in NVIDIA Newton" executes the next experiment in the same world (`/simulate-more`), and the visitor's settings are revealed as truth.
 
@@ -25,7 +25,7 @@ Last Updated: 2026-10-09
 - Agent: LLMDiagnoser (Nemotron) → fallback TrajectoryDiagnoser; HeuristicPlanner applies estimates. Tipped trials excluded from fits.
 - Benchmark (Newton, 10 worlds): full DR 18% / nominal 24% / outcome-only 89% / tracking 94%; Nemotron 30B 99% (run 1) / 93% (run 2), P 0.89/0.94, R 1.00.
 - Live server: `make serve` / Docker image (CPU) — verified with Token Factory in a container; deploy guide `docs/deploy/DEPLOY.md`.
-- Submission assets: `make site` (static page), `make video` (1080p draft, ~110 s), fresh-clone reproduction verified.
+- Submission assets: demo film `make film` → `video/out/tether_film.mp4` (2:00, ElevenLabs narration), fresh-clone reproduction verified.
 - Demo: console scenarios recorded with Nemotron 3 Super; dashboard v3 https://claude.ai/artifact/WVBNfVMAzeNg71kDSFqYAf.
 
 ## Active Focus

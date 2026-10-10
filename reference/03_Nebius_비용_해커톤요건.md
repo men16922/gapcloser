@@ -31,16 +31,9 @@
 - 환불 가능 여부와 기간은 Nebius 정책에 따릅니다. 가능 여부는 확인되지 않았습니다.
 - **2026-10-10 00:16 환불 요청 제출:** 티켓 P282039303 (Billing → Refunds, "Refund request for unused prepaid balance ($24.62)", 상태 Open). 진행 상황은 콘솔 Support center에서 확인합니다.
 
-## 다시 배포할 때
+## 공개 배포
 
-```bash
-deploy/nebius_vm.sh        # eu-west1에 VM 생성, 코드 복사, Docker 빌드, 80번 포트로 실행 (약 10분)
-~/.nebius/bin/nebius compute instance delete --id <instance-id>     # 사용 후 반드시 삭제
-```
-
-- 비용은 시간당 약 $0.07입니다 (2 vCPU / 8 GB 기준).
-- eu-north1, us-central1은 일반 CPU 할당량이 0이라 사용할 수 없습니다. 스크립트 기본값은 eu-west1입니다.
-- `.env`의 `NEBIUS_API_KEY`는 Token Factory 전용 키라 VM 생성 권한이 없습니다. VM 생성에는 `nebius profile create`로 로그인한 계정을 사용합니다.
+공개 데모는 Google Cloud Run에서 운영합니다(`make deploy`, 자세한 내용은 `docs/deploy/DEPLOY.md`). Nebius VM 배포는 쓰지 않습니다.
 
 ## Token Factory 사용량
 
