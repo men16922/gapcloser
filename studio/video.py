@@ -186,11 +186,15 @@ def detect_sheet(frame: np.ndarray) -> np.ndarray | None:
         contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         for c in contours:
             area = cv2.contourArea(c)
-            if not 0.004 * w * h < area < 0.5 * w * h:
+            if not 0.012 * w * h < area < 0.5 * w * h:  # a sheet in view of a phone is a few % of the frame
                 continue
             quad = cv2.approxPolyDP(c, 0.03 * cv2.arcLength(c, True), True)
             if len(quad) != 4 or not cv2.isContourConvex(quad):
                 continue
+            pts = quad.reshape(4, 2)
+            mx, my = 0.015 * w, 0.015 * h
+            if (pts[:, 0] <= mx).any() or (pts[:, 1] <= my).any() or (pts[:, 0] >= w - mx).any() or (pts[:, 1] >= h - my).any():
+                continue  # cut by the frame edge: a wall or a window, not a sheet lying in view
             fill = area / max(cv2.contourArea(cv2.convexHull(c)), 1.0)
             m = np.zeros((h, w), np.uint8)
             cv2.drawContours(m, [quad], -1, 1, -1)
