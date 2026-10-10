@@ -1,6 +1,6 @@
 """LLM access for the agent: OpenAI-compatible providers + offline replay.
 
-Providers (GAPCLOSER_LLM): "local" = Ollama on this Mac (NVIDIA Nemotron 3 Nano, free, for
+Providers (TETHER_LLM): "local" = Ollama on this Mac (NVIDIA Nemotron 3 Nano, free, for
 experiments); "tokenfactory" = Nebius Token Factory (required for the submission). Model ids are
 resolved at runtime from a hint (e.g. "nemotron super") by listing the provider's models. RecordedLLM replays saved responses so tests and the
 offline gate never touch the network or spend credits. RecordingLLM wraps a live LLM and saves
@@ -16,6 +16,7 @@ import os
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Protocol
+from sim.settings import setting
 
 def load_dotenv(path: Path | None = None) -> None:
     """Read KEY=VALUE lines from the repo's .env into os.environ (existing variables win)."""
@@ -42,9 +43,9 @@ PROVIDER_HINTS = {
     "local": {"diagnose": "nemotron nano 30b", "summarize": "nemotron nano 4b", "vision": "nemotron nano 30b"},
 }
 DEFAULT_HINTS = {
-    "diagnose": os.environ.get("GAPCLOSER_DIAG_MODEL", PROVIDER_HINTS["tokenfactory"]["diagnose"]),
-    "summarize": os.environ.get("GAPCLOSER_NANO_MODEL", PROVIDER_HINTS["tokenfactory"]["summarize"]),
-    "vision": os.environ.get("GAPCLOSER_VISION_MODEL", PROVIDER_HINTS["tokenfactory"]["vision"]),
+    "diagnose": setting("DIAG_MODEL", PROVIDER_HINTS["tokenfactory"]["diagnose"]),
+    "summarize": setting("NANO_MODEL", PROVIDER_HINTS["tokenfactory"]["summarize"]),
+    "vision": setting("VISION_MODEL", PROVIDER_HINTS["tokenfactory"]["vision"]),
 }
 
 
@@ -170,7 +171,7 @@ TokenFactoryLLM = OpenAICompatLLM.tokenfactory
 
 
 def make_llm(provider: str | None = None) -> OpenAICompatLLM:
-    provider = provider or os.environ.get("GAPCLOSER_LLM", "local")
+    provider = provider or setting("LLM", "local")
     if provider == "local":
         return OpenAICompatLLM.local()
     if provider == "tokenfactory":

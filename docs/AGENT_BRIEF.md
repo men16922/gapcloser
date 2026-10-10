@@ -30,7 +30,7 @@ Authority: `docs/NEXT_PLAN.md`.
 - Gap-Bench: `.venv/bin/python -m eval.open_bench --worlds 6 [--env newton] [--llm tokenfactory]`
 - Open scenarios: `.venv/bin/python -m eval.record_demo --open-only --llm tokenfactory`
 - Studio: `make serve` → http://localhost:8000/studio; CLI `python -m studio calibrate LOG.csv | video CLIP.mp4 --corners ...`; `make studio-samples`, `make studio-record`, `make studio-bench`
-- Demo + dashboard: `make demo` → `dashboard/dist/gapcloser.standalone.html` (artifact: https://claude.ai/artifact/WVBNfVMAzeNg71kDSFqYAf)
+- Demo + dashboard: `make demo` → `dashboard/dist/console.standalone.html` (artifact: https://claude.ai/artifact/WVBNfVMAzeNg71kDSFqYAf)
 
 ## Guardrails
 

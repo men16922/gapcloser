@@ -1,7 +1,7 @@
 """Build a self-contained dashboard: inline runs/demo/bundle.json, its clips (data URIs) and 3D replays.
 
 The 3D viewer's three.js build (vendored, MIT) and the decimated Franka FR3 meshes are inlined too, so the
-standalone page works offline. Run: .venv/bin/python -m dashboard.build  ->  dashboard/dist/gapcloser.html
+standalone page works offline. Run: .venv/bin/python -m dashboard.build  ->  dashboard/dist/console.html
 """
 
 from __future__ import annotations
@@ -11,6 +11,7 @@ import base64
 import json
 import os
 from pathlib import Path
+from sim.settings import setting
 
 HERE = Path(__file__).parent
 ASSETS = HERE / "assets"
@@ -42,9 +43,9 @@ def _template(bundle_json: str) -> str:
     franka = FRANKA.read_text() if FRANKA.exists() else "null"
     tpl = tpl.replace("/*__THREE__*/", _script_safe(three), 1)
     tpl = tpl.replace('"__FRANKA__"', _script_safe(franka), 1)
-    studio = "/studio" if bundle_json == "null" else os.environ.get("GAPCLOSER_STUDIO_URL", "")
+    studio = "/studio" if bundle_json == "null" else setting("STUDIO_URL", "")
     tpl = tpl.replace("__STUDIO_URL__", studio, 1)
-    tpl = tpl.replace("__HOME_URL__", "/" if bundle_json == "null" else os.environ.get("GAPCLOSER_HOME_URL", ""))
+    tpl = tpl.replace("__HOME_URL__", "/" if bundle_json == "null" else setting("HOME_URL", ""))
     return tpl.replace('"__BUNDLE__"', bundle_json, 1)
 
 
@@ -93,7 +94,7 @@ def build_studio(rec_dir: Path = STUDIO_REC, out_dir: Path = HERE / "dist", cons
     out_dir.mkdir(parents=True, exist_ok=True)
     live = out_dir / "studio.live.html"
     live.write_text(tpl.replace("__HOME_URL__", "/"))
-    tpl = tpl.replace("__HOME_URL__", os.environ.get("GAPCLOSER_HOME_URL", ""))  # the published overview, if any
+    tpl = tpl.replace("__HOME_URL__", setting("HOME_URL", ""))  # the published overview, if any
     outs = [live]
     from server.studio_session import SAMPLES
 
@@ -112,7 +113,7 @@ def build_studio(rec_dir: Path = STUDIO_REC, out_dir: Path = HERE / "dist", cons
                 st["result"].pop("session", None)
     model = next((r["stages"][-1]["result"]["agent"]["model_name"] for r in recs
                   if (r["stages"][-1]["result"] or {}).get("agent")), None)
-    console_url = console_url or os.environ.get("GAPCLOSER_CONSOLE_URL")
+    console_url = console_url or setting("CONSOLE_URL")
     data = {"samples": recs, "media": media, "model": model, "provider": "tokenfactory", "console_url": console_url}
     html = tpl.replace("/*__STUDIO_DATA__*/null", _script_safe(json.dumps(data, separators=(",", ":"))), 1)
     sa = out_dir / "studio.standalone.html"
@@ -131,8 +132,8 @@ def build_studio(rec_dir: Path = STUDIO_REC, out_dir: Path = HERE / "dist", cons
 
 def build_home(out_dir: Path = HERE / "dist") -> list[Path]:
     """Overview as a shared page: Newton stills inlined, links to the published Console and Studio (env
-    GAPCLOSER_CONSOLE_URL / GAPCLOSER_STUDIO_URL). Without both links there is nothing to point at; skipped."""
-    console, studio = os.environ.get("GAPCLOSER_CONSOLE_URL"), os.environ.get("GAPCLOSER_STUDIO_URL")
+    TETHER_CONSOLE_URL / TETHER_STUDIO_URL). Without both links there is nothing to point at; skipped."""
+    console, studio = setting("CONSOLE_URL"), setting("STUDIO_URL")
     if not (console and studio):
         return []
     from studio.video import first_frame_jpeg
@@ -155,9 +156,9 @@ def build_home(out_dir: Path = HERE / "dist") -> list[Path]:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--bundle", type=Path, default=Path("runs/demo/bundle.json"))
-    ap.add_argument("--out", type=Path, default=HERE / "dist" / "gapcloser.html")
+    ap.add_argument("--out", type=Path, default=HERE / "dist" / "console.html")
     a = ap.parse_args()
-    live = build_live(a.out.with_name("gapcloser.live.html"))
+    live = build_live(a.out.with_name("console.live.html"))
     print(f"wrote {live}")
     for p in build_studio() + build_home():
         print(f"wrote {p} ({p.stat().st_size / 1e6:.2f} MB)")

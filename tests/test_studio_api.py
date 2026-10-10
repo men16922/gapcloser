@@ -3,7 +3,7 @@ import os
 
 import pytest
 
-os.environ["GAPCLOSER_NO_AUTOAPP"] = "1"
+os.environ["TETHER_NO_AUTOAPP"] = "1"
 
 from fastapi.testclient import TestClient  # noqa: E402
 
@@ -13,7 +13,7 @@ from server.studio_api import SAMPLE_DIR  # noqa: E402
 
 def client(tmp_path):
     (tmp_path / "demo").mkdir(parents=True, exist_ok=True)
-    os.environ["GAPCLOSER_LLM"] = "none"
+    os.environ["TETHER_LLM"] = "none"
     return TestClient(create_app(llm=None, env_name="analytic", render=False, data_dir=tmp_path))
 
 
@@ -133,7 +133,7 @@ def test_chat_is_grounded_in_the_session_and_answers_in_the_chosen_language(tmp_
 def test_chat_without_llm_says_how_to_enable_it(tmp_path):
     c = client(tmp_path)
     r = c.post("/api/studio/chat", json={"messages": [{"role": "user", "content": "hello"}]})
-    assert r.status_code == 503 and "GAPCLOSER_LLM" in r.json()["detail"]
+    assert r.status_code == 503 and "TETHER_LLM" in r.json()["detail"]
 
 
 def test_domains_label_the_same_physics_and_driving_exports_carla(tmp_path):

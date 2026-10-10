@@ -281,7 +281,7 @@ The closed-world scenarios (slippery cube, shifted camera, sticky table, weak mo
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt pytest httpx
 make check            # offline gate: 99 tests, no network, no credits
 make demo             # record 5 Newton scenarios + build the dashboard (~30 s; add --llm local via eval.record_demo for Nemotron)
-open dashboard/dist/gapcloser.standalone.html
+open dashboard/dist/console.standalone.html
 make replays          # 3D viewer data only: per-frame Newton poses for the recorded bundle (no LLM)
 ```
 
@@ -290,8 +290,8 @@ The dashboard's main visual is a three.js 3D replay of each measured push: per-f
 Live demo server (visitors hide physics and watch the agent):
 
 ```bash
-make serve                      # http://localhost:8000, add GAPCLOSER_LLM=local|tokenfactory|none
-make docker && docker run --rm -p 7860:7860 -e NEBIUS_API_KEY=$NEBIUS_API_KEY gapcloser
+make serve                      # http://localhost:8000, add TETHER_LLM=local|tokenfactory|none
+make docker && docker run --rm -p 7860:7860 -e NEBIUS_API_KEY=$NEBIUS_API_KEY tether
 ```
 
 Deployment to Hugging Face Spaces (free), a Nebius CPU VM, or GitHub Pages: [docs/deploy/DEPLOY.md](docs/deploy/DEPLOY.md).
@@ -314,7 +314,7 @@ Benchmarks:
 .venv/bin/python -m eval.compare --worlds 10 --llm tokenfactory   # + Nemotron on Nebius Token Factory
 ```
 
-LLM providers (`GAPCLOSER_LLM`):
+LLM providers (`TETHER_LLM`):
 
 | Provider | Setup | Default diagnose model |
 |---|---|---|
@@ -343,7 +343,7 @@ llama-server -m Cosmos-Reason2-8B.Q4_K_M.gguf --mmproj Cosmos-Reason2-8B.mmproj-
 # back in the repo
 .venv/bin/python -m eval.record_demo --eyes-only     # annotate the existing bundle's real clips (no LLM, no reruns)
 .venv/bin/python -m eval.record_demo --eyes cosmos   # record with eyes; the tool agent also gets "camera_events"
-GAPCLOSER_EYES=cosmos make serve                     # live server with eyes
+TETHER_EYES=cosmos make serve                     # live server with eyes
 make dashboard
 ```
 

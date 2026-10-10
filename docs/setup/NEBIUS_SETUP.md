@@ -35,7 +35,7 @@ Tether의 에이전트 두뇌(Nemotron)는 Nebius Token Factory API로 호출한
 ## 4. API 키 발급
 
 1. <https://tokenfactory.nebius.com> 로그인
-2. API Keys 메뉴에서 새 키를 만든다. 이름은 예를 들어 `gapcloser-dev`로 한다.
+2. API Keys 메뉴에서 새 키를 만든다. 이름은 예를 들어 `tether-dev`로 한다.
 3. **키는 채팅, 코드, git에 넣지 않는다.** 셸 환경변수로만 둔다.
 
 ```bash

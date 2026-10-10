@@ -21,10 +21,10 @@ Cost guards (public demo, Token Factory credits are finite): one run at a time, 
 a global cap on LLM calls and a per-run cap on agent chat turns (past either, the rule-based diagnoser
 takes over), bounded parameters (at most 3 hidden faults), max 4 iterations.
 
-Config (env): GAPCLOSER_LLM=local|tokenfactory|none, GAPCLOSER_MAX_LLM_CALLS (200),
-GAPCLOSER_MAX_TURNS_PER_RUN (24), GAPCLOSER_RUNS_PER_HOUR (6),
-GAPCLOSER_SERVER_ENV=newton|analytic, GAPCLOSER_RENDER=1|0, GAPCLOSER_DATA (runs/),
-GAPCLOSER_EYES=none|cosmos (+ GAPCLOSER_EYES_URL, default http://localhost:8080; local Cosmos Reason 2).
+Config (env): TETHER_LLM=local|tokenfactory|none, TETHER_MAX_LLM_CALLS (200),
+TETHER_MAX_TURNS_PER_RUN (24), TETHER_RUNS_PER_HOUR (6),
+TETHER_SERVER_ENV=newton|analytic, TETHER_RENDER=1|0, TETHER_DATA (runs/),
+TETHER_EYES=none|cosmos (+ TETHER_EYES_URL, default http://localhost:8080; local Cosmos Reason 2).
 Run: make serve  ->  http://localhost:8000
 """
 
@@ -46,9 +46,10 @@ from pydantic import BaseModel, Field
 
 from sim.params import OPEN_PARAMS, PARAM_SPACE
 from sim.push_task import PATCH_OFF, eval_targets
+from sim.settings import setting
 
 ROOT = Path(__file__).resolve().parent.parent
-DATA = Path(os.environ.get("GAPCLOSER_DATA", ROOT / "runs"))
+DATA = Path(setting("DATA", ROOT / "runs"))
 DEMO = DATA / "demo"
 LIVE = DATA / "live"
 MAX_ITER = 4
@@ -213,20 +214,20 @@ class Run:
 def create_app(llm=None, env_name: str | None = None, render: bool | None = None, max_llm_calls: int | None = None,
                runs_per_hour: int | None = None, data_dir: Path | None = None,
                max_turns_per_run: int | None = None) -> FastAPI:
-    env_name = env_name or os.environ.get("GAPCLOSER_SERVER_ENV", "newton")
-    render = (os.environ.get("GAPCLOSER_RENDER", "1") == "1") if render is None else render
+    env_name = env_name or setting("SERVER_ENV", "newton")
+    render = (setting("RENDER", "1") == "1") if render is None else render
     if runs_per_hour is None:
-        runs_per_hour = int(os.environ.get("GAPCLOSER_RUNS_PER_HOUR", "6"))
+        runs_per_hour = int(setting("RUNS_PER_HOUR", "6"))
     if max_llm_calls is None:
-        max_llm_calls = int(os.environ.get("GAPCLOSER_MAX_LLM_CALLS", "200"))
+        max_llm_calls = int(setting("MAX_LLM_CALLS", "200"))
     if max_turns_per_run is None:
-        max_turns_per_run = int(os.environ.get("GAPCLOSER_MAX_TURNS_PER_RUN", "24"))
+        max_turns_per_run = int(setting("MAX_TURNS_PER_RUN", "24"))
     budget = Budget(max_llm_calls)
     data = Path(data_dir) if data_dir else DATA
     demo, live = data / "demo", data / "live"
     live.mkdir(parents=True, exist_ok=True)
 
-    provider = os.environ.get("GAPCLOSER_LLM", "local")
+    provider = setting("LLM", "local")
     if llm is None and provider != "none":
         try:
             from agent.llm import make_llm
@@ -234,16 +235,16 @@ def create_app(llm=None, env_name: str | None = None, render: bool | None = None
             llm = make_llm(provider)
             llm.model_for("diagnose")  # fail fast if the provider is unreachable
         except Exception as e:  # noqa: BLE001 - the demo still works with the rule-based diagnoser
-            print(f"[gapcloser] LLM unavailable ({e}); using TrajectoryDiagnoser")
+            print(f"[tether] LLM unavailable ({e}); using TrajectoryDiagnoser")
             llm = None
 
     eyes = None
-    if os.environ.get("GAPCLOSER_EYES", "none") == "cosmos":  # optional local Cosmos Reason 2 (llama-server)
+    if setting("EYES", "none") == "cosmos":  # optional local Cosmos Reason 2 (llama-server)
         from agent.cosmos_eyes import CosmosEyes
 
-        eyes = CosmosEyes(os.environ.get("GAPCLOSER_EYES_URL", "http://localhost:8080"))
+        eyes = CosmosEyes(setting("EYES_URL", "http://localhost:8080"))
         if not eyes.available():
-            print(f"[gapcloser] Cosmos eyes unavailable ({eyes.last_error}); running without them")
+            print(f"[tether] Cosmos eyes unavailable ({eyes.last_error}); running without them")
             eyes = None
 
     app = FastAPI(title="Tether", docs_url="/api/docs", openapi_url="/api/openapi.json")
@@ -389,7 +390,7 @@ def create_app(llm=None, env_name: str | None = None, render: bool | None = None
 
     @app.get("/console", response_class=HTMLResponse)
     def console():
-        page = ROOT / "dashboard" / "dist" / "gapcloser.live.html"
+        page = ROOT / "dashboard" / "dist" / "console.live.html"
         if not page.exists():
             raise HTTPException(404, "Dashboard not built. Run `make dashboard`.")
         return HTMLResponse(page.read_text())
@@ -406,4 +407,4 @@ def create_app(llm=None, env_name: str | None = None, render: bool | None = None
     return app
 
 
-app = create_app() if os.environ.get("GAPCLOSER_NO_AUTOAPP") != "1" else None
+app = create_app() if setting("NO_AUTOAPP") != "1" else None

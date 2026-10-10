@@ -388,7 +388,7 @@ function studioLink(truth, title) {
    recurring phrases are translated in the DOM as they render (exact table + patterns). Model-written reasoning and
    parameter names stay as written. */
 let LANG = (() => { const q = new URLSearchParams(location.search).get("lang"); if (q === "ko" || q === "en") return q;
-  try { return localStorage.getItem("gapcloser-lang") || "en"; } catch (_) { return "en"; } })();
+  try { return localStorage.getItem("tether-lang") || "en"; } catch (_) { return "en"; } })();
 const tl = (en, ko) => (LANG === "ko" ? ko : en);
 const KO = {
   "Sim2Real agent console": "시뮬레이터와 현실의 차이를 바로잡는 AI 에이전트", "Overview": "소개", "Agent console": "AI 콘솔", "What Tether does": "Tether 소개", "How the AI works": "AI 작동 원리", "Your own data, three domains": "내 데이터, 세 가지 분야", "Studio: calibrate from your own video or log": "Studio: 내 영상·기록으로 직접 해 보기",
@@ -529,7 +529,7 @@ new MutationObserver(muts => {
 }).observe(document.documentElement, { childList: true, characterData: true, subtree: true });
 function setLang(l, rerender) {
   LANG = l;
-  try { localStorage.setItem("gapcloser-lang", l); } catch (_) {}
+  try { localStorage.setItem("tether-lang", l); } catch (_) {}
   document.documentElement.lang = l;
   document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.lang === l)));
   if (rerender) rerender();  // whole-sentence strings are rebuilt by the page's own render
@@ -1665,7 +1665,7 @@ function boot(B, LIVE) {
       else if (o === "split" || o === "lane") window.GC_V3_INIT = { ...(window.GC_V3_INIT || {}), [o === "split" ? "mode" : "view"]: o };
     });
   } catch (_) {}
-  const introKey = "gapcloser-intro-hidden";
+  const introKey = "tether-intro-hidden";
   const introHidden = () => { try { return localStorage.getItem(introKey) === "1"; } catch (_) { return false; } };
   function renderIntro() {
     const el = $("#intro");

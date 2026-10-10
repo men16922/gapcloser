@@ -585,7 +585,7 @@ const tolText = m => m < 0.1 ? `${Math.round(m * 100)} cm` : `${fmt(m, 2)} m`;
 
 /* ---------------------------------------------------------------- language (EN default, KO) */
 let LANG = (() => { const q = new URLSearchParams(location.search).get("lang"); if (q === "ko" || q === "en") return q;
-  try { return localStorage.getItem("gapcloser-lang") || "en"; } catch (_) { return "en"; } })();
+  try { return localStorage.getItem("tether-lang") || "en"; } catch (_) { return "en"; } })();
 const T = (en, ko) => (LANG === "ko" ? ko : en);
 const KO = {
   // chrome and steps
@@ -684,7 +684,7 @@ const KO = {
   // chat
   "Ask": "질문", "Ask Tether": "Tether에게 물어보기", "Send": "보내기", "Thinking…": "답변 준비 중…", "Close": "닫기",
   "Ask about this page or your result. Answers use your current session's numbers.": "이 화면이나 결과에 대해 질문할 수 있습니다. 현재 결과를 바탕으로 답합니다.",
-  "Ask needs the live server with a language model (make serve with GAPCLOSER_LLM=tokenfactory).": "질문 기능은 AI가 연결된 서버에서만 사용할 수 있습니다 (GAPCLOSER_LLM=tokenfactory로 make serve).",
+  "Ask needs the live server with a language model (make serve with TETHER_LLM=tokenfactory).": "질문 기능은 AI가 연결된 서버에서만 사용할 수 있습니다 (TETHER_LLM=tokenfactory로 make serve).",
 };
 const KO_RX = [
   [/^(\d+) pushes$/, "$1회 시행"], [/^(\d+) pushes tracked$/, "$1회 추적 완료"], [/^(\d+) agent steps$/, "AI 분석 $1단계"],
@@ -764,7 +764,7 @@ new MutationObserver(muts => {
 }).observe(document.documentElement, { childList: true, characterData: true, subtree: true });
 function setLang(l) {
   LANG = l;
-  try { localStorage.setItem("gapcloser-lang", l); } catch (_) {}
+  try { localStorage.setItem("tether-lang", l); } catch (_) {}
   document.documentElement.lang = l;
   document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.lang === l)));
   translateTree(document.body);
@@ -972,11 +972,11 @@ const Cx = (id, k) => { const v = (COPY[id] || COPY.robot)[k]; return Array.isAr
 const C = k => Cx(DATA_DOM, k);                  // data step: the tab the visitor picked
 const CS = k => Cx(DOM ? DOM.id : "robot", k);   // later steps: the session's domain
 const DD = () => (DOMS && DOMS[DATA_DOM]) || { scale: 1, speed_scale: 1 };
-let DATA_DOM = (() => { const h = location.hash.slice(1); if (["robot", "driving", "factory"].includes(h)) return h; try { return localStorage.getItem("gapcloser-domain") || "robot"; } catch (_) { return "robot"; } })();
+let DATA_DOM = (() => { const h = location.hash.slice(1); if (["robot", "driving", "factory"].includes(h)) return h; try { return localStorage.getItem("tether-domain") || "robot"; } catch (_) { return "robot"; } })();
 function renderDomainCopy() {
   $("#domtabs").innerHTML = ["robot", "driving", "factory"].map(id => { const d = DOMS ? DOMS[id] : null; const c = COPY[id];
     return `<button role="tab" data-d="${id}" aria-selected="${id === DATA_DOM}"><b>${esc(d ? d.name[LANG] || d.name.en : id)}</b><span>${esc(T(c.tab[0], c.tab[1]))}</span></button>`; }).join("");
-  $("#domtabs").querySelectorAll("button").forEach(b => b.onclick = () => { DATA_DOM = b.dataset.d; try { localStorage.setItem("gapcloser-domain", DATA_DOM); } catch (_) {} renderDomainCopy(); simDefaults(); renderSamples(); drawSimView(); });
+  $("#domtabs").querySelectorAll("button").forEach(b => b.onclick = () => { DATA_DOM = b.dataset.d; try { localStorage.setItem("tether-domain", DATA_DOM); } catch (_) {} renderDomainCopy(); simDefaults(); renderSamples(); drawSimView(); });
   $("#domnote").textContent = C("note");
   if (typeof renderCrumb === "function") renderCrumb();
   if (typeof renderStartCopy === "function" && $("#sp-ex")) renderStartCopy();
@@ -1815,7 +1815,7 @@ function renderExport() {
       ${others.map(id => `<a class="btn" href="#${id}" data-dom="${id}">${T("Try", "다른 분야:")} ${esc(DOMS[id].name[LANG] || DOMS[id].name.en)}</a>`).join("")}
       ${cons ? `<a class="btn" href="${esc(cons)}">${T("See how the agent works (console)", "AI 작동 원리 보기 (콘솔)")}</a>` : ""}
       ${home ? `<a class="btn" href="${esc(home)}">${T("Overview", "소개 화면")}</a>` : ""}</div>`;
-  $("#wayout").querySelectorAll("[data-dom]").forEach(a => a.onclick = ev => { ev.preventDefault(); DATA_DOM = a.dataset.dom; try { localStorage.setItem("gapcloser-domain", DATA_DOM); } catch (_) {} renderDomainCopy(); simDefaults(); renderSamples(); drawSimView(); go("data"); });  // a shared page cannot start downloads; Copy works everywhere
+  $("#wayout").querySelectorAll("[data-dom]").forEach(a => a.onclick = ev => { ev.preventDefault(); DATA_DOM = a.dataset.dom; try { localStorage.setItem("tether-domain", DATA_DOM); } catch (_) {} renderDomainCopy(); simDefaults(); renderSamples(); drawSimView(); go("data"); });  // a shared page cannot start downloads; Copy works everywhere
   $("#x-copy").onclick = async () => { try { await navigator.clipboard.writeText(text); toast("Copied"); }
     catch (_) { const r = document.createRange(); r.selectNodeContents($("#x-code")); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); toast("Selected: press Ctrl/Cmd+C"); } };
   $("#x-dl").onclick = () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type: "text/plain" })); a.download = t.file; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); toast("Downloaded " + t.file); };
@@ -1854,7 +1854,7 @@ function renderChat() {
   $("#chat-sugg").querySelectorAll("button").forEach(b => b.onclick = () => askChat(b.textContent));
   const off = !LIVE || (state.status && state.status.provider === "none");
   $("#chat-in").disabled = off || state.chatBusy; $("#chat-send").disabled = off || state.chatBusy;
-  if (off) $("#chat-intro").textContent = T("Ask needs the live server with a language model (make serve with GAPCLOSER_LLM=tokenfactory).", "질문 기능은 AI가 연결된 서버에서만 사용할 수 있습니다 (GAPCLOSER_LLM=tokenfactory로 make serve).");
+  if (off) $("#chat-intro").textContent = T("Ask needs the live server with a language model (make serve with TETHER_LLM=tokenfactory).", "질문 기능은 AI가 연결된 서버에서만 사용할 수 있습니다 (TETHER_LLM=tokenfactory로 make serve).");
 }
 async function askChat(q) {
   q = (q || "").trim(); if (!q || state.chatBusy) return;

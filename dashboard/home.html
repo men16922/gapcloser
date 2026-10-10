@@ -140,7 +140,7 @@ footer { color: var(--dim); font-size: 13px; padding: 26px 32px 40px; max-width:
 
 <script>
 let LANG = (() => { const q = new URLSearchParams(location.search).get("lang"); if (q === "ko" || q === "en") return q;
-  try { return localStorage.getItem("gapcloser-lang") || "en"; } catch (_) { return "en"; } })();
+  try { return localStorage.getItem("tether-lang") || "en"; } catch (_) { return "en"; } })();
 const T = (en, ko) => (LANG === "ko" ? ko : en);
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -258,7 +258,7 @@ function renderStack() {
   st.querySelector("span").textContent = STATUS.recorded ? T("Recorded runs: Nemotron 3 Super", "Nemotron 3 Super 실행 기록 재생")
     : on ? T("Agent online: Nemotron 3 Super", "AI 연결됨: Nemotron 3 Super") : T("Agent off: offline fitting", "AI 꺼짐: 계산 방식만 사용");
 }
-function setLang(l) { LANG = l; try { localStorage.setItem("gapcloser-lang", l); } catch (_) {} render(); }
+function setLang(l) { LANG = l; try { localStorage.setItem("tether-lang", l); } catch (_) {} render(); }
 document.querySelectorAll(".lang button").forEach(b => b.onclick = () => setLang(b.dataset.lang));
 if (STATIC) { $("#n-console").href = STATIC.console; $("#n-studio").href = STATIC.studio; document.querySelector(".brand").removeAttribute("href"); $("#n-home").removeAttribute("href"); }
 render();

@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
 # Deploy Tether to a Nebius AI Cloud CPU VM (eu-west1 by default), retrying VM creation until the account allows it
 # (billing details saved). Then: copy the committed code, build the Docker image on the VM, run it on port 80.
-# Needs: nebius CLI profile (nebius profile create), ~/.ssh/gapcloser_nebius, NEBIUS_API_KEY in .env.
+# Needs: nebius CLI profile (nebius profile create), ~/.ssh/tether_nebius, NEBIUS_API_KEY in .env.
 # Usage: deploy/nebius_vm.sh [max_wait_minutes]      Stop billing afterwards: nebius compute instance delete --id <id>
 set -uo pipefail
 cd "$(dirname "$0")/.."
 NB=~/.nebius/bin/nebius
 P=${NEBIUS_PROJECT:-project-e01r9mqhpa00k484wcc2ct}          # default-project-eu-west1 (eu-north1 has 0 non-GPU vCPU quota)
 SUBNET=${NEBIUS_SUBNET:-vpcsubnet-e01ph41k4q7qewq9r4}
-NAME=gapcloser-demo
-KEY=~/.ssh/gapcloser_nebius
+NAME=tether-demo
+KEY=~/.ssh/tether_nebius
 WAIT_MIN=${1:-180}
 log() { echo "[$(date +%H:%M:%S)] $*"; }
 
 PUB=$(cat "$KEY.pub")
 UD="#cloud-config
 users:
-  - name: gapcloser
+  - name: tether
     sudo: ALL=(ALL) NOPASSWD:ALL
     shell: /bin/bash
     ssh_authorized_keys:
@@ -25,7 +25,7 @@ package_update: true
 packages: [docker.io]
 runcmd:
   - systemctl enable --now docker
-  - usermod -aG docker gapcloser
+  - usermod -aG docker tether
   - touch /var/tmp/cloud-init-done"
 
 ID=$($NB compute instance get-by-name --parent-id $P --name $NAME --format json 2>/dev/null | python3 -c "import sys,json;print(json.load(sys.stdin)['metadata']['id'])" 2>/dev/null)
@@ -34,7 +34,7 @@ while [ -z "$ID" ]; do
   out=$($NB compute instance create --parent-id $P --name $NAME \
     --resources-platform ${NEBIUS_PLATFORM:-cpu-d3} --resources-preset 2vcpu-8gb \
     --boot-disk-attach-mode read_write --boot-disk-device-id boot \
-    --boot-disk-managed-disk-name gapcloser-boot --boot-disk-managed-disk-size-gibibytes 40 \
+    --boot-disk-managed-disk-name tether-boot --boot-disk-managed-disk-size-gibibytes 40 \
     --boot-disk-managed-disk-type network_ssd \
     --boot-disk-managed-disk-source-image-family-image-family ubuntu22.04-driverless \
     --network-interfaces "[{\"name\":\"eth0\",\"subnet_id\":\"$SUBNET\",\"ip_address\":{},\"public_ip_address\":{}}]" \
@@ -59,16 +59,16 @@ for n in d.get('status',{}).get('network_interfaces',[]):
 done
 [ -z "$IP" ] && { log "FAILED: no public IP"; exit 3; }
 log "public IP $IP"
-SSH="ssh -i $KEY -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10 -o LogLevel=ERROR gapcloser@$IP"
+SSH="ssh -i $KEY -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10 -o LogLevel=ERROR tether@$IP"
 for i in $(seq 1 60); do $SSH "test -f /var/tmp/cloud-init-done" 2>/dev/null && break; sleep 10; done
 $SSH "test -f /var/tmp/cloud-init-done" || { log "FAILED: cloud-init not finished"; exit 4; }
 log "VM ready; copying code"
-git archive --format=tar HEAD | $SSH "rm -rf ~/gapcloser && mkdir ~/gapcloser && tar -x -C ~/gapcloser"
-grep '^NEBIUS_API_KEY=' .env | $SSH "umask 077; cat > ~/gapcloser.env"
+git archive --format=tar HEAD | $SSH "rm -rf ~/tether && mkdir ~/tether && tar -x -C ~/tether"
+grep '^NEBIUS_API_KEY=' .env | $SSH "umask 077; cat > ~/tether.env"
 log "building image on the VM (several minutes)"
-$SSH "cd ~/gapcloser && sudo docker build -q -t gapcloser . " || { log "FAILED: docker build"; exit 5; }
-$SSH "sudo docker rm -f gapcloser >/dev/null 2>&1; sudo docker run -d --name gapcloser --restart unless-stopped -p 80:7860 \
-  --env-file ~/gapcloser.env -e GAPCLOSER_LLM=tokenfactory gapcloser" >/dev/null || { log "FAILED: docker run"; exit 6; }
+$SSH "cd ~/tether && sudo docker build -q -t tether . " || { log "FAILED: docker build"; exit 5; }
+$SSH "sudo docker rm -f tether >/dev/null 2>&1; sudo docker run -d --name tether --restart unless-stopped -p 80:7860 \
+  --env-file ~/tether.env -e TETHER_LLM=tokenfactory tether" >/dev/null || { log "FAILED: docker run"; exit 6; }
 for i in $(seq 1 60); do
   code=$(curl -s -o /dev/null -w "%{http_code}" "http://$IP/studio")
   [ "$code" = "200" ] && break; sleep 5

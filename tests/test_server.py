@@ -2,7 +2,7 @@ import json
 import os
 from pathlib import Path
 
-os.environ["GAPCLOSER_NO_AUTOAPP"] = "1"
+os.environ["TETHER_NO_AUTOAPP"] = "1"
 
 from fastapi.testclient import TestClient  # noqa: E402
 
@@ -16,7 +16,7 @@ WET = {"patch_y0": 0.35, "patch_mu": 0.45}
 def client(tmp_path, llm=None, **kw):
     (tmp_path / "demo").mkdir(parents=True, exist_ok=True)
     (tmp_path / "demo" / "bundle.json").write_text(json.dumps({"runs": [], "benchmark": None}))
-    os.environ["GAPCLOSER_LLM"] = "none"
+    os.environ["TETHER_LLM"] = "none"
     app = create_app(llm=llm, env_name="analytic", render=False, data_dir=tmp_path, **kw)
     return TestClient(app)
 

@@ -14,7 +14,7 @@ Last Updated: 2026-10-09
 - Experiment savings (`make studio-bench`): real pushes to 95%: suggested 5.8 / sweep 5.9–6.2 / random 7.7–7.9 (analytic 50, Newton 20 worlds).
 
 - Scope: zero cost, no hardware, Tier 0. Local Mac: NVIDIA Newton; Nemotron 3 Super 120B on Nebius Token Factory (key in `.env`, gitignored); Ollama Nano for offline experiments.
-- Public repo: https://github.com/men16922/gapcloser
+- Public repo: https://github.com/men16922/tether
 - Open world: params `patch_y0`/`patch_mu` (friction strip, seam-free Newton kernel) and `lens_k`; `InverseTrainer` (policy inverts the sim); `agent/tool_agent.py` (Nemotron tool agent: decel_profile, perception_check, fit/test_hypothesis, probe_real, commit).
 - Gap-Bench Newton 15/tier (Super, $0.30): closed 100 all; open rule 83±9 / sysID 100 / agent 100; compound rule 54±15 / sysID 97±4 / agent 96±6. Agent ≈ sysID, both ≫ rule. (The 6/tier edge 99 vs 93 was noise.)
 - Dashboard v3 (artifact https://claude.ai/artifact/WVBNfVMAzeNg71kDSFqYAf): agent lab notebook, 3D viewer with friction strips, Gap-Bench panel, Cosmos eyes strip, live "Stump the agent" (`make serve`).

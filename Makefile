@@ -39,9 +39,9 @@ studio-samples:
 	$(PY) -m studio.samples
 	$(PY) -m studio.video_sample
 
-# record the samples through the Studio API (Nemotron agent when GAPCLOSER_LLM / --llm is set), rebuild pages
+# record the samples through the Studio API (Nemotron agent when TETHER_LLM / --llm is set), rebuild pages
 studio-record:
-	$(PY) -m studio.record --llm $${GAPCLOSER_LLM:-tokenfactory}
+	$(PY) -m studio.record --llm $${TETHER_LLM:-tokenfactory}
 	$(PY) -m dashboard.build
 
 # active vs passive data collection: real pushes needed to reach 95% (analytic, 50 worlds, ~30 s)
@@ -63,16 +63,16 @@ prove:  # recompute every headline number (no network, ~5 min) -> runs/proof/PRO
 studio-bench:
 	$(PY) -m eval.studio_bench --worlds 50 --json runs/bench/studio_bench_analytic.json
 
-# live server on http://localhost:8000 (Studio at /studio) (GAPCLOSER_LLM=local|tokenfactory|none)
+# live server on http://localhost:8000 (Studio at /studio) (TETHER_LLM=local|tokenfactory|none)
 serve: dashboard
 	$(PY) -m uvicorn server.app:app --host 0.0.0.0 --port $${PORT:-8000}
 
 docker:
-	docker build -t gapcloser .
+	docker build -t tether .
 
 # static, self-contained page for GitHub Pages (recorded runs only)
 site: dashboard
-	mkdir -p site && cp dashboard/dist/gapcloser.standalone.html site/index.html
+	mkdir -p site && cp dashboard/dist/console.standalone.html site/index.html
 
 # demo video (Chrome + ffmpeg + macOS say); start `make serve` first to include the live scene
 video:  # demo video: screen captures (needs make serve), Newton rollout and training montage, narration

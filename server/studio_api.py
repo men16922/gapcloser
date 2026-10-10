@@ -437,7 +437,7 @@ def mount_studio(app: FastAPI, llm, budget, data_dir: Path, budgeted_llm_cls) ->
         from studio import chat as ch
 
         if llm is None:
-            raise HTTPException(503, "Ask needs a language model: start the server with GAPCLOSER_LLM=tokenfactory.")
+            raise HTTPException(503, "Ask needs a language model: start the server with TETHER_LLM=tokenfactory.")
         last = req.messages[-1]
         if last.get("role") != "user" or not str(last.get("content") or "").strip():
             raise HTTPException(422, "The last message must be your question.")

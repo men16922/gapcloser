@@ -1,6 +1,6 @@
 # 3-minute video storyboard
 
-Source: the dashboard (`make demo`, open `dashboard/dist/gapcloser.standalone.html`), screen-recorded at 1440p. Track rule: with no hardware, show "the key application modules in action".
+Source: the dashboard (`make demo`, open `dashboard/dist/console.standalone.html`), screen-recorded at 1440p. Track rule: with no hardware, show "the key application modules in action".
 
 | Time | Screen | Voice-over (draft) |
 |---|---|---|

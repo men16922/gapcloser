@@ -66,7 +66,7 @@ def main() -> None:
     ap.add_argument("--llm", default="tokenfactory")
     ap.add_argument("--only", default=None)
     a = ap.parse_args()
-    os.environ["GAPCLOSER_NO_AUTOAPP"] = "1"
+    os.environ["TETHER_NO_AUTOAPP"] = "1"
     from fastapi.testclient import TestClient
 
     from server.app import create_app
@@ -79,7 +79,7 @@ def main() -> None:
         llm = make_llm(a.llm)
     tmp = Path(tempfile.mkdtemp(prefix="studio-rec-"))
     (tmp / "demo").mkdir()
-    os.environ["GAPCLOSER_LLM"] = a.llm
+    os.environ["TETHER_LLM"] = a.llm
     c = TestClient(create_app(llm=llm, env_name="analytic", render=False, data_dir=tmp))
     OUT.mkdir(parents=True, exist_ok=True)
     for sample in SAMPLES:
