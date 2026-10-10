@@ -21,10 +21,7 @@ Built for the Nebius × NVIDIA Global AI Hackathon (Physical AI track). Runs on 
   Toolkit** workflow (`integrations/nat_tether`)
 - Eyes: **NVIDIA Cosmos Reason 2**, running locally (optional)
 
-**Live site (recorded runs, no server needed):** https://men16922.github.io/tether/ (Overview, Studio, Agent console;
-`make pages` rebuilds and republishes it).
-
-Or run it yourself with `make serve`, then open:
+`make serve`, then open:
 
 | URL | Page |
 |---|---|

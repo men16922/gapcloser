@@ -20,8 +20,7 @@ Deadline: 2026-10-30 10:00 PDT (KST 10-31 02:00). Target: submit 10-29.
 - [ ] Create a **public GitHub repo** and push (`git remote add origin … && git push -u origin main`). Check that `.env` is not in `git ls-files`.
 - [ ] Optional live demo: Hugging Face Space (free) or Nebius CPU VM (~$0.06/h). Steps: `docs/deploy/DEPLOY.md`. Add `NEBIUS_API_KEY` as a platform secret.
 - [ ] Optional static demo: GitHub Pages from `site/`.
-- [x] Public site: https://men16922.github.io/tether/ (GitHub Pages, `make pages`); repo https://github.com/men16922/tether
-- [ ] Devpost: paste `docs/submission/DEVPOST.md`, add the video URL, repo URL, site URL, choose the Physical AI track, list team members.
+- [ ] Devpost: paste `docs/submission/DEVPOST.md`, add the video URL, repo URL, (live demo URL), choose the Physical AI track, list team members.
 - [ ] Share the dashboard artifact only if you want it public (it is private now).
 
 ## Quick re-verification before submitting

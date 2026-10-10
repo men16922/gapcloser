@@ -1,6 +1,6 @@
 # Tether — Sim2Real self-closing agent (Nebius x NVIDIA hackathon)
 # Gate must stay OFFLINE + DETERMINISTIC: no GPU, no network, no Nebius/Token Factory calls.
-.PHONY: check test lint smoke-local demo dashboard replays franka-mesh serve docker site video studio-samples studio-record studio-bench prove cross-engine real-check prove-real real-benchmark pages film
+.PHONY: check test lint smoke-local demo dashboard replays franka-mesh serve docker site video studio-samples studio-record studio-bench prove cross-engine real-check prove-real real-benchmark film
 
 PY := $(shell [ -x .venv/bin/python ] && echo .venv/bin/python || echo python3)
 
@@ -71,11 +71,8 @@ docker:
 	docker build -t tether .
 
 # static, self-contained page for GitHub Pages (recorded runs only)
-site:  # static public site (Overview, Studio, Agent console replaying recorded runs) -> site/
-	$(PY) -m dashboard.site --out site
-
-pages: site  # publish site/ on GitHub Pages (gh-pages branch)
-	scripts/deploy_pages.sh
+site: dashboard
+	mkdir -p site && cp dashboard/dist/console.standalone.html site/index.html
 
 # demo film: motion-graphics scenes rendered in headless Chrome, ElevenLabs narration (.env), generated music bed
 film:  # -> video/out/tether_film.mp4 (needs make real-benchmark and the Newton renders below)
