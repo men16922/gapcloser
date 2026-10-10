@@ -12,10 +12,12 @@ from pathlib import Path
 from fastapi import HTTPException
 from pydantic import BaseModel, Field
 
+from sim.settings import setting
+
 ROOT = Path(__file__).resolve().parent.parent
 SAMPLE_DIR = ROOT / "studio" / "samples"
 MAX_UPLOAD = 120 * 1024 * 1024
-MAX_SESSIONS = 60
+MAX_SESSIONS = int(setting("MAX_SESSIONS", "60"))  # uploads live on disk (in memory on Cloud Run)
 AGENT_TURNS = 8
 CHAT_CAP = 30  # questions per session (each one LLM call against the shared budget)
 VIDEO_EXT = (".mp4", ".mov", ".m4v", ".webm", ".avi", ".mkv")
