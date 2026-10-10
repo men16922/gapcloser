@@ -56,7 +56,7 @@ h2.sec { font-size: 30px; margin-top: 8px; }
 .lede { color: var(--muted); font-size: 16px; max-width: 70ch; margin-top: 10px; }
 
 /* hero */
-.hero { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 40px; align-items: center; padding-block: 56px 48px; }
+.hero { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); gap: 48px; align-items: center; padding-block: 72px 64px; }
 .hero h2 { font-size: clamp(38px, 5vw, 58px); line-height: 1.02; letter-spacing: -0.005em; }
 .hero .lede { font-size: 17px; margin-top: 18px; }
 .ctas { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
@@ -65,6 +65,12 @@ h2.sec { font-size: 30px; margin-top: 8px; }
 .btn.primary { background: var(--green); border-color: var(--green); color: #000; }
 .btn.primary:hover { background: var(--green-hi); border-color: var(--green-hi); }
 .made { margin-top: 22px; color: var(--dim); font-size: 13px; }
+.link { color: var(--muted); font: 600 15px/1 var(--f-display); text-decoration: none; padding: 11px 6px; }
+.link:hover { color: var(--fg); }
+a.dom { text-decoration: none; color: inherit; }
+a.dom:hover { border-color: var(--green); }
+.dom .go { margin-top: auto; padding-top: 6px; font: 600 15px/1 var(--f-display); color: var(--green); }
+.note { margin-top: 14px; color: var(--dim); font-size: 13px; }
 
 /* the tether */
 .tether { background: var(--panel); border: 1px solid var(--line); padding: 18px 18px 12px; }
@@ -118,9 +124,9 @@ h2.sec { font-size: 30px; margin-top: 8px; }
 .pipe code { font: 12px/1.4 var(--f-mono); color: var(--fg); }
 
 /* evidence */
-.ev { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; margin-top: 24px; }
-.ev div { border: 1px solid var(--line); padding: 18px; display: grid; gap: 6px; align-content: start; }
-.ev .big { font: 600 40px/1 var(--f-display); }
+.ev { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 24px; }
+.ev div { border-top: 2px solid var(--green); padding: 18px 4px 0; display: grid; gap: 8px; align-content: start; }
+.ev .big { font: 600 52px/1 var(--f-display); }
 .ev .big small { font-size: 20px; color: var(--muted); font-weight: 500; }
 .ev .big em { font-style: normal; color: var(--green); }
 .ev p { color: var(--muted); font-size: 14px; }
@@ -164,7 +170,7 @@ footer { color: var(--dim); font-size: 13px; padding: 26px 32px 40px; max-width:
   <div class="lang" role="group" aria-label="Language"><button type="button" data-lang="en">EN</button><button type="button" data-lang="ko">KO</button></div>
 </header>
 <main id="main"></main>
-<footer id="foot"></footer>
+<footer><div id="foot"></div><div class="stack" id="stack"></div></footer>
 
 <script>
 let LANG = (() => { const q = new URLSearchParams(location.search).get("lang"); if (q === "ko" || q === "en") return q;
@@ -190,20 +196,20 @@ let calibrated = false;
 
 const DOMAINS = [
   { id: "robot", sample: "flick", img: "flick", name: ["Robot manipulation", "로봇 조작"],
-    line: ["A robot arm pushes a box onto a line. The real table is slicker in places, the arm weaker, the camera tilted.", "로봇 팔이 상자를 밀어 선에 세웁니다. 실제 탁자는 일부가 더 미끄럽거나, 팔 힘이 약하거나, 카메라가 기울어 있습니다."],
-    data: ["Phone video (A4 sheet for scale) or the robot's push log", "폰 영상(A4 용지로 크기 기준) 또는 로봇 기록"],
-    finds: ["Table friction, a wet patch, arm strength, camera tilt", "탁자 마찰, 젖은 구간, 팔 힘, 카메라 기울기"],
-    out: "Newton · Isaac Lab", res: ["Robot log, 20 pushes: friction 0.696 (truth 0.70), arm 0.872× (0.88), patch from 0.376 m (0.38)", "로봇 기록 20번: 마찰 0.696(정답 0.70), 팔 힘 0.872배(0.88), 0.376 m부터 다른 구간(0.38)"] },
+    line: ["An arm pushes a box onto a line.", "로봇 팔로 상자를 목표선에 세웁니다."],
+    data: ["Phone video (A4 sheet for scale) or the robot's push log", "스마트폰 영상(A4 용지를 크기 기준으로 사용) 또는 로봇 로그"],
+    finds: ["Table friction, a wet patch, arm strength, camera tilt", "탁자 마찰계수, 젖은 구간, 팔 출력, 카메라 기울기"],
+    out: "Newton · Isaac Lab", res: ["Robot log, 20 pushes: friction 0.696 (truth 0.70), arm 0.872× (0.88), patch from 0.376 m (0.38)", "로봇 로그 20회 분석: 마찰계수 0.696(실제 0.70), 팔 출력 0.872배(실제 0.88), 0.376 m 지점부터 마찰이 다른 구간(실제 0.38 m)"] },
   { id: "driving", sample: "stop-line", img: "stop-line", name: ["Autonomous vehicles", "자율주행 차량"],
-    line: ["A car brakes to stop at a stop line. Part of the real road is wet or icy, the speed control under-delivers, the front camera misjudges range.", "차량이 정지선에 맞춰 제동합니다. 실제 도로 일부가 젖었거나 얼었고, 속도 제어가 약하고, 전방 카메라가 거리를 잘못 봅니다."],
-    data: ["Roadside video or a vehicle log (speed set-point, stop position, camera range)", "도로변 영상 또는 차량 기록(속도 명령, 정지 위치, 카메라 거리)"],
-    finds: ["Tire-road friction, a wet section, speed control, camera pitch", "타이어-노면 마찰, 젖은 구간, 속도 제어, 카메라 기울기"],
-    out: "Newton · CARLA · Isaac Lab", res: ["Roadside video, 11 runs: road μ 0.738 (truth 0.75), wet from 8.78 m (8.82), wet μ 0.274 (0.30)", "도로변 영상 11번: 노면 마찰 0.738(정답 0.75), 8.78 m부터 젖은 구간(8.82), 구간 마찰 0.274(0.30)"] },
+    line: ["A car brakes to stop on the line.", "차량을 정지선에 맞춰 세웁니다."],
+    data: ["Roadside video or a vehicle log (speed set-point, stop position, camera range)", "도로변 촬영 영상 또는 차량 로그(목표 속도, 정지 위치, 카메라 측정 거리)"],
+    finds: ["Tire-road friction, a wet section, speed control, camera pitch", "타이어-노면 마찰계수, 젖은 구간, 속도 추종 오차, 카메라 기울기"],
+    out: "Newton · CARLA · Isaac Lab", res: ["Roadside video, 11 runs: road μ 0.738 (truth 0.75), wet from 8.78 m (8.82), wet μ 0.274 (0.30)", "도로변 영상 11회 분석: 노면 마찰계수 0.738(실제 0.75), 젖은 구간 시작 8.78 m(실제 8.82 m), 젖은 구간 마찰계수 0.274(실제 0.30)"] },
   { id: "factory", sample: "press-line", img: "press-line", name: ["Factory inspection", "제조 검사"],
-    line: ["A pneumatic pusher slides parts to the inspection camera. Oil on the rail, a pusher that lost pressure, a camera mounted off: parts stop off-position.", "공압 푸셔가 부품을 검사 카메라 아래로 밉니다. 레일의 기름, 압력이 떨어진 푸셔, 어긋난 카메라 때문에 부품이 검사 위치를 벗어납니다."],
-    data: ["Line camera video or the pusher's log", "라인 카메라 영상 또는 푸셔 기록"],
-    finds: ["Part-rail friction, an oily section, pusher strength, camera tilt", "부품-레일 마찰, 기름 구간, 푸셔 힘, 카메라 기울기"],
-    out: "Newton · Isaac Lab", res: ["Pusher log, 18 strokes: friction 0.558 (truth 0.55), pusher 0.911× (0.92), camera −1.6° (−1.5°)", "푸셔 기록 18번: 마찰 0.558(정답 0.55), 푸셔 힘 0.911배(0.92), 카메라 −1.6°(−1.5°)"] },
+    line: ["A pusher sends parts to the inspection spot.", "푸셔로 부품을 검사 위치에 보냅니다."],
+    data: ["Line camera video or the pusher's log", "라인 카메라 영상 또는 푸셔 로그"],
+    finds: ["Part-rail friction, an oily section, pusher strength, camera tilt", "부품-레일 마찰계수, 기름이 묻은 구간, 푸셔 출력, 카메라 기울기"],
+    out: "Newton · Isaac Lab", res: ["Pusher log, 18 strokes: friction 0.558 (truth 0.55), pusher 0.911× (0.92), camera −1.6° (−1.5°)", "푸셔 로그 18회 분석: 마찰계수 0.558(실제 0.55), 푸셔 출력 0.911배(실제 0.92), 카메라 기울기 −1.6°(실제 −1.5°)"] },
 ];
 
 function tetherSvg() {
@@ -218,94 +224,61 @@ function tetherSvg() {
       ${i === TETHER.length - 1 ? `<text x="${X(real) + 10}" y="${yReal + 4}">${kmh} km/h</text>` : ""}`;
   }).join("");
   const ticks = [0, 2, 4, 6, 8, 10, 12, 14].map(t => `<line x1="${X(t)}" x2="${X(t)}" y1="${yReal + 16}" y2="${yReal + 21}" stroke="#2b3035"/><text x="${X(t)}" y="${yReal + 36}" text-anchor="middle">${t} m</text>`).join("");
-  const wet = `<rect x="${X(8.82)}" y="${yReal - 16}" width="${X(14.5) - X(8.82)}" height="32" fill="rgba(76,181,230,0.16)"/><text x="${X(8.82) + 6}" y="${yReal - 22}" style="fill:#4cb5e6">${T("wet from 8.8 m", "8.8 m부터 젖은 노면")}</text>`;
+  const wet = `<rect x="${X(8.82)}" y="${yReal - 16}" width="${X(14.5) - X(8.82)}" height="32" fill="rgba(76,181,230,0.16)"/><text x="${X(8.82) + 6}" y="${yReal - 22}" style="fill:#4cb5e6">${T("wet from 8.8 m", "8.8 m 지점부터 젖은 노면")}</text>`;
   const last = TETHER[TETHER.length - 1], s = calibrated ? last[2] : last[1];
   const gap = `<text x="${X(s)}" y="${ySim - 18}" text-anchor="middle" style="fill:${calibrated ? "#76b900" : "#d9a13b"};font-family:var(--f-mono)">${calibrated ? T(`${s.toFixed(1)} m (real ${last[0].toFixed(1)})`, `${s.toFixed(1)} m (실제 ${last[0].toFixed(1)})`) : T(`${s.toFixed(1)} m, ${(last[0] - s).toFixed(1)} m short`, `${s.toFixed(1)} m, ${(last[0] - s).toFixed(1)} m 모자람`)}</text>`;
-  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${T("Simulated stops tethered to real stops", "시뮬레이터의 정지 위치와 실제 정지 위치")}">
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${T("Simulated stops tethered to real stops", "시뮬레이터가 예측한 정지 위치와 실제 정지 위치")}">
     <line x1="${x0}" x2="${x1}" y1="${ySim}" y2="${ySim}" stroke="#2b3035"/><line x1="${x0}" x2="${x1}" y1="${yReal}" y2="${yReal}" stroke="#2b3035"/>
-    <text class="lab" x="0" y="${ySim + 4}">${T("SIM", "가상")}</text><text class="lab" x="0" y="${yReal + 4}">${T("REAL", "실제")}</text>
+    <text class="lab" x="0" y="${ySim + 4}">${T("SIM", "시뮬")}</text><text class="lab" x="0" y="${yReal + 4}">${T("REAL", "실제")}</text>
     ${wet}${rows}${gap}${ticks}</svg>`;
 }
 function renderTether() {
   $("#tsvg").innerHTML = tetherSvg();
   document.querySelectorAll("#ttog button").forEach(b => b.setAttribute("aria-pressed", String((b.dataset.v === "cal") === calibrated)));
   $("#tnote").textContent = calibrated
-    ? T("Tether's calibrated simulator: every predicted stop lands on the real one, including the run that reached the wet section.", "Tether가 고친 시뮬레이터: 젖은 구간까지 간 경우를 포함해 모든 예상 정지 위치가 실제와 맞습니다.")
-    : T("Your current simulator: dry asphalt everywhere. It is close on short runs and 3.7 m short where the road is wet.", "지금 시뮬레이터: 도로 전체를 마른 아스팔트로 봅니다. 짧은 제동은 비슷하지만 젖은 구간에서는 3.7 m 모자랍니다.");
+    ? T("Tether's calibrated simulator: every predicted stop lands on the real one, including the run that reached the wet section.", "Tether로 보정한 시뮬레이터: 젖은 구간까지 들어간 경우를 포함해 모든 정지 위치를 실제와 같게 예측합니다.")
+    : T("Your current simulator: dry asphalt everywhere. It is close on short runs and 3.7 m short where the road is wet.", "보정 전 시뮬레이터: 도로 전체를 마른 아스팔트로 가정합니다. 짧은 제동은 거의 맞지만, 젖은 구간에서는 실제보다 3.7 m 앞에 선다고 예측합니다.");
 }
 
 function render() {
   document.documentElement.lang = LANG;
   document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.lang === LANG)));
-  $("#tagline").textContent = T("Sim-to-real calibration", "시뮬레이터-현실 보정");
+  $("#tagline").textContent = T("Sim-to-real calibration", "시뮬레이터를 현실에 맞추는 보정 도구");
   $("#n-home").textContent = T("Overview", "소개"); $("#n-console").textContent = T("Agent console", "AI 콘솔");
   const q = LANG === "ko" ? "?lang=ko" : "";
   $("#main").innerHTML = `
   <section class="hero">
     <div>
-      <span class="kicker">${T("SIM-TO-REAL, TETHERED", "가상과 현실을 하나로")}</span>
-      <h2 style="margin-top:12px">${T("Tie your simulator to the real world.", "시뮬레이터를 실제 세계에 단단히 묶습니다.")}</h2>
-      <p class="lede">${T("Policies trained in simulation miss in the real world because the physics differ: a wet section, a weaker actuator, a tilted camera. Tether reads how things really slide and stop, from a phone video or the log your robot, car or line already writes, finds what the simulator gets wrong, says how sure it is, and hands back configs for NVIDIA Newton, Isaac Lab and CARLA.", "시뮬레이션에서 학습한 정책은 실제 세계에서 빗나갑니다. 젖은 구간, 약한 구동 장치, 기울어진 카메라처럼 물리가 다르기 때문입니다. Tether는 폰 영상이나 로봇·차량·생산 라인이 이미 남기는 기록에서 실제 움직임을 읽고, 시뮬레이터가 틀린 부분과 그 확실성을 찾아 NVIDIA Newton, Isaac Lab, CARLA 설정으로 돌려 줍니다.")}</p>
-      <div class="ctas"><a class="btn primary" href="${L.studio(q)}">${T("Start in Studio", "Studio에서 시작하기")}</a><a class="btn" href="${L.console(q)}">${T("Watch the agent work", "AI 작동 원리 보기")}</a></div>
-      <p class="made">${T("Physics: NVIDIA Newton. Agent: NVIDIA Nemotron 3 Super on Nebius Token Factory. Numbers come from least squares and a bootstrap, never from the language model.", "물리: NVIDIA Newton. AI: Nebius Token Factory의 NVIDIA Nemotron 3 Super. 숫자는 언어 모델이 아니라 최소제곱 계산과 부트스트랩으로 구합니다.")}</p>
+      <h2>${T("Tie your simulator to the real world.", "시뮬레이터를 현실에 맞춥니다.")}</h2>
+      <p class="lede">${T("Give Tether a video or a log of how things really slide and stop. It finds what your simulator gets wrong, says how sure it is, and retrains the policy on the corrected physics.", "실제 움직임이 담긴 영상이나 로그만 있으면 됩니다. Tether가 시뮬레이터의 어느 값이 틀렸는지 찾아 보정하고, 보정된 물리로 정책을 다시 학습합니다.")}</p>
+      <div class="ctas"><a class="btn primary" href="${L.studio(q)}">${T("Start in Studio", "Studio에서 시작하기")}</a><a class="link" href="${L.console(q)}">${T("How the agent works", "AI 작동 방식 보기")}</a></div>
     </div>
     <div class="tether">
-      <div class="hd"><b>${T("Braking to a stop line, 7 runs", "정지선 제동 7번")}</b>
-        <div class="toggle" id="ttog" role="group" aria-label="${T("Simulator", "시뮬레이터")}"><button type="button" data-v="cur">${T("Current sim", "지금 시뮬레이터")}</button><button type="button" data-v="cal">${T("Tethered", "Tether 적용")}</button></div></div>
+      <div class="hd"><b>${T("Braking to a stop line", "정지선 제동")}</b>
+        <div class="toggle" id="ttog" role="group" aria-label="${T("Simulator", "시뮬레이터")}"><button type="button" data-v="cur">${T("Before", "보정 전")}</button><button type="button" data-v="cal">${T("Tethered", "보정 후")}</button></div></div>
       <div id="tsvg"></div>
       <p class="ft" id="tnote"></p>
-      <div class="ft"><span><i style="background:#eceeef"></i>${T("where the car really stopped", "실제 정지 위치")}</span><span><i style="background:#69717a"></i>${T("simulator's prediction", "시뮬레이터 예상")}</span><span class="src" style="color:var(--dim)">${T("Recorded Studio run, roadside example (synthetic road rendered in NVIDIA Newton)", "Studio 실행 기록, 도로변 예시 (NVIDIA Newton으로 만든 가상 도로)")}</span></div>
     </div>
   </section>
 
   <section>
-    <span class="kicker">${T("HOW YOU MOVE THROUGH IT", "사용 흐름")}</span>
-    <h2 class="sec">${T("Three stops, one thread", "세 단계로 이어집니다")}</h2>
-    <div class="route">
-      <a href="${L.console(q)}"><span class="n">01</span><h3>${T("Agent console", "AI 콘솔")}</h3><p>${T("See how it works: a world with hidden faults, the Nemotron agent experimenting, the policy going from failing to succeeding. Benchmarks against rules and system ID.", "작동 원리를 봅니다. 숨겨진 원인이 있는 세계에서 Nemotron AI가 실험하고, 정책이 실패에서 성공으로 바뀌는 과정입니다. 규칙 방식, 자동 계산과 성능을 비교합니다.")}</p><span class="go">${T("Open the console", "콘솔 열기")}</span></a>
-      <a href="${L.studio(q)}"><span class="n">02</span><h3>${T("Studio", "Studio")}</h3><p>${T("Do it on your data: pick robot, driving or factory; bring a video or a log, or have NVIDIA Newton make one; measure, diagnose, calibrate with 90% intervals, see the next experiment.", "내 데이터로 합니다. 로봇·자율주행·제조 중 업무를 고르고, 영상이나 기록을 넣거나 NVIDIA Newton으로 만듭니다. 측정, 진단, 90% 오차 범위 보정, 다음 실험까지 봅니다.")}</p><span class="go">${T("Open Studio", "Studio 열기")}</span></a>
-      <a href="${L.studio(q, "robot")}"><span class="n">03</span><h3>${T("Export", "내보내기")}</h3><p>${T("Take it back to your stack: NVIDIA Newton materials and friction regions, Isaac Lab randomization over the measured intervals, CARLA tire friction and a friction trigger, a report.", "내 개발 환경으로 가져갑니다. NVIDIA Newton 재질·마찰 구간, 측정 범위로 정한 Isaac Lab 랜덤화, CARLA 타이어 마찰과 마찰 트리거, 보고서입니다.")}</p><span class="go">${T("Last step in Studio", "Studio 마지막 단계")}</span></a>
-    </div>
+    <h2 class="sec">${T("Pick your field", "분야를 고르세요")}</h2>
+    <p class="lede">${T("One sliding-to-a-stop model covers all three.", "세 분야 모두 '미끄러지다 멈추는' 같은 물리 모델로 다룹니다.")}</p>
+    <div class="doms">${DOMAINS.map(d => `<a class="dom" href="${L.studio(q, d.id, d.sample)}">
+      <div class="img" style="background-image:url('${L.img(d.img)}')"></div>
+      <div class="body"><h3>${T(...d.name)}</h3><p>${T(...d.line)}</p><span class="go">${STATIC ? T("Open in Studio", "Studio에서 열기") : T("Open the example", "예시 열기")}</span></div></a>`).join("")}</div>
   </section>
 
   <section>
-    <span class="kicker">${T("PICK YOUR DOMAIN", "업무 선택")}</span>
-    <h2 class="sec">${T("Same physics, three jobs", "물리는 같고, 업무는 셋")}</h2>
-    <p class="lede">${T("Something is launched toward a target and slides to a stop; part of the surface differs; the actuator under-delivers; a camera judges the distance. That one model covers an arm on a table, a car on a road (Froude-scaled, friction unchanged) and a part on a rail.", "무언가가 목표를 향해 출발해 미끄러지다 멈춥니다. 바닥 일부가 다르고, 구동 장치가 약하고, 카메라가 거리를 잽니다. 이 하나의 모델이 탁자 위 로봇 팔, 도로 위 차량(프루드 축소, 마찰은 동일), 레일 위 부품을 모두 다룹니다.")}</p>
-    <div class="doms">${DOMAINS.map(d => `<article class="dom">
-      <div class="img" style="background-image:url('${L.img(d.img)}')"><span>${T("Rendered in NVIDIA Newton", "NVIDIA Newton 렌더링")}</span></div>
-      <div class="body"><h3>${T(...d.name)}</h3><p>${T(...d.line)}</p>
-        <dl><dt>${T("Data", "데이터")}</dt><dd>${T(...d.data)}</dd><dt>${T("Finds", "찾는 것")}</dt><dd>${T(...d.finds)}</dd><dt>${T("Exports", "내보내기")}</dt><dd>${d.out}</dd></dl>
-        <div class="res">${T(...d.res)}</div>
-        <div class="acts"><a class="btn primary" href="${L.studio(q, d.id, d.sample)}">${STATIC ? T("Open in Studio", "Studio에서 열기") : T("Open the example", "예시 열기")}</a>${STATIC ? "" : `<a class="btn" href="${L.studio(q, d.id)}">${T("Make your own", "직접 만들기")}</a>`}</div></div></article>`).join("")}</div>
-  </section>
-
-  <section>
-    <span class="kicker">${T("UNDER THE HOOD", "내부 구조")}</span>
-    <h2 class="sec">${T("What happens to your data", "데이터가 처리되는 과정")}</h2>
-    <div class="pipe">
-      <div><span class="n">1 · ${T("DATA", "데이터")}</span><b>${T("Video, log or Newton", "영상, 기록, Newton")}</b><p>${T("A phone or line camera video, a robot/vehicle/pusher log (CSV, JSON), or a world you define, simulated and rendered by NVIDIA Newton.", "폰·라인 카메라 영상, 로봇·차량·푸셔 기록(CSV, JSON), 또는 직접 정한 세계를 NVIDIA Newton이 계산·렌더링한 데이터.")}</p></div>
-      <div><span class="n">2 · ${T("MEASURE", "측정")}</span><b>${T("Scale from a rectangle", "사각형 하나로 크기")}</b><p>${T("Homography from a known rectangle gives focal length and camera pose; tracking is parallax-corrected; launch speed from a local deceleration fit.", "크기를 아는 사각형으로 초점 거리와 카메라 자세를 구하고, 시차를 보정해 추적하며, 감속 구간에 맞춰 출발 속도를 구합니다.")}</p></div>
-      <div><span class="n">3 · ${T("DIAGNOSE", "진단")}</span><b>Nemotron 3 Super</b><p>${T("A tool-using agent profiles deceleration, checks perception, tests hypotheses and asks for experiments. A library search cross-checks it.", "도구를 쓰는 AI가 감속을 재고, 카메라를 확인하고, 가설을 검증하고, 실험을 요청합니다. 자동 탐색이 그 답을 교차 검증합니다.")}</p></div>
-      <div><span class="n">4 · ${T("CALIBRATE", "보정")}</span><b>${T("Least squares + bootstrap", "최소제곱 + 부트스트랩")}</b><p>${T("Every value with a 90% interval that includes measurement error; what-if worlds where nothing was measured; the next run that settles the most.", "측정 오차까지 포함한 90% 범위, 측정하지 않은 구간의 가정 시나리오, 가장 많이 확실해지는 다음 실험.")}</p></div>
-      <div><span class="n">5 · ${T("VERIFY, RETRAIN", "검증, 재학습")}</span><b>${T("Replay and retrain in Newton", "Newton 재현과 재학습")}</b><p>${T("Every run replayed with the exported physics; then a policy retrained in parallel Newton worlds (current sim, wide randomization, Tether's ranges) and scored.", "모든 기록을 내보낼 값으로 다시 실행하고, Newton 병렬 세계에서 정책을 세 방식(지금 시뮬레이터, 넓은 무작위화, Tether 범위)으로 다시 학습해 비교합니다.")}</p></div>
-      <div><span class="n">6 · ${T("EXPORT", "내보내기")}</span><b>Newton · Isaac Lab · CARLA</b><p><code>ShapeConfig(mu=…)</code>, <code>EventTermCfg</code>, <code>static.trigger.friction</code>${T(", a report and JSON.", ", 보고서와 JSON.")}</p></div>
-    </div>
-  </section>
-
-  <section>
-    <span class="kicker">${T("EVIDENCE", "검증")}</span>
-    <h2 class="sec">${T("Measured, not claimed", "주장이 아니라 측정값")}</h2>
+    <h2 class="sec">${T("Results", "결과")}</h2>
     <div class="ev">
-      <div style="border-color:var(--green)"><span class="big num"><em>100%</em></span><p>${T("A policy retrained on Tether's measured ranges, scored in the hidden real world: 4 of 6 examples at 100%. Trained on the current sim: 0–63%. Wide randomization: 0–38%.", "Tether가 잰 범위로 다시 학습한 정책의 숨겨진 실제 세계 성공률: 예시 6개 중 4개가 100%. 지금 시뮬레이터로 학습: 0~63%. 넓은 무작위화: 0~38%.")}</p><span class="src">${T("Studio “Retrain”: parallel NVIDIA Newton worlds; the two below 100% are the unmeasured far table (46%) and a wet-section friction at its interval edge (58%)", "Studio “다시 학습”: NVIDIA Newton 병렬 세계. 100% 미만 두 개는 측정하지 않은 먼 구간(46%)과 범위 끝에 걸린 젖은 구간 마찰(58%)")}</span></div>
-      <div><span class="big num">54% <small>→</small> <em>96%</em></span><p>${T("Policy success on the hardest open-world faults (a friction strip and a bent lens together): fixed rules vs the Nemotron agent.", "가장 어려운 경우(다른 마찰 구간과 휘어진 렌즈 동시)에서 정책 성공률: 정해진 규칙 vs Nemotron AI.")}</p><span class="src">${T("Agent console, NVIDIA Newton, 15 worlds per tier", "AI 콘솔, NVIDIA Newton, 난이도별 15개 세계")}</span></div>
-      <div><span class="big num">5.8 <small>vs</small> 7.6</span><p>${T("Real runs needed to reach 95% success when the next run is Tether's suggestion vs a random one.", "95% 성공까지 필요한 실제 실행 횟수: Tether 추천 vs 무작위.")}</p><span class="src">${T("50 worlds; a hand-made far-first sweep needs 5.9", "가상 세계 50개, 먼 곳부터 사람이 짠 순서는 5.9번")}</span></div>
-      <div><span class="big num"><em>6–9</em> <small>mm</small></span><p>${T("Exported physics replayed push by push in NVIDIA Newton: rms stop error across the six examples (robot scale). Your current sim: 3–25 cm.", "내보낸 물리값으로 모든 기록을 NVIDIA Newton에서 다시 실행했을 때의 평균 정지 위치 오차(예시 6개, 로봇 크기 기준). 지금 시뮬레이터는 3~25 cm.")}</p><span class="src">${T("Studio export step, “Verified in NVIDIA Newton”", "Studio 내보내기 단계 “NVIDIA Newton으로 검증”")}</span></div>
-      <div><span class="big num"><em>92%</em></span><p>${T("How often the true value falls inside Tether's 90% interval, over 24 random hidden worlds (118 values). In the six examples: 19 of 21.", "무작위로 숨긴 세계 24개(값 118개)에서 정답이 Tether의 90% 범위 안에 든 비율. 예시 6개에서는 21개 중 19개.")}</p><span class="src">${T("Intervals that are honest about what they do not know", "모르는 만큼 넓게 표시하는 범위")}</span></div>
+      <div><span class="big num"><em>100%</em></span><p>${T("success after retraining on Tether's ranges (4 of 6 examples; before: 0–63%)", "Tether 범위로 재학습한 정책의 성공률 (예시 6개 중 4개, 보정 전 0~63%)")}</p></div>
+      <div><span class="big num"><em>6–9</em><small> mm</small></span><p>${T("stop error when the calibrated physics is replayed in NVIDIA Newton (before: 3–25 cm)", "보정값으로 NVIDIA Newton에서 재현한 정지 위치 오차 (보정 전 3~25 cm)")}</p></div>
+      <div><span class="big num"><em>92%</em></span><p>${T("of true values fall inside Tether's 90% intervals (24 random worlds)", "실제값이 Tether의 90% 신뢰 범위 안에 든 비율 (무작위 환경 24개)")}</p></div>
     </div>
-    <div class="stack" id="stack"></div>
+    <p class="note">${T("All examples are synthetic NVIDIA Newton data, so the truth is known. `make prove` recomputes every number.", "모든 예시는 실제값을 아는 NVIDIA Newton 가상 데이터입니다. 모든 수치는 `make prove`로 다시 계산할 수 있습니다.")}</p>
   </section>`;
-  $("#foot").textContent = T("Tether. Every example uses synthetic data rendered in NVIDIA Newton, so the hidden truth is known and can be revealed; a real phone video goes through the same path.", "Tether. 모든 예시는 NVIDIA Newton으로 만든 가상 데이터라 정답을 알고 확인할 수 있습니다. 실제 폰 영상도 같은 과정을 거칩니다.");
+  $("#foot").textContent = "Tether · NVIDIA Newton · NVIDIA Nemotron on Nebius Token Factory";
   document.querySelectorAll("#ttog button").forEach(b => b.onclick = () => { calibrated = b.dataset.v === "cal"; renderTether(); });
   renderTether();
   renderStack();
@@ -313,11 +286,11 @@ function render() {
 let STATUS = {};
 function renderStack() {
   const on = STATUS.provider && STATUS.provider !== "none";
-  $("#stack").innerHTML = [["NVIDIA Newton", T("physics and rendering (Warp)", "물리 계산·렌더링 (Warp)")], ["NVIDIA Nemotron 3 Super 120B", STATUS.recorded ? T("on Nebius Token Factory (recorded runs)", "Nebius Token Factory (실행 기록)") : on ? T("live on Nebius Token Factory", "Nebius Token Factory 연결됨") : T("off on this server", "이 서버에서 꺼짐")], ["NVIDIA Cosmos Reason 2", T("optional, local: tipped or not", "선택, 로컬: 넘어짐 판정")], ["Isaac Lab · CARLA", T("export targets", "내보내기 대상")]]
+  $("#stack").innerHTML = [["NVIDIA Newton", T("physics and rendering (Warp)", "물리 시뮬레이션·렌더링 (Warp)")], ["NVIDIA Nemotron 3 Super 120B", STATUS.recorded ? T("on Nebius Token Factory (recorded runs)", "Nebius Token Factory (실행 기록 재생)") : on ? T("live on Nebius Token Factory", "Nebius Token Factory 연결됨") : T("off on this server", "이 서버에서는 꺼져 있음")], ["NVIDIA Cosmos Reason 2", T("optional, local: tipped or not", "선택 사항, 로컬 실행: 넘어짐 판정")], ["Isaac Lab · CARLA", T("export targets", "내보내기 형식")]]
     .map(([a, b]) => `<span><b>${a}</b> · ${b}</span>`).join("");
   const st = $("#status"); st.classList.toggle("off", !on);
-  st.querySelector("span").textContent = STATUS.recorded ? T("Recorded runs: Nemotron 3 Super", "Nemotron 3 Super 실행 기록")
-    : on ? T("Agent online: Nemotron 3 Super", "AI 연결됨: Nemotron 3 Super") : T("Agent off: offline fitting", "AI 꺼짐: 계산만 사용");
+  st.querySelector("span").textContent = STATUS.recorded ? T("Recorded runs: Nemotron 3 Super", "Nemotron 3 Super 실행 기록 재생")
+    : on ? T("Agent online: Nemotron 3 Super", "AI 연결됨: Nemotron 3 Super") : T("Agent off: offline fitting", "AI 꺼짐: 계산 방식만 사용");
 }
 function setLang(l) { LANG = l; try { localStorage.setItem("gapcloser-lang", l); } catch (_) {} render(); }
 document.querySelectorAll(".lang button").forEach(b => b.onclick = () => setLang(b.dataset.lang));

@@ -48,7 +48,7 @@ DOMAINS = {
         {"en": "A robot arm pushes a box so it stops on a line. The table may be slicker, wet in places, or the arm weaker than in simulation.",
          "ko": "로봇 팔이 상자를 밀어 선에 세웁니다. 실제 탁자는 더 미끄럽거나 일부가 젖어 있거나, 팔의 힘이 시뮬레이션과 다를 수 있습니다."},
         {"en": {"object": "box", "surface": "table", "actuator": "arm strength", "target": "line", "region": "friction region (spill, mat, worn spot)", "camera": "robot camera"},
-         "ko": {"object": "상자", "surface": "탁자", "actuator": "팔 힘", "target": "선", "region": "마찰이 다른 구간", "camera": "로봇 카메라"}},
+         "ko": {"object": "상자", "surface": "탁자", "actuator": "팔 출력", "target": "선", "region": "마찰이 다른 구간", "camera": "로봇 카메라"}},
         "a4", 0.06, {"en": "within 3 cm of the line", "ko": "선에서 3 cm 이내"},
         {"mu_eff": 0.45, "patch_y0": 0.32, "patch_mu": 0.25}),
     "driving": Domain(
@@ -57,7 +57,7 @@ DOMAINS = {
         {"en": "A car brakes to stop at a stop line. The real road may be wet or icy from some point on, the brakes weaker, or the camera misjudge distance.",
          "ko": "차량이 정지선에 맞춰 제동합니다. 실제 도로는 어느 지점부터 젖었거나 얼어 있을 수 있고, 제동력이나 카메라의 거리 판단이 시뮬레이션과 다를 수 있습니다."},
         {"en": {"object": "car", "surface": "road", "actuator": "brake/drive response", "target": "stop line", "region": "wet or icy section", "camera": "front camera"},
-         "ko": {"object": "차량", "surface": "도로", "actuator": "구동·제동 응답", "target": "정지선", "region": "젖거나 언 구간", "camera": "전방 카메라"}},
+         "ko": {"object": "차량", "surface": "도로", "actuator": "속도 추종", "target": "정지선", "region": "젖거나 언 구간", "camera": "전방 카메라"}},
         "crosswalk", 1.5, {"en": "within 0.75 m of the stop line", "ko": "정지선에서 0.75 m 이내"},
         {"mu_eff": 0.75, "patch_y0": 0.36, "patch_mu": 0.30}),
     "factory": Domain(
@@ -66,7 +66,7 @@ DOMAINS = {
         {"en": "A pneumatic pusher slides a part along a rail to the inspection camera. Oil on the rail, a weaker pusher or a shifted camera puts the part off-position for inspection.",
          "ko": "공압 푸셔가 부품을 레일 위로 밀어 검사 카메라 아래에 세웁니다. 레일의 기름, 약해진 푸셔, 어긋난 카메라 때문에 부품이 검사 위치를 벗어납니다."},
         {"en": {"object": "part", "surface": "rail", "actuator": "pusher pressure", "target": "inspection position", "region": "oily section", "camera": "inspection camera"},
-         "ko": {"object": "부품", "surface": "레일", "actuator": "푸셔 압력", "target": "검사 위치", "region": "기름 묻은 구간", "camera": "검사 카메라"}},
+         "ko": {"object": "부품", "surface": "레일", "actuator": "푸셔 출력", "target": "검사 위치", "region": "기름 묻은 구간", "camera": "검사 카메라"}},
         "a4", 0.06, {"en": "within 3 cm of the inspection position", "ko": "검사 위치에서 3 cm 이내"},
         {"mu_eff": 0.35, "patch_y0": 0.30, "patch_mu": 0.20}),
 }
@@ -144,15 +144,15 @@ FIELD_LABELS = {  # what each fitted field means in each domain (English; the pa
 }
 
 FIELD_LABELS_KO = {
-    "robot": {"mu_eff": "상자-탁자 마찰", "patch_y0": "다른 마찰 구간 시작 위치", "patch_mu": "그 구간의 마찰",
-              "actuator_gain": "팔 힘 (실제/명령 속도)", "camera_dx": "카메라 위치 어긋남", "camera_pitch_deg": "카메라 기울기 오차",
-              "lens_k": "렌즈 휘어짐"},
-    "driving": {"mu_eff": "타이어-노면 마찰", "patch_y0": "젖거나 언 구간 시작 위치", "patch_mu": "그 구간의 마찰",
-                "actuator_gain": "속도 제어 (실제/명령 속도)", "camera_dx": "전방 카메라 거리 오차", "camera_pitch_deg": "전방 카메라 기울기 오차",
-                "lens_k": "렌즈 휘어짐"},
-    "factory": {"mu_eff": "부품-레일 마찰", "patch_y0": "기름 묻은 구간 시작 위치", "patch_mu": "기름 묻은 구간의 마찰",
-                "actuator_gain": "푸셔 힘 (실제/명령 속도)", "camera_dx": "검사 카메라 위치 어긋남", "camera_pitch_deg": "검사 카메라 기울기 오차",
-                "lens_k": "렌즈 휘어짐"},
+    "robot": {"mu_eff": "상자-탁자 마찰계수", "patch_y0": "마찰이 다른 구간의 시작 위치", "patch_mu": "해당 구간 마찰계수",
+              "actuator_gain": "팔 출력 (실제/명령 속도 비)", "camera_dx": "카메라 위치 오차", "camera_pitch_deg": "카메라 기울기 오차",
+              "lens_k": "렌즈 왜곡"},
+    "driving": {"mu_eff": "타이어-노면 마찰계수", "patch_y0": "젖거나 언 구간 시작 위치", "patch_mu": "해당 구간 마찰계수",
+                "actuator_gain": "속도 추종 (실제/명령 속도 비)", "camera_dx": "전방 카메라 거리 오차", "camera_pitch_deg": "전방 카메라 기울기 오차",
+                "lens_k": "렌즈 왜곡"},
+    "factory": {"mu_eff": "부품-레일 마찰계수", "patch_y0": "기름 묻은 구간 시작 위치", "patch_mu": "기름 구간 마찰계수",
+                "actuator_gain": "푸셔 출력 (실제/명령 속도 비)", "camera_dx": "검사 카메라 위치 오차", "camera_pitch_deg": "검사 카메라 기울기 오차",
+                "lens_k": "렌즈 왜곡"},
 }
 
 

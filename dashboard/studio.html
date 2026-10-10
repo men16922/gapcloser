@@ -133,6 +133,22 @@ button, input, select { font: inherit; color: inherit; }
 .domnote { margin-top: 10px; color: var(--muted); font-size: 14px; max-width: 78ch; }
 @media (max-width: 640px) { .domtabs { grid-template-columns: 1fr; } .domtabs button { border-right: 0; border-bottom: 1px solid var(--line); } .domtabs button:last-child { border-bottom: 0; } }
 
+/* how to start: one of three, the rest stays out of the way */
+.pick-label { margin-top: 22px; font: 600 13px/1 var(--f-display); letter-spacing: 0.04em; color: var(--muted); }
+.pick-label + .domtabs, .pick-label + .startpick { margin-top: 8px; }
+.startpick { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
+.startpick button { all: unset; box-sizing: border-box; cursor: pointer; border: 1px solid var(--line); background: var(--panel); padding: 16px 18px; display: grid; gap: 4px; }
+.startpick button b { font: 600 18px/1.2 var(--f-display); }
+.startpick button span { font-size: 13px; color: var(--muted); }
+.startpick button[aria-selected="true"] { border-color: var(--green); box-shadow: inset 0 -3px 0 var(--green); }
+.startpick button:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+.mode[hidden] { display: none !important; }
+details.intro { margin-top: 14px; }
+details.more summary { cursor: pointer; font: 600 17px/1.3 var(--f-display); color: var(--muted); padding: 6px 0; }
+details.more summary:hover { color: var(--fg); }
+details.intro summary { cursor: pointer; color: var(--muted); font-size: 14px; }
+details.intro[open] summary { margin-bottom: 8px; }
+@media (max-width: 640px) { .startpick { grid-template-columns: 1fr; } }
 /* 30-second explainer */
 .easy { margin-top: 20px; border: 1px solid var(--line); border-left: 3px solid var(--green); background: var(--panel); padding: 16px 20px; }
 .easy h3 { font-size: 18px; margin-bottom: 6px; }
@@ -375,11 +391,20 @@ pre.code .s { color: #e3b867; }
     <!-- 1 data -->
     <section class="panel" id="p-data">
       <h2>Fit your simulator to the real world</h2>
-      <p class="lede">Show Tether how something actually slides on your table: a phone video, or the push log your robot already writes. You get the physics that differs from your simulator, how sure that is, which pushes would settle the rest, and a config for NVIDIA Newton or Isaac Lab.</p>
+      <p class="lede" id="data-lede">Pick a field, then choose how to start.</p>
+      <p class="pick-label" id="pl-1">1 · Field</p>
       <div class="domtabs" role="tablist" aria-label="Domain" id="domtabs"></div>
+      <p class="pick-label" id="pl-2">2 · How to start</p>
+      <div class="startpick" role="tablist" aria-label="How to start" id="startpick">
+        <button type="button" role="tab" data-m="example"><b id="sp-ex">Open an example</b><span id="sp-ex-d">Recorded runs with a known answer</span></button>
+        <button type="button" role="tab" data-m="sim"><b id="sp-sim">Simulate your own</b><span id="sp-sim-d">Set hidden physics; NVIDIA Newton makes the data</span></button>
+        <button type="button" role="tab" data-m="upload"><b id="sp-up">Upload your data</b><span id="sp-up-d">A phone video or a log</span></button>
+      </div>
+      <details class="intro" id="intro"><summary id="intro-sum">New here? The 30-second version</summary>
       <p class="domnote" id="domnote"></p>
-      <section class="easy" id="easy" aria-label="In 30 seconds" data-ko-html="<h3>30초 설명</h3><ol><li><b>로봇은 가상 세계에서 연습합니다.</b> 진짜 탁자는 조금 달라서(더 미끄럽거나 젖은 곳이 있는 등) 실제로는 자주 빗나갑니다.</li><li><b>실제로 밀어 본 기록을 넣습니다.</b> 폰 영상이나 로봇 기록이면 됩니다. 없으면 아래에서 가상으로 만들 수 있습니다.</li><li><b>AI가 무엇이 다른지 찾아서</b> 가상 세계를 고치고, 다음에 해 볼 실험을 알려 줍니다.</li></ol>"><h3>In 30 seconds</h3><ol><li><b>Robots practise in a virtual world.</b> The real table is a bit different (slipperier, a wet patch), so for real they keep missing.</li><li><b>Give it a record of real pushes.</b> A phone video or a robot log. No data? Make a virtual table below.</li><li><b>The AI finds what is different,</b> fixes the virtual world, and tells you which push to try next.</li></ol></section>
-      <section class="simlab" id="simlab" aria-labelledby="sim-h">
+      <section class="easy" id="easy" aria-label="In 30 seconds" data-ko-html="<h3>30초 설명</h3><ol><li><b>로봇은 시뮬레이션에서 먼저 학습합니다.</b> 그런데 실제 탁자는 시뮬레이션과 조금 달라서(더 미끄럽거나 젖은 곳이 있는 등) 현장에서는 자주 빗나갑니다.</li><li><b>실제 시행 기록을 넣습니다.</b> 스마트폰 영상이나 로봇 로그면 충분합니다. 데이터가 없으면 아래에서 가상으로 만들 수 있습니다.</li><li><b>AI가 차이를 찾아</b> 시뮬레이터를 보정하고, 다음에 할 실험을 추천합니다.</li></ol>"><h3>In 30 seconds</h3><ol><li><b>Robots practise in a virtual world.</b> The real table is a bit different (slipperier, a wet patch), so for real they keep missing.</li><li><b>Give it a record of real pushes.</b> A phone video or a robot log. No data? Make a virtual table below.</li><li><b>The AI finds what is different,</b> fixes the virtual world, and tells you which push to try next.</li></ol></section>
+      </details>
+      <section class="simlab mode" data-mode="sim" id="simlab" aria-labelledby="sim-h">
         <div class="simform">
           <h3 id="sim-h">No video at hand? Simulate your table</h3>
           <p class="small muted" id="sim-lede">Set the physics of the "real" table, and NVIDIA Newton produces the measurements: a phone-style video it renders, or a robot's push log. Tether then has to work out your settings from the data alone; you see how close it got at the end.</p>
@@ -402,9 +427,8 @@ pre.code .s { color: #e3b867; }
         </div>
         <div class="simview" id="simview" aria-hidden="true"></div>
       </section>
-      <h3 class="ortitle">Or open a recorded example</h3>
-      <div class="samples" id="samples"></div>
-      <div class="drop" id="drop">
+      <div class="mode" data-mode="example"><div class="samples" id="samples"></div></div>
+      <div class="drop mode" data-mode="upload" id="drop">
         <div>
           <h3>Film your own table</h3>
           <ol>
@@ -421,7 +445,7 @@ pre.code .s { color: #e3b867; }
         </div>
         <div>
           <h3>Or upload a robot log</h3>
-          <p class="small muted" style="margin-top:6px" data-ko-html="CSV 또는 JSON 파일입니다. 한 번 민 기록이 한 줄입니다. 멈춘 거리 <code>stop</code>(m)과 명령값 <code>command</code>(또는 실제 출발 속도 <code>launch_speed</code>)는 필수입니다. <code>target</code>, <code>perceived</code>, <code>track</code>(30fps 위치값, 공백 구분)이 있으면 모터·마찰·카메라 중 원인을 더 정확히 가려냅니다.">CSV or JSON, one row per push. <code>stop</code> in metres and a <code>command</code> (or measured <code>launch_speed</code>) are required; <code>target</code>, <code>perceived</code> and a <code>track</code> (positions at 30 fps, space separated) let it separate actuator, friction and camera errors.</p>
+          <p class="small muted" style="margin-top:6px" data-ko-html="CSV 또는 JSON 파일이며, 한 줄이 시행 1회입니다. 정지 거리 <code>stop</code>(m)과 명령값 <code>command</code>(또는 실측 출발 속도 <code>launch_speed</code>)는 필수입니다. <code>target</code>, <code>perceived</code>, <code>track</code>(30fps 위치값, 공백 구분)이 있으면 모터·마찰·카메라 중 원인을 더 정확히 구분합니다.">CSV or JSON, one row per push. <code>stop</code> in metres and a <code>command</code> (or measured <code>launch_speed</code>) are required; <code>target</code>, <code>perceived</code> and a <code>track</code> (positions at 30 fps, space separated) let it separate actuator, friction and camera errors.</p>
           <p style="margin-top:10px"><code>command,stop,target,perceived,track<br>2.91,0.519,0.520,0.538,0 0.080 0.155 …</code></p>
         </div>
       </div>
@@ -468,14 +492,14 @@ pre.code .s { color: #e3b867; }
         <div class="row" style="margin-top:12px" id="r-truth"></div>
       </div>
       <div class="sec">
-        <h3>The evidence</h3>
-        <div class="charts" id="r-charts"></div>
-      </div>
-      <div class="sec">
         <h3>Next experiment</h3>
         <p class="lede" id="next-lede">Where the plausible models disagree most about where the object stops, inside the range your robot works in.</p>
         <div id="r-next"></div>
       </div>
+      <details class="sec more" id="r-more">
+        <summary>The evidence: stops, friction along the path, success by distance</summary>
+        <div class="charts" id="r-charts"></div>
+      </details>
     </section>
 
     <!-- 5 export -->
@@ -603,129 +627,129 @@ let LANG = (() => { const q = new URLSearchParams(location.search).get("lang"); 
 const T = (en, ko) => (LANG === "ko" ? ko : en);
 const KO = {
   // chrome and steps
-  "Retrain": "다시 학습", "Policy on the new physics": "고친 물리로 정책 학습", "Retrain and test": "다시 학습하고 시험하기", "Retrain on the calibrated physics": "고친 물리값으로 다시 학습하기",
-  "Agent console": "AI 콘솔", "Overview": "소개", "Studio": "Studio", "Data": "데이터", "Measure": "측정", "Diagnose": "진단", "Calibrated sim": "고친 시뮬레이터",
-  "Export": "내보내기", "Video or robot log": "영상 또는 로봇 로그", "Scale and pushes": "크기 재기와 기록", "Agent at work": "AI가 원인 찾기",
-  "Physics, intervals, next push": "달라진 값과 다음 실험", "Newton, Isaac Lab, report": "Newton·Isaac Lab 설정, 보고서",
-  "Agent off: offline fitting": "AI 없이 계산만 하는 모드",
+  "Retrain": "재학습", "The evidence: stops, friction along the path, success by distance": "근거 자료 보기: 정지 위치, 위치별 마찰, 거리별 성공률", "Policy on the new physics": "보정된 물리로 정책 재학습", "Retrain and test": "재학습과 평가", "Retrain on the calibrated physics": "보정된 물리값으로 재학습하기",
+  "Agent console": "AI 콘솔", "Overview": "소개", "Studio": "Studio", "Data": "데이터", "Measure": "측정", "Diagnose": "진단", "Calibrated sim": "보정된 시뮬레이터",
+  "Export": "내보내기", "Video or robot log": "영상 또는 로봇 로그", "Scale and pushes": "기준 크기와 움직임 측정", "Agent at work": "AI 원인 분석",
+  "Physics, intervals, next push": "보정값과 다음 실험", "Newton, Isaac Lab, report": "Newton·Isaac Lab 설정, 보고서",
+  "Agent off: offline fitting": "AI 없이 계산 방식으로 동작",
   // data step
-  "Fit your simulator to the real world": "시뮬레이터를 실제 세계에 맞춥니다",
-  "Show Tether how something actually slides on your table: a phone video, or the push log your robot already writes. You get the physics that differs from your simulator, how sure that is, which pushes would settle the rest, and a config for NVIDIA Newton or Isaac Lab.": "실제 탁자에서 물건이 미끄러지는 모습을 폰 영상이나 로봇 기록으로 넣으면, 시뮬레이터와 다른 점, 그 확실성, 다음에 해 볼 실험을 알려 주고 NVIDIA Newton·Isaac Lab용 설정을 만들어 줍니다.",
-  "No video at hand? Simulate your table": "영상이 없다면 가상 탁자로 시작합니다",
-  'Set the physics of the "real" table, and NVIDIA Newton produces the measurements: a phone-style video it renders, or a robot\'s push log. Tether then has to work out your settings from the data alone; you see how close it got at the end.': "\"진짜 탁자\"의 조건을 정하면 NVIDIA Newton이 물건을 밀어 보고 영상이나 로봇 기록을 만듭니다. Tether는 그 데이터만으로 정한 값을 찾아야 하며, 마지막에 정답과 비교합니다.",
-  "Phone video": "폰 영상", "Robot log": "로봇 로그", "Table friction": "탁자 마찰",
-  "A region with different friction (spill, mat, worn spot)": "중간에 미끄럽거나 거친 곳 넣기 (엎지른 물, 매트, 닳은 자리 등)",
-  "Region starts at": "그 구간이 시작되는 거리", "Friction in the region": "그 구간의 마찰", "Robot motor strength": "로봇 모터 힘", "Robot camera tilt": "로봇 카메라 기울기",
-  "Pushes": "밀기 횟수", "Longest push slides": "가장 멀리 밀 거리", "Run in NVIDIA Newton": "NVIDIA Newton으로 만들기",
-  "Or open a recorded example": "또는 미리 만들어 둔 예시 보기", "Film your own table": "내 탁자를 직접 찍어 보기",
-  "Lay a sheet of A4 or Letter paper flat on the table, beside the path.": "물건이 미끄러질 길 옆에 A4 용지를 평평하게 놓습니다.",
-  "Hold the phone still (or prop it up) so the sheet and the whole path are in view.": "용지와 길 전체가 화면에 들어오도록 폰을 고정합니다.",
-  "Flick the object 6–10 times from the same spot, short and long. Let it stop each time.": "같은 자리에서 물건을 짧게, 길게 6~10번 튕깁니다. 매번 멈출 때까지 기다립니다.",
-  "Use slow motion (120 fps) or 60 fps if your phone has it: motion blur at 30 fps makes launch speeds read low.": "가능하면 슬로모션(120fps)이나 60fps로 촬영합니다. 30fps는 번짐 때문에 속도가 낮게 측정됩니다.",
-  "Choose a video or log": "영상 또는 기록 파일 선택", "or drop it here": "또는 여기로 끌어다 놓기", "Or upload a robot log": "로봇 기록 파일이 있다면",
-  "Uploads run on the live server (make serve, then open /studio). The samples above replay recorded runs.": "파일 업로드는 서버 실행 시 가능합니다 (make serve 후 /studio). 위 예시는 미리 실행한 결과입니다.",
-  "Simulation runs on the live server (make serve, then /studio).": "가상 탁자는 서버 실행 시 사용할 수 있습니다 (make serve 후 /studio).",
-  "Phone video: a box on a table": "폰 영상: 탁자 위에서 튕긴 상자",
-  "Seven hand flicks filmed from the side, an A4 sheet for scale. Something about this table is off. Synthetic: rendered by NVIDIA Newton from physics the Studio never sees.": "상자를 손으로 7번 튕긴 영상입니다. 크기 기준용 A4 용지가 있습니다. 이 탁자에는 숨겨진 차이가 있습니다. (NVIDIA Newton으로 만든 가상 영상이며, Studio는 정답을 모릅니다.)",
-  "Robot log: first day on the real bench": "로봇 기록: 실제 작업대에서의 첫날",
-  "20 pushes (16 aimed at targets, 4 probes) with camera tracks, from a policy trained in the nominal sim.": "기본 시뮬레이터에서 연습한 로봇이 20번 민 기록입니다 (목표 16번, 확인용 4번). 카메라로 찍은 움직임이 포함됩니다.",
-  "Robot log: short pushes only": "로봇 기록: 짧게만 민 경우",
+  "Fit your simulator to the real world": "시뮬레이터를 현실에 맞춥니다",
+  "Show Tether how something actually slides on your table: a phone video, or the push log your robot already writes. You get the physics that differs from your simulator, how sure that is, which pushes would settle the rest, and a config for NVIDIA Newton or Isaac Lab.": "물체가 실제로 미끄러지는 영상이나 로봇 로그를 올리면, 시뮬레이터와 다른 값과 그 신뢰 범위, 다음에 할 실험을 알려 드리고 NVIDIA Newton·Isaac Lab 설정 파일을 만들어 드립니다.",
+  "No video at hand? Simulate your table": "영상이 없으면 가상 탁자로 시작할 수 있습니다",
+  'Set the physics of the "real" table, and NVIDIA Newton produces the measurements: a phone-style video it renders, or a robot\'s push log. Tether then has to work out your settings from the data alone; you see how close it got at the end.': "‘실제’ 탁자의 조건을 정하면 NVIDIA Newton이 영상이나 로봇 로그를 생성합니다. Tether는 정답을 모른 채 이 데이터만으로 값을 찾아내며, 마지막에 정답과 비교할 수 있습니다.",
+  "Phone video": "스마트폰 영상", "Robot log": "로봇 로그", "Table friction": "탁자 마찰계수",
+  "A region with different friction (spill, mat, worn spot)": "마찰이 다른 구간 추가 (엎지른 물, 매트, 닳은 부분 등)",
+  "Region starts at": "구간 시작 거리", "Friction in the region": "구간 마찰계수", "Robot motor strength": "로봇 모터 출력", "Robot camera tilt": "로봇 카메라 기울기",
+  "Pushes": "밀기 횟수", "Longest push slides": "최대 이동 거리", "Run in NVIDIA Newton": "NVIDIA Newton으로 만들기",
+  "Or open a recorded example": "또는 준비된 예시로 시작하기", "Film your own table": "내 탁자 직접 촬영하기",
+  "Lay a sheet of A4 or Letter paper flat on the table, beside the path.": "물체가 미끄러질 경로 옆에 A4 용지를 평평하게 놓습니다.",
+  "Hold the phone still (or prop it up) so the sheet and the whole path are in view.": "용지와 이동 경로 전체가 화면에 들어오도록 스마트폰을 고정합니다.",
+  "Flick the object 6–10 times from the same spot, short and long. Let it stop each time.": "같은 자리에서 물체를 짧게, 길게 섞어 6~10번 튕깁니다. 매번 완전히 멈출 때까지 기다립니다.",
+  "Use slow motion (120 fps) or 60 fps if your phone has it: motion blur at 30 fps makes launch speeds read low.": "가능하면 슬로모션(120fps)이나 60fps로 촬영합니다. 30fps에서는 모션 블러 때문에 속도가 낮게 측정될 수 있습니다.",
+  "Choose a video or log": "영상 또는 기록 파일 선택", "or drop it here": "또는 여기로 끌어다 놓기", "Or upload a robot log": "로봇 로그 파일이 있다면",
+  "Uploads run on the live server (make serve, then open /studio). The samples above replay recorded runs.": "파일 업로드는 서버를 실행했을 때만 가능합니다(make serve 후 /studio). 위 예시는 미리 실행한 결과입니다.",
+  "Simulation runs on the live server (make serve, then /studio).": "가상 탁자는 서버를 실행했을 때 사용할 수 있습니다(make serve 후 /studio).",
+  "Phone video: a box on a table": "스마트폰 영상: 탁자 위에서 튕긴 상자",
+  "Seven hand flicks filmed from the side, an A4 sheet for scale. Something about this table is off. Synthetic: rendered by NVIDIA Newton from physics the Studio never sees.": "상자를 손으로 7번 튕긴 영상입니다. A4 용지를 크기 기준으로 두었고, 탁자에는 숨겨진 차이가 있습니다. (NVIDIA Newton으로 만든 가상 영상이며, Studio에는 정답을 알려 주지 않았습니다.)",
+  "Robot log: first day on the real bench": "로봇 로그: 실제 작업대 첫 운용",
+  "20 pushes (16 aimed at targets, 4 probes) with camera tracks, from a policy trained in the nominal sim.": "기본 시뮬레이터에서 학습한 로봇의 20회 시행 로그입니다(목표 지점 16회, 확인용 4회). 카메라 추적 데이터가 포함되어 있습니다.",
+  "Robot log: short pushes only": "로봇 로그: 짧은 거리만 시행한 경우",
   "Roadside camera: braking to a stop line": "도로변 카메라: 정지선 제동",
-  "Seven braking runs filmed from beside the road, a painted 5.25 × 7.4 m box for scale. Part of the road is wet. Synthetic: rendered by NVIDIA Newton (Froude-scaled, friction is scale-free).": "도로 옆에서 찍은 제동 7번입니다. 크기 기준은 도로 위 5.25 × 7.4 m 사각형입니다. 도로 일부가 젖어 있습니다. (NVIDIA Newton으로 만든 가상 영상, 1:25 축소 계산, 마찰은 크기와 무관)",
-  "Pusher log: parts missing the inspection window": "푸셔 기록: 검사 위치를 벗어나는 부품",
-  "Vehicle log: braking at the stop line": "차량 기록: 정지선 제동",
-  "18 braking runs from the planner (speed set-point, stop position, front-camera range to the line). The car keeps stopping past the line on part of the road.": "제동 계획이 남긴 제동 18번 기록입니다(속도 명령, 정지 위치, 전방 카메라가 본 정지선 거리). 도로 일부에서 차량이 계속 정지선을 지나칩니다.",
-  "18 pusher strokes aimed at the inspection position, with the line camera's tracks. Parts keep stopping off-position.": "검사 위치를 목표로 한 푸셔 동작 18번과 라인 카메라 추적 기록입니다. 부품이 계속 위치를 벗어납니다.",
-  "8 short pushes. The far half of the table was never measured: watch the Studio refuse to be certain.": "짧게만 8번 민 기록입니다. 탁자 먼 쪽은 측정한 적이 없습니다. 모르는 부분을 단정하지 않는지 확인할 수 있습니다.",
+  "Seven braking runs filmed from beside the road, a painted 5.25 × 7.4 m box for scale. Part of the road is wet. Synthetic: rendered by NVIDIA Newton (Froude-scaled, friction is scale-free).": "도로 옆에서 촬영한 제동 7회 영상입니다. 크기 기준은 도로 위 5.25 × 7.4 m 사각형이며, 도로 일부가 젖어 있습니다. (NVIDIA Newton으로 만든 가상 영상이며 1:25 축소 모델로 계산합니다. 마찰계수는 크기와 무관합니다.)",
+  "Pusher log: parts missing the inspection window": "푸셔 로그: 검사 위치를 벗어나는 부품",
+  "Vehicle log: braking at the stop line": "차량 로그: 정지선 제동",
+  "18 braking runs from the planner (speed set-point, stop position, front-camera range to the line). The car keeps stopping past the line on part of the road.": "제동 제어기가 남긴 18회 제동 로그입니다(목표 속도, 정지 위치, 전방 카메라가 측정한 정지선 거리). 도로 일부 구간에서 차량이 계속 정지선을 지나칩니다.",
+  "18 pusher strokes aimed at the inspection position, with the line camera's tracks. Parts keep stopping off-position.": "검사 위치를 목표로 한 푸셔 동작 18회와 라인 카메라 추적 로그입니다. 부품이 계속 검사 위치를 벗어납니다.",
+  "8 short pushes. The far half of the table was never measured: watch the Studio refuse to be certain.": "짧은 거리로만 8회 시행한 로그입니다. 탁자의 먼 구간은 측정하지 않았습니다. 측정하지 않은 구간을 단정하지 않는지 확인할 수 있습니다.",
   // measure
-  "Measure the pushes": "민 거리 재기", "Your pushes": "기록 살펴보기", "Sheet": "용지", "Object height (cm)": "물건 높이 (cm)", "Track pushes": "움직임 추적하기",
+  "Measure the pushes": "이동 거리 측정", "Your pushes": "로그 확인", "Sheet": "용지", "Object height (cm)": "물체 높이 (cm)", "Track pushes": "움직임 추적하기",
   "Tracking…": "추적하는 중…",
-  "Drag the four green handles onto the corners of the sheet: its known size gives scale, and its perspective gives the camera's height and angle. The orange ring marks the object.": "초록 점 4개를 A4 용지 모서리에 맞춥니다. 용지 크기로 화면의 실제 거리와 카메라 위치를 계산합니다. 주황 원이 물건입니다.",
-  "The height removes parallax: the camera sees the middle of the object, not its footprint.": "카메라는 물건의 바닥이 아닌 가운데를 보므로, 높이가 있어야 위치를 정확히 잽니다.",
-  "The object is found automatically (the thing that moves). Click it on the frame to choose it yourself.": "움직이는 물건을 자동으로 찾습니다. 직접 고르려면 화면에서 물건을 클릭합니다.",
-  "Corners pre-placed for this sample; adjust them if you like.": "예시라서 모서리를 미리 맞춰 두었습니다. 필요하면 조정합니다.",
-  "Corners pre-placed where the sheet sits in the simulated scene; adjust them if you like.": "가상 탁자의 용지 위치에 미리 맞춰 두었습니다. 필요하면 조정합니다.",
+  "Drag the four green handles onto the corners of the sheet: its known size gives scale, and its perspective gives the camera's height and angle. The orange ring marks the object.": "초록 점 4개를 A4 용지 모서리에 맞춥니다. 용지 크기를 기준으로 실제 거리와 카메라 위치를 계산합니다. 주황색 원이 추적할 물체입니다.",
+  "The height removes parallax: the camera sees the middle of the object, not its footprint.": "카메라는 물체의 바닥이 아니라 중심을 보기 때문에, 높이를 알아야 위치를 정확히 계산할 수 있습니다.",
+  "The object is found automatically (the thing that moves). Click it on the frame to choose it yourself.": "움직이는 물체를 자동으로 찾습니다. 직접 지정하려면 화면에서 물체를 클릭합니다.",
+  "Corners pre-placed for this sample; adjust them if you like.": "예시이므로 모서리를 미리 맞춰 두었습니다. 필요하면 조정할 수 있습니다.",
+  "Corners pre-placed where the sheet sits in the simulated scene; adjust them if you like.": "가상 탁자의 용지 위치에 미리 맞춰 두었습니다. 필요하면 조정할 수 있습니다.",
   "Recorded session: corners pre-placed, tracking replays the recorded result.": "미리 실행한 예시입니다. 모서리와 추적 결과가 저장되어 있습니다.",
   "Click-drag the handles. Any corner order works.": "점을 끌어서 옮깁니다. 모서리 순서는 상관없습니다.",
-  "Tracked paths (green) and the object as the video plays.": "초록 선은 물건이 지나간 경로입니다.",
-  "Camera height": "카메라 높이", "Focal length": "초점 거리", "Pushes in this take": "이 영상에서 민 횟수", "All pushes": "전체 민 횟수", "Farthest stop": "가장 멀리 간 거리",
-  "Recovered from the sheet alone: no calibration pattern, no phone metadata.": "A4 용지만으로 계산했습니다. 별도 장비가 필요 없습니다.",
-  "Re-place corners": "모서리 다시 맞추기", "Diagnose these pushes": "이 기록으로 원인 찾기",
-  "Each push from release (fastest frame) to rest, along the push direction. Positions share one table frame across takes.": "손을 뗀 순간부터 멈출 때까지의 거리입니다. 영상이 여러 개여도 같은 탁자 기준으로 잽니다.",
+  "Tracked paths (green) and the object as the video plays.": "초록 선은 물체가 지나간 경로입니다.",
+  "Camera height": "카메라 높이", "Focal length": "초점 거리", "Pushes in this take": "이 영상의 시행 횟수", "All pushes": "전체 시행 횟수", "Farthest stop": "최대 이동 거리",
+  "Recovered from the sheet alone: no calibration pattern, no phone metadata.": "A4 용지 하나로 계산했습니다. 보정판이나 별도 장비가 필요 없습니다.",
+  "Re-place corners": "모서리 다시 맞추기", "Diagnose these pushes": "이 로그로 원인 분석",
+  "Each push from release (fastest frame) to rest, along the push direction. Positions share one table frame across takes.": "손을 뗀 순간부터 멈출 때까지의 이동 거리입니다. 영상이 여러 개여도 같은 탁자 좌표로 측정합니다.",
   "The log as Tether read it. Tipped pushes are left out of the fit.": "올린 기록입니다. 넘어진 경우는 계산에서 제외합니다.",
-  "Push": "밀기", "Launch speed": "출발 속도", "Command": "명령값", "Slide (m)": "간 거리 (m)", "Released at (m)": "출발 위치 (m)",
-  "Target (m)": "목표 지점 (m)", "Perceived (m)": "카메라가 본 거리 (m)", "tipped": "넘어짐",
+  "Push": "시행", "Launch speed": "출발 속도", "Command": "명령값", "Slide (m)": "이동 거리 (m)", "Released at (m)": "출발 위치 (m)",
+  "Target (m)": "목표 지점 (m)", "Perceived (m)": "카메라 측정 거리 (m)", "tipped": "넘어짐",
   // diagnose
-  "Find what differs": "무엇이 다른지 찾기",
-  "An agent works through your measurements like a scientist: inspect the evidence, propose which physical effects exist, fit each candidate, and ask for more pushes where the data can't decide. The numbers always come from a least-squares fit and a bootstrap over your pushes, never from the language model.": "AI가 기록을 보고 “탁자 전체가 미끄러운가, 중간부터 미끄러운가” 같은 가설을 세워 하나씩 확인합니다. 판단이 어려우면 추가로 밀어 보기를 요청합니다. 숫자는 AI가 짐작하지 않고 항상 수학 계산으로 구합니다.",
-  "Nemotron agent": "Nemotron AI", "Offline fit": "AI 없이 계산",
-  "Fits a fixed library of structures and keeps the simplest that explains the data. No LLM, a few seconds.": "정해진 후보를 모두 계산해 기록을 설명하는 가장 단순한 답을 고릅니다. AI 없이 몇 초면 끝납니다.",
-  "Run diagnosis": "원인 찾기 시작", "Recorded run: replays the agent's real tool calls.": "미리 실행한 결과입니다. AI가 실제로 수행한 과정을 그대로 보여 줍니다.",
-  "Deceleration in g, binned every 5 cm of table.": "탁자 5 cm 간격으로 물건이 느려진 정도입니다.",
+  "Find what differs": "원인 분석",
+  "An agent works through your measurements like a scientist: inspect the evidence, propose which physical effects exist, fit each candidate, and ask for more pushes where the data can't decide. The numbers always come from a least-squares fit and a bootstrap over your pushes, never from the language model.": "AI가 로그를 보고 ‘탁자 전체가 미끄러운지, 중간부터 미끄러운지’ 같은 가설을 세워 하나씩 검증합니다. 판단이 어려우면 추가 실험을 요청합니다. 수치는 AI가 추측하지 않고 항상 계산으로 구합니다.",
+  "Nemotron agent": "Nemotron AI", "Offline fit": "계산만 사용 (AI 없음)",
+  "Fits a fixed library of structures and keeps the simplest that explains the data. No LLM, a few seconds.": "정해진 후보 모델을 모두 계산해, 로그를 설명하는 가장 단순한 모델을 고릅니다. AI 없이 몇 초면 끝납니다.",
+  "Run diagnosis": "원인 분석 시작", "Recorded run: replays the agent's real tool calls.": "미리 실행한 결과입니다. AI가 실제로 수행한 과정을 그대로 재생합니다.",
+  "Deceleration in g, binned every 5 cm of table.": "탁자 위 5 cm 구간마다 측정한 감속입니다.",
   // results
-  "Your calibrated simulator": "고친 시뮬레이터", "Your table, measured": "측정한 내 탁자", "The table along the push, measured": "밀고 간 방향으로 본 탁자",
-  "slick 0.2": "미끄러움 0.2", "grippy 1.0": "거침 1.0", "Pause": "일시정지", "Play": "재생", "calibrated sim": "고친 시뮬레이터", "your current sim": "지금 시뮬레이터",
-  "friction map": "마찰 지도", "Same launch speed and spot as each real push; the boxes are the simulators' predictions.": "실제와 같은 조건으로 밀었을 때 시뮬레이터가 예상한 상자 위치입니다.",
-  "A push policy trained in each simulator, landing within 3 cm on targets 0.2–0.6 m of your table": "각 시뮬레이터에서 연습한 로봇이 0.2~0.6 m 목표 지점에 3 cm 안으로 세울 확률",
-  "current sim": "지금 시뮬레이터", "depends on the unmeasured table": "미측정 구간에 따라 달라짐", "agent model cross-checked": "AI의 답 검증 통과",
-  "agent overruled": "AI의 답 수정",
-  "Model predictions: rollouts of the fitted model across the plausible worlds, with your measured scatter as noise. Verify on the real robot.": "계산으로 예상한 값입니다. 실제 로봇으로 확인이 필요합니다.",
-  "What differs from your simulator": "시뮬레이터와 달랐던 점",
-  "Measured value with its 90% interval (bootstrap: refit on resampled pushes). Grey tick: your current simulator.": "찾아낸 값과 실제 값이 들어 있을 범위입니다. 회색 눈금은 현재 시뮬레이터 값입니다.",
-  "Parameter": "항목", "Your sim": "지금 시뮬레이터", "Measured": "측정한 값", "90% interval": "오차 범위", "Hidden truth": "정답", "none": "없음",
-  "differs from your sim": "지금 시뮬레이터와 다름", "within noise of your sim": "지금과 거의 같음",
-  "Cube-table friction": "탁자 마찰", "Actuator gain": "모터 힘", "Friction region starts at": "다른 구간이 시작되는 거리", "Friction in that region": "그 구간의 마찰",
-  "Camera offset": "카메라 위치 어긋남", "Camera pitch error": "카메라 기울어짐", "Lens distortion": "렌즈 휘어짐",
-  "The evidence": "근거 자료", "Where it stops": "어디서 멈췄나",
-  "Your pushes against the calibrated model (band: 90% of plausible models) and your current sim.": "실제 기록(점), 고친 시뮬레이터(초록 선), 현재 시뮬레이터(점선)를 비교합니다.",
-  "your pushes": "실제 기록", "calibrated": "고친 시뮬레이터", "Friction along the table": "탁자 위치별 마찰",
-  "Deceleration seen in the tracks (bars) and the friction the calibrated sim uses (line, band).": "막대는 실제로 느려진 정도, 초록 선은 고친 시뮬레이터의 마찰입니다.",
-  "measured": "측정", "unmeasured": "안 재 봄", "Success by target distance": "목표 거리별 성공률",
-  "Predicted for a policy trained in each sim (within 3 cm).": "각 시뮬레이터에서 연습한 로봇의 예상 성공률입니다 (3 cm 이내면 성공).",
-  "launch speed (m/s)": "출발 속도 (m/s)", "slide (m)": "간 거리 (m)", "position on the table (m)": "탁자 위 위치 (m)", "friction μ": "마찰 μ",
+  "Your calibrated simulator": "보정된 시뮬레이터", "Your table, measured": "측정 결과: 내 탁자", "The table along the push, measured": "이동 방향을 따라 본 탁자 마찰계수",
+  "slick 0.2": "미끄러움 0.2", "grippy 1.0": "거침 1.0", "Pause": "일시정지", "Play": "재생", "calibrated sim": "보정된 시뮬레이터", "your current sim": "보정 전 시뮬레이터",
+  "friction map": "마찰 지도", "Same launch speed and spot as each real push; the boxes are the simulators' predictions.": "실제와 같은 조건으로 시뮬레이션했을 때 각 시뮬레이터가 예측한 상자 위치입니다.",
+  "A push policy trained in each simulator, landing within 3 cm on targets 0.2–0.6 m of your table": "각 시뮬레이터로 학습한 로봇이 0.2~0.6 m 목표 지점에 3 cm 이내로 세울 확률",
+  "current sim": "보정 전 시뮬레이터", "depends on the unmeasured table": "미측정 구간에 따라 달라짐", "agent model cross-checked": "교차 검증 통과",
+  "agent overruled": "교차 검증으로 수정됨",
+  "Model predictions: rollouts of the fitted model across the plausible worlds, with your measured scatter as noise. Verify on the real robot.": "모델로 예측한 값입니다. 실제 로봇에서 확인이 필요합니다.",
+  "What differs from your simulator": "시뮬레이터와 다른 값",
+  "Measured value with its 90% interval (bootstrap: refit on resampled pushes). Grey tick: your current simulator.": "측정값과, 실제 값이 들어 있을 90% 신뢰 범위입니다. 회색 눈금은 보정 전 시뮬레이터 값입니다.",
+  "Parameter": "항목", "Your sim": "보정 전 시뮬레이터", "Measured": "측정한 값", "90% interval": "오차 범위", "Hidden truth": "정답", "none": "없음",
+  "differs from your sim": "보정 전 시뮬레이터와 다름", "within noise of your sim": "보정 전과 거의 같음",
+  "Cube-table friction": "탁자 마찰계수", "Actuator gain": "모터 출력", "Friction region starts at": "다른 구간 시작 거리", "Friction in that region": "구간 마찰계수",
+  "Camera offset": "카메라 위치 오차", "Camera pitch error": "카메라 기울기 오차", "Lens distortion": "렌즈 왜곡",
+  "The evidence": "근거 자료", "Where it stops": "정지 위치 비교",
+  "Your pushes against the calibrated model (band: 90% of plausible models) and your current sim.": "실제 기록(점), 보정된 시뮬레이터(초록 선), 보정 전 시뮬레이터(점선)를 비교합니다.",
+  "your pushes": "실제 기록", "calibrated": "보정된 시뮬레이터", "Friction along the table": "탁자 위치별 마찰",
+  "Deceleration seen in the tracks (bars) and the friction the calibrated sim uses (line, band).": "막대는 실측 감속, 초록 선은 보정된 시뮬레이터의 마찰계수입니다.",
+  "measured": "측정", "unmeasured": "미측정", "Success by target distance": "목표 거리별 성공률",
+  "Predicted for a policy trained in each sim (within 3 cm).": "각 시뮬레이터로 학습한 로봇의 예상 성공률입니다(3 cm 이내 정지 시 성공).",
+  "launch speed (m/s)": "출발 속도 (m/s)", "slide (m)": "이동 거리 (m)", "position on the table (m)": "탁자 위 위치 (m)", "friction μ": "마찰 μ",
   "target distance (m)": "목표 거리 (m)", "predicted success": "예상 성공률", "launch": "출발점", "target range": "목표 범위",
-  "ticks: where your pushes stopped": "눈금: 실제로 멈춘 곳", "target range the robot must hit (0.2–0.6 m)": "로봇이 맞혀야 하는 범위 (0.2~0.6 m)",
-  "Next experiment": "다음 실험", "Where the plausible models disagree most about where the object stops, inside the range your robot works in.": "아직 불확실한 구간입니다. 여기까지 밀어 보면 결과가 더 확실해집니다.",
-  "Load take 2: the pushes it asked for": "두 번째 영상 불러오기 (추천대로 민 영상)", "Run these pushes in NVIDIA Newton": "추천 실험을 NVIDIA Newton에서 실행",
-  "Export the calibrated config": "고친 설정 내보내기", "Add a video of these pushes": "추천대로 찍은 영상 추가", "Keep the sheet where it was.": "A4 용지는 같은 자리에 둡니다.",
-  "Add the pushes you ran (CSV/JSON)": "추가로 민 기록 올리기 (CSV/JSON)", "Same columns as your first log; they are merged and you diagnose again.": "처음 기록과 같은 형식이어야 합니다. 합친 뒤 다시 원인을 찾습니다.",
+  "ticks: where your pushes stopped": "눈금: 실제 정지 위치", "target range the robot must hit (0.2–0.6 m)": "목표 범위 (0.2~0.6 m)",
+  "Next experiment": "다음 실험", "Where the plausible models disagree most about where the object stops, inside the range your robot works in.": "모델들의 예측이 가장 크게 갈리는 지점입니다. 이 거리까지 시행하면 불확실성이 가장 크게 줄어듭니다.",
+  "Load take 2: the pushes it asked for": "두 번째 영상 불러오기 (추천 실험 영상)", "Run these pushes in NVIDIA Newton": "추천 실험을 NVIDIA Newton에서 실행",
+  "Export the calibrated config": "보정 설정 내보내기", "Add a video of these pushes": "추천 실험 영상 추가", "Keep the sheet where it was.": "A4 용지는 처음과 같은 자리에 둡니다.",
+  "Add the pushes you ran (CSV/JSON)": "추가 실험 로그 올리기 (CSV/JSON)", "Same columns as your first log; they are merged and you diagnose again.": "처음 로그와 같은 형식이어야 합니다. 합친 뒤 다시 분석합니다.",
   // export
-  "Take it to your simulator": "내 시뮬레이터에 적용하기", "Intervals become domain-randomization ranges: train on what the real table can plausibly be, nothing wider.": "찾아낸 오차 범위 안에서만 값을 바꿔 연습하도록 설정합니다.",
+  "Take it to your simulator": "내 시뮬레이터에 적용하기", "Intervals become domain-randomization ranges: train on what the real table can plausibly be, nothing wider.": "측정한 신뢰 범위 안에서만 값을 바꿔 학습하도록 설정합니다.",
   "Report": "보고서", "Copy": "복사", "Download": "다운로드",
-  "Material values for newton.ModelBuilder.ShapeConfig, plus the measured friction region.": "NVIDIA Newton용 마찰 값과 구간 정보입니다.",
-  "An EventTermCfg that randomizes the object's material over the measured interval at startup.": "Isaac Lab에서 마찰을 찾아낸 범위 안에서 바꾸는 설정입니다.",
-  "A one-page report to share.": "공유용 한 장짜리 보고서입니다.", "Everything above, machine-readable (tether.calibration/v1).": "위 내용을 모두 담은 데이터 파일입니다 (tether.calibration/v1).",
+  "Material values for newton.ModelBuilder.ShapeConfig, plus the measured friction region.": "NVIDIA Newton용 마찰계수와 구간 설정입니다.",
+  "An EventTermCfg that randomizes the object's material over the measured interval at startup.": "Isaac Lab에서 마찰계수를 측정 범위 안에서만 랜덤화하는 설정입니다.",
+  "A one-page report to share.": "공유용 1쪽 보고서입니다.", "Everything above, machine-readable (tether.calibration/v1).": "위 내용을 모두 담은 데이터 파일입니다 (tether.calibration/v1).",
   // chat
   "Ask": "질문", "Ask Tether": "Tether에게 물어보기", "Send": "보내기", "Thinking…": "답변 준비 중…", "Close": "닫기",
   "Ask about this page or your result. Answers use your current session's numbers.": "이 화면이나 결과에 대해 질문할 수 있습니다. 현재 결과를 바탕으로 답합니다.",
   "Ask needs the live server with a language model (make serve with GAPCLOSER_LLM=tokenfactory).": "질문 기능은 AI가 연결된 서버에서만 사용할 수 있습니다 (GAPCLOSER_LLM=tokenfactory로 make serve).",
 };
 const KO_RX = [
-  [/^(\d+) pushes$/, "$1번 밀기"], [/^(\d+) pushes tracked$/, "$1번 추적 완료"], [/^(\d+) agent steps$/, "AI가 $1단계 진행"],
-  [/^offline fit$/, "AI 없이 계산"], [/^Diagnose (\d+) pushes$/, "$1번 민 기록으로 원인 찾기"], [/^take (\d+)$/, "$1번째 영상"], [/^Take (\d+)( ✓)?$/, "$1번째 영상$2"],
-  [/^push (\d+) · (.*)$/, "$1번째 · $2"], [/^table past ([\d.]+) m unmeasured$/, "$1 m 너머는 아직 모름"],
-  [/^your (\d+) pushes stop in here$/, "$1번 민 물건이 멈춘 범위"], [/^Recorded with (.*) · NVIDIA Newton$/, "$1 · NVIDIA Newton으로 미리 돌린 결과"],
-  [/^Agent: (.*)$/, "AI: $1"], [/^motor ([\d.]+)× · camera tilt (-?[\d.]+)°$/, "모터 힘 $1배 · 카메라 기울기 $2°"],
-  [/^Still unexplained: (.*)$/, (m, a) => "아직 설명 안 되는 것: " + tx(a)], [/^Newton is simulating (\d+) flicks and rendering the phone video \(about 2-3 s per push\)…$/, "Newton이 물건을 $1번 밀고 영상을 만드는 중입니다 (1회당 2~3초)…"],
-  [/^Newton is running (\d+) robot pushes…$/, "Newton에서 로봇이 $1번 미는 중입니다…"],
-  [/^Your simulated table \(phone video\)$/, "내가 만든 가상 탁자 (영상)"], [/^Your simulated robot log$/, "내가 만든 가상 탁자 (로봇 기록)"],
+  [/^(\d+) pushes$/, "$1회 시행"], [/^(\d+) pushes tracked$/, "$1회 추적 완료"], [/^(\d+) agent steps$/, "AI 분석 $1단계"],
+  [/^offline fit$/, "계산만 사용 (AI 없음)"], [/^Diagnose (\d+) pushes$/, "기록 $1건으로 원인 분석"], [/^take (\d+)$/, "$1번째 영상"], [/^Take (\d+)( ✓)?$/, "$1번째 영상$2"],
+  [/^push (\d+) · (.*)$/, "$1번째 · $2"], [/^table past ([\d.]+) m unmeasured$/, "$1 m 이후 미측정"],
+  [/^your (\d+) pushes stop in here$/, "$1회 시행의 정지 범위"], [/^Recorded with (.*) · NVIDIA Newton$/, "$1 · NVIDIA Newton으로 미리 돌린 결과"],
+  [/^Agent: (.*)$/, "AI: $1"], [/^motor ([\d.]+)× · camera tilt (-?[\d.]+)°$/, "모터 출력 $1배 · 카메라 기울기 $2°"],
+  [/^Still unexplained: (.*)$/, (m, a) => "설명되지 않은 부분: " + tx(a)], [/^Newton is simulating (\d+) flicks and rendering the phone video \(about 2-3 s per push\)…$/, "Newton이 $1회 시행을 시뮬레이션하고 영상을 만드는 중입니다(1회당 2~3초)…"],
+  [/^Newton is running (\d+) robot pushes…$/, "Newton에서 로봇 $1회 시행을 계산하는 중입니다…"],
+  [/^Your simulated table \(phone video\)$/, "내가 만든 가상 탁자 (영상)"], [/^Your simulated robot log$/, "내가 만든 가상 탁자 (로봇 로그)"],
 ];
 // strings that come from the server (notes, reasons, sources): translated where they are shown
 const KO_SERVER = [
-  [/^Models disagree by ±([\d.]+) (cm|m) here; your pushes stop by ([\d.]+) m, so the table beyond is unmeasured$/i, "이 지점은 예상이 ±$1 $2 갈립니다. $3 m 너머는 아직 측정하지 않았습니다"],
-  [/^Models disagree by ±([\d.]+) (cm|m) here$/i, "이 지점은 예상이 ±$1 $2 갈립니다"],
+  [/^Models disagree by ±([\d.]+) (cm|m) here; your pushes stop by ([\d.]+) m, so the table beyond is unmeasured$/i, "이 지점은 모델 간 예측 차이가 ±$1 $2입니다. $3 m 이후는 아직 측정하지 않았습니다"],
+  [/^Models disagree by ±([\d.]+) (cm|m) here$/i, "이 지점은 모델 간 예측 차이가 ±$1 $2입니다"],
   [/^Camera recovered from the sheet: ([\d.]+) m above the table, focal (\d+) px$/i, "A4 용지로 카메라 위치를 계산했습니다: 높이 $1 m, 초점 거리 $2 px"],
-  [/^Release points spread over ±(\d+) cm; positions are measured from their median$/i, "출발 위치 차이(±$1 cm)가 있어 중앙값을 기준으로 측정했습니다"],
-  [/^No tracks: launch speed and position-dependent friction cannot be separated from stops alone$/i, "움직임 기록이 없어 멈춘 거리만으로는 출발 속도와 마찰을 구분하기 어렵습니다"],
-  [/^(\d+) tipped push\(es\) are excluded from the fit \(the sliding model does not cover tipping\)$/i, "넘어진 $1번은 계산에서 제외했습니다 (미끄러지는 경우만 계산)"],
-  [/^offline structure search \(simplest model within noise of the best\)(.*)$/, (m, rest) => "AI 없이 계산 (기록을 설명하는 가장 단순한 답)" + tx(rest)],
+  [/^Release points spread over ±(\d+) cm; positions are measured from their median$/i, "출발 위치가 ±$1 cm씩 달라 중앙값을 기준점으로 삼았습니다"],
+  [/^No tracks: launch speed and position-dependent friction cannot be separated from stops alone$/i, "추적 데이터가 없어 정지 거리만으로는 출발 속도와 마찰을 구분하기 어렵습니다"],
+  [/^(\d+) tipped push\(es\) are excluded from the fit \(the sliding model does not cover tipping\)$/i, "넘어진 $1회는 계산에서 제외했습니다(미끄러진 경우만 사용)"],
+  [/^offline structure search \(simplest model within noise of the best\)(.*)$/, (m, rest) => "계산만 사용 (로그를 설명하는 가장 단순한 모델)" + tx(rest)],
   [/^Nemotron agent \(([^)]*)\)(.*)$/, (m, a, rest) => `Nemotron AI (${a})` + tx(rest)],
-  [/^cross-check \(agent model overruled\)(.*)$/, (m, rest) => "검증 단계에서 AI의 답을 고쳐 씀" + tx(rest)],
-  [/^; friction region past ([\d.]+) m dropped \(no push measured it\)$/, "; $1 m 너머는 측정하지 않아 구간을 넣지 않았습니다"],
-  [/^stops not explained \(> 1 cm rms\): the structure is missing an effect$/, "멈춘 위치 오차가 1 cm를 넘습니다: 빠진 원인이 있습니다"],
-  [/^launch speeds disagree with the model.*$/, "출발 속도가 맞지 않습니다: 마찰과 모터 힘을 맞바꿔 거리만 맞췄을 수 있습니다. 모터 힘도 함께 찾아야 합니다"],
-  [/^perceived target distances not explained.*$/, "카메라가 본 거리가 맞지 않습니다: 카메라 기울어짐이나 렌즈 휘어짐을 확인해야 합니다"],
-  [/^your settings, simulated in NVIDIA Newton$/, "여러분이 정한 값 (NVIDIA Newton 가상 탁자)"],
+  [/^cross-check \(agent model overruled\)(.*)$/, (m, rest) => "교차 검증에서 AI의 결론을 수정함" + tx(rest)],
+  [/^; friction region past ([\d.]+) m dropped \(no push measured it\)$/, "; $1 m 이후는 측정하지 않아 구간을 추가하지 않았습니다"],
+  [/^stops not explained \(> 1 cm rms\): the structure is missing an effect$/, "정지 위치 오차가 1 cm를 넘습니다: 아직 반영하지 못한 원인이 있습니다"],
+  [/^launch speeds disagree with the model.*$/, "출발 속도가 맞지 않습니다: 마찰과 모터 출력이 서로 상쇄되어 거리만 맞았을 수 있으므로, 모터 출력도 함께 추정해야 합니다"],
+  [/^perceived target distances not explained.*$/, "카메라 측정 거리가 맞지 않습니다: 카메라 기울기나 렌즈 왜곡을 확인해야 합니다"],
+  [/^your settings, simulated in NVIDIA Newton$/, "직접 설정한 값 (NVIDIA Newton 가상 탁자)"],
   [/^region start measured from the median release point \(([-+\d.]+) cm from the simulator origin\)$/, "구간 시작 거리는 출발 위치 기준입니다 (원래 기준점과 $1 cm 차이)"],
 ];
 function tr1(text) {
@@ -771,7 +795,7 @@ function setLang(l) {
   document.documentElement.lang = l;
   document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.lang === l)));
   translateTree(document.body);
-  if (DOM) { renderDomainCopy(); renderSamples(); drawSimView(); }
+  if (DOM) { renderDomainCopy(); renderStartCopy(); renderSamples(); drawSimView(); }
   if (state.s) { const st = state.step; go(st); if (st === "diag") replayNotebook(); } else renderSteps();
   if (typeof renderChat === "function") renderChat();
 }
@@ -852,14 +876,14 @@ const rec = {
   async truth(sid) { return this.recFor(sid.slice(4)).truth; },
   async train(sid, onProgress) {  // recorded run, replayed iteration by iteration
     const r = this.recFor(sid.slice(4)), t = r.training;
-    if (!t) throw new Error(T("This recording has no training run.", "이 기록에는 학습 실행이 없습니다."));
+    if (!t) throw new Error(T("This recording has no training run.", "이 실행 기록에는 재학습 결과가 없습니다."));
     for (const id of Object.keys(t.conditions)) for (let i = 0; i <= t.iterations; i += 2) { onProgress({ condition: id, iteration: i }); await sleep(reduce ? 0 : 120); }
     return t;
   },
   async verify(sid) {  // recorded for the final stage only (the calibration after all takes)
     const r = this.recFor(sid.slice(4));
     const k = r.sample.kind === "video" ? state.s.videos.filter(v => v.tracked).length - 1 : 0;
-    if (!r.verify || k !== r.stages.length - 1) throw new Error(T("Recorded replay covers the final calibration: load every take first.", "기록된 재현은 마지막 보정 기준입니다. 모든 영상을 먼저 불러오세요."));
+    if (!r.verify || k !== r.stages.length - 1) throw new Error(T("Recorded replay covers the final calibration: load every take first.", "기록된 재현 결과는 최종 보정 기준입니다. 모든 영상을 먼저 불러와야 합니다."));
     await sleep(reduce ? 0 : 600); return r.verify;
   },
   media(path) { return DATA.media[path] || path; },
@@ -914,42 +938,42 @@ function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.ad
 const COPY = {
   robot: {
     runsEn: "pushes", surfaceWord: "table", surfaceWordKo: "탁자", targetWord: "line", targetWordKo: "선과", objectWord: "object", objectWordKo: "물체",
-    tab: ["Arm pushes a box to a line", "로봇 팔이 상자를 선까지 밀기"],
-    note: ["A policy learned in simulation pushes boxes on a real table. The table is slicker in places, the arm weaker, the camera tilted.", "시뮬레이션에서 배운 로봇이 실제 탁자에서 상자를 밉니다. 실제 탁자는 일부가 더 미끄럽거나, 팔 힘이 약하거나, 카메라가 기울어 있습니다."],
-    easy: [["Robots practise in a virtual world.", "The real table is a bit different (slipperier, a wet patch), so for real they keep missing."], ["로봇은 가상 세계에서 연습합니다.", "진짜 탁자는 조금 달라서(더 미끄럽거나 젖은 곳이 있는 등) 실제로는 자주 빗나갑니다."]],
-    give: [["Give it a record of real pushes.", "A phone video or a robot log. No data? Make a virtual table below."], ["실제로 밀어 본 기록을 넣습니다.", "폰 영상이나 로봇 기록이면 됩니다. 없으면 아래에서 가상으로 만들 수 있습니다."]],
-    kinds: { video: ["Phone video", "폰 영상"], log: ["Robot log", "로봇 기록"] }, run: ["push", "밀기"], runs: ["Pushes", "밀기 횟수"],
-    simh: ["No video at hand? Simulate your table", "영상이 없다면 가상 탁자로 시작합니다"],
-    lede: ["Set the physics of the “real” table, and NVIDIA Newton produces the measurements: a phone-style video it renders, or a robot's push log. Tether then has to work out your settings from the data alone.", "“실제” 탁자의 물리값을 정하면 NVIDIA Newton이 폰 영상이나 로봇 기록을 만듭니다. Tether는 그 데이터만 보고 설정값을 알아내야 합니다."],
-    mu: ["Table friction", "탁자 마찰"], strip: ["A region with different friction (spill, mat, worn spot)", "중간에 미끄럽거나 거친 곳 넣기 (엎지른 물, 매트, 닳은 자리 등)"],
-    y0: ["Region starts at", "그 구간이 시작되는 거리"], pm: ["Friction in the region", "그 구간의 마찰"], g: ["Robot arm strength", "로봇 팔 힘"], p: ["Robot camera tilt", "로봇 카메라 기울기"],
-    reach: ["Longest push slides", "가장 멀리 밀 거리"], targetLine: ["target range the robot must hit", "로봇이 맞혀야 하는 범위"], launch: ["launch", "출발"],
+    tab: ["Arm pushes a box to a line", "로봇 팔로 상자를 목표선까지 밀기"],
+    note: ["A policy learned in simulation pushes boxes on a real table. The table is slicker in places, the arm weaker, the camera tilted.", "시뮬레이션에서 학습한 로봇이 실제 탁자에서 상자를 밉니다. 실제 탁자는 군데군데 더 미끄럽고, 팔 출력은 사양보다 약하며, 카메라는 조금 기울어 있습니다."],
+    easy: [["Robots practise in a virtual world.", "The real table is a bit different (slipperier, a wet patch), so for real they keep missing."], ["로봇은 시뮬레이션에서 먼저 학습합니다.", "그런데 실제 탁자는 시뮬레이션과 조금 달라서(더 미끄럽거나 젖은 곳이 있는 등) 현장에서는 자주 빗나갑니다."]],
+    give: [["Give it a record of real pushes.", "A phone video or a robot log. No data? Make a virtual table below."], ["실제 시행 기록을 넣습니다.", "스마트폰 영상이나 로봇 로그면 충분합니다. 데이터가 없으면 아래에서 가상으로 만들 수 있습니다."]],
+    kinds: { video: ["Phone video", "스마트폰 영상"], log: ["Robot log", "로봇 로그"] }, run: ["push", "시행"], runs: ["Pushes", "밀기 횟수"],
+    simh: ["No video at hand? Simulate your table", "영상이 없으면 가상 탁자로 시작할 수 있습니다"],
+    lede: ["Set the physics of the “real” table, and NVIDIA Newton produces the measurements: a phone-style video it renders, or a robot's push log. Tether then has to work out your settings from the data alone.", "‘실제’ 탁자의 물리값을 정하면 NVIDIA Newton이 스마트폰 영상이나 로봇 로그를 생성합니다. Tether는 정답을 모른 채 이 데이터만으로 값을 찾아냅니다."],
+    mu: ["Table friction", "탁자 마찰계수"], strip: ["A region with different friction (spill, mat, worn spot)", "마찰이 다른 구간 추가 (엎지른 물, 매트, 닳은 부분 등)"],
+    y0: ["Region starts at", "구간 시작 거리"], pm: ["Friction in the region", "구간 마찰계수"], g: ["Robot arm strength", "로봇 팔 출력"], p: ["Robot camera tilt", "로봇 카메라 기울기"],
+    reach: ["Longest push slides", "최대 이동 거리"], targetLine: ["target range the robot must hit", "목표 범위"], launch: ["launch", "출발"],
   },
   driving: {
     runsEn: "braking runs", surfaceWord: "road", surfaceWordKo: "도로", targetWord: "stop line", targetWordKo: "정지선과", objectWord: "car", objectWordKo: "차량",
-    tab: ["Car brakes to a stop line", "차량이 정지선에 맞춰 제동"],
-    note: ["A braking planner tuned in simulation stops short or long on the real road: part of it is wet or icy, the speed controller under-delivers, the front camera misjudges distance. Lengths and speeds are full size; the fit runs on a 1:25 Froude-scaled model in NVIDIA Newton, which keeps friction unchanged.", "시뮬레이션에서 맞춘 제동 계획이 실제 도로에서는 정지선 앞뒤로 빗나갑니다. 도로 일부가 젖었거나 얼었고, 속도 제어가 약하고, 전방 카메라가 거리를 잘못 봅니다. 거리와 속도는 실제 크기로 표시합니다. 계산은 NVIDIA Newton의 1:25 축소 모델(프루드 상사)로 하며, 마찰은 크기와 관계없이 같습니다."],
-    easy: [["Self-driving stacks are tuned in simulation.", "The real road is different (a wet or icy section, weaker braking), so the car stops before or past the line."], ["자율주행 제동은 시뮬레이션에서 맞춥니다.", "실제 도로는 달라서(젖거나 언 구간, 약한 제동) 차량이 정지선 앞이나 뒤에 섭니다."]],
-    give: [["Give it a record of real braking runs.", "A roadside video or a vehicle log. No data? Make a virtual road below."], ["실제 제동 기록을 넣습니다.", "도로변 영상이나 차량 기록이면 됩니다. 없으면 아래에서 가상 도로를 만들 수 있습니다."]],
-    kinds: { video: ["Roadside video", "도로변 영상"], log: ["Vehicle log", "차량 기록"] }, run: ["braking run", "제동"], runs: ["Braking runs", "제동 횟수"],
-    simh: ["No road data? Simulate your road", "도로 데이터가 없다면 가상 도로로 시작합니다"],
-    lede: ["Set the “real” road, and NVIDIA Newton produces the measurements: a roadside video it renders, or a vehicle log (speed set-point, stop position, front-camera range to the line). Tether then has to work out your settings from the data alone.", "“실제” 도로를 정하면 NVIDIA Newton이 도로변 영상이나 차량 기록(속도 명령, 정지 위치, 전방 카메라가 본 정지선 거리)을 만듭니다. Tether는 그 데이터만 보고 설정값을 알아내야 합니다."],
-    mu: ["Road friction (dry asphalt ~0.8)", "노면 마찰 (마른 아스팔트 약 0.8)"], strip: ["A wet or icy section", "젖거나 언 구간 넣기"],
-    y0: ["Section starts at", "구간 시작 거리"], pm: ["Friction in the section (wet ~0.4)", "구간 마찰 (젖은 노면 약 0.4)"], g: ["Speed control (actual / set-point)", "속도 제어 (실제/명령)"], p: ["Front camera pitch error", "전방 카메라 기울기 오차"],
-    reach: ["Longest stopping distance", "가장 긴 제동 거리"], targetLine: ["stop-line range the planner must hit", "제동 계획이 맞혀야 하는 정지선 범위"], launch: ["brake point", "제동 시작"],
+    tab: ["Car brakes to a stop line", "정지선에 맞춘 차량 제동"],
+    note: ["A braking planner tuned in simulation stops short or long on the real road: part of it is wet or icy, the speed controller under-delivers, the front camera misjudges distance. Lengths and speeds are full size; the fit runs on a 1:25 Froude-scaled model in NVIDIA Newton, which keeps friction unchanged.", "시뮬레이션에서 맞춘 제동 제어가 실제 도로에서는 정지선 앞뒤로 빗나갑니다. 도로 일부가 젖어 있거나 얼어 있고, 속도 제어는 명령을 덜 따라가며, 전방 카메라는 거리를 잘못 판단합니다. 거리와 속도는 실제 크기로 표시하고, 계산은 NVIDIA Newton의 1:25 축소 모델(프루드 상사)로 합니다. 마찰계수는 크기와 관계없이 같습니다."],
+    easy: [["Self-driving stacks are tuned in simulation.", "The real road is different (a wet or icy section, weaker braking), so the car stops before or past the line."], ["자율주행 제동은 시뮬레이션에서 먼저 조정합니다.", "그런데 실제 도로는 달라서(젖거나 언 구간, 약한 제동) 차량이 정지선 앞이나 뒤에 섭니다."]],
+    give: [["Give it a record of real braking runs.", "A roadside video or a vehicle log. No data? Make a virtual road below."], ["실제 제동 기록을 넣습니다.", "도로변 영상이나 차량 로그면 충분합니다. 데이터가 없으면 아래에서 가상 도로를 만들 수 있습니다."]],
+    kinds: { video: ["Roadside video", "도로변 영상"], log: ["Vehicle log", "차량 로그"] }, run: ["braking run", "제동"], runs: ["Braking runs", "제동 횟수"],
+    simh: ["No road data? Simulate your road", "도로 데이터가 없으면 가상 도로로 시작할 수 있습니다"],
+    lede: ["Set the “real” road, and NVIDIA Newton produces the measurements: a roadside video it renders, or a vehicle log (speed set-point, stop position, front-camera range to the line). Tether then has to work out your settings from the data alone.", "‘실제’ 도로 조건을 정하면 NVIDIA Newton이 도로변 영상이나 차량 로그(목표 속도, 정지 위치, 전방 카메라가 측정한 정지선 거리)를 생성합니다. Tether는 정답을 모른 채 이 데이터만으로 값을 찾아냅니다."],
+    mu: ["Road friction (dry asphalt ~0.8)", "노면 마찰계수 (마른 아스팔트 약 0.8)"], strip: ["A wet or icy section", "젖거나 언 구간 추가"],
+    y0: ["Section starts at", "구간 시작 거리"], pm: ["Friction in the section (wet ~0.4)", "구간 마찰계수 (젖은 노면 약 0.4)"], g: ["Speed control (actual / set-point)", "속도 제어 (실제/명령)"], p: ["Front camera pitch error", "전방 카메라 기울기 오차"],
+    reach: ["Longest stopping distance", "최대 제동 거리"], targetLine: ["stop-line range the planner must hit", "정지선 목표 범위"], launch: ["brake point", "제동 시작"],
   },
   factory: {
     runsEn: "strokes", surfaceWord: "rail", surfaceWordKo: "레일", targetWord: "inspection position", targetWordKo: "검사 위치와", objectWord: "part", objectWordKo: "부품",
-    tab: ["Pusher slides a part to inspection", "푸셔가 부품을 검사 위치로 밀기"],
-    note: ["A pusher cell commissioned in simulation sends parts past or short of the inspection window: oil on part of the rail, a pusher that lost pressure, a line camera mounted slightly off. Off-position parts mean blurred or missed inspection images.", "시뮬레이션에서 맞춘 푸셔가 실제 라인에서는 부품을 검사 위치 앞뒤로 보냅니다. 레일 일부에 기름이 묻었거나, 푸셔 압력이 떨어졌거나, 라인 카메라가 조금 어긋나 있습니다. 위치가 틀리면 검사 영상이 흐려지거나 빠집니다."],
-    easy: [["Production cells are commissioned in simulation.", "The real line is different (an oily section, a weaker pusher), so parts stop off the inspection position."], ["생산 설비는 시뮬레이션으로 먼저 맞춥니다.", "실제 라인은 달라서(기름 묻은 구간, 약해진 푸셔) 부품이 검사 위치를 벗어납니다."]],
-    give: [["Give it a record of real pusher strokes.", "A line camera video or a pusher log. No data? Make a virtual line below."], ["실제 푸셔 동작 기록을 넣습니다.", "라인 카메라 영상이나 푸셔 기록이면 됩니다. 없으면 아래에서 가상 라인을 만들 수 있습니다."]],
-    kinds: { video: ["Line camera video", "라인 카메라 영상"], log: ["Pusher log", "푸셔 기록"] }, run: ["stroke", "푸셔 동작"], runs: ["Pusher strokes", "푸셔 동작 횟수"],
-    simh: ["No line data? Simulate your line", "라인 데이터가 없다면 가상 라인으로 시작합니다"],
-    lede: ["Set the “real” rail, and NVIDIA Newton produces the measurements: a line camera video it renders, or a pusher log (command, stop position, the inspection camera's reading). Tether then has to work out your settings from the data alone.", "“실제” 레일을 정하면 NVIDIA Newton이 라인 카메라 영상이나 푸셔 기록(명령값, 멈춘 위치, 검사 카메라 측정값)을 만듭니다. Tether는 그 데이터만 보고 설정값을 알아내야 합니다."],
-    mu: ["Rail friction", "레일 마찰"], strip: ["An oily section on the rail", "레일에 기름 묻은 구간 넣기"],
-    y0: ["Oily section starts at", "기름 구간 시작 거리"], pm: ["Friction in the oily section", "기름 구간의 마찰"], g: ["Pusher strength (actual / commanded)", "푸셔 힘 (실제/명령)"], p: ["Inspection camera tilt", "검사 카메라 기울기"],
-    reach: ["Longest stroke slides", "가장 멀리 보낼 거리"], targetLine: ["inspection positions the pusher must hit", "푸셔가 맞혀야 하는 검사 위치 범위"], launch: ["pusher", "푸셔"],
+    tab: ["Pusher slides a part to inspection", "푸셔로 부품을 검사 위치에 보내기"],
+    note: ["A pusher cell commissioned in simulation sends parts past or short of the inspection window: oil on part of the rail, a pusher that lost pressure, a line camera mounted slightly off. Off-position parts mean blurred or missed inspection images.", "시뮬레이션에서 맞춘 푸셔가 실제 라인에서는 부품을 검사 위치 앞뒤로 보냅니다. 레일 일부에 기름이 묻어 있거나, 푸셔 압력이 떨어졌거나, 라인 카메라가 조금 틀어져 있기 때문입니다. 위치가 어긋나면 검사 영상이 흐려지거나 누락됩니다."],
+    easy: [["Production cells are commissioned in simulation.", "The real line is different (an oily section, a weaker pusher), so parts stop off the inspection position."], ["생산 설비는 시뮬레이션으로 먼저 조정합니다.", "그런데 실제 라인은 달라서(기름 묻은 구간, 약해진 푸셔) 부품이 검사 위치를 벗어납니다."]],
+    give: [["Give it a record of real pusher strokes.", "A line camera video or a pusher log. No data? Make a virtual line below."], ["실제 푸셔 동작 기록을 넣습니다.", "라인 카메라 영상이나 푸셔 로그면 충분합니다. 데이터가 없으면 아래에서 가상 라인을 만들 수 있습니다."]],
+    kinds: { video: ["Line camera video", "라인 카메라 영상"], log: ["Pusher log", "푸셔 로그"] }, run: ["stroke", "푸셔 동작"], runs: ["Pusher strokes", "푸셔 동작 횟수"],
+    simh: ["No line data? Simulate your line", "라인 데이터가 없으면 가상 라인으로 시작할 수 있습니다"],
+    lede: ["Set the “real” rail, and NVIDIA Newton produces the measurements: a line camera video it renders, or a pusher log (command, stop position, the inspection camera's reading). Tether then has to work out your settings from the data alone.", "‘실제’ 레일 조건을 정하면 NVIDIA Newton이 라인 카메라 영상이나 푸셔 로그(명령값, 정지 위치, 검사 카메라 측정값)를 생성합니다. Tether는 정답을 모른 채 이 데이터만으로 값을 찾아냅니다."],
+    mu: ["Rail friction", "레일 마찰계수"], strip: ["An oily section on the rail", "기름 묻은 구간 추가"],
+    y0: ["Oily section starts at", "기름 구간 시작 거리"], pm: ["Friction in the oily section", "기름 구간 마찰계수"], g: ["Pusher strength (actual / commanded)", "푸셔 출력 (실제/명령)"], p: ["Inspection camera tilt", "검사 카메라 기울기"],
+    reach: ["Longest stroke slides", "최대 이동 거리"], targetLine: ["inspection positions the pusher must hit", "검사 위치 목표 범위"], launch: ["pusher", "푸셔"],
   },
 };
 const Cx = (id, k) => { const v = (COPY[id] || COPY.robot)[k]; return Array.isArray(v) && typeof v[0] === "string" ? T(v[0], v[1]) : v; };
@@ -963,9 +987,10 @@ function renderDomainCopy() {
   $("#domtabs").querySelectorAll("button").forEach(b => b.onclick = () => { DATA_DOM = b.dataset.d; try { localStorage.setItem("gapcloser-domain", DATA_DOM); } catch (_) {} renderDomainCopy(); simDefaults(); renderSamples(); drawSimView(); });
   $("#domnote").textContent = C("note");
   if (typeof renderCrumb === "function") renderCrumb();
+  if (typeof renderStartCopy === "function" && $("#sp-ex")) renderStartCopy();
   const e = C("easy"), g = C("give"), ez = $("#easy");
   ez.removeAttribute("data-ko-html");
-  ez.innerHTML = `<h3>${T("In 30 seconds", "30초 설명")}</h3><ol><li><b>${esc(T(e[0][0], e[1][0]))}</b> ${esc(T(e[0][1], e[1][1]))}</li><li><b>${esc(T(g[0][0], g[1][0]))}</b> ${esc(T(g[0][1], g[1][1]))}</li><li><b>${T("The AI finds what is different,", "AI가 무엇이 다른지 찾아서")}</b> ${T("fixes the virtual world, and tells you which run to try next.", "가상 세계를 고치고, 다음에 해 볼 실험을 알려 줍니다.")}</li></ol>`;
+  ez.innerHTML = `<h3>${T("In 30 seconds", "30초 설명")}</h3><ol><li><b>${esc(T(e[0][0], e[1][0]))}</b> ${esc(T(e[0][1], e[1][1]))}</li><li><b>${esc(T(g[0][0], g[1][0]))}</b> ${esc(T(g[0][1], g[1][1]))}</li><li><b>${T("The AI finds what is different,", "AI가 차이를 찾아")}</b> ${T("fixes the virtual world, and tells you which run to try next.", "시뮬레이터를 보정하고, 다음에 할 실험을 추천합니다.")}</li></ol>`;
   const k = C("kinds");
   $("#k-video").textContent = T(k.video[0], k.video[1]); $("#k-log").textContent = T(k.log[0], k.log[1]);
   $("#sim-h").textContent = C("simh"); $("#sim-lede").textContent = C("lede");
@@ -988,6 +1013,9 @@ async function initData() {
   simDefaults();
   renderSamples();
   initSimLab();
+  document.querySelectorAll("#startpick button").forEach(b => b.onclick = () => setStart(b.dataset.m));
+  renderStartCopy();
+  setStart(LIVE ? "example" : "example");
   applyQuery();
   const drop = $("#drop");
   if (!LIVE) {
@@ -1024,13 +1052,30 @@ function applyQuery() {
   set("#s-y0", q.get("y0")); set("#s-pm", q.get("pm")); set("#s-g", q.get("g"));
   const kind = q.get("kind") === "log" ? "log" : "video";
   document.querySelector(`input[name="simkind"][value="${kind}"]`).checked = true;
+  setStart("sim");
   drawSimView();
   const from = q.get("from");
   const note = document.createElement("p"); note.className = "fromnote";
   note.textContent = T(`Loaded from the console${from ? `: “${from}”` : ""}. The same hidden physics is set below; press Run in NVIDIA Newton to make the data, then diagnose it yourself.`,
-                       `콘솔${from ? `의 “${from}”` : ""} 상황을 불러왔습니다. 아래에 같은 숨은 값이 들어 있습니다. “NVIDIA Newton으로 만들기”를 누르면 데이터가 만들어지고, 직접 진단할 수 있습니다.`);
+                       `콘솔${from ? `의 “${from}”` : ""} 상황을 불러왔습니다. 아래에 같은 숨은 값을 설정해 두었습니다. ‘NVIDIA Newton으로 만들기’를 누르면 데이터를 생성하고 바로 진단할 수 있습니다.`);
   $("#simlab .simform").prepend(note);
   setTimeout(() => $("#simlab").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }), 300);
+}
+let START = "example";
+function setStart(m) {
+  START = m;
+  document.querySelectorAll("#startpick button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.m === m)));
+  document.querySelectorAll("#p-data .mode").forEach(el => el.hidden = el.dataset.mode !== m);
+  if (m === "sim") drawSimView();
+}
+function renderStartCopy() {
+  const k = C("kinds");
+  $("#data-lede").textContent = T("Pick a field, then choose how to start.", "분야를 고른 뒤, 시작 방법을 선택하세요.");
+  $("#sp-ex").textContent = T("Open an example", "예시로 보기"); $("#sp-ex-d").textContent = T("Recorded runs with a known answer", "정답을 아는 실행 기록");
+  $("#sp-sim").textContent = T("Simulate your own", "가상 데이터 만들기"); $("#sp-sim-d").textContent = T("Set the hidden physics; NVIDIA Newton makes the data", "숨길 물리값을 정하면 NVIDIA Newton이 데이터를 만듭니다");
+  $("#sp-up").textContent = T("Upload your data", "내 데이터 올리기"); $("#sp-up-d").textContent = T(`${k.video[0]} or ${k.log[0].toLowerCase()}`, `${k.video[1]} 또는 ${k.log[1]}`);
+  $("#intro-sum").textContent = T("New here? The 30-second version", "처음이신가요? 30초 설명");
+  $("#pl-1").textContent = T("1 · Field", "1 · 분야"); $("#pl-2").textContent = T("2 · How to start", "2 · 시작 방법");
 }
 function renderSamples() {
   const all = state.sampleList || [];
@@ -1060,11 +1105,11 @@ function drawSimView() {
   const regs = w.patch_y0 != null ? [[0, w.patch_y0, w.mu_eff], [w.patch_y0, ymax, w.patch_mu]] : [[0, ymax, w.mu_eff]];
   const bands = regs.map(([a, b, mu]) => `<rect x="${X(a)}" y="60" width="${X(b) - X(a)}" height="70" fill="${muColor(mu, 0.5)}" stroke="${muColor(mu)}"/><text x="${(X(a) + X(b)) / 2}" y="101" text-anchor="middle" style="font-family:var(--f-display);font-weight:600;font-size:20px;fill:#fff">μ ${mu.toFixed(2)}</text>`).join("");
   const ticks = [0, 0.2, 0.4, 0.6, 0.8].map(t => `<text x="${X(t)}" y="${H - 8}" text-anchor="middle">${(t * dd.scale).toFixed(dd.scale === 1 ? 1 : 0)} m</text>`).join("");
-  const cover = `<line x1="${X(0.1)}" x2="${X(reach)}" y1="146" y2="146" stroke="#eceeef" stroke-width="3"/><text x="${X(0.1)}" y="166" class="lbl">${T(`your ${pushes} runs stop in here`, `${pushes}번 모두 이 안에서 멈춤`)}</text>`;
+  const cover = `<line x1="${X(0.1)}" x2="${X(reach)}" y1="146" y2="146" stroke="#eceeef" stroke-width="3"/><text x="${X(0.1)}" y="166" class="lbl">${T(`your ${pushes} runs stop in here`, `${pushes}회 모두 이 범위에서 정지`)}</text>`;
   const tr = `<line x1="${X(0.2)}" x2="${X(0.6)}" y1="40" y2="40" stroke="#76b900" stroke-width="3"/><text x="${X(0.2)}" y="32" class="lbl">${C("targetLine")} (${Lm(0.2)}–${Lm(0.6)})</text>`;
   const extra = kind === "log" ? `<text x="${x0}" y="${H - 26}" class="lbl">${C("g").split(" (")[0]} ${w.actuator_gain.toFixed(2)}× · ${C("p")} ${w.camera_pitch_deg.toFixed(1)}°</text>` : "";
   $("#simview").innerHTML = `<svg viewBox="0 0 ${W} ${H}"><rect width="${W}" height="${H}" fill="#0b0d0f"/>${tr}${bands}${cover}${extra}${ticks}<line x1="${X(0)}" x2="${X(0)}" y1="52" y2="138" stroke="#9ba3aa"/><text x="${X(0)}" y="${H - 26}" class="lbl">${kind === "log" ? "" : C("launch")}</text></svg>
-    <p class="small muted" style="margin-top:8px">${T("Tether never sees this picture.", "Tether는 이 그림을 볼 수 없습니다.")} ${w.patch_y0 != null && reach < w.patch_y0 + 0.03 ? T("Your pushes stop before the region starts: watch it refuse to guess, then ask for longer pushes.", "모든 밀기가 구간 전에 멈춥니다. 짐작 대신 추가 측정을 요청하는지 확인할 수 있습니다.") : w.patch_y0 != null ? T("Few pushes reach the region: expect wide intervals until you run the pushes it asks for.", "구간에 닿는 밀기가 적어 처음에는 오차 범위가 넓습니다. 추천대로 더 밀면 좁아집니다.") : ""}</p>`;
+    <p class="small muted" style="margin-top:8px">${T("Tether never sees this picture.", "Tether는 이 그림을 볼 수 없습니다.")} ${w.patch_y0 != null && reach < w.patch_y0 + 0.03 ? T("Your pushes stop before the region starts: watch it refuse to guess, then ask for longer pushes.", "모든 시행이 구간에 닿기 전에 멈춥니다. Tether가 추측하는 대신 추가 측정을 요청하는지 확인할 수 있습니다.") : w.patch_y0 != null ? T("Few pushes reach the region: expect wide intervals until you run the pushes it asks for.", "구간까지 간 시행이 적어 처음에는 오차 범위가 넓습니다. 추천 실험을 추가하면 좁아집니다.") : ""}</p>`;
 }
 function initSimLab() {
   if (!LIVE) { $("#simlab").querySelectorAll("input,button").forEach(e => e.disabled = true); $("#sim-note").textContent = "Simulation runs on the live server (make serve, then /studio)."; drawSimView(); return; }
@@ -1073,7 +1118,7 @@ function initSimLab() {
   $("#sim-run").onclick = async () => {
     const body = simWorld();
     $("#sim-run").disabled = true; $("#err-sim").textContent = "";
-    $("#sim-note").textContent = body.kind === "video" ? T(`Newton is simulating ${body.pushes} runs and rendering the video (about 2-3 s per run)…`, `Newton이 ${body.pushes}번을 계산하고 영상을 만드는 중입니다 (1번에 2~3초)…`) : T(`Newton is running ${body.pushes} runs…`, `Newton이 ${body.pushes}번을 계산하는 중입니다…`);
+    $("#sim-note").textContent = body.kind === "video" ? T(`Newton is simulating ${body.pushes} runs and rendering the video (about 2-3 s per run)…`, `Newton이 ${body.pushes}회 시행을 계산하고 영상을 만드는 중입니다(1회당 2~3초)…`) : T(`Newton is running ${body.pushes} runs…`, `Newton이 ${body.pushes}회 시행을 계산하는 중입니다…`);
     try {
       await begin(() => call(fetch("/api/studio/simulate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })));
     } catch (e) { $("#err-sim").textContent = e.message; }
@@ -1143,7 +1188,7 @@ function renderMeasure() {
   };
   draw();
   dragHandles($("#fsvg"), v, (k, x, y) => { if (k === "obj") { if (obj) { obj[0] = x; obj[1] = y; } } else { corners[k][0] = x; corners[k][1] = y; } draw(); });
-  $("#frame-note").textContent = v.corners_auto ? T("Corners found automatically on the brightest rectangle. Check them against the sheet and drag any that are off.", "가장 밝은 사각형에서 모서리를 자동으로 찾았습니다. 종이와 맞는지 확인하고, 어긋난 점은 끌어서 옮기세요.") : v.corners_hint ? (LIVE ? (state.s.simulated ? "Corners pre-placed where the sheet sits in the simulated scene; adjust them if you like." : "Corners pre-placed for this sample; adjust them if you like.") : "Recorded session: corners pre-placed, tracking replays the recorded result.") : "Click-drag the handles. Any corner order works.";
+  $("#frame-note").textContent = v.corners_auto ? T("Corners found automatically on the brightest rectangle. Check them against the sheet and drag any that are off.", "가장 밝은 사각형에서 모서리를 자동으로 찾았습니다. 종이와 맞는지 확인하고, 어긋난 점은 끌어서 옮기면 됩니다.") : v.corners_hint ? (LIVE ? (state.s.simulated ? "Corners pre-placed where the sheet sits in the simulated scene; adjust them if you like." : "Corners pre-placed for this sample; adjust them if you like.") : "Recorded session: corners pre-placed, tracking replays the recorded result.") : "Click-drag the handles. Any corner order works.";
   $("#side").innerHTML = `
     <label>${T("Reference", "기준 사각형")}<select id="sheet">${DOM.id === "driving" ? `<option value="a4">${T("Painted box (5.25 × 7.43 m)", "도로 위 기준 사각형 (5.25 × 7.43 m)")}</option>` : `<option value="a4">A4 (210 × 297 mm)</option><option value="letter">Letter (8.5 × 11 in)</option>`}</select></label>
     <label>${T(`Height of the ${CS("objectWord")} (cm)`, `${CS("objectWordKo")} 높이 (cm)`)}<input id="oh" type="number" min="1" max="${DOM.id === "driving" ? 300 : 40}" step="0.5" value="${state.s.sample || state.s.simulated ? Math.round((DOM.object_height_m || 0.06) * 100) : 5}"></label>
@@ -1243,22 +1288,22 @@ const TOOL_WORDS = {
 };
 const TOOL_WORDS_KO = {
   decel_profile: "탁자 위치별 감속을 측정했습니다",
-  perception_check: "카메라가 본 거리와 실제 거리를 비교했습니다",
-  fit_hypothesis: "가설을 계산했습니다",
+  perception_check: "카메라 측정 거리와 실제 거리를 비교했습니다",
+  fit_hypothesis: "가설을 피팅했습니다",
   test_hypothesis: "가설을 검증했습니다",
   probe_real: "추가 측정을 요청했습니다",
-  commit: "답을 결정했습니다",
-  text: "생각을 정리했습니다",
+  commit: "결론을 확정했습니다",
+  text: "분석 내용을 정리했습니다",
 };
 const FIELD_WORDS = { mu_eff: "friction", actuator_gain: "actuator gain", patch_y0: "region start", patch_mu: "region friction", camera_dx: "camera offset", camera_pitch_deg: "camera pitch", lens_k: "lens distortion" };
-const FIELD_WORDS_KO = { mu_eff: "마찰", actuator_gain: "모터 힘", patch_y0: "구간 시작 거리", patch_mu: "구간 마찰", camera_dx: "카메라 위치 어긋남", camera_pitch_deg: "카메라 기울기", lens_k: "렌즈 휘어짐" };
+const FIELD_WORDS_KO = { mu_eff: "마찰", actuator_gain: "모터 출력", patch_y0: "구간 시작 거리", patch_mu: "구간 마찰", camera_dx: "카메라 위치 오차", camera_pitch_deg: "카메라 기울기", lens_k: "렌즈 왜곡" };
 function structureWords(free) {
   const f = new Set(free || []); const out = [];
   if (f.has("mu_eff")) out.push(T("friction", "마찰"));
-  if (f.has("actuator_gain")) out.push(T("actuator gain", "모터 힘"));
+  if (f.has("actuator_gain")) out.push(T("actuator gain", "모터 출력"));
   if (f.has("patch_y0") || f.has("patch_mu")) out.push(T("a friction region", "다른 마찰 구간"));
   if (f.has("camera_dx") || f.has("camera_pitch_deg")) out.push(T("camera pose", "카메라 위치·각도"));
-  if (f.has("lens_k")) out.push(T("lens distortion", "렌즈 휘어짐"));
+  if (f.has("lens_k")) out.push(T("lens distortion", "렌즈 왜곡"));
   return out.join(" + ") || T("nothing", "없음");
 }
 function nbItem(cls, who, what, detail) {
@@ -1269,7 +1314,7 @@ function nbItem(cls, who, what, detail) {
 function stepDetail(step) {
   const r = step.result;
   if (step.tool === "decel_profile" && Array.isArray(r)) return `<div class="detail">${T(`Deceleration in g, binned every ${tolText(0.05 * DOM.scale)} of ${CS("surfaceWord")}.`, `${CS("surfaceWordKo")} ${tolText(0.05 * DOM.scale)}마다 잰 감속 (g 단위).`)}</div>` + miniBars(r.filter(b => b.decel_g != null));
-  if (step.tool === "perception_check" && Array.isArray(r)) return r.length ? `<div class="detail">${T(`${r.length} targets: perceived`, `목표 ${r.length}곳: 실제 거리 → 카메라가 본 거리`)} ${r.slice(0, 3).map(x => T(`<span class="num">${fmt(x.perceived_m, 3)}</span> for <span class="num">${fmt(x.true_m, 3)}</span>`, `<span class="num">${fmt(x.true_m, 3)}</span> → <span class="num">${fmt(x.perceived_m, 3)}</span>`)).join(", ")}…</div>` : `<div class="detail">${T("No aimed pushes in this data: perception cannot be checked.", "목표를 정하고 민 기록이 없어 카메라는 확인할 수 없습니다.")}</div>`;
+  if (step.tool === "perception_check" && Array.isArray(r)) return r.length ? `<div class="detail">${T(`${r.length} targets: perceived`, `목표 ${r.length}곳: 실제 거리 → 카메라 측정 거리`)} ${r.slice(0, 3).map(x => T(`<span class="num">${fmt(x.perceived_m, 3)}</span> for <span class="num">${fmt(x.true_m, 3)}</span>`, `<span class="num">${fmt(x.true_m, 3)}</span> → <span class="num">${fmt(x.perceived_m, 3)}</span>`)).join(", ")}…</div>` : `<div class="detail">${T("No aimed pushes in this data: perception cannot be checked.", "목표 지점을 정한 시행이 없어 카메라 오차는 확인할 수 없습니다.")}</div>`;
   if ((step.tool === "fit_hypothesis" || step.tool === "test_hypothesis") && r && typeof r === "object") {
     const free = step.args && step.args.free;
     const m = r.fitted_model || (step.args && step.args.model) || {};
@@ -1279,7 +1324,7 @@ function stepDetail(step) {
   }
   if (step.tool === "probe_real" && r) {
     const q = r.queued_for_human || (r.results || []).map(x => x.command);
-    return `<div class="detail">${r.queued_for_human ? T("Recorded data has no robot attached, so these go to you as next-experiment cards:", "로봇이 연결되어 있지 않아 이 제안은 '다음 실험'으로 표시합니다:") : T("Pushes run:", "실제로 민 결과:")} ${state.s && state.s.kind === "video" ? T("launch speeds (m/s)", "출발 속도 (m/s)") : T("commands", "명령값")} <span class="num">${(q || []).map(c => fmt(c, 2)).join(", ")}</span></div>`;
+    return `<div class="detail">${r.queued_for_human ? T("Recorded data has no robot attached, so these go to you as next-experiment cards:", "로봇이 연결되어 있지 않아 이 제안은 '다음 실험'으로 표시합니다:") : T("Pushes run:", "실제 시행 결과:")} ${state.s && state.s.kind === "video" ? T("launch speeds (m/s)", "출발 속도 (m/s)") : T("commands", "명령값")} <span class="num">${(q || []).map(c => fmt(c, 2)).join(", ")}</span></div>`;
   }
   if (step.tool === "commit") return `<blockquote>${esc((step.args || {}).explanation || "")}</blockquote>`;
   if (step.tool === "text") return `<div class="detail">${esc(step.text || "")}</div>`;
@@ -1299,28 +1344,28 @@ function nbHandler(who) {
   const settle = () => { if (live) { live.classList.remove("live"); live.classList.add("ok"); live = null; } };
   const on = e => {
     settle();
-    if (e.type === "stage" && e.stage === "data") nbItem("ok", "Studio", T(`Read ${e.pushes} ${CS("runsEn")}`, `${e.pushes}번 민 기록을 읽었습니다`), `<div class="detail">${T(`They reach from <span class="num">${fmt(e.coverage_m[0])}</span> to <span class="num">${fmt(e.coverage_m[1])} m</span> along the ${CS("surfaceWord")}.`, `${CS("surfaceWordKo")} 위 <span class="num">${fmt(e.coverage_m[0])}</span>–<span class="num">${fmt(e.coverage_m[1])} m</span> 사이에서 멈췄습니다.`)}</div>${(e.notes || []).map(n => `<div class="detail">${esc(tx(n[0].toUpperCase() + n.slice(1)))}.</div>`).join("")}`);
+    if (e.type === "stage" && e.stage === "data") nbItem("ok", "Studio", T(`Read ${e.pushes} ${CS("runsEn")}`, `${e.pushes}건의 기록을 읽었습니다`), `<div class="detail">${T(`They reach from <span class="num">${fmt(e.coverage_m[0])}</span> to <span class="num">${fmt(e.coverage_m[1])} m</span> along the ${CS("surfaceWord")}.`, `${CS("surfaceWordKo")} 위 <span class="num">${fmt(e.coverage_m[0])}</span>–<span class="num">${fmt(e.coverage_m[1])} m</span> 사이에서 멈췄습니다.`)}</div>${(e.notes || []).map(n => `<div class="detail">${esc(tx(n[0].toUpperCase() + n.slice(1)))}.</div>`).join("")}`);
     if (e.type === "stage" && e.stage === "agent") live = nbItem("live", who, T("Starting the investigation", "원인 찾기를 시작합니다"), "");
     if (e.type === "stage" && e.stage === "note") nbItem("warn", "Studio", esc(e.message), "");
     if (e.type === "agent_step") {
       const s = e.step; const un = s.result && s.result.unexplained && s.result.unexplained.length;
-      const title = s.tool === "fit_hypothesis" ? `${T("Fitted", "맞춰 봄")}: ${structureWords(s.args && s.args.free)}` : s.tool === "test_hypothesis" ? `${T("Tested", "검증")}: ${structureWords(Object.keys((s.args || {}).model || {}).filter(k => { const x = s.args.model[k]; return x != null && x !== 0 && !(k === "actuator_gain" && x === 1); }))}` : s.tool === "probe_real" ? T(`Asked for more ${CS("runsEn")}`, "추가 측정을 요청했습니다") : s.tool === "decel_profile" ? T(`Measured how fast it slows down along the ${CS("surfaceWord")}`, `${CS("surfaceWordKo")} 위치별 감속을 측정했습니다`) : (LANG === "ko" ? TOOL_WORDS_KO[s.tool] : TOOL_WORDS[s.tool]) || s.tool;
+      const title = s.tool === "fit_hypothesis" ? `${T("Fitted", "피팅")}: ${structureWords(s.args && s.args.free)}` : s.tool === "test_hypothesis" ? `${T("Tested", "검증")}: ${structureWords(Object.keys((s.args || {}).model || {}).filter(k => { const x = s.args.model[k]; return x != null && x !== 0 && !(k === "actuator_gain" && x === 1); }))}` : s.tool === "probe_real" ? T(`Asked for more ${CS("runsEn")}`, "추가 측정을 요청했습니다") : s.tool === "decel_profile" ? T(`Measured how fast it slows down along the ${CS("surfaceWord")}`, `${CS("surfaceWordKo")} 위치별 감속을 측정했습니다`) : (LANG === "ko" ? TOOL_WORDS_KO[s.tool] : TOOL_WORDS[s.tool]) || s.tool;
       live = nbItem(s.tool === "commit" ? "ok" : un ? "warn" : "live", who, esc(title), stepDetail(s));
     }
     if (e.type === "cross_check") {
       const c = e.cross_check;
-      nbItem(c.adopted === "agent" ? "ok" : "warn", T("Studio cross-check", "Studio 검증"), c.adopted === "agent" ? T("The agent's model explains everything a library search can", "AI의 답이 기록을 모두 설명합니다") : T("Overruled the agent's model", "AI의 답이 부족해 수정했습니다"),
-        `<div class="detail">${T("Misfit (residuals over their noise floors): agent", "안 맞는 정도 (1 이하면 충분히 맞음): AI")} <span class="num">${fmt(c.agent_misfit)}</span>, ${T("library search", "자동 계산")} <span class="num">${fmt(c.search_misfit)}</span>.${c.reason ? " " + esc(c.reason) : ""}</div>`);
+      nbItem(c.adopted === "agent" ? "ok" : "warn", T("Studio cross-check", "Studio 교차 검증"), c.adopted === "agent" ? T("The agent's model explains everything a library search can", "AI의 결론이 로그를 모두 설명합니다") : T("Overruled the agent's model", "AI의 결론이 부족해 수정했습니다"),
+        `<div class="detail">${T("Misfit (residuals over their noise floors): agent", "불일치 지수(1 이하면 충분): AI")} <span class="num">${fmt(c.agent_misfit)}</span>, ${T("library search", "자동 탐색")} <span class="num">${fmt(c.search_misfit)}</span>.${c.reason ? " " + esc(c.reason) : ""}</div>`);
     }
-    if (e.type === "stage" && e.stage === "fit") live = nbItem("live", "Studio", T("Fitting the numbers and their uncertainty", "정확한 값과 오차 범위를 계산합니다"), `<div class="detail">${T("Least squares on every push, then the same fit on resampled sets of pushes (bootstrap) for 90% intervals.", "모든 기록에 맞는 값을 구한 뒤, 기록을 바꿔 가며 반복 계산해 오차 범위를 구합니다.")}</div>`);
+    if (e.type === "stage" && e.stage === "fit") live = nbItem("live", "Studio", T("Fitting the numbers and their uncertainty", "보정값과 오차 범위를 계산합니다"), `<div class="detail">${T("Least squares on every push, then the same fit on resampled sets of pushes (bootstrap) for 90% intervals.", "전체 기록으로 최소제곱 피팅을 한 뒤, 기록을 다시 뽑아 반복 피팅(부트스트랩)해 90% 범위를 구합니다.")}</div>`);
     if (e.type === "calibration") { const c = e.calibration; nbItem("ok", "Studio", `${T("Calibrated", "찾은 원인")}: ${structureWords(c.structure)}`, `<div class="detail">${T("Chosen by", "결정 방법")}: ${esc(tx(c.chosen_by))}. ${T("Stops now off by", "남은 오차")} <span class="num">${dist(c.residuals.stop_residual_rms_m)}</span> rms.</div>`); }
-    if (e.type === "next") { const n = e.next_experiment; nbItem(n.settled ? "ok" : "warn", "Studio", n.settled ? T("No further pushes needed", "추가 측정이 필요 없습니다") : T(`Suggested ${n.suggestions.length} more ${CS("runsEn")}`, `${n.suggestions.length}번 추가 측정을 추천합니다`), `<div class="detail">${T("Largest disagreement between plausible models inside the working range:", "아직 예상이 가장 크게 갈리는 정도:")} <span class="num">±${dist(n.max_disagreement_in_range_m)}</span>.</div>`); }
+    if (e.type === "next") { const n = e.next_experiment; nbItem(n.settled ? "ok" : "warn", "Studio", n.settled ? T("No further pushes needed", "추가 측정이 필요 없습니다") : T(`Suggested ${n.suggestions.length} more ${CS("runsEn")}`, `${n.suggestions.length}회 추가 실험을 추천합니다`), `<div class="detail">${T("Largest disagreement between plausible models inside the working range:", "목표 범위 안에서 모델 간 예측 차이가 가장 큰 곳:")} <span class="num">±${dist(n.max_disagreement_in_range_m)}</span>.</div>`); }
   };
   return { on, settle };
 }
 function nbDone() {
   const btn = document.createElement("li"); btn.className = "ok";
-  btn.innerHTML = `<div class="what">${T(`Done in ${fmt(state.result.seconds, 1)} s`, `${fmt(state.result.seconds, 1)}초 만에 완료했습니다`)}</div><div class="row" style="margin-top:10px"><button class="btn primary" id="to-res">${T("See the calibrated simulator", "고친 시뮬레이터 보기")}</button></div>`;
+  btn.innerHTML = `<div class="what">${T(`Done in ${fmt(state.result.seconds, 1)} s`, `${fmt(state.result.seconds, 1)}초 만에 완료했습니다`)}</div><div class="row" style="margin-top:10px"><button class="btn primary" id="to-res">${T("See the calibrated simulator", "보정된 시뮬레이터 보기")}</button></div>`;
   $("#nb").appendChild(btn); $("#to-res").onclick = () => go("results");
 }
 function replayNotebook() {  // after a language switch: redraw the notebook from the recorded events
@@ -1341,7 +1386,7 @@ async function runDiagnosis() {
     h.settle();
     state.truth = null; state.laneIt = null; state.trainProgress = null; state.rolloutFile = null;
     state.done.add("diag");
-    state.summaries.diag = state.result.agent ? [`${state.result.agent.steps} agent steps`, `AI가 ${state.result.agent.steps}단계 진행`] : ["offline fit", "AI 없이 계산"];
+    state.summaries.diag = state.result.agent ? [`${state.result.agent.steps} agent steps`, `AI 분석 ${state.result.agent.steps}단계`] : ["offline fit", "계산만 사용 (AI 없음)"];
     nbDone();
     renderSteps();
   } catch (e) { $("#err-diag").textContent = e.message; }
@@ -1363,7 +1408,7 @@ function renderResults() {
   state.done.add("results");
   state.summaries.results = [((L) => { const keep = LANG; LANG = L; const w = structureWords(c.structure); LANG = keep; return w; })("en"), ((L) => { const keep = LANG; LANG = L; const w = structureWords(c.structure); LANG = keep; return w; })("ko")];
   renderSteps();
-  $("#r-lede").textContent = T(`${s.session.pushes.length} ${CS("runsEn")}, ${c.chosen_by}. Stops in the calibrated sim match yours within ${dist(c.residuals.stop_residual_rms_m)} rms.`, `${s.session.pushes.length}번 민 기록을 사용했습니다. 고친 시뮬레이터는 실제 멈춘 위치와 평균 ${dist(c.residuals.stop_residual_rms_m)} 이내로 일치합니다. (${tx(c.chosen_by)})`);
+  $("#r-lede").textContent = T(`${s.session.pushes.length} ${CS("runsEn")}, ${c.chosen_by}. Stops in the calibrated sim match yours within ${dist(c.residuals.stop_residual_rms_m)} rms.`, `${s.session.pushes.length}건의 기록을 사용했습니다. 보정된 시뮬레이터는 실제 정지 위치와 평균 ${dist(c.residuals.stop_residual_rms_m)} 이내로 일치합니다. (${tx(c.chosen_by)})`);
   // hero: friction painted on the table
   const ov = r.overlay && r.overlay[String(Math.max(0, s.videos.length - 1))];
   const v = s.videos[s.videos.length - 1];
@@ -1375,7 +1420,7 @@ function renderResults() {
       return `<text x="${q[0]}" y="${q[1]}" text-anchor="middle" style="${txt};font-size:${fs}px">μ ${fmt(g.mu)}</text>`; }).join("");
     const unm = ov.unmeasured_poly ? `<polygon points="${ov.unmeasured_poly.map(p => p.join(",")).join(" ")}" fill="url(#hatch2)"/>` : "";
     const r0 = ov.reach_px && ov.reach_px[0];
-    const reach = ov.reach_px ? `<line x1="${ov.reach_px[0][0]}" y1="${ov.reach_px[0][1]}" x2="${ov.reach_px[1][0]}" y2="${ov.reach_px[1][1]}" stroke="#fff" stroke-width="2" stroke-dasharray="7 5" vector-effect="non-scaling-stroke"/><text x="${(ov.reach_px[0][0] + ov.reach_px[1][0]) / 2}" y="${Math.min(ov.reach_px[0][1], ov.reach_px[1][1]) - fs * 0.4}" text-anchor="middle" style="${txt};font-weight:500;font-size:${v.width / 62 / kz}px">${ov.unmeasured_poly ? T(`no push got past ${fmt(ov.reach_m)} m`, `${fmt(ov.reach_m)} m 너머는 아직 모름`) : T(`measured to ${fmt(ov.reach_m)} m`, `${fmt(ov.reach_m)} m까지 재 봄`)}</text>` : "";
+    const reach = ov.reach_px ? `<line x1="${ov.reach_px[0][0]}" y1="${ov.reach_px[0][1]}" x2="${ov.reach_px[1][0]}" y2="${ov.reach_px[1][1]}" stroke="#fff" stroke-width="2" stroke-dasharray="7 5" vector-effect="non-scaling-stroke"/><text x="${(ov.reach_px[0][0] + ov.reach_px[1][0]) / 2}" y="${Math.min(ov.reach_px[0][1], ov.reach_px[1][1]) - fs * 0.4}" text-anchor="middle" style="${txt};font-weight:500;font-size:${v.width / 62 / kz}px">${ov.unmeasured_poly ? T(`no push got past ${fmt(ov.reach_m)} m`, `${fmt(ov.reach_m)} m 이후 미측정`) : T(`measured to ${fmt(ov.reach_m)} m`, `${fmt(ov.reach_m)} m까지 측정함`)}</text>` : "";
     const hasGhosts = ov.ghosts && ov.ghosts.length;
     const media = hasGhosts ? `<video src="${esc(be.media(v.file))}" muted loop playsinline preload="auto" width="${v.width}" height="${v.height}" aria-label="Your video with the simulators' predictions overlaid"></video>`
                             : `<img src="${esc(be.media(v.frame))}" alt="Your table with the measured friction painted on it" width="${v.width}" height="${v.height}">`;
@@ -1401,7 +1446,7 @@ function renderResults() {
   const chips = [];
   chips.push(`<span class="chip ${c.residuals.stop_residual_rms_m < 0.01 * DOM.scale ? "g" : "w"}">${T("stops", "위치 오차")} ±${dist(c.residuals.stop_residual_rms_m)}</span>`);
   if (r.agent && r.agent.cross_check) chips.push(`<span class="chip ${r.agent.cross_check.adopted === "agent" ? "g" : "w"}">${r.agent.cross_check.adopted === "agent" ? "agent model cross-checked" : "agent overruled"}</span>`);
-  if (p.unmeasured_whatif) chips.push(`<span class="chip w">${T(`${CS("surfaceWord")} past ${fmt(p.measured_reach_m)} m unmeasured`, `${fmt(p.measured_reach_m)} m 너머 미측정`)}</span>`);
+  if (p.unmeasured_whatif) chips.push(`<span class="chip w">${T(`${CS("surfaceWord")} past ${fmt(p.measured_reach_m)} m unmeasured`, `${fmt(p.measured_reach_m)} m 이후 미측정`)}</span>`);
   $("#r-verdict").innerHTML = `
     <div><div class="small muted">${T(`A policy trained in each simulator, stopping within ${tolText(p.tolerance_m)} of the ${CS("targetWord")} for targets ${fmt(lo, 1)}–${fmt(hi, 1)} m`, `각 시뮬레이터로 학습한 정책이 ${fmt(lo, 1)}–${fmt(hi, 1)} m의 목표에서 ${CS("targetWordKo")} ${tolText(p.tolerance_m)} 이내로 멈추는 비율`)}</div></div>
     <div class="pair">
@@ -1409,20 +1454,20 @@ function renderResults() {
       <div class="arrow" aria-hidden="true">→</div>
       <div><div class="big after ${p.unmeasured_whatif ? "span" : ""}">${p.unmeasured_whatif && p.after.hi - p.after.lo > 0.1 ? `${Math.round(p.after.lo * 100)}–${pct(p.after.hi)}` : pct(p.after.median)}</div><div class="what">calibrated sim</div><div class="range">${p.unmeasured_whatif ? (DOM.id === "robot" ? "depends on the unmeasured table" : T(`depends on the unmeasured ${CS("surfaceWord")}`, "미측정 구간에 따라 달라짐")) : `90%: ${pct(p.after.lo)}–${pct(p.after.hi)}`}</div></div>
     </div>
-    <div class="by">${weak < 0 ? T("Holds across the whole target range.", "목표 범위 전체에서 잘 맞습니다.") : T(`Weakest beyond ${fmt(lo + (hi - lo) * weak / by.length)} m${p.unmeasured_whatif ? `, where no run has measured the ${CS("surfaceWord")} yet` : ""}.`, `${fmt(lo + (hi - lo) * weak / by.length)} m 이후 구간에서 가장 약합니다${p.unmeasured_whatif ? ". 해당 구간은 아직 측정하지 않았습니다" : ""}.`)}</div>
+    <div class="by">${weak < 0 ? T("Holds across the whole target range.", "목표 범위 전체에서 잘 맞습니다.") : T(`Weakest beyond ${fmt(lo + (hi - lo) * weak / by.length)} m${p.unmeasured_whatif ? `, where no run has measured the ${CS("surfaceWord")} yet` : ""}.`, `${fmt(lo + (hi - lo) * weak / by.length)} m 이후 구간에서 성공률이 가장 낮습니다${p.unmeasured_whatif ? ". 해당 구간은 아직 측정하지 않았습니다" : ""}.`)}</div>
     <div class="chips">${chips.join("")}</div>
     <div class="caveat">Model predictions: rollouts of the fitted model across the plausible worlds, with your measured scatter as noise. Verify on the real robot.</div>`;
   // forest
   $("#r-forest").innerHTML = forest(c.gap, state.truth);
-  $("#r-truth").innerHTML = (state.s.sample || state.s.simulated) ? (state.truth ? `<span class="small muted">${T(`Hidden physics from ${esc(state.truth.source)} shown as white diamonds${state.truth.note ? `; ${esc(state.truth.note)}` : ""}.`, `흰 마름모가 정답입니다 (${esc(tx(state.truth.source))})${state.truth.note ? `. ${esc(tx(state.truth.note))}` : ""}.`)}</span>` : `<button class="btn" id="reveal">${T("Reveal the hidden physics", "정답 확인하기")}</button><span class="small muted">${state.s.simulated ? T("Your settings were never shown to Tether.", "설정한 값은 Tether에 전달되지 않았습니다.") : T("This sample came from a world Tether never saw.", "이 예시는 Tether가 정답을 모르는 상태입니다.")} ${T("Compare after the fact.", "결과와 비교할 수 있습니다.")}</span>`) : "";
+  $("#r-truth").innerHTML = (state.s.sample || state.s.simulated) ? (state.truth ? `<span class="small muted">${T(`Hidden physics from ${esc(state.truth.source)} shown as white diamonds${state.truth.note ? `; ${esc(state.truth.note)}` : ""}.`, `흰 마름모가 정답입니다 (${esc(tx(state.truth.source))})${state.truth.note ? `. ${esc(tx(state.truth.note))}` : ""}.`)}</span>` : `<button class="btn" id="reveal">${T("Reveal the hidden physics", "정답 확인하기")}</button><span class="small muted">${state.s.simulated ? T("Your settings were never shown to Tether.", "설정한 값은 Tether에 전달되지 않았습니다.") : T("This sample came from a world Tether never saw.", "Tether는 이 예시의 정답을 모릅니다.")} ${T("Compare after the fact.", "결과와 비교할 수 있습니다.")}</span>`) : "";
   if ($("#reveal")) $("#reveal").onclick = async () => { state.truth = toView(await be.truth(state.s.id)); renderResults(); };
   // charts
   $("#r-charts").innerHTML = chartStops(c) + chartFriction(c) + chartSuccess(c);
   // next
   const n = r.next_experiment;
   let nx = n.settled ? `<div class="settled">The pushes you have settle the model over the whole working range (models agree within ±${dist(n.max_disagreement_in_range_m)}).</div>` :
-    `<div class="next">${n.suggestions.map(x => `<div class="card"><div class="t">${T(`Stop at ${fmt(x.predicted_stop_m)} m`, `${fmt(x.predicted_stop_m)} m에서 멈추게 하기`)}</div><div class="small num muted">${x.command != null ? (DOM.id === "driving" ? `${T("speed set-point", "속도 명령")} ${fmt(x.command, 1)} m/s (${Math.round(x.command * 3.6)} km/h)` : `${T("command", "명령값")} ${fmt(x.command)}`) : `${T("launch", "출발 속도")} ≈ ${fmt(x.launch_speed_mps, 1)} m/s${DOM.id === "driving" ? ` (${Math.round(x.launch_speed_mps * 3.6)} km/h)` : ""}`}</div><p>${esc(tx(x.why[0].toUpperCase() + x.why.slice(1)))}.</p></div>`).join("")}</div>`;
-  if (n.agent_requests && n.agent_requests.length) nx += `<p class="asks">${T("The agent also asked for commands", "AI가 해 보자고 한 명령값")} ${n.agent_requests.map(a => `<span class="num">${fmt(a.command)}</span>${a.useful ? "" : T(" (off the target range)", " (목표 범위 밖)")}`).join(", ")}.</p>`;
+    `<div class="next">${n.suggestions.map(x => `<div class="card"><div class="t">${T(`Stop at ${fmt(x.predicted_stop_m)} m`, `${fmt(x.predicted_stop_m)} m 지점까지 시행`)}</div><div class="small num muted">${x.command != null ? (DOM.id === "driving" ? `${T("speed set-point", "속도 명령")} ${fmt(x.command, 1)} m/s (${Math.round(x.command * 3.6)} km/h)` : `${T("command", "명령값")} ${fmt(x.command)}`) : `${T("launch", "출발 속도")} ≈ ${fmt(x.launch_speed_mps, 1)} m/s${DOM.id === "driving" ? ` (${Math.round(x.launch_speed_mps * 3.6)} km/h)` : ""}`}</div><p>${esc(tx(x.why[0].toUpperCase() + x.why.slice(1)))}.</p></div>`).join("")}</div>`;
+  if (n.agent_requests && n.agent_requests.length) nx += `<p class="asks">${T("The agent also asked for commands", "AI가 요청한 명령값")} ${n.agent_requests.map(a => `<span class="num">${fmt(a.command)}</span>${a.useful ? "" : T(" (off the target range)", " (목표 범위 밖)")}`).join(", ")}.</p>`;
   const more = moreAction();
   $("#r-next").innerHTML = nx + (more ? `<div class="row" style="margin-top:14px">${more}</div>` : "") + `<div class="row" style="margin-top:22px"><button class="btn primary" id="to-x">Retrain on the calibrated physics</button></div>`;
   if ($("#more")) $("#more").onclick = addTake;
@@ -1459,7 +1504,7 @@ function moreAction() {
   if (s.kind !== "video") return LIVE ? `<label class="btn">Add the pushes you ran (CSV/JSON)<input type="file" id="more-log" accept=".csv,.json" hidden></label><span class="small muted">Same columns as your first log; they are merged and you diagnose again.</span>` : "";
   const sample = s.sample && (LIVE ? null : rec.recFor(s.sample));
   const parts = samplePartsOf(s.sample);
-  if (parts.length > s.videos.length) return `<button class="btn" id="more">${T(`Load take ${s.videos.length + 1}: the ${CS("runsEn")} it asked for`, `${s.videos.length + 1}번째 영상 불러오기: 추천한 실험`)}</button>`;
+  if (parts.length > s.videos.length) return `<button class="btn" id="more">${T(`Load take ${s.videos.length + 1}: the ${CS("runsEn")} it asked for`, `${s.videos.length + 1}번째 영상 불러오기: 추천 실험`)}</button>`;
   if (LIVE && !s.sample) return `<label class="btn">Add a video of these pushes<input type="file" id="more-file" accept="video/*" hidden></label><span class="small muted">Keep the sheet where it was.</span>`;
   return "";
 }
@@ -1514,12 +1559,12 @@ function strip1d(c, s) {
   const stops = s.session.pushes.map(p => `<line x1="${X(p.start + p.stop)}" x2="${X(p.start + p.stop)}" y1="146" y2="160" stroke="#eceeef" stroke-width="2"/>`).join("");
   const tr = c.predicted.target_range_m;
   const ticks = nice(0, ymax * 0.95, 5).map(t => `<text x="${X(t)}" y="${H - 12}" text-anchor="middle">${t} m</text>`).join("");
-  const unm = reach < ymax ? `<rect x="${X(reach)}" y="70" width="${X(ymax) - X(reach)}" height="70" fill="url(#hatch)"/><line x1="${X(reach)}" x2="${X(reach)}" y1="58" y2="150" stroke="#fff" stroke-dasharray="5 4"/><text x="${X(reach) + 6}" y="62" class="lbl">${T(`no push got past ${fmt(reach)} m`, `${fmt(reach)} m 너머는 아직 모름`)}</text>` : "";
+  const unm = reach < ymax ? `<rect x="${X(reach)}" y="70" width="${X(ymax) - X(reach)}" height="70" fill="url(#hatch)"/><line x1="${X(reach)}" x2="${X(reach)}" y1="58" y2="150" stroke="#fff" stroke-dasharray="5 4"/><text x="${X(reach) + 6}" y="62" class="lbl">${T(`no push got past ${fmt(reach)} m`, `${fmt(reach)} m 이후 미측정`)}</text>` : "";
   return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Friction along the push path">
     <defs><pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="rgba(0,0,0,0.45)"/><line x1="0" y1="0" x2="0" y2="8" stroke="#69717a" stroke-width="2"/></pattern></defs>
     <rect width="${W}" height="${H}" fill="#0b0d0f"/>
     <text x="${X(0)}" y="40" class="lbl">${CS("launch")}</text><line x1="${X(0)}" x2="${X(0)}" y1="46" y2="150" stroke="#9ba3aa"/>
-    ${bands}${unm}${stops}<text x="${x1}" y="172" text-anchor="end" class="lbl">${T("ticks: where your runs stopped", "눈금: 실제로 멈춘 곳")}</text>
+    ${bands}${unm}${stops}<text x="${x1}" y="172" text-anchor="end" class="lbl">${T("ticks: where your runs stopped", "눈금: 실제 정지 위치")}</text>
     <line x1="${X(tr[0])}" x2="${X(tr[1])}" y1="190" y2="190" stroke="#76b900" stroke-width="3"/><text x="${X(tr[0])}" y="184" class="lbl">target range</text>${ticks}</svg>`;
 }
 function forest(gap, truth) {
@@ -1593,11 +1638,11 @@ function chartSuccess(c) {
 
 /* ---------------------------------------------------------------- 5 retrain and test */
 const TCOL = { current: "#69717a", wide: "#e6a23c", tether: "#76b900" };
-const TNAME = { current: ["Your current simulator", "지금 시뮬레이터"], wide: ["Wide domain randomization", "넓은 무작위화"], tether: ["Tether's measured ranges", "Tether가 잰 범위"] };
+const TNAME = { current: ["Your current simulator", "보정 전 시뮬레이터"], wide: ["Wide domain randomization", "넓은 도메인 랜덤화"], tether: ["Tether's measured ranges", "Tether 측정 범위"] };
 function trainScore(c, known) { return known ? c.final_real : c.train[c.train.length - 1]; }
 function learnChart(r) {
   const W = 560, H = 300, m = { l: 44, r: 16, t: 18, b: 38 }, n = r.iterations;
-  const A = axes(W, H, m, [0, n], [0, 1], T("training iteration", "학습 반복"), r.hidden_known ? T("success in the hidden real world", "숨겨진 실제 세계에서 성공률") : T("success in the training worlds", "학습 세계에서 성공률"),
+  const A = axes(W, H, m, [0, n], [0, 1], T("training iteration", "학습 반복"), r.hidden_known ? T("success in the hidden real world", "숨겨진 실제 환경에서 성공률") : T("success in the training worlds", "학습 환경에서 성공률"),
                  nice(0, n, 5), [0, 0.25, 0.5, 0.75, 1]);
   const line = (ys, col, dash, w) => { const pts = ys.map((y, i) => y == null ? null : `${A.X(i)},${A.Y(y)}`).filter(Boolean);
     return pts.length ? `<polyline points="${pts.join(" ")}" fill="none" stroke="${col}" stroke-width="${w}" ${dash ? 'stroke-dasharray="5 4" stroke-opacity="0.7"' : ""}/>` : ""; };
@@ -1606,7 +1651,7 @@ function learnChart(r) {
     return (r.hidden_known ? line(c.train, TCOL[id], true, 1.4) + line(c.real, TCOL[id], false, 2.6) : line(c.train, TCOL[id], false, 2.6)) +
       (r.hidden_known ? c.real : c.train).map((y, i) => y == null ? "" : `<circle cx="${A.X(i)}" cy="${A.Y(y)}" r="3" fill="${TCOL[id]}"/>`).join(""); }).join("");
   return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${T("Learning curves", "학습 곡선")}">${A.g}${body}</svg>
-    <div class="legend">${ids.map(id => `<span><i style="background:${TCOL[id]};height:3px"></i>${T(...TNAME[id])}</span>`).join("")}${r.hidden_known ? `<span>${T("solid: hidden real world · dashed: training worlds", "실선: 숨겨진 실제 세계 · 점선: 학습 세계")}</span>` : ""}</div>`;
+    <div class="legend">${ids.map(id => `<span><i style="background:${TCOL[id]};height:3px"></i>${T(...TNAME[id])}</span>`).join("")}${r.hidden_known ? `<span>${T("solid: hidden real world · dashed: training worlds", "실선: 숨겨진 실제 환경 · 점선: 학습 환경")}</span>` : ""}</div>`;
 }
 function lanesSvg(r, cond, it) {
   const lanes = r.conditions[cond].lanes[Math.min(it, r.conditions[cond].lanes.length - 1)] || [];
@@ -1619,7 +1664,7 @@ function lanesSvg(r, cond, it) {
       <line x1="${X(l.target)}" x2="${X(l.target)}" y1="${y - 10}" y2="${y + 10}" stroke="#76b900" stroke-width="2"/>
       <text x="${x0 - 8}" y="${y + 4}" text-anchor="end">μ ${fmt(l.mu)}</text>
       <rect class="lanebox" data-i="${i}" x="${X(0) - box / 2}" y="${y - box / 2}" width="${box}" height="${box}" fill="${ok ? "#76b900" : "#e2574c"}" data-ok="${ok}"/>`; }).join("");
-  return `<svg viewBox="0 0 ${W} ${H}" id="lanes-svg" role="img" aria-label="${T("Parallel training worlds", "병렬 학습 세계")}">${rows}</svg>`;
+  return `<svg viewBox="0 0 ${W} ${H}" id="lanes-svg" role="img" aria-label="${T("Parallel training worlds", "병렬 학습 환경")}">${rows}</svg>`;
 }
 function animateLanes(r, cond, it) {
   const lanes = r.conditions[cond].lanes[Math.min(it, r.conditions[cond].lanes.length - 1)] || [];
@@ -1638,10 +1683,10 @@ function renderTrain() {
   state.done.add("train"); renderSteps();
   const el = $("#t-body"), r = state.result && state.result.training;
   $("#t-lede").textContent = T(`Same learner, same budget, three ways to build the training worlds. Each iteration pushes ${r ? r.n_worlds : 16} parallel NVIDIA Newton worlds at every point of the policy's table, then corrects the commands by the median miss. The hidden real world is never used for learning; when it is known (examples, simulated data) it only scores the result.`,
-    `같은 학습 방법, 같은 예산으로 학습 세계만 세 가지로 바꿉니다. 매 반복마다 NVIDIA Newton 병렬 세계 ${r ? r.n_worlds : 16}개에서 정책의 모든 목표 지점을 밀어 보고, 빗나간 정도의 중앙값으로 명령을 고칩니다. 숨겨진 실제 세계는 학습에 쓰지 않고, 정답을 아는 경우(예시, 가상 데이터)에만 결과를 채점합니다.`);
+    `같은 학습 방법과 예산으로 학습 환경만 세 가지로 바꿉니다. 매 반복마다 NVIDIA Newton 병렬 환경 ${r ? r.n_worlds : 16}개에서 정책 표의 모든 목표 지점을 시행하고, 빗나간 정도의 중앙값으로 명령을 수정합니다. 숨겨진 실제 환경은 학습에 쓰지 않으며, 정답을 아는 경우(예시, 가상 데이터)에만 결과 평가에 사용합니다.`);
   if (!r) {
     const p = state.trainProgress;
-    el.innerHTML = `<div class="row"><button class="btn primary" id="t-run" ${p ? "disabled" : ""}>${T("Retrain in NVIDIA Newton", "NVIDIA Newton에서 다시 학습하기")}</button><span class="small muted" id="t-note">${p ? T(`Training: ${p.condition ? T(...TNAME[p.condition]) : ""}, iteration ${p.iteration ?? 0}…`, `학습 중: ${p.condition ? T(...TNAME[p.condition]) : ""}, ${p.iteration ?? 0}회차…`) : T("About 1 minute on CPU (three conditions × 11 iterations × 176 pushes).", "CPU로 약 1분 걸립니다 (조건 3개 × 반복 11회 × 176번).")}</span></div>`;
+    el.innerHTML = `<div class="row"><button class="btn primary" id="t-run" ${p ? "disabled" : ""}>${T("Retrain in NVIDIA Newton", "NVIDIA Newton에서 재학습")}</button><span class="small muted" id="t-note">${p ? T(`Training: ${p.condition ? T(...TNAME[p.condition]) : ""}, iteration ${p.iteration ?? 0}…`, `학습 중: ${p.condition ? T(...TNAME[p.condition]) : ""}, ${p.iteration ?? 0}회차…`) : T("About 1 minute on CPU (three conditions × 11 iterations × 176 pushes).", "CPU 기준 약 1분 걸립니다(조건 3개 × 반복 11회 × 시행 176회).")}</span></div>`;
     if (!p) $("#t-run").onclick = async () => {
       state.trainProgress = {}; renderTrain();
       try {
@@ -1657,15 +1702,15 @@ function renderTrain() {
   state.laneCond = state.laneCond || "tether"; state.laneIt = state.laneIt ?? r.iterations;
   el.innerHTML = `<div class="tcards">${ids.map(id => { const c = r.conditions[id], v = trainScore(c, known);
       return `<div class="tcard ${id === "tether" ? "hl" : ""}"><span class="sw" style="background:${TCOL[id]}"></span><b class="num ${v === best ? "g" : ""}">${pct(v)}</b>
-        <span>${T(...TNAME[id])}</span><small>${id === "current" ? T("one world: your simulator as it is", "세계 1개: 지금 시뮬레이터 그대로") : id === "wide" ? T(`${c.distinct_worlds} worlds, friction ${fmt(c.mu_range[0])}–${fmt(c.mu_range[1])}, uniform surface`, `세계 ${c.distinct_worlds}개, 마찰 ${fmt(c.mu_range[0])}–${fmt(c.mu_range[1])}, 균일한 바닥`) : T(`${c.distinct_worlds} worlds from the bootstrap: friction ${fmt(c.mu_range[0])}–${fmt(c.mu_range[1])} plus the measured region`, `부트스트랩 세계 ${c.distinct_worlds}개: 마찰 ${fmt(c.mu_range[0])}–${fmt(c.mu_range[1])}, 측정한 구간 포함`)}</small></div>`; }).join("")}</div>
-    <p class="small muted" style="margin-top:6px">${known ? T(`Success = stopping within ${tolText(r.tolerance_m)} of the ${CS("targetWord")} in the hidden real world, 24 targets ${fmt(r.target_range_m[0], 1)}–${fmt(r.target_range_m[1], 1)} m.`, `성공 = 숨겨진 실제 세계에서 ${CS("targetWordKo")} ${tolText(r.tolerance_m)} 이내로 멈춤 (목표 24개, ${fmt(r.target_range_m[0], 1)}–${fmt(r.target_range_m[1], 1)} m).`) : T("Your own data has no hidden truth to score against, so this shows success in each condition's own training worlds. Run the policy on your real system to score it.", "직접 올린 데이터는 정답이 없어 각 조건의 학습 세계 안에서 성공률을 보여 줍니다. 실제 성능은 실제 장비에서 확인해야 합니다.")} ${esc(r.engine)}, ${r.seconds} s.</p>
+        <span>${T(...TNAME[id])}</span><small>${id === "current" ? T("one world: your simulator as it is", "환경 1개: 보정 전 시뮬레이터 그대로") : id === "wide" ? T(`${c.distinct_worlds} worlds, friction ${fmt(c.mu_range[0])}–${fmt(c.mu_range[1])}, uniform surface`, `환경 ${c.distinct_worlds}개, 마찰계수 ${fmt(c.mu_range[0])}–${fmt(c.mu_range[1])}, 균일한 바닥`) : T(`${c.distinct_worlds} worlds from the bootstrap: friction ${fmt(c.mu_range[0])}–${fmt(c.mu_range[1])} plus the measured region`, `부트스트랩 환경 ${c.distinct_worlds}개: 마찰계수 ${fmt(c.mu_range[0])}–${fmt(c.mu_range[1])}, 측정한 구간 포함`)}</small></div>`; }).join("")}</div>
+    <p class="small muted" style="margin-top:6px">${known ? T(`Success = stopping within ${tolText(r.tolerance_m)} of the ${CS("targetWord")} in the hidden real world, 24 targets ${fmt(r.target_range_m[0], 1)}–${fmt(r.target_range_m[1], 1)} m.`, `성공 기준: 숨겨진 실제 환경에서 ${CS("targetWordKo")} ${tolText(r.tolerance_m)} 이내로 정지 (목표 24개, ${fmt(r.target_range_m[0], 1)}–${fmt(r.target_range_m[1], 1)} m).`) : T("Your own data has no hidden truth to score against, so this shows success in each condition's own training worlds. Run the policy on your real system to score it.", "직접 올린 데이터는 정답이 없어 각 조건의 학습 환경 안에서의 성공률을 보여 줍니다. 실제 성능은 실제 장비에서 확인해야 합니다.")} ${esc(r.engine)}, ${r.seconds} s.</p>
     <div class="tgrid"><div class="chart"><h4>${T("Learning curves", "학습 곡선")}</h4>${learnChart(r)}</div>
-      <div class="chart"><h4>${T("Inside the training worlds", "학습 세계 들여다보기")}</h4><p>${T(`8 of the parallel worlds at one table point (Newton tracks). Green band: within ${tolText(r.tolerance_m)} of the ${CS("targetWord")} that world's camera reports.`, `병렬 세계 중 8개를 한 목표 지점에서 본 Newton 기록입니다. 초록 띠: 그 세계 카메라가 본 ${CS("targetWordKo")} ${tolText(r.tolerance_m)} 이내.`)}</p>
+      <div class="chart"><h4>${T("Inside the training worlds", "학습 환경 들여다보기")}</h4><p>${T(`8 of the parallel worlds at one table point (Newton tracks). Green band: within ${tolText(r.tolerance_m)} of the ${CS("targetWord")} that world's camera reports.`, `병렬 환경 중 8개를 한 목표 지점에서 본 Newton 시뮬레이션 결과입니다. 초록 띠: 각 환경의 카메라가 측정한 ${CS("targetWordKo")} ${tolText(r.tolerance_m)} 이내.`)}</p>
         <div class="row" style="margin:8px 0"><div class="seg2" role="group">${ids.map(id => `<button type="button" data-c="${id}" aria-pressed="${state.laneCond === id}">${T(...TNAME[id])}</button>`).join("")}</div></div>
         <label class="small muted" style="display:flex;gap:10px;align-items:center">${T("iteration", "반복")} <input type="range" id="lane-it" min="0" max="${r.iterations}" value="${state.laneIt}" style="flex:1"> <output id="lane-it-o" class="num">${state.laneIt}</output> <button class="btn" id="lane-play" type="button">${T("Play", "재생")}</button></label>
         <div id="lanes">${lanesSvg(r, state.laneCond, state.laneIt)}</div></div></div>
-    ${LIVE && r.hidden_known ? `<div class="row" style="margin-top:14px"><button class="btn" id="t-vid">${T("Show the three policies in the hidden world (NVIDIA Newton video)", "세 정책을 숨겨진 실제 세계에서 보기 (NVIDIA Newton 영상)")}</button><span class="small muted" id="t-vid-note"></span></div><div id="t-vid-box"></div>` : ""}
-    <div class="caveat" style="margin-top:12px">${T("The policy is a command table over the perceived distance, learned by trial (iterative learning control, median over worlds). It is deliberately simple so that what differs between the three is only the physics it was trained on.", "정책은 카메라가 본 거리마다 명령을 정하는 표이며, 시행착오(세계별 중앙값으로 고치는 반복 학습 제어)로 학습합니다. 세 조건의 차이가 학습에 쓴 물리값에서만 나오도록 일부러 단순하게 만들었습니다.")}</div>`;
+    ${LIVE && r.hidden_known ? `<div class="row" style="margin-top:14px"><button class="btn" id="t-vid">${T("Show the three policies in the hidden world (NVIDIA Newton video)", "세 정책을 숨겨진 실제 환경에서 비교하기 (NVIDIA Newton 영상)")}</button><span class="small muted" id="t-vid-note"></span></div><div id="t-vid-box"></div>` : ""}
+    <div class="caveat" style="margin-top:12px">${T("The policy is a command table over the perceived distance, learned by trial (iterative learning control, median over worlds). It is deliberately simple so that what differs between the three is only the physics it was trained on.", "정책은 카메라 측정 거리마다 명령을 정하는 표이며, 시행착오(환경별 중앙값으로 수정하는 반복 학습 제어)로 학습합니다. 세 조건의 차이가 학습에 쓴 물리값에서만 나오도록 일부러 단순하게 설계했습니다.")}</div>`;
   const redrawLanes = () => { $("#lanes").innerHTML = lanesSvg(r, state.laneCond, state.laneIt); $("#lane-it-o").textContent = state.laneIt; animateLanes(r, state.laneCond, state.laneIt); };
   el.querySelectorAll("[data-c]").forEach(b => b.onclick = () => { state.laneCond = b.dataset.c; el.querySelectorAll("[data-c]").forEach(x => x.setAttribute("aria-pressed", String(x === b))); redrawLanes(); });
   $("#lane-it").oninput = e => { state.laneIt = +e.target.value; redrawLanes(); };
@@ -1708,16 +1753,16 @@ function verifyChart(v) {
   const W = 420, H = 300, m = { l: 46, r: 12, t: 16, b: 36 };
   const all = v.pushes.flatMap(p => [p.measured, p.calibrated, p.current]);
   const hi = Math.max(...all) * 1.06, lo = 0;
-  const A = axes(W, H, m, [lo, hi], [lo, hi], T("measured stop (m)", "실제 멈춘 거리 (m)"), T("replayed in Newton (m)", "Newton 재현 (m)"), nice(lo, hi, 5), nice(lo, hi, 5));
+  const A = axes(W, H, m, [lo, hi], [lo, hi], T("measured stop (m)", "실제 정지 거리 (m)"), T("replayed in Newton (m)", "Newton 재현 (m)"), nice(lo, hi, 5), nice(lo, hi, 5));
   const diag = `<line x1="${A.X(lo)}" y1="${A.Y(lo)}" x2="${A.X(hi)}" y2="${A.Y(hi)}" stroke="#eceeef" stroke-opacity="0.35" stroke-dasharray="4 4"/>`;
   const dots = (k, col, r) => v.pushes.map(p => `<circle cx="${A.X(p.measured)}" cy="${A.Y(p[k])}" r="${r}" fill="${col}"/>`).join("");
   return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${T("Replayed stops against measured stops", "재현한 정지 위치와 실제 정지 위치")}">${A.g}${diag}${dots("current", "#69717a", 4)}${dots("calibrated", "#76b900", 4.2)}</svg>
-    <div class="legend"><span><i style="background:#76b900;height:8px"></i>${T("exported (calibrated) physics", "내보낸(고친) 물리값")}</span><span><i style="background:#69717a;height:8px"></i>${T("your current sim", "지금 시뮬레이터")}</span><span>${T("on the dashed line = exact", "점선 위 = 정확히 일치")}</span></div>`;
+    <div class="legend"><span><i style="background:#76b900;height:8px"></i>${T("exported (calibrated) physics", "보정된 물리값")}</span><span><i style="background:#69717a;height:8px"></i>${T("your current sim", "보정 전 시뮬레이터")}</span><span>${T("on the dashed line = exact", "점선 위 = 정확히 일치")}</span></div>`;
 }
 function renderVerify() {
   const el = $("#verify"), v = state.result && state.result.verify;
   const head = `<div><h3>${T("Verified in NVIDIA Newton", "NVIDIA Newton으로 검증")}</h3>
-    <p class="small muted" style="margin-top:4px">${T(`Before you take it home: every measured ${CS("run")} replayed in the full physics engine, from its own start and launch, once with the exported physics and once with your current simulator. The fit used a fast analytic model; this checks the numbers in the engine you will load them into.`, `가져가기 전에 확인합니다. 측정한 모든 기록을 실제와 같은 출발 위치·속도로 NVIDIA Newton에서 다시 실행합니다. 한 번은 내보낼 값으로, 한 번은 지금 시뮬레이터로 실행해 비교합니다. 값을 찾을 때는 빠른 근사 모델을 썼으므로, 실제로 쓸 물리 엔진에서 다시 확인하는 단계입니다.`)}</p>`;
+    <p class="small muted" style="margin-top:4px">${T(`Before you take it home: every measured ${CS("run")} replayed in the full physics engine, from its own start and launch, once with the exported physics and once with your current simulator. The fit used a fast analytic model; this checks the numbers in the engine you will load them into.`, `내보내기 전에 확인합니다. 측정한 모든 시행을 실제와 같은 출발 위치·속도로 NVIDIA Newton에서 다시 실행합니다. 한 번은 보정값으로, 한 번은 보정 전 시뮬레이터로 실행해 비교합니다. 보정값은 빠른 근사 모델로 찾았기 때문에, 실제로 사용할 물리 엔진에서 다시 확인하는 단계입니다.`)}</p>`;
   if (!v) {
     el.innerHTML = head + `<div class="row" style="margin-top:12px"><button class="btn primary" id="v-run">${T("Replay in NVIDIA Newton", "NVIDIA Newton으로 재현하기")}</button><span class="small muted" id="v-note">${T("Takes a few seconds on CPU.", "CPU로 몇 초 걸립니다.")}</span></div></div>`;
     $("#v-run").onclick = async () => {
@@ -1729,11 +1774,11 @@ function renderVerify() {
   }
   const better = v.rms_current_m / Math.max(1e-6, v.rms_calibrated_m);
   el.innerHTML = head + `<div class="stats">
-      <div><b class="g num">±${dist(v.rms_calibrated_m)}</b><span>${T("exported physics, rms stop error", "내보낸 값, 평균 정지 위치 오차")}</span></div>
-      <div><b class="num">±${dist(v.rms_current_m)}</b><span>${T("your current sim", "지금 시뮬레이터")}</span></div>
+      <div><b class="g num">±${dist(v.rms_calibrated_m)}</b><span>${T("exported physics, rms stop error", "보정값의 평균 정지 위치 오차")}</span></div>
+      <div><b class="num">±${dist(v.rms_current_m)}</b><span>${T("your current sim", "보정 전 시뮬레이터")}</span></div>
       <div><b class="num">${better >= 10 ? Math.round(better) : better.toFixed(1)}×</b><span>${T("closer to reality", "더 정확")}</span></div>
-      <div><b class="num">${v.pushes.length}</b><span>${T(`${CS("runsEn")} replayed in ${v.seconds} s`, `${v.seconds}초 동안 재현한 기록 수`)}</span></div></div>
-    <p class="small muted" style="margin-top:10px">${T(`Worst single ${CS("run")}: ${dist(v.worst_calibrated_m)}. Part of what remains is measurement noise in your data and the box's finite contact patch, which the analytic fit ignores.`, `가장 크게 벗어난 기록: ${dist(v.worst_calibrated_m)}. 남은 오차에는 측정 잡음과 근사 모델이 무시한 접촉면 크기 효과가 포함됩니다.`)} ${esc(v.engine)}.</p></div>
+      <div><b class="num">${v.pushes.length}</b><span>${T(`${CS("runsEn")} replayed in ${v.seconds} s`, `재현한 시행 수 (${v.seconds}초)`)}</span></div></div>
+    <p class="small muted" style="margin-top:10px">${T(`Worst single ${CS("run")}: ${dist(v.worst_calibrated_m)}. Part of what remains is measurement noise in your data and the box's finite contact patch, which the analytic fit ignores.`, `가장 크게 벗어난 기록: ${dist(v.worst_calibrated_m)}. 남은 오차에는 측정 잡음과, 근사 모델이 고려하지 않는 접촉면 크기 효과가 포함됩니다.`)} ${esc(v.engine)}.</p></div>
     <div>${verifyChart(v)}</div>`;
 }
 function renderExport() {
@@ -1745,13 +1790,13 @@ function renderExport() {
   $("#x-tabs").querySelectorAll("button").forEach(b => b.onclick = () => { state.exportTab = b.dataset.id; renderExport(); });
   const t = XTABS.find(x => x.id === state.exportTab), text = exportText(t.id);
   $("#x-code").innerHTML = highlight(text, t.id);
-  $("#x-note").textContent = { newton: "Material values for newton.ModelBuilder.ShapeConfig, plus the measured friction region.", isaaclab: "An EventTermCfg that randomizes the object's material over the measured interval at startup.", carla: T("CARLA 0.9.16: scales your vehicle's tire friction by measured / simulated μ, places a friction trigger on the wet or icy section, and ends with a braking check.", "CARLA 0.9.16: 차량 타이어 마찰을 측정값/시뮬레이션값 비율로 바꾸고, 젖거나 언 구간에 마찰 트리거를 두며, 마지막에 제동 거리 확인식을 넣습니다."), markdown: "A one-page report to share.", json: "Everything above, machine-readable (tether.calibration/v1)." }[t.id];
+  $("#x-note").textContent = { newton: "Material values for newton.ModelBuilder.ShapeConfig, plus the measured friction region.", isaaclab: "An EventTermCfg that randomizes the object's material over the measured interval at startup.", carla: T("CARLA 0.9.16: scales your vehicle's tire friction by measured / simulated μ, places a friction trigger on the wet or icy section, and ends with a braking check.", "CARLA 0.9.16용 설정입니다. 타이어 마찰을 ‘측정값/시뮬레이션값’ 비율로 조정하고, 젖거나 언 구간에 마찰 트리거를 배치하며, 제동 거리 검증식을 포함합니다."), markdown: "A one-page report to share.", json: "Everything above, machine-readable (tether.calibration/v1)." }[t.id];
   $("#x-dl").hidden = !LIVE;
   const others = ["robot", "driving", "factory"].filter(id => id !== DOM.id);
   const home = $("#nav-home") && $("#nav-home").getAttribute("href");
   const cons = $("#nav-console") && $("#nav-console").getAttribute("href");
   $("#wayout").innerHTML = `<h3>${T("Where next", "다음으로")}</h3><div class="row">
-      ${others.map(id => `<a class="btn" href="#${id}" data-dom="${id}">${T("Try", "다른 업무:")} ${esc(DOMS[id].name[LANG] || DOMS[id].name.en)}</a>`).join("")}
+      ${others.map(id => `<a class="btn" href="#${id}" data-dom="${id}">${T("Try", "다른 분야:")} ${esc(DOMS[id].name[LANG] || DOMS[id].name.en)}</a>`).join("")}
       ${cons ? `<a class="btn" href="${esc(cons)}">${T("See how the agent works (console)", "AI 작동 원리 보기 (콘솔)")}</a>` : ""}
       ${home ? `<a class="btn" href="${esc(home)}">${T("Overview", "소개 화면")}</a>` : ""}</div>`;
   $("#wayout").querySelectorAll("[data-dom]").forEach(a => a.onclick = ev => { ev.preventDefault(); DATA_DOM = a.dataset.dom; try { localStorage.setItem("gapcloser-domain", DATA_DOM); } catch (_) {} renderDomainCopy(); simDefaults(); renderSamples(); drawSimView(); go("data"); });  // a shared page cannot start downloads; Copy works everywhere
@@ -1763,10 +1808,10 @@ function renderExport() {
 /* ---------------------------------------------------------------- Ask Tether (Nemotron, grounded in this session) */
 const SUGG = {
   data: [["What does this tool do, in simple words?", "이 도구는 무엇을 합니까?"], ["How should I film my table?", "영상은 어떻게 촬영합니까?"], ["What do the simulation sliders mean?", "가상 탁자 설정 항목을 설명해 주십시오"]],
-  measure: [["Why do I place handles on the sheet's corners?", "A4 용지 모서리를 맞추는 이유는?"], ["What is parallax and why does height matter?", "물건 높이가 필요한 이유는?"]],
+  measure: [["Why do I place handles on the sheet's corners?", "A4 용지 모서리를 맞추는 이유는?"], ["What is parallax and why does height matter?", "물체 높이가 필요한 이유는?"]],
   diag: [["What is the agent doing right now?", "AI는 지금 무엇을 하고 있습니까?"], ["Why not just trust the AI's numbers?", "AI의 숫자를 그대로 쓰지 않는 이유는?"]],
   results: [["Explain my result in simple words", "결과를 쉽게 설명해 주십시오"], ["How sure is this?", "이 결과는 얼마나 확실합니까?"], ["What should I do next?", "다음에 무엇을 해야 합니까?"]],
-  train: [["Why does wide randomization do worse here?", "넓은 무작위화가 더 나쁜 이유는?"], ["What does this mean for my real system?", "이 결과는 실제 장비에 어떤 의미입니까?"]],
+  train: [["Why does wide randomization do worse here?", "넓은 도메인 랜덤화가 더 나쁜 이유는?"], ["What does this mean for my real system?", "이 결과는 실제 장비에 어떤 의미입니까?"]],
   export: [["How do I use this in Isaac Lab?", "Isaac Lab에는 어떻게 적용합니까?"], ["What do the randomization ranges mean?", "설정의 범위는 무슨 의미입니까?"]],
 };
 state.chat = [];
