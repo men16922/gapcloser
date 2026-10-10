@@ -2,7 +2,7 @@
 
 Last Updated: 2026-10-11
 
-> ▶ NEXT SESSION: S-level plan executed (`docs/plans/2026-10-11-s-level-plan.md`, section 8). Live demo on Cloud Run (https://tether-454741001655.us-central1.run.app, `make deploy`). Demo film done (`make film`). Next: the user's film feedback, then Devpost (video upload and submission are the user's).
+> ▶ NEXT SESSION: Submission ready (2026-10-11). Everything to upload is in `submission/` (`make submission`), field by field in `docs/submission/SUBMIT.md`; the owner uploads to YouTube and submits on Devpost. Live demo on Cloud Run (`make deploy`). Owner's guide: `reference/00_처음_읽어주세요.md`. Open: film feedback, W4 engineering.
 
 ## Snapshot
 

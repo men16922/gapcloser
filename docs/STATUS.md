@@ -25,7 +25,7 @@ Last Updated: 2026-10-11
 - Agent: LLMDiagnoser (Nemotron) → fallback TrajectoryDiagnoser; HeuristicPlanner applies estimates. Tipped trials excluded from fits.
 - Benchmark (Newton, 10 worlds): full DR 18% / nominal 24% / outcome-only 89% / tracking 94%; Nemotron 30B 99% (run 1) / 93% (run 2), P 0.89/0.94, R 1.00.
 - Live server: `make serve` / Docker image (CPU) — verified with Token Factory in a container; deploy guide `docs/deploy/DEPLOY.md`.
-- Submission assets: demo film `make film` → `video/out/tether_film.mp4` (2:00, ElevenLabs narration), fresh-clone reproduction verified.
+- Submission assets (2026-10-11): `submission/` via `make submission` (film 2:28 with ~68 s of app footage from `video/footage.py`, thumbnail, gallery, YouTube description with chapters, Devpost About text); `docs/submission/SUBMIT.md` lists every field. Owner's guide: `reference/00_처음_읽어주세요.md`.
 - Demo: console scenarios recorded with Nemotron 3 Super; dashboard v3 https://claude.ai/artifact/WVBNfVMAzeNg71kDSFqYAf.
 
 ## Active Focus
