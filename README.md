@@ -280,7 +280,7 @@ The closed-world scenarios (slippery cube, shifted camera, sticky table, weak mo
 
 ```bash
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt pytest httpx
-make check            # offline gate: 99 tests, no network, no credits
+make check            # offline gate: 122 tests, no network, no credits
 make demo             # record 5 Newton scenarios + build the dashboard (~30 s; add --llm local via eval.record_demo for Nemotron)
 open dashboard/dist/console.standalone.html
 make replays          # 3D viewer data only: per-frame Newton poses for the recorded bundle (no LLM)

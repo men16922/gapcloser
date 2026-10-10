@@ -94,3 +94,11 @@ def test_every_server_sentence_on_the_page_has_korean():
 ])
 def test_driving_scaled_sentences_still_translate(text):
     assert translatable(text)
+
+
+def test_server_errors_have_korean():
+    """Every fixed HTTP 4xx message the Studio API raises is translated on the page (call() passes it through tx())."""
+    src = (ROOT / "server" / "studio_api.py").read_text()
+    msgs = set(re.findall(r'HTTPException\(4(?:09|15|22|29), "([^"]+)"\)', src)) | {"Newton is busy with other visitors. Try again in a minute."}
+    missing = sorted(m for m in msgs if not translatable(m) and not m.startswith(("Give the", "Only ", "The last message", "The new rows")))
+    assert not missing, missing

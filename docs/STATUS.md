@@ -20,7 +20,7 @@ Last Updated: 2026-10-11
 - Dashboard v3 (artifact https://claude.ai/artifact/WVBNfVMAzeNg71kDSFqYAf): agent lab notebook, 3D viewer with friction strips, Gap-Bench panel, Cosmos eyes strip, live "Stump the agent" (`make serve`).
 - Cosmos Reason 2 8B local (llama.cpp, `agent/cosmos_eyes.py`): second opinion on tipping, 21/21 agree on demo clips; held-out tip recall ~50%.
 - Nemotron family (open+compound, 6 each): Super 100/99, Lightning 100/95, Ultra 100/83, Nano 97/53.
-- `make check` green: 121 tests (2026-10-11), plus `integrations/nat_tether/tests` under nvidia-nat
+- `make check` green: 122 tests (2026-10-11), plus `integrations/nat_tether/tests` under nvidia-nat
 - Real objects (EV-RealPhys, MPI, tilt-test friction): 4/5 within ±0.05 on log and video paths, mean error 0.019 / 0.029 (paper's estimator 0.082). `make real-benchmark`. (incl. Studio core/API/video; live server, Newton env, tipping, recorded real Nemotron response replay, vision-role request shape).
 - Agent: LLMDiagnoser (Nemotron) → fallback TrajectoryDiagnoser; HeuristicPlanner applies estimates. Tipped trials excluded from fits.
 - Benchmark (Newton, 10 worlds): full DR 18% / nominal 24% / outcome-only 89% / tracking 94%; Nemotron 30B 99% (run 1) / 93% (run 2), P 0.89/0.94, R 1.00.

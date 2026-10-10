@@ -1,6 +1,6 @@
 # Tether — Sim2Real self-closing agent (Nebius x NVIDIA hackathon)
 # Gate must stay OFFLINE + DETERMINISTIC: no GPU, no network, no Nebius/Token Factory calls.
-.PHONY: check test lint smoke-local demo dashboard replays franka-mesh serve docker deploy studio-samples studio-record studio-bench prove cross-engine real-check prove-real real-benchmark film
+.PHONY: check test lint smoke-local demo dashboard replays franka-mesh serve docker deploy studio-samples studio-record studio-bench prove cross-engine real-check prove-real real-benchmark film submission
 
 PY := $(shell [ -x .venv/bin/python ] && echo .venv/bin/python || echo python3)
 
@@ -74,8 +74,12 @@ deploy:
 	$(PY) -m deploy.cloud_run
 
 # demo film: motion-graphics scenes rendered in headless Chrome, ElevenLabs narration (.env), generated music bed
-film:  # -> video/out/tether_film.mp4 (needs make real-benchmark, and make serve for the Studio screenshot)
-	$(PY) -m video.capture
+film:  # -> video/out/tether_film.mp4 (needs make real-benchmark, and make serve with TETHER_LLM=tokenfactory for the Ask clip)
+	$(PY) -m video.footage
 	$(PY) -m studio.rollout_video brake-log
 	$(PY) -m studio.train_montage brake-log
 	$(PY) -m video.film --voice elevenlabs
+
+# everything to upload (film, YouTube thumbnail and description, Devpost gallery and text) -> submission/, see docs/submission/SUBMIT.md
+submission:
+	$(PY) -m video.submission

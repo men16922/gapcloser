@@ -1,9 +1,10 @@
-"""Tether demo film: motion graphics drawn in a browser stage (video/stage.html), captured frame by frame
-with headless Chrome, narrated (ElevenLabs from .env, or macOS say), over a soft generated music bed that ducks
-under the voice. Every number comes from runs/proof/*.json and the recorded Studio sessions.
+"""Tether demo film: motion graphics drawn in a browser stage (video/stage.html) around about a minute of the app in
+action (screen recordings from video/footage.py), captured frame by frame with headless Chrome, narrated (ElevenLabs
+from .env, or macOS say), over a soft generated music bed that ducks under the voice. Every number comes from
+runs/proof/*.json and the recorded Studio sessions.
 
-Needs: Google Chrome, ffmpeg, the EV-RealPhys clips (make real-benchmark) and the Newton renders
-(python -m studio.rollout_video brake-log; python -m studio.train_montage brake-log).
+Needs: Google Chrome, ffmpeg, the EV-RealPhys clips (make real-benchmark), the app footage (python -m video.footage)
+and the Newton renders (python -m studio.rollout_video brake-log; python -m studio.train_montage brake-log).
 Run: .venv/bin/python -m video.film [--voice elevenlabs|say] [--only scene]   -> video/out/tether_film.mp4
 """
 
@@ -27,6 +28,7 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "video" / "out"
 WORK = OUT / "film"
+FOOTAGE = OUT / "footage"
 TTS_CACHE = OUT / "tts-cache"  # ElevenLabs audio per sentence, so a rebuild does not spend credits twice
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 FPS = 30
@@ -38,14 +40,19 @@ SCRIPT = [
     ("gap", "And the real world is a little different. The table is slipperier, the motor is weaker, and a policy that "
             "lands every push in simulation misses on the real one.", 11),
     ("title", "Tether ties your simulator to the real world.", 6),
-    ("input", "Give it a phone video, or the log a robot already writes. A box of known size gives the scale, and every "
-              "push is tracked to a stop.", 10),
-    ("reason", "NVIDIA Nemotron reads the evidence like an engineer: where things slow down, which effects explain it, "
-               "which runs would settle the rest. The numbers come from least squares, each with an honest interval.", 14),
-    ("result", "What comes back is your simulator, corrected: friction mapped onto your own scene, checked by replaying "
-               "every run in NVIDIA Newton, and exported to Newton, Isaac Lab or CARLA.", 12),
-    ("retrain", "Then Tether retrains the policy in sixteen parallel Newton worlds drawn from what it measured. "
-                "In the hidden world, success goes from forty-two percent to one hundred.", 15),
+    # the app in action (screen recordings, video/footage.py)
+    ("appInput", "Open Tether Studio and pick a field. Give it a phone video, or the log a robot already writes. A box of "
+                 "known size gives the scale, and every run is tracked to a stop.", 12),
+    ("appAgent", "Then NVIDIA Nemotron 3 Super, running on Nebius Token Factory, works through the evidence like an "
+                 "engineer: where things slow down, which effects explain it, which runs would settle the rest. Least "
+                 "squares computes every number, each with an honest interval.", 17),
+    ("appResult", "What comes back is your simulator, corrected: friction mapped along the road, what differs from your "
+                  "current simulator, and the next experiment worth running.", 13),
+    ("retrain", "Then Tether retrains the policy in sixteen parallel NVIDIA Newton worlds drawn from what it measured. "
+                "On the vehicle log, hidden-world success goes from forty-two percent to one hundred.", 15),
+    ("appExport", "Before export, every run is replayed in NVIDIA Newton, and the calibrated physics goes straight into "
+                  "Newton, Isaac Lab or CARLA.", 11),
+    ("appAsk", "And you can ask Tether about your own result. Nemotron answers from your session's numbers.", 10),
     ("proofReal", "It holds outside our own simulator. On real objects from a public benchmark, friction lands within "
                   "five hundredths of an independent measurement, for four of five.", 11),
     ("proofEngine", "On worlds built by a different physics engine, policies trained with Tether reach eighty-nine "
@@ -79,10 +86,17 @@ def build_data() -> dict:
     n_gt = len(json.loads((mug.parent / "scene_gt.json").read_text()))
     data["mug"] = {"dir": "assets/mug", "n": n_gt}
 
-    sl = json.loads((ROOT / "runs/studio-demo/stop-line.json").read_text())
-    v = sl["videos"][0]
-    data["road"] = {**frames_of(ROOT / "studio/samples/stop-line-video.mp4", "road"), "w": v["width"], "corners": v["corners"],
-                    "pushes": [{"release_frame": p["release_frame"], "rest_frame": p["rest_frame"], "path": p["path_px"]} for p in v["pushes"]]}
+    # screen recordings of the app (video/footage.py)
+    idx = json.loads((FOOTAGE / "index.json").read_text()) if (FOOTAGE / "index.json").exists() else {}
+    if not {"studio", "ask"} <= set(idx):
+        raise SystemExit("app footage missing: run `python -m video.footage` (needs make serve for the Ask clip)")
+    data["footage"] = {}
+    for clip, meta in idx.items():
+        link = WORK / "assets" / f"footage-{clip}"
+        if link.is_symlink() or link.exists():
+            link.unlink()
+        link.symlink_to(FOOTAGE / clip)
+        data["footage"][clip] = {**meta, "dir": f"assets/footage-{clip}"}
     data["montage"] = frames_of(OUT / "montage-brake-log.mp4", "montage")
     bl = json.loads((ROOT / "runs/studio-demo/brake-log.json").read_text())
     tr = bl["training"]["conditions"]
@@ -90,40 +104,6 @@ def build_data() -> dict:
         {"x": 20, "y": 296, "w": 620, "label": "Your current simulator", "success": tr["current"]["final_real"]},
         {"x": 654, "y": 296, "w": 620, "label": "Wide domain randomization", "success": tr["wide"]["final_real"]},
         {"x": 1286, "y": 296, "w": 620, "label": "Tether's measured ranges", "success": tr["tether"]["final_real"]}]}
-
-    # the agent's reasoning on the vehicle braking log (lengths in full-size metres, Froude scale 25)
-    steps = [e["step"] for e in bl["stages"][-1]["events"] if e["type"] == "agent_step"]
-    k = 25.0
-    reason = []
-    for s in steps:
-        tool, res = s.get("tool"), s.get("result")
-        if tool == "decel_profile" and isinstance(res, list):
-            bars = [r["decel_g"] for r in res if "decel_g" in r][:12]
-            reason.append({"tool": "decel_profile", "what": "how the car slows", "detail": "braking weakens further down the road", "bars": bars})
-        elif tool == "perception_check":
-            reason.append({"tool": "perception_check", "what": "the front camera", "detail": "reads distances about 1% long"})
-        elif tool == "fit_hypothesis" and isinstance(res, dict):
-            m = res.get("fitted_model", {})
-            rms = res.get("stop_residual_rms_m", 0) * k
-            if m.get("patch_y0") is None:
-                reason.append({"tool": "fit_hypothesis", "what": "friction + speed control", "detail": f"stops still off by {rms:.2f} m"})
-            else:
-                reason.append({"tool": "fit_hypothesis", "what": "+ a wet section", "detail": f"from {m['patch_y0'] * k:.1f} m, friction {m['patch_mu']:.2f}: off by {rms * 100:.0f} cm"})
-        elif tool == "commit":
-            m = (s.get("args") or {}).get("model", {})
-            reason.append({"tool": "commit", "what": "the corrected simulator",
-                           "detail": f"road {m.get('mu_eff', 0):.3f} · wet {m.get('patch_mu', 0):.3f} from {m.get('patch_y0', 0) * k:.1f} m · speed control {m.get('actuator_gain', 1):.2f}×"})
-    data["reason"] = reason[:5]
-
-    cal = sl["stages"][-1]["result"]["calibration"]
-    iv = cal["intervals"]
-    vr = sl["verify"]
-    data["result"] = {"src": "assets/studio_results.png", "w": 1920, "h": 1080,
-                      "crop": {"x": 292, "y": 268, "w": 958, "h": 540, "fx": 292 + 958 * 0.62, "fy": 268 + 540 * 0.36}, "facts": [
-        f"road friction  {cal['model']['mu_eff']:.3f}  ({iv['mu_eff'][0]:.3f}–{iv['mu_eff'][1]:.3f})",
-        f"wet section    from {cal['model']['patch_y0'] * k:.1f} m, friction {cal['model']['patch_mu']:.3f}",
-        f"Newton replay  {vr['rms_calibrated_m'] * k * 100:.0f} cm off, before {vr['rms_current_m'] * k:.1f} m"]}
-    shutil.copyfile(OUT / "caps" / "studio_results.png", WORK / "assets" / "studio_results.png")
 
     rb = json.loads((ROOT / "runs/proof/real_benchmark.json").read_text())
     rows = sorted(rb["objects"], key=lambda o: o["mu_tilt_test"])
@@ -304,6 +284,7 @@ def main() -> None:
         plan.append((name, round(d, 3)))
         voices.append(raw)
     total = sum(d for _, d in plan)
+    (WORK / "plan.json").write_text(json.dumps(plan))  # scene lengths, read by video/submission.py for chapters and stills
     print(f"plan: {total:.1f} s  " + "  ".join(f"{n} {d:.1f}" for n, d in plan))
 
     asyncio.run(capture(page, plan, a.only))

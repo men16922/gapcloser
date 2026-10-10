@@ -685,6 +685,25 @@ const KO = {
   "Ask": "질문", "Ask Tether": "Tether에게 물어보기", "Send": "보내기", "Thinking…": "답변 준비 중…", "Close": "닫기",
   "Ask about this page or your result. Answers use your current session's numbers.": "이 화면이나 결과에 대해 질문할 수 있습니다. 현재 결과를 바탕으로 답합니다.",
   "Ask needs the live server with a language model (make serve with TETHER_LLM=tokenfactory).": "질문 기능은 AI가 연결된 서버에서만 사용할 수 있습니다 (TETHER_LLM=tokenfactory로 make serve).",
+  // server errors (HTTP 4xx detail), shown through call()
+  "Unknown session (sessions expire when the server restarts).": "세션을 찾을 수 없습니다. 서버가 다시 시작되면 세션이 사라지므로 처음부터 다시 시작해 주십시오.",
+  "Run the analysis first: the hidden physics is revealed afterwards.": "먼저 분석을 실행해 주십시오. 숨겨진 물리값은 분석이 끝난 뒤에 공개됩니다.",
+  "Upload a phone video (mp4/mov/webm) or a robot log (.csv/.json).": "스마트폰 영상(mp4/mov/webm)이나 로봇 로그(.csv/.json)를 올려 주십시오.",
+  "Retrain first.": "먼저 재학습을 실행해 주십시오.",
+  "Run the analysis first.": "먼저 분석을 실행해 주십시오.",
+  "Track the video first (click the sheet corners).": "먼저 영상을 추적해 주십시오. 기준 사각형의 네 모서리를 맞추면 됩니다.",
+  "Upload a video or a log, or pick a sample.": "영상이나 로그를 올리거나 예시를 골라 주십시오.",
+  "Upload a video.": "영상을 올려 주십시오.",
+  "No data yet.": "아직 데이터가 없습니다.",
+  "Newton is busy with another simulation. Try again in a minute.": "NVIDIA Newton이 다른 시뮬레이션을 실행하고 있습니다. 1분 뒤에 다시 시도해 주십시오.",
+  "Newton is busy with other visitors. Try again in a minute.": "NVIDIA Newton이 다른 방문자의 작업을 실행하고 있습니다. 1분 뒤에 다시 시도해 주십시오.",
+  "The Studio is busy with other visitors. Try again in a minute.": "다른 방문자가 Studio를 사용하고 있습니다. 1분 뒤에 다시 시도해 주십시오.",
+  "This session is already being analysed or retrained.": "이 세션은 이미 분석 또는 재학습 중입니다.",
+  "This session is being analysed or retrained; wait for it to finish.": "이 세션은 분석 또는 재학습 중입니다. 끝날 때까지 기다려 주십시오.",
+  "Wait for the analysis to finish.": "분석이 끝날 때까지 기다려 주십시오.",
+  "Track the first video before adding another.": "다른 영상을 추가하기 전에 첫 영상을 먼저 추적해 주십시오.",
+  "Track the first take before adding another.": "다음 촬영분을 추가하기 전에 첫 촬영분을 먼저 추적해 주십시오.",
+  "This session is a robot log; start a new session for a video.": "이 세션은 로봇 로그입니다. 영상은 새 세션에서 시작해 주십시오.",
 };
 const KO_RX = [
   [/^(\d+) pushes$/, "$1회 시행"], [/^(\d+) pushes tracked$/, "$1회 추적 완료"], [/^(\d+) agent steps$/, "AI 분석 $1단계"],
@@ -700,7 +719,7 @@ const KO_RX = [
 const KO_SERVER = [
   [/^Models disagree by ±([\d.]+) (cm|m) here; your pushes stop by ([\d.]+) m, so the table beyond is unmeasured$/i, "이 지점은 모델 간 예측 차이가 ±$1 $2입니다. $3 m 이후는 아직 측정하지 않았습니다"],
   [/^Models disagree by ±([\d.]+) (cm|m) here$/i, "이 지점은 모델 간 예측 차이가 ±$1 $2입니다"],
-  [/^Camera recovered from the sheet: ([\d.]+) m above the table, focal (\d+) px$/i, "A4 용지로 카메라 위치를 계산했습니다: 높이 $1 m, 초점 거리 $2 px"],
+  [/^Camera recovered from the sheet: ([\d.]+) m above the table, focal (\d+) px$/i, "기준 사각형으로 카메라 위치를 계산했습니다: 높이 $1 m, 초점 거리 $2 px"],
   [/^Release points spread over ±(\d+) cm; positions are measured from their median$/i, "출발 위치가 ±$1 cm씩 달라 중앙값을 기준점으로 삼았습니다"],
   [/^No tracks: launch speed and position-dependent friction cannot be separated from stops alone$/i, "추적 데이터가 없어 정지 거리만으로는 출발 속도와 마찰을 구분하기 어렵습니다"],
   [/^(\d+) tipped push\(es\) are excluded from the fit \(the sliding model does not cover tipping\)$/i, "넘어진 $1회는 계산에서 제외했습니다(미끄러진 경우만 사용)"],
@@ -810,7 +829,7 @@ const api = {
 };
 async function call(p) {
   const r = await p;
-  if (!r.ok) { let m = r.statusText; try { m = (await r.json()).detail || m; } catch (_) {} throw new Error(typeof m === "string" ? m : JSON.stringify(m)); }
+  if (!r.ok) { let m = r.statusText; try { m = (await r.json()).detail || m; } catch (_) {} throw new Error(typeof m === "string" ? tx(m) : JSON.stringify(m)); }
   return r.json();
 }
 

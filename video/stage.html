@@ -82,6 +82,27 @@ function mark(x, y, size, gap, p, color = "var(--green)") {
 }
 
 /* ------------------------------------------------------------------ scenes (t in seconds, d = scene length) */
+function frameAt(times, ft) { let lo = 0, hi = times.length - 1; while (lo < hi) { const mid = (lo + hi + 1) >> 1; if (times[mid] <= ft) lo = mid; else hi = mid - 1; } return lo; }
+// one framed screen recording: footage [from, to] fitted to the scene (sped up or slowed a little), zoom keyframes [u, x, y, w] in source px
+async function shot(t, d, f) {
+  const c = DATA.footage[f.clip], lead = 0.5, span = f.to - f.from;
+  const rate = clamp(span / Math.max(1, d - lead - 0.8), f.minRate || 0.8, 3);
+  const ft = Math.min(f.to, f.from + Math.max(0, t - lead) * rate), k = frameAt(c.times, ft);
+  const fw = 1520, fh = 855, fx = 200, fy = 172, u = P(t, 0, d);
+  let z = f.zoom[0];
+  for (let i = 1; i < f.zoom.length; i++) { const a = f.zoom[i - 1], b = f.zoom[i];
+    if (u >= a[0] && u <= b[0]) { const q = eio(P(u, a[0], b[0])); z = [u, lerp(a[1], b[1], q), lerp(a[2], b[2], q), lerp(a[3], b[3], q)]; break; }
+    if (u > b[0]) z = b; }
+  const sc = fw / z[3];
+  const fr = put(`<div class="frame" style="box-shadow:0 30px 80px rgba(0,0,0,.6)"></div>`, { left: fx + "px", top: fy + "px", width: fw + "px", height: fh + "px" });
+  const img = el(`<img>`); fr.appendChild(img);
+  Object.assign(img.style, { width: c.w * sc + "px", left: -Math.min(z[1], c.w - z[3]) * sc + "px", top: -Math.min(z[2], c.h - z[3] * 9 / 16) * sc + "px" });
+  await imgLoad(img, `${c.dir}/f${String(k + 1).padStart(5, "0")}.jpg`);
+  fade(fr, t, 0.05, 0.5);
+  const a = line(f.title, "h3", fx, 74, { fontSize: "52px" }); rise(a, t, 0.25);
+  const l = put(`<div class="abs lab" style="font-size:21px;text-align:right">${f.label}</div>`, { right: 1920 - fx - fw + "px", top: "104px" }); fade(l, t, 0.6);
+}
+
 const SCENES = {
   async cold(t, d) {
     const k = clamp(Math.floor((t - 0.6) * 14), 0, DATA.mug.n - 1);
@@ -131,76 +152,31 @@ const SCENES = {
     const a = line("Tether", "h1", 760, 520, { fontSize: "190px" }); rise(a, t, 1.4, 0.9);
     const b = line("Tie your simulator to the real world.", "h3", 762, 730, { color: "var(--mute)" }); rise(b, t, 2.2);
   },
-  async input(t, d) {
-    const fw = 1120, fh = 630, fx = 680, fy = 220, sc = fw / DATA.road.w;
-    const fr = put(`<div class="frame"></div>`, { left: fx + "px", top: fy + "px", width: fw + "px", height: fh + "px" });
-    const k = clamp(Math.floor(t * 30 * 0.9), 0, DATA.road.n - 1);
-    const img = el(`<img>`); Object.assign(img.style, { left: 0, top: 0, width: fw + "px", height: fh + "px" }); fr.appendChild(img);
-    await imgLoad(img, DATA.road.path(k));
-    // the reference box, then each push's path as the video plays
-    let svg = `<svg class="abs" style="left:0;top:0" width="${fw}" height="${fh}">`;
-    const pc = eo(P(t, 0.8, 2.0));
-    if (pc > 0) {
-      const c = DATA.road.corners.map(([x, y]) => [x * sc, y * sc]);
-      const pts = c.concat([c[0]]); let len = 0; const seg = [];
-      for (let i = 1; i < pts.length; i++) { const l = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); seg.push(l); len += l; }
-      svg += `<polyline points="${pts.map(q => q.join(",")).join(" ")}" fill="rgba(118,185,0,${0.14 * pc})" stroke="#76b900" stroke-width="3" stroke-dasharray="${len}" stroke-dashoffset="${len * (1 - pc)}"/>`;
-    }
-    for (const p of DATA.road.pushes) {
-      const f0 = p.release_frame, f1 = p.rest_frame, fNow = k;
-      if (fNow < f0) continue;
-      const m = Math.min(p.path.length, Math.max(2, Math.ceil((fNow - f0) / 2) + 1));
-      const pts = p.path.slice(0, m).map(([x, y]) => `${x * sc},${y * sc}`).join(" ");
-      svg += `<polyline points="${pts}" fill="none" stroke="#76b900" stroke-width="4" stroke-linecap="round"/>`;
-      if (fNow >= f1) { const [x, y] = p.path[p.path.length - 1]; svg += `<circle cx="${x * sc}" cy="${y * sc}" r="7" fill="#f2f2f2"/>`; }
-    }
-    svg += `</svg>`; fr.appendChild(el(svg));
-    const a = line("A phone video,", "h2", 140, 250); rise(a, t, 0.3);
-    const b = line("or the log your", "h2", 140, 340); rise(b, t, 0.6);
-    const c = line("robot already writes.", "h2", 140, 430); rise(c, t, 0.9);
-    const n1 = line("A box of known size gives the scale.", "lede", 140, 600); rise(n1, t, 2.2);
-    const n2 = line("Every push is tracked to a stop.", "lede", 140, 652); rise(n2, t, 3.4);
-    const cap = put(`<div class="abs lab">roadside camera, braking to a stop line · rendered by NVIDIA Newton</div>`, { left: fx + "px", top: fy + fh + 22 + "px" }); fade(cap, t, 1);
+  // the app in action: screen recordings of the Studio (video/footage.py), framed, with a slow camera on the region that matters
+  async appInput(t, d) {
+    const m = DATA.footage.studio.marks;
+    await shot(t, d, { clip: "studio", from: 0, to: m.agent, title: "Bring a video or a log", label: "Tether Studio · roadside camera example",
+      zoom: [[0, 0, 0, 1440], [0.45, 0, 0, 1440], [0.85, 270, 96, 1170], [1, 270, 96, 1170]] });
   },
-  async reason(t, d) {
-    const a = line("Nemotron reads", "h2", 140, 230); rise(a, t, 0.2);
-    const b = line("the evidence.", "h2", 140, 320); rise(b, t, 0.5);
-    const n = line("The numbers come from least squares,", "lede", 140, 470); rise(n, t, 1.4);
-    const n2 = line("each with an honest interval.", "lede", 140, 520); rise(n2, t, 1.6);
-    const card = put(`<div class="card"></div>`, { left: "860px", top: "170px", width: "920px", height: "740px" });
-    fade(card, t, 0.4);
-    card.appendChild(el(`<div class="abs lab" style="left:40px;top:34px">NVIDIA Nemotron 3 Super · tool calls · vehicle braking log</div>`));
-    const steps = DATA.reason; const gapS = (d - 3.5) / steps.length;
-    steps.forEach((s, i) => {
-      const t0 = 1.0 + i * gapS;
-      const st = el(`<div class="step"><i></i><div><b><span class="mono" style="font-size:26px;color:#76b900">${s.tool}</span>&nbsp;&nbsp;${s.what}</b><small>${s.detail}</small></div></div>`);
-      Object.assign(st.style, { left: "40px", right: "40px", top: 100 + i * 124 + "px", opacity: eo(P(t, t0, t0 + 0.5)), transform: `translateY(${(1 - eo(P(t, t0, t0 + 0.5))) * 18}px)` });
-      card.appendChild(st);
-      if (s.bars && P(t, t0, t0 + 0.5) > 0) { // the deceleration profile, growing
-        let svg = `<svg class="abs" style="left:600px;top:${104 + i * 124}px" width="260" height="70">`;
-        const mx = Math.max(...s.bars);
-        s.bars.forEach((v, j) => { const hh = 60 * v / mx * eo(P(t, t0 + 0.2 + j * 0.04, t0 + 0.8 + j * 0.04));
-          svg += `<rect x="${j * (240 / s.bars.length)}" y="${64 - hh}" width="${240 / s.bars.length - 4}" height="${hh}" fill="${v / mx < 0.7 ? "#4cb5e6" : "#8a8a8a"}"/>`; });
-        card.appendChild(el(svg + `</svg>`));
-      }
-    });
+  async appAgent(t, d) {
+    const m = DATA.footage.studio.marks;
+    await shot(t, d, { clip: "studio", from: m.agent, to: m.results, minRate: 0.65, title: "Nemotron investigates",
+      label: "NVIDIA Nemotron 3 Super · Nebius Token Factory", zoom: [[0, 250, 40, 1040], [0.4, 250, 40, 1040], [1, 250, 240, 1040]] });
   },
-  async result(t, d) {
-    // the measured road from the Studio's results, framed alone, the camera easing in on the slick section
-    const C = DATA.result.crop, fw = 1040, fh = Math.round(fw * C.h / C.w), fx = 780, fy = 230;
-    const fr = put(`<div class="frame"></div>`, { left: fx + "px", top: fy + "px", width: fw + "px", height: fh + "px" });
-    const img = el(`<img>`); fr.appendChild(img);
-    const z = lerp(1.0, 1.22, eio(P(t, 0.6, d))), cw = C.w / z, ch = C.h / z;
-    const cx = lerp(C.x + C.w / 2, C.fx, eio(P(t, 0.6, d))), cy = lerp(C.y + C.h / 2, C.fy, eio(P(t, 0.6, d)));
-    const x0 = clamp(cx - cw / 2, C.x, C.x + C.w - cw), y0 = clamp(cy - ch / 2, C.y, C.y + C.h - ch), s = fw / cw;
-    Object.assign(img.style, { width: DATA.result.w * s + "px", left: -x0 * s + "px", top: -y0 * s + "px" });
-    await imgLoad(img, DATA.result.src);
-    fade(fr, t, 0.2, 0.8);
-    const cap = put(`<div class="abs lab">Tether Studio · the roadside example · friction mapped on the road</div>`, { left: fx + "px", top: fy + fh + 22 + "px" }); fade(cap, t, 1);
-    const a = line("Your simulator,", "h2", 140, 230); rise(a, t, 0.3);
-    const b = line("corrected.", "h2", 140, 320, { color: "var(--green)" }); rise(b, t, 0.6);
-    DATA.result.facts.forEach((f, i) => { const e = line(f, "lede", 140, 470 + i * 46, { fontFamily: "var(--f-m)", fontSize: "22px", color: "#cfcfcf", whiteSpace: "pre" }); rise(e, t, 1.6 + i * 0.5); });
-    const ex = line("Exports for NVIDIA Newton, Isaac Lab and CARLA", "lab", 140, 680, { fontSize: "22px", color: "var(--green)" }); rise(ex, t, d - 4.5);
+  async appResult(t, d) {
+    const m = DATA.footage.studio.marks;
+    await shot(t, d, { clip: "studio", from: m.results, to: m.retrain, title: "Your simulator, corrected", label: "calibrated sim · intervals · next experiment",
+      zoom: [[0, 0, 0, 1440], [0.25, 270, 40, 1170], [1, 270, 40, 1170]] });
+  },
+  async appExport(t, d) {
+    const m = DATA.footage.studio.marks;
+    await shot(t, d, { clip: "studio", from: m.export, to: DATA.footage.studio.length, title: "Checked in Newton, exported",
+      label: "replay in NVIDIA Newton · Newton · Isaac Lab · CARLA", zoom: [[0, 270, 40, 1170], [1, 270, 40, 1170]] });
+  },
+  async appAsk(t, d) {
+    const c = DATA.footage.ask;
+    await shot(t, d, { clip: "ask", from: 0, to: c.length, title: "Ask about your own result", label: "live on Google Cloud Run · Nemotron answers",
+      zoom: [[0, 0, 0, 1440], [0.3, 0, 0, 1440], [0.55, 470, 120, 970], [1, 470, 120, 970]] });
   },
   async retrain(t, d) {
     const split = Math.min(d * 0.5, 7.5);
@@ -228,7 +204,7 @@ const SCENES = {
         fade(num, u, 1.0 + i * 0.4, 0.3);
       });
       await Promise.all([...cur.querySelectorAll("img")].map(i => i.decode().catch(() => {})));
-      const cap = put(`<div class="abs lab">success in the hidden world, 24 targets · rendered by NVIDIA Newton</div>`, { left: "140px", top: "860px" }); fade(cap, u, 2);
+      const cap = put(`<div class="abs lab">vehicle braking log · success in the hidden world, 24 targets · rendered by NVIDIA Newton</div>`, { left: "140px", top: "860px" }); fade(cap, u, 2);
     }
   },
   async proofReal(t, d) {
@@ -267,12 +243,24 @@ const SCENES = {
     const s2 = el(`<div class="abs" style="left:44px;top:230px;right:44px"><div class="lab g">cross-check</div><div class="lede" style="margin-top:14px;color:#f2f2f2">improves the stops by 0.8 mm: within noise.<br>Left out.</div></div>`);
     card.appendChild(s2); s2.style.opacity = eo(P(t, 3.6, 4.2));
   },
+  async thumb(t, d) {  // the still for YouTube and Devpost (video/submission.py), no motion
+    put(mark(150, 250, 96, 130, 1));
+    put(`<div class="abs h1" style="font-size:200px">Tether</div>`, { left: "140px", top: "400px" });
+    put(`<div class="abs h3" style="font-size:52px;color:#cfcfcf;width:760px">Tie your simulator to the real world.</div>`, { left: "146px", top: "630px" });
+    put(`<div class="abs lab" style="font-size:24px;white-space:nowrap">NVIDIA Newton · Nemotron on Nebius Token Factory</div>`, { left: "146px", top: "800px" });
+    const c = DATA.footage.studio, k = frameAt(c.times, c.marks.results + 3.4), fw = 940, fh = 529, z = [270, 40, 1170], sc = fw / z[2];
+    const fr = put(`<div class="frame" style="box-shadow:0 30px 80px rgba(0,0,0,.6)"></div>`, { left: "900px", top: "276px", width: fw + "px", height: fh + "px" });
+    const img = el(`<img>`); fr.appendChild(img);
+    Object.assign(img.style, { width: c.w * sc + "px", left: -z[0] * sc + "px", top: -z[1] * sc + "px" });
+    await imgLoad(img, `${c.dir}/f${String(k + 1).padStart(5, "0")}.jpg`);
+  },
   async close(t, d) {
     const p = eio(P(t, 0.2, 1.6));
     put(mark(840, 300, 80, 110, p));
     const a = line("Tether", "h1", 760, 430, { fontSize: "170px" }); rise(a, t, 0.9, 0.9);
-    const u = line("github.com/men16922/tether", "lede", 766, 640, { fontFamily: "var(--f-m)", fontSize: "34px", color: "#f2f2f2" }); rise(u, t, 1.8);
-    const s = line("NVIDIA Newton · Nemotron on Nebius Token Factory · NeMo Agent Toolkit", "lab", 766, 720, { fontSize: "24px" }); rise(s, t, 2.4);
+    const u = line("tether-454741001655.us-central1.run.app", "lede", 766, 630, { fontFamily: "var(--f-m)", fontSize: "32px", color: "#f2f2f2" }); rise(u, t, 1.8);
+    const g = line("github.com/men16922/tether", "lede", 766, 684, { fontFamily: "var(--f-m)", fontSize: "26px" }); rise(g, t, 2.2);
+    const s = line("NVIDIA Newton · Nemotron on Nebius Token Factory · NeMo Agent Toolkit", "lab", 766, 760, { fontSize: "24px" }); rise(s, t, 2.6);
   },
 };
 
@@ -290,7 +278,7 @@ window.ready = Promise.all(['700 100px "Barlow Semi Condensed"', '600 100px "Bar
   '400 30px "Barlow"', '500 30px "Barlow"', '600 30px "Barlow"', '400 30px "IBM Plex Mono"', '500 30px "IBM Plex Mono"']
   .map(f => document.fonts.load(f))).then(() => document.fonts.ready).then(() => true);
 DATA.mug.path = k => `${DATA.mug.dir}/${String(k).padStart(6, "0")}.png`;
-for (const key of ["road", "montage", "rollout"]) DATA[key].path = k => `${DATA[key].dir}/f${pad(k + 1)}.jpg`;
+for (const key of ["montage", "rollout"]) DATA[key].path = k => `${DATA[key].dir}/f${pad(k + 1)}.jpg`;
 </script>
 </body>
 </html>

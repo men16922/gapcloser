@@ -1,8 +1,9 @@
 # Devpost draft — Tether
 
-Status: draft 2026-10-10 (renamed from GapCloser; three domains; Newton replay). Numbers come from
-`runs/bench/open_newton_super_n15.json` (Gap-Bench), `runs/bench/studio_bench_analytic.json`, `runs/studio-demo/*.json`
-(recorded Studio runs with Nemotron) and the coverage study noted in `studio/fit.py`. Demo video: `video/out/tether_demo.mp4`.
+Status: final 2026-10-11. Numbers come from `runs/proof/*.json` (`make prove`), `runs/bench/open_newton_super_n15.json`
+(Gap-Bench) and `runs/studio-demo/*.json` (recorded Studio runs with Nemotron). Demo film: `video/out/tether_film.mp4`
+(2:28). Live demo: https://tether-454741001655.us-central1.run.app · Code: https://github.com/men16922/tether.
+How to fill in each Devpost field: `docs/submission/SUBMIT.md`.
 
 ## Tagline
 
@@ -207,9 +208,10 @@ fastapi, python, openai-python, scipy, opencv. Export targets (generated, not ex
 
 ## Track
 
-Physical AI. There is no physical hardware; the video shows the application modules in action (overview, Studio
-on the driving domain, Newton replay, retraining and the three policies braking side by side, exports, factory
-domain, agent console).
+Physical AI. There is no physical hardware; the video shows the application modules in action for over a minute
+(Studio on the driving domain: tracking, the Nemotron agent's notebook, the calibrated simulator, the Newton replay
+check and the export; Ask Tether on the live server), plus retraining in parallel NVIDIA Newton worlds and the
+validation on real objects (EV-RealPhys) and on worlds from a different engine (MuJoCo).
 
 ## How it maps to the judging criteria
 
