@@ -1,10 +1,10 @@
 import json
 
-from agent.llm import RecordedLLM
-from agent.loop import HeuristicPlanner, RealWorld, run_loop
-from agent.tool_agent import TOOLS, ToolAgentDiagnoser, Workbench, from_params, to_params
-from sim.params import ParamSet, Randomization
-from sim.push_task import AnalyticPushEnv, InverseTrainer, eval_targets
+from tether.agent.llm import RecordedLLM
+from tether.agent.loop import HeuristicPlanner, RealWorld, run_loop
+from tether.agent.tool_agent import TOOLS, ToolAgentDiagnoser, Workbench, from_params, to_params
+from tether.sim.params import ParamSet, Randomization
+from tether.sim.push_task import AnalyticPushEnv, InverseTrainer, eval_targets
 
 TARGETS = eval_targets(20, 1000)
 PATCH = ParamSet.nominal().with_(patch_y0=0.35, patch_mu=0.45)

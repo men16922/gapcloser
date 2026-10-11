@@ -1,4 +1,4 @@
-# Dashboard design reference
+# Design reference (Overview, Studio, Benchmark)
 
 Extracted 2026-10-05 from the live CSS of nvidia.com, build.nvidia.com and developer.nvidia.com/isaac/sim.
 
@@ -10,7 +10,7 @@ Extracted 2026-10-05 from the live CSS of nvidia.com, build.nvidia.com and devel
 | Corners | square: `border-radius:0` dominates (89×) over 4px (14×) | developer CSS |
 | Typeface | NVIDIA Sans (proprietary, not embeddable) → substitute a Google font with a similar tight industrial feel | `@font-face NVIDIA Sans` |
 
-## Rules applied in the Tether dashboard
+## Rules applied in the Tether pages
 
 - Dark, near-black surfaces (`#000` page, `#111`/`#1A1A1A` panels, `#333` hairlines), green used sparingly for the single primary accent: active step, success, primary CTA.
 - Square corners, thin 1px dividers, uppercase small-caps labels with letter spacing (the Omniverse/Isaac Sim property-panel look).

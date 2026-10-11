@@ -6,8 +6,8 @@ os.environ["TETHER_NO_AUTOAPP"] = "1"
 
 from fastapi.testclient import TestClient  # noqa: E402
 
-from agent.llm import RecordedLLM  # noqa: E402
-from server.app import MAX_HIDDEN, PRESETS, create_app, faults, surprise, validate_hidden  # noqa: E402
+from tether.agent.llm import RecordedLLM  # noqa: E402
+from tether.server.app import MAX_HIDDEN, PRESETS, create_app, faults, surprise, validate_hidden  # noqa: E402
 
 TOOL_FIXTURE = Path(__file__).parent / "fixtures" / "tool_agent_wet_strip.json"
 WET = {"patch_y0": 0.35, "patch_mu": 0.45}

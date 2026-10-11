@@ -96,3 +96,12 @@ nvidia-newton, nvidia-warp, nemotron, nebius-token-factory, nemo-agent-toolkit, 
   ```bash
   gcloud run services delete tether --region us-central1 --project claude-study-501117
   ```
+
+## 별도 기술 글 (선택)
+
+`docs/article/`에 한국어(`tether.ko.md`)와 영어(`tether.en.md`) 기술 글이 있습니다. 이미지는 `docs/article/img/`에 있습니다.
+
+1. YouTube에 올린 뒤, 두 파일의 `YOUTUBE_LINK`를 영상 주소로 바꿉니다.
+2. 글 전체를 마크다운 편집기(velog, dev.to 등)에 붙여 넣습니다. 이미지는 GitHub 저장소의 `docs/article/img/`에서 바로 불러오므로 따로 올리지 않아도 됩니다.
+3. 대표 이미지(커버)를 따로 지정하는 곳이면 `docs/article/img/cover.jpg`를 올립니다.
+4. 추천 태그: `nvidia`, `robotics`, `simulation`, `llm` (한국어: 로봇, 시뮬레이션, LLM, NVIDIA)

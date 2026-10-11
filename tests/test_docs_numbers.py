@@ -13,7 +13,7 @@ DEVPOST = (ROOT / "docs" / "submission" / "DEVPOST.md").read_text()
 
 
 def pct(x: float) -> str:
-    return f"{int(x * 100 + 0.5 + 1e-9)}%"  # half up, as eval/prove.py and the video
+    return f"{int(x * 100 + 0.5 + 1e-9)}%"  # half up, as tether/eval/prove.py and the film
 
 
 def load(name: str) -> dict:

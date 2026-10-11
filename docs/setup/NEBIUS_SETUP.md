@@ -80,9 +80,9 @@ EOF
 ## 7. 저장소에서 바로 확인
 
 ```bash
-.venv/bin/python -m agent.llm --provider tokenfactory --models      # 모델 목록, 역할별 선택 결과 (토큰 소모 없음)
-.venv/bin/python -m agent.llm --provider tokenfactory --ping        # 아주 짧은 호출 1회
-.venv/bin/python -m eval.record_demo --llm tokenfactory && make dashboard   # 데모를 Token Factory로 재녹화
+.venv/bin/python -m tether.agent.llm --provider tokenfactory --models      # 모델 목록, 역할별 선택 결과 (토큰 소모 없음)
+.venv/bin/python -m tether.agent.llm --provider tokenfactory --ping        # 아주 짧은 호출 1회
+.venv/bin/python -m tether.eval.record_demo --llm tokenfactory && make pages   # 데모를 Token Factory로 재녹화
 ```
 
 키가 없는 동안에는 `--provider local`(Ollama의 `nemotron-3-nano`)로 같은 코드를 실험할 수 있다.

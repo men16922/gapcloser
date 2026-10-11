@@ -1,4 +1,4 @@
-"""3D viewer data: replay JSON schema (recorded + freshly simulated), Franka mesh asset, dashboard embedding."""
+"""3D viewer data: replay JSON schema (recorded + freshly simulated), Franka mesh asset, Benchmark page embedding."""
 
 import base64
 import json
@@ -8,7 +8,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 DEMO = ROOT / "runs" / "demo"
-FRANKA = ROOT / "dashboard" / "assets" / "franka_fr3.json"
+FRANKA = ROOT / "tether" / "web" / "assets" / "franka_fr3.json"
 FPS, STRIKE_FRAME, MAX_FRAMES = 30, 16, int(2.5 * 30) + 16  # mirrors sim.newton_push (imported lazily below)
 
 
@@ -79,8 +79,8 @@ def test_franka_mesh_asset_is_small_and_decodes():
     assert tris == data["triangles"]
 
 
-def test_dashboard_embeds_viewer_offline(tmp_path):
-    from dashboard.build import build, build_live
+def test_benchmark_page_embeds_viewer_offline(tmp_path):
+    from tether.web.build import build, build_live
 
     bundle = {"generated": "2026-10-07T00:00:00+00:00", "task": {"name": "Push-to-line", "success_tol_m": 0.03, "n_targets": 1, "targets": [0.45]},
               "params": {}, "stack": {"physics": "NVIDIA Newton", "diagnoser": "x"}, "benchmark": None,
@@ -106,9 +106,9 @@ def test_dashboard_embeds_viewer_offline(tmp_path):
 
 def test_fresh_newton_replay_schema_and_frames():
     pytest.importorskip("newton")
-    from sim.newton_push import MAX_SECONDS, STRIKE_FRAME as SF
-    from sim.params import ParamSet
-    from sim.replay import record_pair
+    from tether.sim.newton_push import MAX_SECONDS, STRIKE_FRAME as SF
+    from tether.sim.params import ParamSet
+    from tether.sim.replay import record_pair
 
     assert int(MAX_SECONDS * FPS) + SF == MAX_FRAMES and SF == STRIKE_FRAME
     nominal = ParamSet.nominal()

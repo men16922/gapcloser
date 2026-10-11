@@ -1,7 +1,7 @@
 # Devpost draft — Tether
 
 Status: final 2026-10-11. Numbers come from `runs/proof/*.json` (`make prove`), `runs/bench/open_newton_super_n15.json`
-(Gap-Bench) and `runs/studio-demo/*.json` (recorded Studio runs with Nemotron). Demo film: `video/out/tether_film.mp4`
+(Gap-Bench) and `runs/studio-demo/*.json` (recorded Studio runs with Nemotron). Demo film: `film/out/tether_film.mp4`
 (2:28). Live demo: https://tether-454741001655.us-central1.run.app · Code: https://github.com/men16922/tether.
 How to fill in each Devpost field: `docs/submission/SUBMIT.md`.
 
@@ -22,7 +22,7 @@ inspection camera differ in scale and vocabulary, not in the equations. We built
 
 ## What it does
 
-Tether has three connected surfaces: an **overview**, an **agent console** that shows how the AI works, and
+Tether has three connected pages: an **Overview**, a **Benchmark** that tests the AI on worlds whose answer is known, and
 **Studio**, where you bring your own data.
 
 **Studio (your data → a calibrated simulator)**
@@ -52,7 +52,7 @@ Tether has three connected surfaces: an **overview**, an **agent console** that 
    are the measured intervals, and for driving a **CARLA 0.9.16** script (tire friction scaled by measured/simulated
    μ, a `static.trigger.friction` box on the wet section, and a braking-distance check), plus a report and JSON.
 
-**Agent console (how the AI works)** runs the full loop on hidden worlds: train a policy in Newton, measure it in a
+**Benchmark (how the AI is tested)** runs the full loop on hidden worlds: train a policy in Newton, measure it in a
 world whose physics the agent cannot see, let Nemotron investigate, fix the simulator, retrain. Each example has a
 "Run this case yourself in Studio" button that opens Studio's virtual table with the same hidden physics.
 **NVIDIA Cosmos Reason 2**, running locally, watches the clips as a second opinion on whether the object slid or tipped.
@@ -92,9 +92,10 @@ world whose physics the agent cannot see, let Nemotron investigate, fix the simu
   the 90% intervals contain the truth 97% of the time; before we added a 1% length-scale term for logs it was 82%. That term was tuned on these
   worlds, so we checked it on fresh ones made by a different engine (MuJoCo, error model frozen): 88% of 120 values.
   `make prove` recomputes all of this, plus the replay and retraining tables, with no network (`runs/proof/PROOF.md`).
-- **Replay in NVIDIA Newton:** with the exported physics, rms stop error over the six examples is 3–8 mm at robot
-  scale; the uncalibrated simulators are off by 3–25 cm. This replays in the engine that generated the data, so it is a
-  self-consistency check of the export, not an independent validation. On the roadside example at full scale: 22 cm vs 2.7 m.
+- **Replay in NVIDIA Newton:** with the exported physics, rms stop error is 4–8 mm on the four table-scale examples,
+  where the uncalibrated simulators are off by 3–25 cm; on the two driving examples at full size, 18–27 cm vs 1.1–2.7 m
+  (`runs/proof/PROOF.md`). This replays in the engine that generated the data, so it is a self-consistency check of the
+  export, not an independent validation.
 - **Retrain and test** (policy learned by trial in 16 parallel Newton worlds × 11 table points, 10 iterations; success
   in the hidden world, 24 targets):
 
@@ -115,7 +116,7 @@ world whose physics the agent cannot see, let Nemotron investigate, fix the simu
   0.8% low clean and 6.5% low on the bad video; the hidden values fall inside their intervals 3 of 3 on the clean video
   and 2 of 3 on the bad one.
 - **Real footage** (52 public iPhone slow-motion clips of objects sliding to a stop on six real surfaces, with
-  dynamometer friction; IDPP real split, Apache-2.0; `python -m eval.real_friction --download`): Tether's tracker
+  dynamometer friction; IDPP real split, Apache-2.0; `python -m tether.eval.real_friction --download`): Tether's tracker
   follows 45 of them, and constant deceleration (the Coulomb sliding Tether fits) explains each slide with median
   R² 0.9985. The clips have no size reference and no stated slow-motion factor, so friction itself is only known up
   to one constant per object and camera: calibrated on the other surfaces, the predictions correlate with the
@@ -157,7 +158,7 @@ world whose physics the agent cannot see, let Nemotron investigate, fix the simu
 - **Next experiment:** reaching 95% hidden-world success takes 5.76 runs with Tether's suggestions vs 6.84 random, the
   same as a well-designed manual sweep (5.76): the suggestions match an expert's sweep without knowing the table.
 
-**Gap-Bench** (agent console; NVIDIA Newton, 15 hidden worlds per tier, mean hidden-world success ± 95% CI):
+**Gap-Bench** (Benchmark page; NVIDIA Newton, 15 hidden worlds per tier, mean hidden-world success ± 95% CI):
 
 | Tier | Nominal sim | Domain randomization | Rule-based | System-ID baseline | Nemotron tool agent |
 |---|---|---|---|---|---|

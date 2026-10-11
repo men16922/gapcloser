@@ -1,5 +1,5 @@
 """Korean coverage of text the server writes: the Studio page translates server sentences (notes, reasons, how a
-model was chosen) with exact keys and regex patterns (dashboard/studio.html KO, KO_RX, KO_SERVER). If a server
+model was chosen) with exact keys and regex patterns (tether/web/studio.html KO, KO_RX, KO_SERVER). If a server
 sentence changes and no pattern matches any more, the page silently falls back to English. This test runs the real
 pipeline on the samples, collects every sentence the page passes through tx(), and checks each one translates."""
 
@@ -12,7 +12,7 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parent.parent
-PAGE = (ROOT / "dashboard" / "studio.html").read_text()
+PAGE = (ROOT / "tether" / "web" / "studio.html").read_text()
 
 
 def _block(start: str, end: str = "\n};") -> str:
@@ -46,11 +46,11 @@ def translatable(text: str) -> bool:
 
 
 def server_sentences() -> set[str]:
-    from studio.pipeline import analyze
-    from studio.session import load
+    from tether.studio.pipeline import analyze
+    from tether.studio.session import load
 
     out: set[str] = set()
-    samples = ROOT / "studio" / "samples"
+    samples = ROOT / "tether" / "studio" / "samples"
     for name in ("lab-bench", "short-reach", "press-line", "brake-log"):
         s = load((samples / f"{name}.csv").read_text(), f"{name}.csv", name)
         res = analyze(s, None)
@@ -58,8 +58,8 @@ def server_sentences() -> set[str]:
         out.add(res.calibration.chosen_by)
         out |= set(res.calibration.residuals.get("unexplained") or [])
         out |= {w["why"][0].upper() + w["why"][1:] for w in res.next_experiment["suggestions"]}
-    from server.studio_api import truth_view
-    from studio.simulate import truth as sim_truth
+    from tether.server.studio_api import truth_view
+    from tether.studio.simulate import truth as sim_truth
 
     for t in samples.glob("*.truth.json"):
         out.add(truth_view(json.loads(t.read_text()))["source"])
@@ -67,7 +67,7 @@ def server_sentences() -> set[str]:
     # sentences the server builds outside the samples' path (agent fallbacks, the cross-check verdict)
     out |= {"agent busy with another session: offline search",
             "the agent's model leaves launch speeds disagree with the model — the library structure mu_eff+actuator_gain explains the data"}
-    # the pattern check's findings and the region it adds (studio/structure.py, studio/fit.py)
+    # the pattern check's findings and the region it adds (tether/studio/structure.py, tether/studio/fit.py)
     out |= {"offline structure search (simplest model within noise of the best); friction region added at 0.31 m (deceleration steps there)",
             "friction rises as the object slows (-0.05 per m/s): it depends on sliding speed, which the model has no field for",
             "friction falls as the object slows (+0.04 per m/s): it depends on sliding speed, which the model has no field for",
@@ -98,7 +98,7 @@ def test_driving_scaled_sentences_still_translate(text):
 
 def test_server_errors_have_korean():
     """Every fixed HTTP 4xx message the Studio API raises is translated on the page (call() passes it through tx())."""
-    src = (ROOT / "server" / "studio_api.py").read_text()
+    src = (ROOT / "tether" / "server" / "studio_api.py").read_text()
     msgs = set(re.findall(r'HTTPException\(4(?:09|15|22|29), "([^"]+)"\)', src)) | {"Newton is busy with other visitors. Try again in a minute."}
     missing = sorted(m for m in msgs if not translatable(m) and not m.startswith(("Give the", "Only ", "The last message", "The new rows")))
     assert not missing, missing

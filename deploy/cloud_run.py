@@ -23,7 +23,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SERVICE, SECRET = "tether", "tether-nebius-key"
 # what the Dockerfile copies (keep in step with it)
-PATHS = ["Dockerfile", ".dockerignore", "requirements.txt", "agent", "sim", "eval", "server", "studio", "dashboard", "runs/demo"]
+PATHS = ["Dockerfile", ".dockerignore", "requirements.txt", "tether", "runs/demo"]
 
 
 def gcloud(*args: str, stdin: str | None = None, check: bool = True) -> subprocess.CompletedProcess:
@@ -37,7 +37,7 @@ def stage(out: Path) -> None:
 
 
 def put_secret(project: str) -> None:
-    from agent.llm import load_dotenv
+    from tether.agent.llm import load_dotenv
 
     load_dotenv()
     key = os.environ.get("NEBIUS_API_KEY")
@@ -73,7 +73,7 @@ def main() -> None:
                           "--format=json", check=False).stdout or "{}")
     urls = json.loads(d.get("metadata", {}).get("annotations", {}).get("run.googleapis.com/urls", "[]"))
     url = urls[0] if urls else d.get("status", {}).get("url", "")
-    print(f"live: {url}  (studio: {url}/studio, console: {url}/console)")
+    print(f"live: {url}  (studio: {url}/studio, benchmark: {url}/benchmark)")
 
 
 if __name__ == "__main__":

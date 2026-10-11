@@ -21,14 +21,14 @@ Built for the Nebius × NVIDIA Global AI Hackathon (Physical AI track). Runs on 
   Toolkit** workflow (`integrations/nat_tether`)
 - Eyes: **NVIDIA Cosmos Reason 2**, running locally (optional)
 
-**Live demo:** https://tether-454741001655.us-central1.run.app (Studio at `/studio`, agent console at `/console`; the first visit after an idle spell takes about 15 s to start).
+**Live demo:** https://tether-454741001655.us-central1.run.app (Studio at `/studio`, Benchmark at `/benchmark`; the first visit after an idle spell takes about 15 s to start).
 Locally: `make serve`, then open:
 
 | URL | Page |
 |---|---|
 | http://localhost:8000/ | Overview: the route, the three domains, the evidence |
-| http://localhost:8000/console | Agent console: Nemotron fixing hidden worlds, Gap-Bench |
 | http://localhost:8000/studio | Studio, in three steps: Data (example, simulate, or upload) → Analysis (tracking, then the agent) → Results (calibrated sim, retrain in parallel Newton worlds, export with a Newton replay) |
+| http://localhost:8000/benchmark | Benchmark: the agent tested on hidden worlds whose answer is known, and Gap-Bench against four other methods |
 
 ```mermaid
 flowchart LR
@@ -44,9 +44,9 @@ flowchart LR
     R --> E
 ```
 
-Plain-Korean guides live in `reference/`. Submission text: `docs/submission/DEVPOST.md`.
+Plain-Korean guides live in `docs/guide/` (start with `docs/guide/00_처음_읽어주세요.md`). Submission text: `docs/submission/DEVPOST.md`. Folder map: [Repository map](#repository-map).
 `make prove` recomputes every headline number offline in about five minutes (`runs/proof/PROOF.md`);
-`make film` rebuilds the demo film (`video/out/tether_film.mp4`).
+`make film` rebuilds the demo film (`film/out/tether_film.mp4`).
 
 ## Tether Studio: calibrate from your own data
 
@@ -80,14 +80,14 @@ NVIDIA Newton then renders a phone-style video or writes a robot log. Studio dia
 settings, can run the pushes it asks for in the same simulated world, and finally reveals your settings as
 ground truth.
 
-The console and the Studio are in English by default; the **EN / KO** switch in the top bar (or `?lang=ko`)
+The pages are in English by default; the **EN / KO** switch in the top bar (or `?lang=ko`)
 shows them in Korean. **Ask** (bottom right in the Studio) answers questions about the page and your result,
 using NVIDIA Nemotron on Token Factory, grounded in the session's numbers and answering in the chosen language.
 
 ```bash
 make serve                    # then open http://localhost:8000/studio
-python -m studio calibrate my_robot_log.csv --llm tokenfactory --out runs/studio/mine
-python -m studio video clip.mp4 --corners 409,368,536,439,649,330,534,287 --llm tokenfactory
+python -m tether.studio calibrate my_robot_log.csv --llm tokenfactory --out runs/studio/mine
+python -m tether.studio video clip.mp4 --corners 409,368,536,439,649,330,534,287 --llm tokenfactory
 ```
 
 **Samples, with ground truth revealed after the diagnosis.** The two-take phone video is rendered by NVIDIA
@@ -140,7 +140,7 @@ calibrated sim vs 18–30 cm for the current one. That is about the scatter of M
 
 "Exact hidden parameters" means training on MuJoCo's own parameter values. It loses wherever the engine's behaviour
 differs from its parameters (effective friction is a few % lower) or an off-menu effect acts. Tether fits the
-behaviour, so off-menu effects cost little inside the measured range. The pattern check (`studio/structure.py`)
+behaviour, so off-menu effects cost little inside the measured range. The pattern check (`tether/studio/structure.py`)
 replaces a size threshold that flagged 23 of 24 in-menu worlds: it looks for deceleration that changes with speed or
 along the surface, after subtracting the model.
 
@@ -222,7 +222,7 @@ flowchart LR
 
 **The agent never sees the hidden values.** It sees only what a real robot would log: where each cube stopped, camera tracks of the cube, and perceived vs known target positions. It can also pay for extra hidden-world pushes.
 
-**Nemotron as a scientist:** Nemotron 3 Super on Token Factory works through tool calls. Each step is shown in the dashboard's lab notebook.
+**Nemotron as a scientist:** Nemotron 3 Super on Token Factory works through tool calls. Each step is shown in the Benchmark page's lab notebook.
 
 1. `decel_profile` and `perception_check` look at the evidence.
 2. The agent proposes model *structures* (uniform friction, gain, a friction strip, camera offset, lens).
@@ -259,7 +259,7 @@ Nemotron family on the open and compound tiers (Newton, 6 worlds each; indicativ
 | Nemotron 3 Ultra 550B | 100% | 83% | ~$0.52 |
 | Nemotron 3 Nano 30B | 97% | 53% | ~$0.14 |
 
-### Recorded scenarios (dashboard)
+### Recorded scenarios (Benchmark page)
 
 All of these were recorded with Nemotron 3 Super on Token Factory and run in Newton.
 
@@ -281,12 +281,12 @@ The closed-world scenarios (slippery cube, shifted camera, sticky table, weak mo
 ```bash
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt pytest httpx
 make check            # offline gate: 122 tests, no network, no credits
-make demo             # record 5 Newton scenarios + build the dashboard (~30 s; add --llm local via eval.record_demo for Nemotron)
-open dashboard/dist/console.standalone.html
+make demo             # record 5 Newton scenarios + build the Benchmark page (~30 s; add --llm local via tether.eval.record_demo for Nemotron)
+open tether/web/dist/benchmark.standalone.html
 make replays          # 3D viewer data only: per-frame Newton poses for the recorded bundle (no LLM)
 ```
 
-The dashboard's main visual is a three.js 3D replay of each measured push: per-frame cube and Franka FR3 link poses recorded from NVIDIA Newton, the hidden-physics cube solid and the agent's sim cube as a ghost (or split view), with orbit, scrub, speed, a lane close-up and the stop error vs the target line. three.js and the decimated Franka meshes are inlined, so the standalone page works offline; the WebP camera clips remain as a fallback.
+The Benchmark page's main visual is a three.js 3D replay of each measured push: per-frame cube and Franka FR3 link poses recorded from NVIDIA Newton, the hidden-physics cube solid and the agent's sim cube as a ghost (or split view), with orbit, scrub, speed, a lane close-up and the stop error vs the target line. three.js and the decimated Franka meshes are inlined, so the standalone page works offline; the WebP camera clips remain as a fallback.
 
 Live server (the same image runs the public demo on Google Cloud Run):
 
@@ -300,18 +300,18 @@ Public deployment on Google Cloud Run: `make deploy` ([docs/deploy/DEPLOY.md](do
 Demo film:
 
 ```bash
-make film     # video/out/tether_film.mp4: motion graphics in headless Chrome, ElevenLabs narration, generated music (needs make serve, ffmpeg)
+make film     # film/out/tether_film.mp4: motion graphics in headless Chrome, ElevenLabs narration, generated music (needs make serve, ffmpeg)
 ```
 
 Benchmarks:
 
 ```bash
-.venv/bin/python -m eval.open_bench --worlds 15 --env newton --llm tokenfactory   # Gap-Bench (open-world tiers)
-.venv/bin/python -m eval.open_bench --worlds 6 --llm none                         # offline: rule + System-ID only
-.venv/bin/python -m eval.record_demo --open-only --llm tokenfactory               # re-record the open-world scenarios
-.venv/bin/python -m eval.compare --worlds 10 --env newton
-.venv/bin/python -m eval.compare --worlds 10 --llm local          # + Nemotron diagnoser (Ollama)
-.venv/bin/python -m eval.compare --worlds 10 --llm tokenfactory   # + Nemotron on Nebius Token Factory
+.venv/bin/python -m tether.eval.open_bench --worlds 15 --env newton --llm tokenfactory   # Gap-Bench (open-world tiers)
+.venv/bin/python -m tether.eval.open_bench --worlds 6 --llm none                         # offline: rule + System-ID only
+.venv/bin/python -m tether.eval.record_demo --open-only --llm tokenfactory               # re-record the open-world scenarios
+.venv/bin/python -m tether.eval.compare --worlds 10 --env newton
+.venv/bin/python -m tether.eval.compare --worlds 10 --llm local          # + Nemotron diagnoser (Ollama)
+.venv/bin/python -m tether.eval.compare --worlds 10 --llm tokenfactory   # + Nemotron on Nebius Token Factory
 ```
 
 LLM providers (`TETHER_LLM`):
@@ -325,7 +325,7 @@ Model ids are resolved at runtime from the provider's model list, so no id is ha
 
 ## Cosmos eyes (optional, local)
 
-Built on NVIDIA Cosmos. `agent/cosmos_eyes.py` asks **NVIDIA Cosmos Reason 2 8B** what happened in each real clip
+Built on NVIDIA Cosmos. `tether/agent/cosmos_eyes.py` asks **NVIDIA Cosmos Reason 2 8B** what happened in each real clip
 (`slid 0.17 s → tipped 0.69 s`). It runs locally in llama.cpp at no cost, takes about 4 to 6 s per clip on an M4 Max, and uses about 9 GB of unified memory.
 The pipeline tracks the cube, sends 8 close-up crops, asks per frame "is the cube tilted?" at temperature 0 with no `<think>`, and
 builds the events in code. Cosmos is a **second opinion** next to Newton's `tipped` flag and never replaces it. In tuning
@@ -341,38 +341,60 @@ llama-server -m Cosmos-Reason2-8B.Q4_K_M.gguf --mmproj Cosmos-Reason2-8B.mmproj-
   -ngl 99 -c 8192 --cache-ram 0 -np 1 --port 8080
 
 # back in the repo
-.venv/bin/python -m eval.record_demo --eyes-only     # annotate the existing bundle's real clips (no LLM, no reruns)
-.venv/bin/python -m eval.record_demo --eyes cosmos   # record with eyes; the tool agent also gets "camera_events"
+.venv/bin/python -m tether.eval.record_demo --eyes-only     # annotate the existing bundle's real clips (no LLM, no reruns)
+.venv/bin/python -m tether.eval.record_demo --eyes cosmos   # record with eyes; the tool agent also gets "camera_events"
 TETHER_EYES=cosmos make serve                     # live server with eyes
-make dashboard
+make pages
 ```
 
 Each real clip gets `clip["eyes"]` (model, events, per-frame flags, seconds) and `clip["physics"]` (Newton's peak-tilt `tipped`
-and first tip time). The dashboard shows an event strip under the 3D viewer with ✓ agrees / ⚠ disagrees against the physics flag. When the server is
+and first tip time). The Benchmark page shows an event strip under the 3D viewer with ✓ agrees / ⚠ disagrees against the physics flag. When the server is
 down, `CosmosEyes.available()` is False and `events()` returns `[]`. The default is `--eyes none`, so `make check`, CI and the benchmarks
 never need the model. The model is `nvidia/Cosmos-Reason2-8B` under the NVIDIA Open Model License (community GGUF quantization, local inference
 only, no weights redistributed).
 
-## Repository
+## Repository map
 
-| Path | Contents |
-|---|---|
-| `sim/params.py` | 10 closed + 3 open-world parameters, hidden-world sampler, randomization ranges |
-| `sim/push_task.py` | analytic surrogate (friction strip, lens), `InverseTrainer` policy, offline tests |
-| `sim/newton_push.py` | NVIDIA Newton push environment, cube tracking, camera clips |
-| `sim/replay.py` | per-frame Newton poses (cube + Franka links) for the 3D viewer |
-| `agent/loop.py` | the loop, rule-based and trajectory diagnosers, planner, event stream |
-| `agent/tool_agent.py` | Nemotron tool agent: decel profile, perception check, fit/test hypothesis, probe real robot, commit |
-| `agent/cosmos_eyes.py` | optional Cosmos Reason 2 eyes: clip to events via a local llama-server |
-| `agent/llm.py`, `agent/llm_diagnoser.py` | OpenAI-compatible client (Token Factory / Ollama), record/replay, Nemotron diagnoser |
-| `eval/open_bench.py` | Gap-Bench: closed/open/compound tiers, rule and System-ID baselines, CIs |
-| `eval/compare.py`, `eval/record_demo.py` | closed-world benchmark and demo recorder |
-| `runs/bench/` | recorded Gap-Bench results (Token Factory) |
-| `dashboard/` | agent console (template + builder; static and live variants), three.js 3D replay viewer, `assets/` (vendored three.js r160, decimated Franka FR3 meshes) |
-| `server/app.py` | live server: FastAPI, SSE event stream, cost guards |
-| `Dockerfile`, `deploy/cloud_run.py`, `docs/deploy/` | container and the Cloud Run deployment |
-| `video/film.py`, `video/stage.html` | demo film: scenes drawn in a browser stage, narration, music (numbers read from `runs/`) |
-| `docs/` | plan, status, decisions, setup, design reference, submission drafts |
+```text
+tether/                    the application, one Python package
+├── web/                   the three pages and their builder
+│   ├── overview.html      /            what Tether is
+│   ├── studio.html        /studio      calibrate from your own video or log
+│   ├── benchmark.html     /benchmark   the agent tested on hidden worlds whose answer is known
+│   ├── shared/base.css    one design system for all three
+│   ├── assets/            vendored three.js r160, decimated Franka FR3 meshes
+│   └── build.py           -> web/dist/ (live pages for the server, standalone copies that work offline)
+├── server/                FastAPI: app.py (pages, Benchmark runs, SSE, cost guards), studio_api.py (Studio API)
+├── studio/                the calibration engine behind Studio: video.py (sheet corners, tracking), fit.py (least
+│                          squares + bootstrap intervals), pipeline.py (agent + cross-check), structure.py (pattern
+│                          check), design.py (next experiment), train.py (retraining in parallel Newton worlds),
+│                          verify.py (Newton replay), export.py (Newton, Isaac Lab, CARLA), chat.py (Ask Tether)
+├── agent/                 tool_agent.py (Nemotron tool agent), llm.py (Token Factory / Ollama client, record/replay),
+│                          loop.py (train -> measure -> diagnose -> fix loop), cosmos_eyes.py (optional Cosmos Reason 2)
+├── sim/                   push_task.py (task + analytic model), params.py, newton_push.py (NVIDIA Newton worlds,
+│                          Warp friction kernels, camera renders), mujoco_push.py (second engine), replay.py
+├── eval/                  benchmarks and proofs: prove.py (make prove), open_bench.py (Gap-Bench), cross_engine.py,
+│                          real_benchmark.py (EV-RealPhys), real_friction.py (IDPP), studio_bench.py, record_demo.py
+└── paths.py               where things live in the repository
+runs/                      recorded data the pages and tests read: demo/ (Benchmark), studio-demo/ (Studio examples),
+                           proof/ (headline numbers), bench/ (Gap-Bench)
+tests/                     offline tests (make check): no network, no credits; recorded Nemotron sessions are replayed
+integrations/nat_tether/   the calibration agent as an NVIDIA NeMo Agent Toolkit workflow
+film/                      demo film (footage.py, render.py, stage.html) and the upload folder (submission.py)
+deploy/                    Google Cloud Run deployment (make deploy)
+docs/                      guide/ (Korean guides), submission/ (Devpost text, upload steps), article/ (tech article),
+                           deploy/, design/, setup/, project/ (status, plan, log and lessons for coding agents)
+```
+
+Which code serves which page:
+
+| Page | Front end | Server | Engine and data |
+|---|---|---|---|
+| Overview `/` | `tether/web/overview.html` | `tether/server/app.py` | links into Studio examples and the Benchmark |
+| Studio `/studio` | `tether/web/studio.html` | `tether/server/studio_api.py` | `tether/studio`, `tether/agent/tool_agent.py`, `tether/sim`; examples in `runs/studio-demo` |
+| Benchmark `/benchmark` | `tether/web/benchmark.html` | `tether/server/app.py` | `tether/agent/loop.py`, `tether/agent/tool_agent.py`, `tether/sim`; recorded runs in `runs/demo` |
+
+Every command is a `make` target (see the `Makefile`, grouped by purpose).
 
 ## Credits
 

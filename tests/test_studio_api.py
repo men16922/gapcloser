@@ -7,8 +7,8 @@ os.environ["TETHER_NO_AUTOAPP"] = "1"
 
 from fastapi.testclient import TestClient  # noqa: E402
 
-from server.app import create_app  # noqa: E402
-from server.studio_api import SAMPLE_DIR  # noqa: E402
+from tether.server.app import create_app  # noqa: E402
+from tether.server.studio_api import SAMPLE_DIR  # noqa: E402
 
 
 def client(tmp_path):
@@ -114,7 +114,7 @@ def test_simulated_robot_log_round_trip(tmp_path):
 
 
 def test_chat_is_grounded_in_the_session_and_answers_in_the_chosen_language(tmp_path):
-    from agent.llm import RecordedLLM
+    from tether.agent.llm import RecordedLLM
 
     (tmp_path / "demo").mkdir(parents=True, exist_ok=True)
     llm = RecordedLLM({"diagnose": [{"text": "<think>x</think>마찰은 0.70입니다.", "model": "scripted"}]})
@@ -177,7 +177,7 @@ def test_retraining_on_tether_ranges_beats_current_and_wide(tmp_path, monkeypatc
     pytest.importorskip("newton")
     import time
 
-    import studio.train as tr
+    import tether.studio.train as tr
 
     monkeypatch.setattr(tr, "N_WORLDS", 6)
     monkeypatch.setattr(tr, "ITERS", 4)
@@ -199,10 +199,11 @@ def test_retraining_on_tether_ranges_beats_current_and_wide(tmp_path, monkeypatc
     assert len(res["tether"]["real"]) == 5 and res["tether"]["lanes"][0]
 
 
-def test_overview_console_and_studio_are_linked(tmp_path):
+def test_overview_benchmark_and_studio_are_linked(tmp_path):
     c = client(tmp_path)
     home = c.get("/").text
-    assert "Tether" in home and 'href="/console' in home and "/studio" in home and "sample=" in home
+    assert "Tether" in home and 'href="/benchmark' in home and "/studio" in home and "sample=" in home
+    assert "/console" not in home  # the Benchmark page's earlier name only survives as a route alias
     assert c.get("/api/studio/sample-frame/press-line").headers["content-type"] == "image/jpeg"
 
 
@@ -218,7 +219,7 @@ def test_uploaded_video_gets_its_sheet_corners_found(tmp_path):
 
 
 def test_eviction_never_drops_a_busy_session_and_retracking_clears_the_old_analysis(tmp_path, monkeypatch):
-    import server.studio_api as api
+    import tether.server.studio_api as api
 
     monkeypatch.setattr(api, "MAX_SESSIONS", 2)
     c = client(tmp_path)
@@ -246,8 +247,8 @@ def test_eviction_never_drops_a_busy_session_and_retracking_clears_the_old_analy
 
 
 def test_chat_context_names_fields_the_way_the_domain_does(tmp_path):
-    from studio.chat import session_summary
-    from studio.domains import FIELD_LABELS
+    from tether.studio.chat import session_summary
+    from tether.studio.domains import FIELD_LABELS
 
     c = client(tmp_path)
     s = c.post("/api/studio/sessions", data={"sample": "press-line"}).json()

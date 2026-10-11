@@ -1,0 +1,1910 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tether Studio</title>
+<meta name="description" content="Calibrate a robot simulator from a phone video or a robot log: measured physics with intervals, the next experiment worth running, and configs for NVIDIA Newton and Isaac Lab.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Tether Studio. Same tool language as the Benchmark page (tokens from nvidia.com CSS, docs/design/REFERENCE.md):
+   dark surfaces, square corners, green only for "calibrated / verified". The one loud element is the
+   friction map painted onto the visitor's own table; it uses a slick (cool) to grippy (warm) scale. */
+/*__SHARED_CSS__*/
+p { margin: 0; }
+a { color: var(--fg); }
+.muted { color: var(--muted); }
+.dim { color: var(--dim); }
+.small { font-size: 13px; }
+
+/* top bar: page slot */
+.crumb { font: 600 13px/1 var(--f-display); letter-spacing: 0.03em; color: var(--fg); border: 1px solid var(--line); padding: 5px 9px; background: var(--panel); }
+.crumb:empty { display: none; }
+.crumb b { color: var(--green); font-weight: 600; }
+.wayout { margin-top: 28px; border-top: 1px solid var(--line); padding-top: 18px; display: grid; gap: 10px; }
+.wayout h3 { font-size: 18px; }
+.wayout .row a { text-decoration: none; }
+.fromnote { margin-top: 14px; border-left: 3px solid var(--green); background: var(--green-wash); padding: 10px 14px; font-size: 14px; }
+
+/* layout */
+.studio { display: grid; grid-template-columns: 260px minmax(0, 1fr); min-height: calc(100vh - 58px); }
+.steps { border-right: 1px solid var(--line); padding: 20px 0; }
+.steps ol { list-style: none; margin: 0; padding: 0; }
+.steps li button { all: unset; box-sizing: border-box; cursor: pointer; display: grid; grid-template-columns: 26px 1fr; gap: 10px; width: 100%; padding: 12px 20px; }
+.steps li button:focus-visible { outline: 2px solid var(--green); outline-offset: -2px; }
+.steps li button[disabled] { cursor: default; opacity: 0.45; }
+.steps li button:not([disabled]):hover { background: var(--panel); }
+.steps li.cur button { background: var(--panel); box-shadow: inset 3px 0 0 var(--green); }
+.steps .n { width: 26px; height: 26px; border: 1px solid var(--line); display: grid; place-items: center; font: 500 12px/1 var(--f-mono); color: var(--muted); }
+.steps li.done .n { border-color: var(--green); color: var(--green); }
+.steps li.cur .n { border-color: var(--fg); color: var(--fg); }
+.steps b { display: block; font: 600 16px/1.2 var(--f-display); letter-spacing: 0.02em; }
+.steps small { display: block; margin-top: 3px; color: var(--muted); font-size: 12.5px; line-height: 1.35; overflow-wrap: anywhere; }
+.stage { padding: 28px 32px 48px; min-width: 0; }
+.vtabs { display: flex; gap: 0; border-bottom: 1px solid var(--line); margin: -8px 0 22px; overflow-x: auto; }
+.vtabs[hidden] { display: none; }
+.vtabs button { all: unset; cursor: pointer; padding: 10px 16px; font: 600 14px/1 var(--f-display); letter-spacing: 0.02em; color: var(--muted); border-bottom: 2px solid transparent; white-space: nowrap; }
+.vtabs button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--green); }
+.vtabs button:not([disabled]):hover { color: var(--fg); }
+.vtabs button[disabled] { opacity: 0.4; cursor: default; }
+.vtabs button:focus-visible { outline: 2px solid var(--green); outline-offset: -2px; }
+.panel[hidden] { display: none; }
+.lede { max-width: 68ch; color: var(--muted); margin-top: 8px; }
+.patterns { max-width: 68ch; margin-top: 6px; font-size: 13.5px; color: var(--muted); padding-left: 10px; border-left: 2px solid var(--line); }
+.patterns.found { color: var(--fg); border-left-color: var(--warn); }
+.stage h2 { font-size: 32px; line-height: 1.1; }
+.sec { margin-top: 32px; }
+.sec > h3 { font-size: 19px; margin-bottom: 4px; }
+.sec > .lede { margin-top: 2px; margin-bottom: 14px; }
+
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.err { color: var(--bad); margin-top: 10px; min-height: 1.5em; }
+
+/* step 1: data */
+.samples { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-top: 22px; }
+.sample { all: unset; box-sizing: border-box; cursor: pointer; background: var(--panel); border: 1px solid var(--line); display: grid; grid-template-rows: auto 1fr; }
+.sample:hover { border-color: var(--dim); }
+.sample:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+.sample .thumb { aspect-ratio: 16 / 9; background: #000 center / cover no-repeat; border-bottom: 1px solid var(--line); position: relative; }
+.sample .thumb svg { width: 100%; height: 100%; display: block; }
+.sample .kind { position: absolute; left: 10px; top: 10px; background: rgba(0,0,0,0.75); padding: 3px 7px; font-size: 12px; color: var(--muted); }
+.sample .txt { padding: 12px 14px 14px; }
+.sample h3 { font-size: 18px; }
+.sample p { color: var(--muted); font-size: 13.5px; margin-top: 4px; }
+.drop { margin-top: 22px; border: 1px dashed var(--line); padding: 26px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; }
+.drop.over { border-color: var(--green); background: var(--green-wash); }
+.drop h3 { font-size: 20px; }
+.drop ol { margin: 8px 0 0; padding-left: 20px; color: var(--muted); font-size: 14px; }
+.drop ol li { margin: 3px 0; }
+.drop code { font: 12.5px/1.5 var(--f-mono); color: var(--fg); }
+.drop .pick { margin-top: 16px; }
+.drop.static { opacity: 0.8; }
+
+/* domain tabs (same names as the FlywheelFit workspace): one physics, three jobs */
+.domtabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; margin-top: 20px; border: 1px solid var(--line); }
+.domtabs button { all: unset; box-sizing: border-box; cursor: pointer; padding: 14px 16px 13px; background: var(--panel); border-right: 1px solid var(--line); display: grid; gap: 3px; min-width: 0; }
+.domtabs button:last-child { border-right: 0; }
+.domtabs button b { font: 600 18px/1.15 var(--f-display); color: var(--muted); }
+.domtabs button span { font-size: 13px; color: var(--dim); }
+.domtabs button[aria-selected="true"] { background: var(--raised); box-shadow: inset 0 -3px 0 var(--green); }
+.domtabs button[aria-selected="true"] b { color: var(--fg); }
+.domtabs button:hover b { color: var(--fg); }
+.domtabs button:focus-visible { outline: 2px solid var(--green); outline-offset: -2px; }
+.domnote { margin-top: 10px; color: var(--muted); font-size: 14px; max-width: 78ch; }
+@media (max-width: 640px) { .domtabs { grid-template-columns: 1fr; } .domtabs button { border-right: 0; border-bottom: 1px solid var(--line); } .domtabs button:last-child { border-bottom: 0; } }
+
+/* how to start: one of three, the rest stays out of the way */
+.pick-label { margin-top: 22px; font: 600 13px/1 var(--f-display); letter-spacing: 0.04em; color: var(--muted); }
+.pick-label + .domtabs, .pick-label + .startpick { margin-top: 8px; }
+.startpick { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
+.startpick button { all: unset; box-sizing: border-box; cursor: pointer; border: 1px solid var(--line); background: var(--panel); padding: 16px 18px; display: grid; gap: 4px; }
+.startpick button b { font: 600 18px/1.2 var(--f-display); }
+.startpick button span { font-size: 13px; color: var(--muted); }
+.startpick button[aria-selected="true"] { border-color: var(--green); box-shadow: inset 0 -3px 0 var(--green); }
+.startpick button:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+.mode[hidden] { display: none !important; }
+details.intro { margin-top: 14px; }
+details.more summary { cursor: pointer; font: 600 17px/1.3 var(--f-display); color: var(--muted); padding: 6px 0; }
+details.more summary:hover { color: var(--fg); }
+details.intro summary { cursor: pointer; color: var(--muted); font-size: 14px; }
+details.intro[open] summary { margin-bottom: 8px; }
+@media (max-width: 640px) { .startpick { grid-template-columns: 1fr; } }
+/* 30-second explainer */
+.easy { margin-top: 20px; border: 1px solid var(--line); border-left: 3px solid var(--green); background: var(--panel); padding: 16px 20px; }
+.easy h3 { font-size: 18px; margin-bottom: 6px; }
+.easy ol { margin: 0; padding-left: 20px; display: grid; gap: 4px; font-size: 14.5px; }
+.easy b { color: var(--fg); }
+
+/* simulate your table */
+.simlab { margin-top: 22px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; background: var(--panel); border: 1px solid var(--line); padding: 20px; }
+.simlab h3 { font-size: 22px; }
+.simlab .seg { display: inline-flex; border: 1px solid var(--line); margin-top: 14px; }
+.simlab .seg label { padding: 7px 14px; cursor: pointer; font: 600 14px/1 var(--f-display); letter-spacing: 0.03em; color: var(--muted); display: inline-flex; gap: 6px; align-items: center; }
+.simlab .seg label:has(input:checked) { background: var(--raised); color: var(--fg); box-shadow: inset 0 -2px 0 var(--green); }
+.simlab .seg input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.simlab .seg label:focus-within { outline: 2px solid var(--green); outline-offset: -2px; }
+.sliders { display: grid; gap: 10px; margin-top: 14px; }
+.sliders label { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; font-size: 13.5px; color: var(--muted); }
+.sliders label input[type=range] { grid-column: 1 / -1; width: 100%; accent-color: var(--green); }
+.sliders output { font-family: var(--f-mono); color: var(--fg); }
+.sliders .chk { display: flex; gap: 8px; align-items: center; color: var(--fg); }
+.sliders .chk input { accent-color: var(--green); }
+.simlab[data-kind="video"] .logonly { display: none; }
+.simlab[data-strip="off"] .strip { display: none; }
+.simview svg { display: block; width: 100%; height: auto; }
+.ortitle { font-size: 18px; margin-top: 28px; }
+.ortitle + .samples { margin-top: 12px; }
+@media (max-width: 900px) { .simlab { grid-template-columns: 1fr; } }
+
+/* step 2: measure */
+.takes { display: flex; gap: 0; border-bottom: 1px solid var(--line); margin-top: 18px; }
+.takes button { all: unset; cursor: pointer; padding: 10px 16px; color: var(--muted); font: 600 14px/1 var(--f-display); letter-spacing: 0.03em; border-bottom: 2px solid transparent; }
+.takes button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--green); }
+.measure { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 20px; margin-top: 16px; align-items: start; }
+.frame { position: relative; background: #000; border: 1px solid var(--line); overflow: hidden; touch-action: none; }
+.frame img, .frame video { display: block; width: 100%; height: auto; }
+.frame svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.handle { cursor: grab; }
+.handle:active { cursor: grabbing; }
+.side { background: var(--panel); border: 1px solid var(--line); padding: 16px; display: grid; gap: 14px; }
+.side label { display: grid; gap: 5px; font-size: 13px; color: var(--muted); }
+.side input, .side select { background: var(--bg); border: 1px solid var(--line); padding: 7px 9px; }
+.facts { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 13px; }
+.facts dt { color: var(--muted); }
+.facts dd { margin: 0; text-align: right; font-family: var(--f-mono); }
+table.pushes { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 4px; }
+table.pushes th { text-align: right; color: var(--muted); font-weight: 500; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+table.pushes td { text-align: right; padding: 5px 8px; border-bottom: 1px solid var(--line-soft); font-family: var(--f-mono); }
+table.pushes th:first-child, table.pushes td:first-child { text-align: left; }
+.tablewrap { max-height: 320px; overflow: auto; }
+
+/* step 3: notebook */
+.nb { list-style: none; margin: 18px 0 0; padding: 0; border-left: 1px solid var(--line); max-width: 920px; }
+.nb li { position: relative; padding: 0 0 20px 24px; }
+.nb li::before { content: ""; position: absolute; left: -5px; top: 6px; width: 9px; height: 9px; background: var(--bg); border: 1px solid var(--muted); }
+.nb li.ok::before { border-color: var(--green); background: var(--green); }
+.nb li.warn::before { border-color: var(--warn); }
+.nb li.live::before { border-color: var(--green); animation: blink 1s steps(2) infinite; }
+@keyframes blink { 50% { background: var(--green); } }
+.nb .who { font-size: 12.5px; color: var(--dim); }
+.nb .what { font: 600 17px/1.3 var(--f-display); letter-spacing: 0.01em; }
+.nb .detail { margin-top: 6px; font-size: 14px; color: var(--muted); }
+.nb .detail .num { color: var(--fg); }
+.nb .flag { margin-top: 6px; color: var(--warn); font-size: 13.5px; }
+.nb blockquote { margin: 8px 0 0; padding: 6px 0 6px 12px; border-left: 2px solid var(--green); color: var(--fg); }
+.nb svg { display: block; margin-top: 8px; max-width: 520px; width: 100%; height: auto; }
+.nb .code { margin-top: 6px; font: 12.5px/1.5 var(--f-mono); color: var(--muted); overflow-wrap: anywhere; }
+.choice { margin-top: 14px; font-size: 14px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; }
+.choice b { color: var(--fg); font-weight: 600; }
+.linkbtn { all: unset; cursor: pointer; color: var(--green); font-size: 13.5px; border-bottom: 1px solid currentColor; }
+.linkbtn:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+
+/* step 4: results */
+.hero { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(280px, 1fr); gap: 20px; margin-top: 20px; align-items: stretch; }
+.map { position: relative; background: #000; border: 1px solid var(--line); }
+.map img { display: block; width: 100%; height: auto; }
+.map svg.ov { position: absolute; inset: 0; width: 100%; height: 100%; }
+.map .cap { position: absolute; left: 12px; top: 10px; background: rgba(0,0,0,0.72); padding: 5px 9px; font: 600 15px/1.2 var(--f-display); letter-spacing: 0.02em; }
+.map .scale { position: absolute; right: 12px; bottom: 10px; background: rgba(0,0,0,0.72); padding: 6px 9px; font-size: 12px; color: var(--muted); display: grid; gap: 4px; }
+.map .scale .ramp { width: 160px; height: 8px; background: linear-gradient(90deg, var(--slick), #8b9097, var(--grip)); }
+.map .scale .ends { display: flex; justify-content: space-between; }
+.map video { display: block; width: 100%; height: auto; }
+.map { overflow: hidden; }
+.map .zoom { position: relative; transform-origin: 0 0; }
+.gh line, .gh polygon { vector-effect: non-scaling-stroke; }
+.gh.cal line { stroke: #76b900; stroke-width: 2.5; }
+.gh.cal polygon { fill: rgba(118,185,0,0.28); stroke: none; }
+.gh.cur line { stroke: #d6dadd; stroke-width: 2; stroke-dasharray: 5 4; }
+.gh.cur polygon { fill: rgba(214,218,221,0.12); stroke: none; }
+.ghostbar { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; margin-top: 10px; font-size: 13.5px; }
+.ghostbar label { display: inline-flex; gap: 6px; align-items: center; cursor: pointer; }
+.gk { width: 14px; height: 10px; display: inline-block; border: 2px solid; }
+.gk.cal { border-color: #76b900; background: rgba(118,185,0,0.28); }
+.gk.cur { border-color: #d6dadd; border-style: dashed; }
+.strip1d svg { display: block; width: 100%; height: auto; }
+.verdict { background: var(--panel); border: 1px solid var(--line); padding: 20px; display: grid; gap: 16px; align-content: start; }
+.verdict .pair { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: end; }
+.verdict .big { font: 600 54px/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.verdict .big.after { color: var(--green); }
+.verdict .big.span { font-size: 40px; color: var(--warn); }
+.verdict .arrow { font: 500 26px/1 var(--f-display); color: var(--dim); padding-bottom: 10px; }
+.verdict .what { font-size: 13px; color: var(--muted); margin-top: 6px; }
+.verdict .range { font: 12.5px/1.3 var(--f-mono); color: var(--muted); margin-top: 2px; }
+.verdict .caveat { font-size: 12.5px; color: var(--dim); border-top: 1px solid var(--line); padding-top: 12px; }
+.verdict .by { font-size: 13.5px; }
+.verdict .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.verdict .chip { border: 1px solid var(--line); padding: 3px 8px; font-size: 12.5px; color: var(--muted); }
+.verdict .chip.g { border-color: var(--green); color: var(--green); }
+.verdict .chip.w { border-color: var(--warn); color: var(--warn); }
+
+.forest { width: 100%; border-collapse: collapse; margin-top: 6px; }
+.forest td { padding: 9px 10px; border-bottom: 1px solid var(--line-soft); vertical-align: middle; font-size: 14px; }
+.forest td.v { font-family: var(--f-mono); text-align: right; white-space: nowrap; }
+.forest td.plot { width: 42%; min-width: 220px; }
+.forest td.plot svg { display: block; width: 100%; height: 26px; }
+.forest .tag { font-size: 12px; color: var(--muted); }
+.forest .tag.g { color: var(--green); }
+.forest th { text-align: right; color: var(--muted); font-weight: 500; font-size: 12.5px; padding: 6px 10px; border-bottom: 1px solid var(--line); }
+.forest th:first-child { text-align: left; }
+.charts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 8px; }
+.verify { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 18px; align-items: start; background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--green); padding: 16px 18px; margin: 18px 0 22px; }
+.verify h3 { font-size: 20px; }
+.verify .stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+.verify .stats div { border: 1px solid var(--line); padding: 10px 12px; }
+.verify .stats b { display: block; font: 600 26px/1.1 var(--f-display); }
+.verify .stats b.g { color: var(--green); }
+.verify .stats span { font-size: 12.5px; color: var(--muted); }
+.verify svg { width: 100%; height: auto; display: block; }
+.verify svg text { fill: var(--muted); font: 11px var(--f-body); }
+.verify .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--muted); margin-top: 6px; }
+.verify .legend i { display: inline-block; width: 10px; margin-right: 6px; vertical-align: 0; }
+@media (max-width: 760px) { .verify { grid-template-columns: 1fr; } }
+main.stage { padding-bottom: 96px; }  /* room for the Ask button */
+.tcards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.tcard { border: 1px solid var(--line); background: var(--panel); padding: 14px 16px; display: grid; gap: 4px; position: relative; }
+.tcard.hl { border-color: var(--green); }
+.tcard .sw { position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
+.tcard b { font: 600 40px/1 var(--f-display); }
+.tcard b.g { color: var(--green); }
+.tcard span { font-weight: 600; }
+.tcard small { color: var(--muted); font-size: 12.5px; }
+.tgrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; margin-top: 14px; }
+.tgrid svg { width: 100%; height: auto; display: block; }
+.tgrid svg text { fill: var(--muted); font: 11px var(--f-body); }
+.seg2 { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--line); }
+.seg2 button { all: unset; cursor: pointer; padding: 5px 10px; font: 600 12.5px/1.2 var(--f-display); color: var(--muted); }
+.seg2 button[aria-pressed="true"] { background: var(--raised); color: var(--fg); box-shadow: inset 0 -2px 0 var(--green); }
+@media (max-width: 860px) { .tcards, .tgrid { grid-template-columns: 1fr; } }
+.chart { background: var(--panel); border: 1px solid var(--line); padding: 14px 14px 10px; min-width: 0; }
+.chart h4 { margin: 0 0 2px; font: 600 15px/1.25 var(--f-display); letter-spacing: 0.02em; }
+.chart p { font-size: 12.5px; color: var(--muted); }
+.chart svg { display: block; width: 100%; height: auto; margin-top: 8px; }
+.chart .legend { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; color: var(--muted); margin-top: 6px; }
+.chart .legend span { display: inline-flex; align-items: center; gap: 5px; }
+.chart .legend i { width: 12px; height: 3px; display: inline-block; }
+svg text { font-family: var(--f-mono); font-size: 10.5px; fill: var(--dim); }
+svg .lbl { font-family: var(--f-body); font-size: 12px; fill: var(--muted); }
+.next { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; margin-top: 6px; }
+.card { background: var(--panel); border: 1px solid var(--line); padding: 14px 16px; }
+.card .t { font: 600 22px/1.15 var(--f-display); }
+.card .t small { font-size: 14px; color: var(--muted); font-weight: 500; }
+.card p { font-size: 13.5px; color: var(--muted); margin-top: 6px; }
+.settled { border: 1px solid var(--green); color: var(--fg); padding: 12px 14px; background: var(--green-wash); }
+.asks { margin-top: 12px; font-size: 13.5px; color: var(--muted); }
+.asks .num { color: var(--fg); }
+
+/* step 5: export */
+.tabs { display: flex; flex-wrap: wrap; border-bottom: 1px solid var(--line); margin-top: 18px; }
+.tabs button { all: unset; cursor: pointer; padding: 10px 16px; color: var(--muted); font: 600 14px/1 var(--f-display); letter-spacing: 0.03em; border-bottom: 2px solid transparent; }
+.tabs button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--green); }
+.tabs button:focus-visible { outline: 2px solid var(--green); }
+pre.code { margin: 0; background: var(--panel); border: 1px solid var(--line); border-top: 0; padding: 16px; overflow: auto; max-height: 520px; font: 12.5px/1.55 var(--f-mono); color: #d7dde2; white-space: pre; }
+pre.code .c { color: #6f7a83; }
+pre.code .k { color: #9fd356; }
+pre.code .s { color: #e3b867; }
+.exportbar { display: flex; gap: 10px; align-items: center; justify-content: space-between; padding: 10px 0; flex-wrap: wrap; }
+.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--raised); border: 1px solid var(--green); padding: 8px 14px; font-size: 13.5px; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+.toast.on { opacity: 1; }
+
+/* Ask Tether */
+.askfab { position: fixed; right: 20px; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); z-index: 20; background: var(--green); color: #000; border: 0; padding: 12px 18px; font: 700 15px/1 var(--f-display); letter-spacing: 0.04em; cursor: pointer; box-shadow: 0 6px 24px rgba(0,0,0,0.5); }
+.askfab:hover { background: var(--green-hi); }
+.chat { position: fixed; right: 20px; bottom: calc(76px + env(safe-area-inset-bottom, 0px)); z-index: 21; width: min(420px, calc(100vw - 32px)); max-height: min(640px, calc(100vh - 120px)); display: flex; flex-direction: column; background: var(--panel); border: 1px solid var(--line); box-shadow: 0 12px 48px rgba(0,0,0,0.6); }
+.chat[hidden] { display: none; }
+.chat header { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--line); font: 600 16px/1 var(--f-display); }
+.chat .x { background: none; border: 0; color: var(--muted); font-size: 22px; line-height: 1; cursor: pointer; }
+.chat-intro { padding: 10px 14px 0; }
+.chatlog { flex: 1; overflow-y: auto; padding: 10px 14px; display: grid; gap: 10px; align-content: start; min-height: 120px; }
+.msg { max-width: 92%; padding: 8px 11px; font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
+.msg.user { justify-self: end; background: var(--raised); border: 1px solid var(--line); }
+.msg.bot { justify-self: start; border-left: 2px solid var(--green); background: #0c0e10; }
+.msg.bot ul { margin: 4px 0; padding-left: 18px; }
+.msg.err { border-left-color: var(--bad); color: var(--muted); }
+.sugg { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 14px 10px; }
+.sugg button { background: none; border: 1px solid var(--line); color: var(--muted); padding: 5px 8px; font-size: 12.5px; cursor: pointer; text-align: left; }
+.sugg button:hover { border-color: var(--dim); color: var(--fg); }
+#chat-form { display: flex; gap: 8px; padding: 10px 14px 14px; border-top: 1px solid var(--line); }
+#chat-in { flex: 1; resize: none; background: var(--bg); border: 1px solid var(--line); padding: 8px; font: 14px/1.4 var(--f-body); color: var(--fg); }
+@media (max-width: 760px) { .chat { right: 8px; left: 8px; width: auto; bottom: calc(70px + env(safe-area-inset-bottom, 0px)); } .askfab { right: 12px; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); } }
+
+@media (max-width: 1100px) {
+  .hero { grid-template-columns: 1fr; }
+  .charts { grid-template-columns: 1fr; }
+  .measure { grid-template-columns: 1fr; }
+}
+@media (max-width: 760px) {
+  .studio { grid-template-columns: 1fr; }
+  .steps { border-right: 0; border-bottom: 1px solid var(--line); padding: 0; overflow-x: auto; }
+  .steps ol { display: flex; }
+  .steps li button { grid-template-columns: 22px auto; padding: 10px 12px; white-space: nowrap; }
+  .steps small { display: none; }
+  .stage { padding: 20px 16px 40px; }
+  .stage h2 { font-size: 26px; }
+  .drop { grid-template-columns: 1fr; padding: 18px; }
+  .verdict .big { font-size: 42px; }
+  .forest td.plot { min-width: 120px; }
+}
+@media (prefers-reduced-motion: reduce) { .nb li.live::before { animation: none; } .toast { transition: none; } }
+</style>
+</head>
+<body>
+<header class="tbar">
+  <a class="brand" href="__HOME_URL__" id="nav-home-brand"><svg class="mark" viewBox="0 0 22 14" aria-hidden="true"><rect x="0" y="0" width="6" height="6" fill="#6e6e6e"/><rect x="16" y="8" width="6" height="6" fill="#76b900"/><path d="M3 6 L19 8" stroke="#76b900" stroke-width="1.6"/></svg><b>Tether</b><span class="sub">Sim-to-real calibration</span></a>
+  <nav class="tnav" aria-label="Tether">
+    <a href="__HOME_URL__" id="nav-home">Overview</a>
+    <a href="#" aria-current="page">Studio</a>
+    <a href="/benchmark" id="nav-benchmark">Benchmark</a>
+  </nav>
+  <div class="tslot">
+    <span class="crumb" id="crumb" aria-live="polite"></span>
+    <div class="status" id="engine"><i></i><span>…</span></div>
+    <div class="lang" role="group" aria-label="Language"><button type="button" data-lang="en">EN</button><button type="button" data-lang="ko">KO</button></div>
+  </div>
+</header>
+
+<div class="studio">
+  <aside class="steps" aria-label="Steps">
+    <ol id="steps"></ol>
+  </aside>
+
+  <main class="stage">
+    <nav class="vtabs" id="vtabs" role="tablist" aria-label="Views" hidden></nav>
+    <!-- 1 data -->
+    <section class="panel" id="p-data">
+      <h2>Fit your simulator to the real world</h2>
+      <p class="lede" id="data-lede">Pick a field, then choose how to start.</p>
+      <p class="pick-label" id="pl-1">1 · Field</p>
+      <div class="domtabs" role="tablist" aria-label="Domain" id="domtabs"></div>
+      <p class="pick-label" id="pl-2">2 · How to start</p>
+      <div class="startpick" role="tablist" aria-label="How to start" id="startpick">
+        <button type="button" role="tab" data-m="example"><b id="sp-ex">Open an example</b><span id="sp-ex-d">Recorded runs with a known answer</span></button>
+        <button type="button" role="tab" data-m="sim"><b id="sp-sim">Simulate your own</b><span id="sp-sim-d">Set hidden physics; NVIDIA Newton makes the data</span></button>
+        <button type="button" role="tab" data-m="upload"><b id="sp-up">Upload your data</b><span id="sp-up-d">A phone video or a log</span></button>
+      </div>
+      <details class="intro" id="intro"><summary id="intro-sum">New here? The 30-second version</summary>
+      <p class="domnote" id="domnote"></p>
+      <section class="easy" id="easy" aria-label="In 30 seconds"><h3>In 30 seconds</h3><ol><li><b>Robots practise in a virtual world.</b> The real table is a bit different (slipperier, a wet patch), so for real they keep missing.</li><li><b>Give it a record of real pushes.</b> A phone video or a robot log. No data? Make a virtual table below.</li><li><b>The AI finds what is different,</b> fixes the virtual world, and tells you which push to try next.</li></ol></section>
+      </details>
+      <section class="simlab mode" data-mode="sim" id="simlab" aria-labelledby="sim-h">
+        <div class="simform">
+          <h3 id="sim-h">No video at hand? Simulate your table</h3>
+          <p class="small muted" id="sim-lede">Set the physics of the "real" table, and NVIDIA Newton produces the measurements: a phone-style video it renders, or a robot's push log. Tether then has to work out your settings from the data alone; you see how close it got at the end.</p>
+          <div class="seg" role="radiogroup" aria-label="Data to produce">
+            <label><input type="radio" name="simkind" value="video" checked> <span id="k-video">Phone video</span></label>
+            <label><input type="radio" name="simkind" value="log"> <span id="k-log">Robot log</span></label>
+          </div>
+          <div class="sliders">
+            <label><span id="l-mu">Table friction</span> <output id="o-mu"></output><input type="range" id="s-mu" min="0.2" max="1.0" step="0.01" value="0.45"></label>
+            <label class="chk"><input type="checkbox" id="s-strip" checked> <span id="l-strip">A region with different friction (spill, mat, worn spot)</span></label>
+            <label class="strip"><span id="l-y0">Region starts at</span> <output id="o-y0"></output><input type="range" id="s-y0" min="0.15" max="0.8" step="0.01" value="0.32"></label>
+            <label class="strip"><span id="l-pm">Friction in the region</span> <output id="o-pm"></output><input type="range" id="s-pm" min="0.2" max="0.95" step="0.01" value="0.25"></label>
+            <label class="logonly"><span id="l-g">Robot motor strength</span> <output id="o-g"></output><input type="range" id="s-g" min="0.7" max="1.3" step="0.01" value="0.88"></label>
+            <label class="logonly"><span id="l-p">Robot camera tilt</span> <output id="o-p"></output><input type="range" id="s-p" min="-5" max="5" step="0.1" value="2"></label>
+            <label><span id="l-n">Pushes</span> <output id="o-n"></output><input type="range" id="s-n" min="3" max="12" step="1" value="7"></label>
+            <label><span id="l-r">Longest push slides</span> <output id="o-r"></output><input type="range" id="s-r" min="0.15" max="0.9" step="0.01" value="0.42"></label>
+          </div>
+          <div class="row" style="margin-top:14px"><button class="btn primary" id="sim-run">Run in NVIDIA Newton</button><span class="small muted" id="sim-note"></span></div>
+          <p class="err" id="err-sim" role="alert"></p>
+        </div>
+        <div class="simview" id="simview" aria-hidden="true"></div>
+      </section>
+      <div class="mode" data-mode="example"><div class="samples" id="samples"></div></div>
+      <div class="drop mode" data-mode="upload" id="drop">
+        <div>
+          <h3>Film your own table</h3>
+          <ol>
+            <li>Lay a sheet of A4 or Letter paper flat on the table, beside the path.</li>
+            <li>Hold the phone still (or prop it up) so the sheet and the whole path are in view.</li>
+            <li>Flick the object 6–10 times from the same spot, short and long. Let it stop each time.</li>
+            <li>Use slow motion (120 fps) or 60 fps if your phone has it: motion blur at 30 fps makes launch speeds read low.</li>
+          </ol>
+          <div class="pick row">
+            <label class="btn primary" id="pick-label" tabindex="0">Choose a video or log<input type="file" id="file" accept="video/*,.csv,.json" hidden></label>
+            <span class="small muted" id="drop-hint">or drop it here</span>
+          </div>
+          <p class="err" id="err-data" role="alert"></p>
+        </div>
+        <div>
+          <h3>Or upload a robot log</h3>
+          <p class="small muted" style="margin-top:6px" data-ko-html="CSV 또는 JSON 파일이며, 한 줄이 시행 1회입니다. 정지 거리 <code>stop</code>(m)과 명령값 <code>command</code>(또는 실측 출발 속도 <code>launch_speed</code>)는 필수입니다. <code>target</code>, <code>perceived</code>, <code>track</code>(30fps 위치값, 공백 구분)이 있으면 모터·마찰·카메라 중 원인을 더 정확히 구분합니다.">CSV or JSON, one row per push. <code>stop</code> in metres and a <code>command</code> (or measured <code>launch_speed</code>) are required; <code>target</code>, <code>perceived</code> and a <code>track</code> (positions at 30 fps, space separated) let it separate actuator, friction and camera errors.</p>
+          <p style="margin-top:10px"><code>command,stop,target,perceived,track<br>2.91,0.519,0.520,0.538,0 0.080 0.155 …</code></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 measure -->
+    <section class="panel" id="p-measure" hidden>
+      <h2 id="m-title">Measure</h2>
+      <p class="lede" id="m-lede"></p>
+      <div class="takes" id="takes" role="tablist" aria-label="Videos"></div>
+      <div class="measure">
+        <div>
+          <div class="frame" id="frame"></div>
+          <p class="small dim" id="frame-note" style="margin-top:8px"></p>
+        </div>
+        <div class="side" id="side"></div>
+      </div>
+      <div class="sec" id="m-pushes"></div>
+      <p class="err" id="err-measure" role="alert"></p>
+    </section>
+
+    <!-- 3 diagnose -->
+    <section class="panel" id="p-diag" hidden>
+      <h2>Find what differs</h2>
+      <p class="lede">An agent works through your measurements like a scientist: inspect the evidence, propose which physical effects exist, fit each candidate, and ask for more pushes where the data can't decide. The numbers always come from a least-squares fit and a bootstrap over your pushes, never from the language model.</p>
+      <p class="choice" id="choice"></p>
+      <div id="d-data"></div>
+      <ol class="nb" id="nb" aria-live="polite"></ol>
+      <p class="err" id="err-diag" role="alert"></p>
+    </section>
+
+    <!-- 4 results -->
+    <section class="panel" id="p-results" hidden>
+      <h2 id="r-title">Your calibrated simulator</h2>
+      <p class="lede" id="r-lede"></p>
+      <p class="patterns" id="r-pat"></p>
+      <div class="hero">
+        <div id="r-map"></div>
+        <div class="verdict" id="r-verdict"></div>
+      </div>
+      <div class="sec">
+        <h3>What differs from your simulator</h3>
+        <p class="lede">Measured value with its 90% interval (bootstrap: refit on resampled pushes). Grey tick: your current simulator.</p>
+        <div id="r-forest"></div>
+        <div class="row" style="margin-top:12px" id="r-truth"></div>
+      </div>
+      <div class="sec">
+        <h3>Next experiment</h3>
+        <p class="lede" id="next-lede">Where the plausible models disagree most about where the object stops, inside the range your robot works in.</p>
+        <div id="r-next"></div>
+      </div>
+      <details class="sec more" id="r-more">
+        <summary>The evidence: stops, friction along the path, success by distance</summary>
+        <div class="charts" id="r-charts"></div>
+      </details>
+    </section>
+
+    <!-- 5 export -->
+    <section class="panel" id="p-train" hidden>
+      <h2>Retrain and test</h2>
+      <p class="lede" id="t-lede"></p>
+      <div id="t-body"></div>
+      <div class="row" style="margin-top:22px"><button class="btn primary" id="to-x2">Export the calibrated config</button></div>
+    </section>
+    <section class="panel" id="p-export" hidden>
+      <h2>Take it to your simulator</h2>
+      <p class="lede">Intervals become domain-randomization ranges: train on what the real table can plausibly be, nothing wider.</p>
+      <section class="verify" id="verify" aria-live="polite"></section>
+      <div class="tabs" role="tablist" id="x-tabs"></div>
+      <pre class="code" id="x-code" tabindex="0"></pre>
+      <div class="exportbar"><span class="small muted" id="x-note"></span><div class="row"><button class="btn" id="x-copy">Copy</button><button class="btn primary" id="x-dl">Download</button></div></div>
+      <div class="wayout" id="wayout"></div>
+    </section>
+  </main>
+</div>
+<button type="button" class="askfab" id="askfab" aria-controls="chat" aria-expanded="false">Ask</button>
+<aside class="chat" id="chat" hidden aria-label="Ask Tether">
+  <header><b>Ask Tether</b><button type="button" class="x" id="chat-x" aria-label="Close">×</button></header>
+  <p class="small muted chat-intro" id="chat-intro">Ask about this page or your result. Answers use your current session's numbers.</p>
+  <div class="chatlog" id="chatlog" aria-live="polite"></div>
+  <div class="sugg" id="chat-sugg"></div>
+  <form id="chat-form" autocomplete="off"><textarea id="chat-in" rows="2" maxlength="1200" aria-label="Question"></textarea><button class="btn primary" type="submit" id="chat-send">Send</button></form>
+</aside>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const DATA = /*__STUDIO_DATA__*/null;
+const LIVE = DATA === null;
+
+/* ---------------------------------------------------------------- domains (tether/studio/domains.py)
+   Robot manipulation, autonomous vehicles, factory inspection: one physics, three vocabularies. The server works in
+   base units (the robot scale); `toView` turns what it sends into the domain's units right where it arrives, and
+   `toBase` turns values the page sends back (suggested speeds, object height) into base units again. */
+let DOMS = /*__STUDIO_DOMAINS__*/null;
+let DOM = null;
+function setDomain(id) {
+  DOM = (DOMS && (DOMS[id] || DOMS.robot)) || { id: "robot", scale: 1, speed_scale: 1, words: { en: {}, ko: {} }, labels: { en: {}, ko: {} }, name: { en: "", ko: "" } };
+  document.documentElement.dataset.domain = DOM.id;
+}
+const LEN_FIELDS = new Set(["patch_y0", "camera_dx"]);
+function scaleModel(m) {
+  if (!m || DOM.scale === 1) return m;
+  const o = { ...m };
+  for (const k of LEN_FIELDS) if (o[k] != null) o[k] = Array.isArray(o[k]) ? o[k].map(x => x * DOM.scale) : o[k] * DOM.scale;
+  if (o.lens_k != null) o.lens_k = Array.isArray(o.lens_k) ? o.lens_k.map(x => x / DOM.scale) : o.lens_k / DOM.scale;
+  return o;
+}
+function scaleText(s) {  // mirrors studio.domains.scale_text
+  if (!s || DOM.scale === 1) return s;
+  return String(s).replace(/(-?\d+(?:\.\d+)?)\s?m\/s/g, (_, v) => `${(v * DOM.speed_scale * 3.6).toFixed(0)} km/h`)
+    .replace(/(±?)(-?\d+(?:\.\d+)?)\s?(cm|mm|m)\b(?!\/)/g, (_, pm, v, u) => { const x = v * { cm: 0.01, mm: 0.001, m: 1 }[u] * DOM.scale; return `${pm}${Math.abs(x) < 10 ? x.toFixed(2) : x.toFixed(1)} m`; });
+}
+function toView(x) {
+  if (!x || !DOM || DOM.scale === 1) return x;
+  const o = JSON.parse(JSON.stringify(x)), L = DOM.scale, V = DOM.speed_scale;
+  const l = v => v == null ? v : Array.isArray(v) ? v.map(l) : v * L, sp = v => v == null ? v : Array.isArray(v) ? v.map(sp) : v * V;
+  const push = p => { p.stop = l(p.stop); p.start = l(p.start); p.target = l(p.target); p.perceived = l(p.perceived); p.track = l(p.track); p.launch_speed = sp(p.launch_speed); p.command = sp(p.command); };
+  const cal = c => {
+    if (!c) return;
+    c.model = scaleModel(c.model); c.intervals = scaleModel(c.intervals);
+    (c.candidates || []).forEach(k => { k.model = scaleModel(k.model); k.stop_rms_m = l(k.stop_rms_m); k.perception_rms_m = l(k.perception_rms_m); k.launch_rms_mps = sp(k.launch_rms_mps); });
+    const r = c.residuals || {}; r.stop_residual_rms_m = l(r.stop_residual_rms_m); r.perception_residual_rms_m = l(r.perception_residual_rms_m); r.launch_speed_residual_rms_mps = sp(r.launch_speed_residual_rms_mps);
+    r.unexplained = (r.unexplained || []).map(scaleText);
+    const p = c.predicted; if (p) { p.noise_sigma_m = l(p.noise_sigma_m); p.target_range_m = l(p.target_range_m); p.tolerance_m = l(p.tolerance_m); p.measured_reach_m = l(p.measured_reach_m); }
+    (c.gap || []).forEach(g => { const f = LEN_FIELDS.has(g.field) ? l : g.field === "lens_k" ? (v => v == null ? v : v / L) : (v => v); ["sim", "real", "lo", "hi"].forEach(k => g[k] = f(g[k])); });
+    const cu = c.curves || {};
+    if (cu.stops) { cu.stops.points.forEach(q => { q.x = sp(q.x); q.y = l(q.y); }); cu.stops.grid = sp(cu.stops.grid); cu.stops.model = l(cu.stops.model); cu.stops.sim = l(cu.stops.sim); cu.stops.band = l(cu.stops.band); }
+    if (cu.friction) { (cu.friction.measured || []).forEach(q => { q.y0 = l(q.y0); q.y1 = l(q.y1); }); cu.friction.y = l(cu.friction.y); }
+    (cu.perception || []).forEach(q => { q.true = l(q.true); q.perceived = l(q.perceived); });
+  };
+  const nxt = n => { if (!n) return; n.max_disagreement_in_range_m = l(n.max_disagreement_in_range_m); n.coverage_m = l(n.coverage_m);
+    (n.suggestions || []).forEach(s => { s.launch_speed_mps = sp(s.launch_speed_mps); s.predicted_stop_m = l(s.predicted_stop_m); s.disagreement_m = l(s.disagreement_m); s.command = sp(s.command); s.why = scaleText(s.why); });
+    (n.curve || []).forEach(q => { q.v = sp(q.v); q.stop = l(q.stop); q.sd = l(q.sd); });
+    (n.agent_requests || []).forEach(a => { a.command = sp(a.command); }); };
+  const step = s => { if (!s) return; const r = s.result;
+    if (s.tool === "decel_profile" && Array.isArray(r)) r.forEach(b => { if (typeof b.y_m === "string") b.y_m = b.y_m.split("-").map(v => (v * L).toFixed(1)).join("-"); });
+    if (s.tool === "perception_check" && Array.isArray(r)) r.forEach(q => { q.true_m = l(q.true_m); q.perceived_m = l(q.perceived_m); });
+    if (r && typeof r === "object" && !Array.isArray(r)) { if (r.fitted_model) r.fitted_model = scaleModel(r.fitted_model); r.stop_residual_rms_m = l(r.stop_residual_rms_m); r.perception_residual_rms_m = l(r.perception_residual_rms_m); r.unexplained = (r.unexplained || []).map(scaleText);
+      if (r.queued_for_human) r.queued_for_human = sp(r.queued_for_human); (r.results || []).forEach(q => q.command = sp(q.command)); }
+    if (s.args) { if (s.args.model) s.args.model = scaleModel(s.args.model); if (s.args.explanation) s.args.explanation = scaleText(s.args.explanation); if (s.args.commands) s.args.commands = sp(s.args.commands); }
+    if (s.text) s.text = scaleText(s.text); };
+  const vfy = v => { (v.pushes || []).forEach(p => { p.measured = l(p.measured); p.calibrated = l(p.calibrated); p.current = l(p.current); });
+    v.rms_calibrated_m = l(v.rms_calibrated_m); v.rms_current_m = l(v.rms_current_m); v.worst_calibrated_m = l(v.worst_calibrated_m); };
+  const trn = t => { t.grid_m = l(t.grid_m); t.tolerance_m = l(t.tolerance_m); t.target_range_m = l(t.target_range_m);
+    Object.values(t.conditions).forEach(c => { c.policy = sp(c.policy); c.lanes.forEach(it => it.forEach(q => { q.target = l(q.target); q.slide = l(q.slide); q.track = l(q.track); })); }); };
+  const sess = s => { if (!s) return; (s.pushes || []).forEach(push); s.notes = (s.notes || []).map(scaleText); };
+  const result = r => { if (!r) return; cal(r.calibration); nxt(r.next_experiment); sess(r.session);
+    if (r.agent) { r.agent.explanation = scaleText(r.agent.explanation); (r.agent.trace || []).forEach(step); if (r.agent.requested_commands) r.agent.requested_commands = sp(r.agent.requested_commands); if (r.agent.cross_check && r.agent.cross_check.reason) r.agent.cross_check.reason = scaleText(r.agent.cross_check.reason); }
+    if (r.overlay) Object.values(r.overlay).forEach(v => { v.reach_m = l(v.reach_m); }); };
+  if (o.calibration && o.next_experiment !== undefined) { result(o); if (o.verify) vfy(o.verify); if (o.training) trn(o.training); return o; }  // a result
+  if (o.engine && o.pushes) { vfy(o); return o; }                                           // a Newton replay
+  if (o.conditions && o.grid_m) { trn(o); return o; }                                        // a retraining run
+  if (o.type) {                                                                             // an analysis event
+    if (o.coverage_m) o.coverage_m = l(o.coverage_m);
+    if (o.notes) o.notes = o.notes.map(scaleText);
+    if (o.step) step(o.step);
+    if (o.calibration) cal(o.calibration);
+    if (o.next_experiment) nxt(o.next_experiment);
+    if (o.result) result(o.result);
+    if (o.overlay) Object.values(o.overlay).forEach(v => { v.reach_m = l(v.reach_m); });
+    if (o.cross_check && o.cross_check.reason) o.cross_check.reason = scaleText(o.cross_check.reason);
+    if (o.message) o.message = scaleText(o.message);
+    return o;
+  }
+  if (o.model && !o.videos) { o.model = scaleModel(o.model); if (o.note) o.note = scaleText(o.note); return o; }  // revealed truth
+  sess(o.session); result(o.result);                                                          // a session
+  (o.videos || []).forEach(v => { (v.pushes || []).forEach(p => { p.launch_speed_mps = sp(p.launch_speed_mps); p.start_m = l(p.start_m); p.stop_m = l(p.stop_m); p.slide_m = l(p.slide_m); });
+    if (v.camera) v.camera.height_m = l(v.camera.height_m); if (v.overlay) Object.values(v.overlay).forEach(q => { if (q && q.reach_m != null) q.reach_m = l(q.reach_m); }); });
+  return o;
+}
+const toBaseSpeed = v => v / (DOM ? DOM.speed_scale : 1), toBaseLen = v => v / (DOM ? DOM.scale : 1);
+const dist = m => m == null ? "–" : Math.abs(m) < 1 ? `${fmt(m * 100, 1)} cm` : `${fmt(m, 2)} m`;  // residuals and spreads in either domain
+const tolText = m => m < 0.1 ? `${Math.round(m * 100)} cm` : `${fmt(m, 2)} m`;
+
+/* ---------------------------------------------------------------- language (EN default, KO) */
+let LANG = (() => { const q = new URLSearchParams(location.search).get("lang"); if (q === "ko" || q === "en") return q;
+  try { return localStorage.getItem("tether-lang") || "en"; } catch (_) { return "en"; } })();
+const T = (en, ko) => (LANG === "ko" ? ko : en);
+const KO = {
+  // chrome and steps
+  "Retrain": "재학습", "The evidence: stops, friction along the path, success by distance": "근거 자료 보기: 정지 위치, 위치별 마찰, 거리별 성공률", "Policy on the new physics": "보정된 물리로 정책 재학습", "Retrain and test": "재학습과 평가", "Retrain on the calibrated physics": "보정된 물리값으로 재학습하기",
+  "Benchmark": "검증", "Overview": "소개", "Sim-to-real calibration": "시뮬레이터를 현실에 맞추는 보정 도구", "Studio": "Studio", "Data": "데이터", "Measure": "측정", "Diagnose": "진단", "Calibrated sim": "보정된 시뮬레이터",
+  "Export": "내보내기", "Analysis": "분석", "Results": "결과", "Tracking, then the agent finds what differs": "추적 후 AI가 차이를 찾습니다", "Calibrated sim, retrained policy, export": "보정된 시뮬레이터, 재학습, 내보내기", "Tracking": "추적", "Agent notebook": "AI 분석 기록", "Video or robot log": "영상 또는 로봇 로그", "Scale and pushes": "기준 크기와 움직임 측정", "Agent at work": "AI 원인 분석",
+  "Physics, intervals, next push": "보정값과 다음 실험", "Newton, Isaac Lab, report": "Newton·Isaac Lab 설정, 보고서",
+  "Agent off: offline fitting": "AI 꺼짐: 계산 방식만 사용",
+  // data step
+  "Fit your simulator to the real world": "시뮬레이터를 현실에 맞춥니다",
+  "Show Tether how something actually slides on your table: a phone video, or the push log your robot already writes. You get the physics that differs from your simulator, how sure that is, which pushes would settle the rest, and a config for NVIDIA Newton or Isaac Lab.": "물체가 실제로 미끄러지는 영상이나 로봇 로그를 올리면, 시뮬레이터와 다른 값과 그 신뢰 범위, 다음에 할 실험을 알려 드리고 NVIDIA Newton·Isaac Lab 설정 파일을 만들어 드립니다.",
+  "No video at hand? Simulate your table": "영상이 없으면 가상 탁자로 시작할 수 있습니다",
+  'Set the physics of the "real" table, and NVIDIA Newton produces the measurements: a phone-style video it renders, or a robot\'s push log. Tether then has to work out your settings from the data alone; you see how close it got at the end.': "‘실제’ 탁자의 조건을 정하면 NVIDIA Newton이 영상이나 로봇 로그를 생성합니다. Tether는 정답을 모른 채 이 데이터만으로 값을 찾아내며, 마지막에 정답과 비교할 수 있습니다.",
+  "Phone video": "스마트폰 영상", "Robot log": "로봇 로그", "Table friction": "탁자 마찰계수",
+  "A region with different friction (spill, mat, worn spot)": "마찰이 다른 구간 추가 (엎지른 물, 매트, 닳은 부분 등)",
+  "Region starts at": "구간 시작 거리", "Friction in the region": "구간 마찰계수", "Robot motor strength": "로봇 모터 출력", "Robot camera tilt": "로봇 카메라 기울기",
+  "Pushes": "밀기 횟수", "Longest push slides": "최대 이동 거리", "Run in NVIDIA Newton": "NVIDIA Newton으로 만들기",
+  "Or open a recorded example": "또는 준비된 예시로 시작하기", "Film your own table": "내 탁자 직접 촬영하기",
+  "Lay a sheet of A4 or Letter paper flat on the table, beside the path.": "물체가 미끄러질 경로 옆에 A4 용지를 평평하게 놓습니다.",
+  "Hold the phone still (or prop it up) so the sheet and the whole path are in view.": "용지와 이동 경로 전체가 화면에 들어오도록 스마트폰을 고정합니다.",
+  "Flick the object 6–10 times from the same spot, short and long. Let it stop each time.": "같은 자리에서 물체를 짧게, 길게 섞어 6~10번 튕깁니다. 매번 완전히 멈출 때까지 기다립니다.",
+  "Use slow motion (120 fps) or 60 fps if your phone has it: motion blur at 30 fps makes launch speeds read low.": "가능하면 슬로모션(120fps)이나 60fps로 촬영합니다. 30fps에서는 모션 블러 때문에 속도가 낮게 측정될 수 있습니다.",
+  "Choose a video or log": "영상 또는 기록 파일 선택", "or drop it here": "또는 여기로 끌어다 놓기", "Or upload a robot log": "로봇 로그 파일이 있다면",
+  "Uploads run on the live server (make serve, then open /studio). The samples above replay recorded runs.": "파일 업로드는 서버를 실행했을 때만 가능합니다(make serve 후 /studio). 위 예시는 미리 실행한 결과입니다.",
+  "Simulation runs on the live server (make serve, then /studio).": "가상 탁자는 서버를 실행했을 때 사용할 수 있습니다(make serve 후 /studio).",
+  "Phone video: a box on a table": "스마트폰 영상: 탁자 위에서 튕긴 상자",
+  "Seven hand flicks filmed from the side, an A4 sheet for scale. Something about this table is off. Synthetic: rendered by NVIDIA Newton from physics the Studio never sees.": "상자를 손으로 7번 튕긴 영상입니다. A4 용지를 크기 기준으로 두었고, 탁자에는 숨겨진 차이가 있습니다. (NVIDIA Newton으로 만든 가상 영상이며, Studio에는 정답을 알려 주지 않았습니다.)",
+  "Robot log: first day on the real bench": "로봇 로그: 실제 작업대 첫 운용",
+  "20 pushes (16 aimed at targets, 4 probes) with camera tracks, from a policy trained in the nominal sim.": "기본 시뮬레이터에서 학습한 로봇의 20회 시행 로그입니다(목표 지점 16회, 확인용 4회). 카메라 추적 데이터가 포함되어 있습니다.",
+  "Robot log: short pushes only": "로봇 로그: 짧은 거리만 시행한 경우",
+  "Roadside camera: braking to a stop line": "도로변 카메라: 정지선 제동",
+  "Seven braking runs filmed from beside the road, a painted 5.25 × 7.4 m box for scale. Part of the road is wet. Synthetic: rendered by NVIDIA Newton (Froude-scaled, friction is scale-free).": "도로 옆에서 촬영한 제동 7회 영상입니다. 크기 기준은 도로 위 5.25 × 7.4 m 사각형이며, 도로 일부가 젖어 있습니다. (NVIDIA Newton으로 만든 가상 영상이며 1:25 축소 모델로 계산합니다. 마찰계수는 크기와 무관합니다.)",
+  "Pusher log: parts missing the inspection window": "푸셔 로그: 검사 위치를 벗어나는 부품",
+  "Vehicle log: braking at the stop line": "차량 로그: 정지선 제동",
+  "18 braking runs from the planner (speed set-point, stop position, front-camera range to the line). The car keeps stopping past the line on part of the road.": "제동 제어기가 남긴 18회 제동 로그입니다(목표 속도, 정지 위치, 전방 카메라가 측정한 정지선 거리). 도로 일부 구간에서 차량이 계속 정지선을 지나칩니다.",
+  "18 pusher strokes aimed at the inspection position, with the line camera's tracks. Parts keep stopping off-position.": "검사 위치를 목표로 한 푸셔 동작 18회와 라인 카메라 추적 로그입니다. 부품이 계속 검사 위치를 벗어납니다.",
+  "8 short pushes. The far half of the table was never measured: watch the Studio refuse to be certain.": "짧은 거리로만 8회 시행한 로그입니다. 탁자의 먼 구간은 측정하지 않았습니다. 측정하지 않은 구간을 단정하지 않는지 확인할 수 있습니다.",
+  // measure
+  "Measure the pushes": "이동 거리 측정", "Your pushes": "로그 확인", "Sheet": "용지", "Object height (cm)": "물체 높이 (cm)", "Track pushes": "움직임 추적하기",
+  "Tracking…": "추적하는 중…",
+  "Drag the four green handles onto the corners of the sheet: its known size gives scale, and its perspective gives the camera's height and angle. The orange ring marks the object.": "초록 점 4개를 A4 용지 모서리에 맞춥니다. 용지 크기를 기준으로 실제 거리와 카메라 위치를 계산합니다. 주황색 원이 추적할 물체입니다.",
+  "The height removes parallax: the camera sees the middle of the object, not its footprint.": "카메라는 물체의 바닥이 아니라 중심을 보기 때문에, 높이를 알아야 위치를 정확히 계산할 수 있습니다.",
+  "The object is found automatically (the thing that moves). Click it on the frame to choose it yourself.": "움직이는 물체를 자동으로 찾습니다. 직접 지정하려면 화면에서 물체를 클릭합니다.",
+  "Corners pre-placed for this sample; adjust them if you like.": "예시이므로 모서리를 미리 맞춰 두었습니다. 필요하면 조정할 수 있습니다.",
+  "Corners pre-placed where the sheet sits in the simulated scene; adjust them if you like.": "가상 탁자의 용지 위치에 미리 맞춰 두었습니다. 필요하면 조정할 수 있습니다.",
+  "Recorded session: corners pre-placed, tracking replays the recorded result.": "미리 실행한 예시입니다. 모서리와 추적 결과가 저장되어 있습니다.",
+  "Click-drag the handles. Any corner order works.": "점을 끌어서 옮깁니다. 모서리 순서는 상관없습니다.",
+  "Tracked paths (green) and the object as the video plays.": "초록 선은 물체가 지나간 경로입니다.",
+  "Camera height": "카메라 높이", "Focal length": "초점 거리", "Pushes in this take": "이 영상의 시행 횟수", "All pushes": "전체 시행 횟수", "Farthest stop": "최대 이동 거리",
+  "Recovered from the sheet alone: no calibration pattern, no phone metadata.": "A4 용지 하나로 계산했습니다. 보정판이나 별도 장비가 필요 없습니다.",
+  "Re-place corners": "모서리 다시 맞추기", "Diagnose these pushes": "이 로그로 원인 분석",
+  "Each push from release (fastest frame) to rest, along the push direction. Positions share one table frame across takes.": "손을 뗀 순간부터 멈출 때까지의 이동 거리입니다. 영상이 여러 개여도 같은 탁자 좌표로 측정합니다.",
+  "The log as Tether read it. Tipped pushes are left out of the fit.": "올린 기록입니다. 넘어진 경우는 계산에서 제외합니다.",
+  "Push": "시행", "Launch speed": "출발 속도", "Command": "명령값", "Slide (m)": "이동 거리 (m)", "Released at (m)": "출발 위치 (m)",
+  "Target (m)": "목표 지점 (m)", "Perceived (m)": "카메라 측정 거리 (m)", "tipped": "넘어짐",
+  // diagnose
+  "Find what differs": "원인 분석",
+  "An agent works through your measurements like a scientist: inspect the evidence, propose which physical effects exist, fit each candidate, and ask for more pushes where the data can't decide. The numbers always come from a least-squares fit and a bootstrap over your pushes, never from the language model.": "AI가 로그를 보고 ‘탁자 전체가 미끄러운지, 중간부터 미끄러운지’ 같은 가설을 세워 하나씩 검증합니다. 판단이 어려우면 추가 실험을 요청합니다. 수치는 AI가 추측하지 않고 항상 계산으로 구합니다.",
+  "Nemotron agent": "Nemotron AI", "Offline fit": "계산만 사용 (AI 없음)",
+  "Fits a fixed library of structures and keeps the simplest that explains the data. No LLM, a few seconds.": "정해진 후보 모델을 모두 계산해, 로그를 설명하는 가장 단순한 모델을 고릅니다. AI 없이 몇 초면 끝납니다.",
+  "Run diagnosis": "원인 분석 시작", "Recorded run: replays the agent's real tool calls.": "미리 실행한 결과입니다. AI가 실제로 수행한 과정을 그대로 재생합니다.",
+  "Deceleration in g, binned every 5 cm of table.": "탁자 위 5 cm 구간마다 측정한 감속입니다.",
+  // results
+  "Your calibrated simulator": "보정된 시뮬레이터", "Your table, measured": "측정 결과: 내 탁자", "The table along the push, measured": "이동 방향을 따라 본 탁자 마찰계수",
+  "slick 0.2": "미끄러움 0.2", "grippy 1.0": "거침 1.0", "Pause": "일시정지", "Play": "재생", "calibrated sim": "보정된 시뮬레이터", "your current sim": "보정 전 시뮬레이터",
+  "friction map": "마찰 지도", "Same launch speed and spot as each real push; the boxes are the simulators' predictions.": "실제와 같은 조건으로 시뮬레이션했을 때 각 시뮬레이터가 예측한 상자 위치입니다.",
+  "A push policy trained in each simulator, landing within 3 cm on targets 0.2–0.6 m of your table": "각 시뮬레이터로 학습한 로봇이 0.2~0.6 m 목표 지점에 3 cm 이내로 세울 확률",
+  "current sim": "보정 전 시뮬레이터", "depends on the unmeasured table": "미측정 구간에 따라 달라짐", "agent model cross-checked": "교차 검증 통과",
+  "agent overruled": "교차 검증으로 수정됨", "agent's region left out": "AI의 구간 제외됨",
+  "Model predictions: rollouts of the fitted model across the plausible worlds, with your measured scatter as noise. Verify on the real robot.": "모델로 예측한 값입니다. 실제 로봇에서 확인이 필요합니다.",
+  "What differs from your simulator": "시뮬레이터와 다른 값",
+  "Measured value with its 90% interval (bootstrap: refit on resampled pushes). Grey tick: your current simulator.": "측정값과, 실제 값이 들어 있을 90% 신뢰 범위입니다. 회색 눈금은 보정 전 시뮬레이터 값입니다.",
+  "Parameter": "항목", "Your sim": "보정 전 시뮬레이터", "Measured": "측정한 값", "90% interval": "오차 범위", "Hidden truth": "정답", "none": "없음",
+  "differs from your sim": "보정 전 시뮬레이터와 다름", "within noise of your sim": "보정 전과 거의 같음",
+  "Cube-table friction": "탁자 마찰계수", "Actuator gain": "모터 출력", "Friction region starts at": "다른 구간 시작 거리", "Friction in that region": "구간 마찰계수",
+  "Camera offset": "카메라 위치 오차", "Camera pitch error": "카메라 기울기 오차", "Lens distortion": "렌즈 왜곡",
+  "The evidence": "근거 자료", "Where it stops": "정지 위치 비교",
+  "Your pushes against the calibrated model (band: 90% of plausible models) and your current sim.": "실제 기록(점), 보정된 시뮬레이터(초록 선), 보정 전 시뮬레이터(점선)를 비교합니다.",
+  "your pushes": "실제 기록", "calibrated": "보정된 시뮬레이터", "Friction along the table": "탁자 위치별 마찰",
+  "Deceleration seen in the tracks (bars) and the friction the calibrated sim uses (line, band).": "막대는 실측 감속, 초록 선은 보정된 시뮬레이터의 마찰계수입니다.",
+  "measured": "측정", "unmeasured": "미측정", "Success by target distance": "목표 거리별 성공률",
+  "Predicted for a policy trained in each sim (within 3 cm).": "각 시뮬레이터로 학습한 로봇의 예상 성공률입니다(3 cm 이내 정지 시 성공).",
+  "launch speed (m/s)": "출발 속도 (m/s)", "slide (m)": "이동 거리 (m)", "position on the table (m)": "탁자 위 위치 (m)", "friction μ": "마찰 μ",
+  "target distance (m)": "목표 거리 (m)", "predicted success": "예상 성공률", "launch": "출발점", "target range": "목표 범위",
+  "ticks: where your pushes stopped": "눈금: 실제 정지 위치", "target range the robot must hit (0.2–0.6 m)": "목표 범위 (0.2~0.6 m)",
+  "Next experiment": "다음 실험", "Where the plausible models disagree most about where the object stops, inside the range your robot works in.": "모델들의 예측이 가장 크게 갈리는 지점입니다. 이 거리까지 시행하면 불확실성이 가장 크게 줄어듭니다.",
+  "Load take 2: the pushes it asked for": "두 번째 영상 불러오기 (추천 실험 영상)", "Run these pushes in NVIDIA Newton": "추천 실험을 NVIDIA Newton에서 실행",
+  "Export the calibrated config": "보정 설정 내보내기", "Add a video of these pushes": "추천 실험 영상 추가", "Keep the sheet where it was.": "A4 용지는 처음과 같은 자리에 둡니다.",
+  "Add the pushes you ran (CSV/JSON)": "추가 실험 로그 올리기 (CSV/JSON)", "Same columns as your first log; they are merged and you diagnose again.": "처음 로그와 같은 형식이어야 합니다. 합친 뒤 다시 분석합니다.",
+  // export
+  "Take it to your simulator": "내 시뮬레이터에 적용하기", "Intervals become domain-randomization ranges: train on what the real table can plausibly be, nothing wider.": "측정한 신뢰 범위 안에서만 값을 바꿔 학습하도록 설정합니다.",
+  "Report": "보고서", "Copy": "복사", "Download": "다운로드",
+  "Material values for newton.ModelBuilder.ShapeConfig, plus the measured friction region.": "NVIDIA Newton용 마찰계수와 구간 설정입니다.",
+  "An EventTermCfg that randomizes the object's material over the measured interval at startup.": "Isaac Lab에서 마찰계수를 측정 범위 안에서만 랜덤화하는 설정입니다.",
+  "A one-page report to share.": "공유용 1쪽 보고서입니다.", "Everything above, machine-readable (tether.calibration/v1).": "위 내용을 모두 담은 데이터 파일입니다 (tether.calibration/v1).",
+  // chat
+  "Ask": "질문", "Ask Tether": "Tether에게 물어보기", "Send": "보내기", "Thinking…": "답변 준비 중…", "Close": "닫기",
+  "Ask about this page or your result. Answers use your current session's numbers.": "이 화면이나 결과에 대해 질문할 수 있습니다. 현재 결과를 바탕으로 답합니다.",
+  "Ask needs the live server with a language model (make serve with TETHER_LLM=tokenfactory).": "질문 기능은 AI가 연결된 서버에서만 사용할 수 있습니다 (TETHER_LLM=tokenfactory로 make serve).",
+  // server errors (HTTP 4xx detail), shown through call()
+  "Unknown session (sessions expire when the server restarts).": "세션을 찾을 수 없습니다. 서버가 다시 시작되면 세션이 사라지므로 처음부터 다시 시작해 주십시오.",
+  "Run the analysis first: the hidden physics is revealed afterwards.": "먼저 분석을 실행해 주십시오. 숨겨진 물리값은 분석이 끝난 뒤에 공개됩니다.",
+  "Upload a phone video (mp4/mov/webm) or a robot log (.csv/.json).": "스마트폰 영상(mp4/mov/webm)이나 로봇 로그(.csv/.json)를 올려 주십시오.",
+  "Retrain first.": "먼저 재학습을 실행해 주십시오.",
+  "Run the analysis first.": "먼저 분석을 실행해 주십시오.",
+  "Track the video first (click the sheet corners).": "먼저 영상을 추적해 주십시오. 기준 사각형의 네 모서리를 맞추면 됩니다.",
+  "Upload a video or a log, or pick a sample.": "영상이나 로그를 올리거나 예시를 골라 주십시오.",
+  "Upload a video.": "영상을 올려 주십시오.",
+  "No data yet.": "아직 데이터가 없습니다.",
+  "Newton is busy with another simulation. Try again in a minute.": "NVIDIA Newton이 다른 시뮬레이션을 실행하고 있습니다. 1분 뒤에 다시 시도해 주십시오.",
+  "Newton is busy with other visitors. Try again in a minute.": "NVIDIA Newton이 다른 방문자의 작업을 실행하고 있습니다. 1분 뒤에 다시 시도해 주십시오.",
+  "The Studio is busy with other visitors. Try again in a minute.": "다른 방문자가 Studio를 사용하고 있습니다. 1분 뒤에 다시 시도해 주십시오.",
+  "This session is already being analysed or retrained.": "이 세션은 이미 분석 또는 재학습 중입니다.",
+  "This session is being analysed or retrained; wait for it to finish.": "이 세션은 분석 또는 재학습 중입니다. 끝날 때까지 기다려 주십시오.",
+  "Wait for the analysis to finish.": "분석이 끝날 때까지 기다려 주십시오.",
+  "Track the first video before adding another.": "다른 영상을 추가하기 전에 첫 영상을 먼저 추적해 주십시오.",
+  "Track the first take before adding another.": "다음 촬영분을 추가하기 전에 첫 촬영분을 먼저 추적해 주십시오.",
+  "This session is a robot log; start a new session for a video.": "이 세션은 로봇 로그입니다. 영상은 새 세션에서 시작해 주십시오.",
+};
+const KO_RX = [
+  [/^(\d+) pushes$/, "$1회 시행"], [/^(\d+) pushes tracked$/, "$1회 추적 완료"], [/^(\d+) agent steps$/, "AI 분석 $1단계"],
+  [/^offline fit$/, "계산만 사용 (AI 없음)"], [/^Diagnose (\d+) pushes$/, "기록 $1건으로 원인 분석"], [/^take (\d+)$/, "$1번째 영상"], [/^Take (\d+)( ✓)?$/, "$1번째 영상$2"],
+  [/^push (\d+) · (.*)$/, "$1번째 · $2"], [/^table past ([\d.]+) m unmeasured$/, "$1 m 이후 미측정"],
+  [/^your (\d+) pushes stop in here$/, "$1회 시행의 정지 범위"], [/^Recorded with (.*) · NVIDIA Newton$/, "$1 · NVIDIA Newton으로 미리 돌린 결과"],
+  [/^Agent online: (.*)$/, "AI 연결됨: $1"], [/^motor ([\d.]+)× · camera tilt (-?[\d.]+)°$/, "모터 출력 $1배 · 카메라 기울기 $2°"],
+  [/^Still unexplained: (.*)$/, (m, a) => "설명되지 않은 부분: " + tx(a)], [/^Newton is simulating (\d+) flicks and rendering the phone video \(about 2-3 s per push\)…$/, "Newton이 $1회 시행을 시뮬레이션하고 영상을 만드는 중입니다(1회당 2~3초)…"],
+  [/^Newton is running (\d+) robot pushes…$/, "Newton에서 로봇 $1회 시행을 계산하는 중입니다…"],
+  [/^Your simulated table \(phone video\)$/, "내가 만든 가상 탁자 (영상)"], [/^Your simulated robot log$/, "내가 만든 가상 탁자 (로봇 로그)"],
+];
+// strings that come from the server (notes, reasons, sources): translated where they are shown
+const KO_SERVER = [
+  [/^Models disagree by ±([\d.]+) (cm|m) here; your pushes stop by ([\d.]+) m, so the table beyond is unmeasured$/i, "이 지점은 모델 간 예측 차이가 ±$1 $2입니다. $3 m 이후는 아직 측정하지 않았습니다"],
+  [/^Models disagree by ±([\d.]+) (cm|m) here$/i, "이 지점은 모델 간 예측 차이가 ±$1 $2입니다"],
+  [/^Camera recovered from the sheet: ([\d.]+) m above the table, focal (\d+) px$/i, "기준 사각형으로 카메라 위치를 계산했습니다: 높이 $1 m, 초점 거리 $2 px"],
+  [/^Release points spread over ±(\d+) cm; positions are measured from their median$/i, "출발 위치가 ±$1 cm씩 달라 중앙값을 기준점으로 삼았습니다"],
+  [/^No tracks: launch speed and position-dependent friction cannot be separated from stops alone$/i, "추적 데이터가 없어 정지 거리만으로는 출발 속도와 마찰을 구분하기 어렵습니다"],
+  [/^(\d+) tipped push\(es\) are excluded from the fit \(the sliding model does not cover tipping\)$/i, "넘어진 $1회는 계산에서 제외했습니다(미끄러진 경우만 사용)"],
+  [/^offline structure search \(simplest model within noise of the best\)(.*)$/, (m, rest) => "계산만 사용 (로그를 설명하는 가장 단순한 모델)" + tx(rest)],
+  [/^Nemotron agent \(([^)]*)\)(.*)$/, (m, a, rest) => `Nemotron AI (${a})` + tx(rest)],
+  [/^cross-check \(agent model overruled\)(.*)$/, (m, rest) => "교차 검증에서 AI의 결론을 수정함" + tx(rest)],
+  [/^; friction region past ([\d.]+) m dropped \(no push measured it\)$/, "; $1 m 이후는 측정하지 않아 구간을 추가하지 않았습니다"],
+  [/^stops not explained \(> 1 cm rms\): the structure is missing an effect$/, "정지 위치 오차가 1 cm를 넘습니다: 아직 반영하지 못한 원인이 있습니다"],
+  [/^launch speeds disagree with the model.*$/, "출발 속도가 맞지 않습니다: 마찰과 모터 출력이 서로 상쇄되어 거리만 맞았을 수 있으므로, 모터 출력도 함께 추정해야 합니다"],
+  [/^perceived target distances not explained.*$/, "카메라 측정 거리가 맞지 않습니다: 카메라 기울기나 렌즈 왜곡을 확인해야 합니다"],
+  [/^your settings, simulated in NVIDIA Newton$/, "직접 설정한 값 (NVIDIA Newton 가상 탁자)"],
+  [/^NewtonPushEnv$/, "NVIDIA Newton 시뮬레이션"],
+  [/^the friction region the agent proposed at ([\d.]+) m improves the stops by ([\d.]+) mm rms only, within noise: left out$/, "AI가 $1 m에 제안한 마찰 구간은 정지 위치를 $2 mm만 개선해 잡음 수준이므로 뺐습니다"],
+  [/^cross-check \(agent's friction region within noise\)(.*)$/, (m, rest) => "교차 검증: AI가 제안한 마찰 구간은 잡음 수준이라 제외" + tx(rest)],
+  [/^(\d+) push\(es\) left out: the tracker lost the object while it moved$/i, "움직이는 동안 물체를 놓친 시행 $1회는 제외했습니다"],
+  [/^; friction region added at ([\d.]+) m \(deceleration steps there\)$/, "; 감속이 바뀌는 $1 m 지점에 마찰 구간을 추가했습니다"],
+  [/^friction (rises|falls) as the object slows \(([-+\d.]+) per m\/s\): it depends on sliding speed, which the model has no field for$/, (m, d, k) => `물체가 느려질수록 마찰이 ${d === "rises" ? "커집니다" : "작아집니다"}(속도 1 m/s당 ${k}). 마찰이 미끄러지는 속도에 따라 달라지며, 현재 모델에는 이 항목이 없습니다`],
+  [/^deceleration still changes along the table \(strongest near ([\d.]+) m, ([-+\d.]+)\): the friction map needs a change the model does not have$/, "표면을 따라 감속이 여전히 바뀝니다($1 m 부근에서 가장 크게, $2). 마찰 분포에 모델에 없는 변화가 있습니다"],
+  [/^NVIDIA Newton SensorTiledCamera$/, "NVIDIA Newton 렌더 영상"],
+  [/^agent busy with another session: offline search$/, "AI가 다른 세션을 처리 중이라 계산 방식으로 진행합니다"],
+  [/^the agent's model leaves (.+) — the library structure (\S+) explains the data$/, (m, what, st) => `AI의 모델로는 설명되지 않는 부분이 있습니다(${tx(what)}). 후보 모델 ${st}가 데이터를 설명합니다`],
+  [/^ — agent fell back: (.*)$/, " — AI 호출 실패로 계산 방식 사용: $1"],
+  [/^region start measured from the median release point \(([-+\d.]+) cm from the simulator origin\)$/, "구간 시작 거리는 출발 위치 기준입니다 (원래 기준점과 $1 cm 차이)"],
+];
+function tr1(text) {
+  const k = text.trim();
+  if (!k) return text;
+  if (KO[k]) return text.replace(k, KO[k]);
+  const dot = k.endsWith(".") && !k.endsWith("…") ? "." : "", core = dot ? k.slice(0, -1) : k;
+  for (const [rx, rep] of [...KO_RX, ...KO_SERVER]) {
+    if (rx.test(core)) return text.replace(k, core.replace(rx, rep) + dot);
+  }
+  if (dot && KO[core]) return text.replace(k, KO[core] + ".");
+  return text;
+}
+function tx(s) { return LANG === "ko" && s ? tr1(String(s)) : s; }
+const ORIG = new WeakMap(), SET = new WeakMap();  // original English text / the value this translator wrote
+let translating = false;
+function translateNode(n) {
+  if (!ORIG.has(n)) ORIG.set(n, n.nodeValue);
+  const en = ORIG.get(n), want = LANG === "ko" ? tr1(en) : en;
+  if (n.nodeValue !== want) { SET.set(n, want); n.nodeValue = want; }
+}
+function translateTree(root) {
+  translating = true;
+  try {
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: n => n.parentElement && n.parentElement.closest("script,style,pre,code,textarea,.chatlog") ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT });
+    let n; while ((n = w.nextNode())) translateNode(n);
+    root.querySelectorAll && root.querySelectorAll("[data-ko-html]").forEach(el => { if (!el.dataset.enHtml) el.dataset.enHtml = el.innerHTML; el.innerHTML = LANG === "ko" ? el.dataset.koHtml : el.dataset.enHtml; });
+  } finally { translating = false; }
+}
+new MutationObserver(muts => {
+  if (translating) return;
+  translating = true;
+  try {
+    for (const m of muts) {
+      if (m.type === "characterData") { if (SET.get(m.target) === m.target.nodeValue) continue; ORIG.set(m.target, m.target.nodeValue); translateNode(m.target); continue; }
+      m.addedNodes.forEach(n => { if (n.nodeType === 3) { if (!(n.parentElement && n.parentElement.closest("script,style,pre,code,textarea,.chatlog"))) translateNode(n); } else if (n.nodeType === 1) { translating = false; translateTree(n); translating = true; } });
+    }
+  } finally { translating = false; }
+}).observe(document.documentElement, { childList: true, characterData: true, subtree: true });
+function setLang(l) {
+  LANG = l;
+  try { localStorage.setItem("tether-lang", l); } catch (_) {}
+  document.documentElement.lang = l;
+  document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.lang === l)));
+  translateTree(document.body);
+  if (DOM) { renderDomainCopy(); renderStartCopy(); renderSamples(); drawSimView(); }
+  if (state.s) { const st = state.step; go(st); if (st === "diag") replayNotebook(); } else renderSteps();
+  if (typeof renderChat === "function") renderChat();
+}
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const fmt = (v, d = 2) => v == null || Number.isNaN(v) ? "–" : Number(v).toFixed(d);
+const pct = v => v == null ? "–" : Math.round(v * 100) + "%";
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const SVGNS = "http://www.w3.org/2000/svg";
+
+/* ---------------------------------------------------------------- backends */
+const api = {
+  async status() { const r = await fetch("/api/status"); return r.ok ? r.json() : {}; },
+  async samples() { return (await fetch("/api/studio/samples")).json(); },
+  async create(form) { return call(fetch("/api/studio/sessions", { method: "POST", body: form })); },
+  async addVideo(sid, form) { return call(fetch(`/api/studio/sessions/${sid}/videos`, { method: "POST", body: form })); },
+  async track(sid, i, body) { return call(fetch(`/api/studio/sessions/${sid}/videos/${i}/track`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })); },
+  async analyze(sid, agent, onEvent) {
+    await call(fetch(`/api/studio/sessions/${sid}/analyze`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ agent }) }));
+    return new Promise((resolve, reject) => {
+      const es = new EventSource(`/api/studio/sessions/${sid}/events`);
+      let result = null;
+      es.onmessage = m => { const e = JSON.parse(m.data); onEvent(e); if (e.type === "result") result = e.result;
+        if (e.type === "error") { es.close(); reject(new Error(e.message)); }
+        if (e.type === "end") { es.close(); resolve(result); } };
+      es.onerror = () => { es.close(); result ? resolve(result) : reject(new Error("Lost the connection to the server.")); };
+    });
+  },
+  async truth(sid) { const r = await fetch(`/api/studio/sessions/${sid}/truth`); return r.ok ? r.json() : null; },
+  async verify(sid) { return call(fetch(`/api/studio/sessions/${sid}/verify`, { method: "POST" })); },
+  async train(sid, onProgress) {
+    let st = await call(fetch(`/api/studio/sessions/${sid}/train`, { method: "POST" }));
+    while (st.status === "running") { await sleep(700); st = await call(fetch(`/api/studio/sessions/${sid}/train`)); onProgress(st.progress[st.progress.length - 1] || {}); }
+    if (st.status !== "done") throw new Error(st.error || "Training failed.");
+    return st.result;
+  },
+  media(path) { return "/api/studio/" + path.replace(/^files\//, "files/"); },
+};
+async function call(p) {
+  const r = await p;
+  if (!r.ok) { let m = r.statusText; try { m = (await r.json()).detail || m; } catch (_) {} throw new Error(typeof m === "string" ? tx(m) : JSON.stringify(m)); }
+  return r.json();
+}
+
+/* recorded backend: replays sessions recorded through the same API (python -m studio.record) */
+const rec = {
+  async status() { return { provider: DATA.provider, model: DATA.model, agent: "tool" }; },
+  async samples() { return DATA.samples.map(r => r.sample); },
+  recFor(id) { return DATA.samples.find(r => r.sample.id === id); },
+  async create(form) {
+    const id = form.get("sample"); const r = this.recFor(id);
+    if (!r) throw new Error("Uploads need the live server: run `make serve` and open /studio.");
+    const vids = r.sample.kind === "video" ? [{ ...r.videos[0], tracked: false }] : [];
+    return { id: "rec-" + id, sample: id, kind: r.sample.kind, name: r.sample.title, videos: vids, domain: r.sample.domain || "robot",
+             session: r.sample.kind === "log" ? r.stages[0].session : null, result: null };
+  },
+  async addVideo(sid, form) {
+    const r = this.recFor(sid.slice(4)); const i = Number(RAWS.videos.length);
+    return { ...RAWS, videos: [...RAWS.videos, { ...r.videos[i], tracked: false }], added: i };
+  },
+  async track(sid, i) {
+    const r = this.recFor(sid.slice(4)); await sleep(reduce ? 0 : 700);
+    const vids = RAWS.videos.map((v, k) => k <= i ? { ...r.videos[k], tracked: true } : v);
+    return { ...RAWS, videos: vids, session: r.stages[i].session };
+  },
+  async analyze(sid, agent, onEvent) {
+    const r = this.recFor(sid.slice(4));
+    const k = r.sample.kind === "video" ? state.s.videos.filter(v => v.tracked).length - 1 : 0;
+    const stg = r.stages[Math.max(0, k)];
+    for (const e of stg.events) {
+      if (!agent && e.type === "agent_step") continue;
+      onEvent(e);
+      if (!reduce) await sleep(e.type === "agent_step" ? 650 : 220);
+    }
+    return stg.result;
+  },
+  async truth(sid) { return this.recFor(sid.slice(4)).truth; },
+  stageOf(r) { return r.sample.kind === "video" ? Math.max(0, state.s.videos.filter(v => v.tracked).length - 1) : 0; },
+  async train(sid, onProgress) {  // recorded run for the take(s) on screen, replayed iteration by iteration
+    const r = this.recFor(sid.slice(4)), t = ((r.stage_extras || [])[this.stageOf(r)] || {}).training || r.training;
+    if (!t) throw new Error(T("This recording has no training run.", "이 실행 기록에는 재학습 결과가 없습니다."));
+    for (const id of Object.keys(t.conditions)) for (let i = 0; i <= t.iterations; i += 2) { onProgress({ condition: id, iteration: i }); await sleep(reduce ? 0 : 120); }
+    return t;
+  },
+  async verify(sid) {  // recorded Newton replay of the calibration on screen (each take has its own)
+    const r = this.recFor(sid.slice(4)), k = this.stageOf(r);
+    const v = ((r.stage_extras || [])[k] || {}).verify || (k === r.stages.length - 1 ? r.verify : null);
+    if (!v) throw new Error(T("This recording has no Newton replay.", "이 기록에는 Newton 재현 결과가 없습니다."));
+    await sleep(reduce ? 0 : 600); return v;
+  },
+  media(path) { return DATA.media[path] || path; },
+};
+const be = LIVE ? api : rec;
+let RAWS = null;  // the session as the server sent it (base units); state.s is its view in the domain's units
+function adopt(raw) { setDomain(raw.domain || "robot"); RAWS = raw; return toView(raw); }
+
+/* ---------------------------------------------------------------- state + steps */
+// three phases; the views inside a phase are tabs (tracking and the agent's notebook; calibrated sim, retraining, export)
+const PHASES = [
+  { id: "data", name: "Data", hint: "Video or robot log", views: ["data"] },
+  { id: "analysis", name: "Analysis", hint: "Tracking, then the agent finds what differs", views: ["measure", "diag"] },
+  { id: "results", name: "Results", hint: "Calibrated sim, retrained policy, export", views: ["results", "train", "export"] },
+];
+const VIEW_NAMES = { measure: "Tracking", diag: "Agent notebook", results: "Calibrated sim", train: "Retrain", export: "Export" };
+const STEPS = PHASES.flatMap(p => p.views.map(id => ({ id })));
+const phaseOf = v => PHASES.find(p => p.views.includes(v));
+const state = { step: "data", s: null, take: 0, result: null, truth: null, status: {}, done: new Set(), summaries: {}, exportTab: "newton" };
+
+function phaseDone(p) {
+  return p.id === "data" ? !!state.s : p.id === "analysis" ? !!state.result : state.done.has("export");
+}
+function renderSteps() {
+  const cur = phaseOf(state.step).id;
+  const open = { data: true, analysis: !!state.s, results: !!state.result };
+  $("#steps").innerHTML = PHASES.map((p, i) => {
+    const cls = [cur === p.id ? "cur" : "", phaseDone(p) ? "done" : ""].join(" ");
+    const sum = state.summaries[p.id];
+    return `<li class="${cls}"><button data-phase="${p.id}" ${open[p.id] ? "" : "disabled"} ${cur === p.id ? 'aria-current="step"' : ""}>
+      <span class="n">${phaseDone(p) && cur !== p.id ? "✓" : i + 1}</span><span><b>${p.name}</b><small>${esc((v => Array.isArray(v) ? T(v[0], v[1]) : v)(sum) || p.hint)}</small></span></button></li>`;
+  }).join("");
+  $("#steps").querySelectorAll("button").forEach(b => b.onclick = () => {
+    const id = b.dataset.phase;
+    go(id === "data" ? "data" : id === "analysis" ? (state.result || state.s.kind === "log" ? "diag" : "measure") : "results");
+  });
+  renderViewTabs();
+}
+function renderViewTabs() {  // tabs for the views of the current phase (only where there is a choice)
+  const p = phaseOf(state.step);
+  const views = p.views.filter(v => v !== "measure" || (state.s && state.s.kind === "video"));
+  const avail = v => v === "diag" ? !!(state.s && state.s.session) : v === "measure" ? true : !!state.result;
+  const tabs = $("#vtabs");
+  tabs.hidden = views.length < 2;
+  tabs.innerHTML = views.map(v => `<button type="button" role="tab" data-v="${v}" aria-selected="${v === state.step}" ${avail(v) ? "" : "disabled"}>${VIEW_NAMES[v]}</button>`).join("");
+  tabs.querySelectorAll("button").forEach(b => b.onclick = () => go(b.dataset.v));
+}
+function renderCrumb() {
+  const id = state.s ? (DOM && DOM.id) : DATA_DOM, d = DOMS && DOMS[id];
+  $("#crumb").innerHTML = d ? `<b>●</b> ${esc(d.name[LANG] || d.name.en)}${state.s ? ` · ${esc(T("session", "세션"))} ${esc(state.s.id.replace(/^rec-/, ""))}` : ""}` : "";
+}
+function go(step) {
+  state.step = step;
+  renderCrumb();
+  for (const s of STEPS) $("#p-" + s.id).hidden = s.id !== step;
+  if (step === "export") state.done.add("export");
+  renderSteps();
+  if (step === "measure") renderMeasure();
+  if (step === "diag") renderDiagChoice();
+  if (step === "results") renderResults();
+  if (step === "train") renderTrain();
+  if (step === "export") renderExport();
+  if (!$("#chat").hidden) renderChat();
+  scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+}
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("on"); setTimeout(() => t.classList.remove("on"), 1800); }
+
+/* ---------------------------------------------------------------- 1 data */
+/* per-domain copy for the data step (the physics and the pipeline are the same in all three) */
+const COPY = {
+  robot: {
+    runsEn: "pushes", surfaceWord: "table", surfaceWordKo: "탁자", targetWord: "line", targetWordKo: "선과", objectWord: "object", objectWordKo: "물체",
+    tab: ["Arm pushes a box to a line", "로봇 팔로 상자를 목표선까지 밀기"],
+    note: ["A policy learned in simulation pushes boxes on a real table. The table is slicker in places, the arm weaker, the camera tilted.", "시뮬레이션에서 학습한 로봇이 실제 탁자에서 상자를 밉니다. 실제 탁자는 군데군데 더 미끄럽고, 팔 출력은 사양보다 약하며, 카메라는 조금 기울어 있습니다."],
+    easy: [["Robots practise in a virtual world.", "The real table is a bit different (slipperier, a wet patch), so for real they keep missing."], ["로봇은 시뮬레이션에서 먼저 학습합니다.", "그런데 실제 탁자는 시뮬레이션과 조금 달라서(더 미끄럽거나 젖은 곳이 있는 등) 현장에서는 자주 빗나갑니다."]],
+    give: [["Give it a record of real pushes.", "A phone video or a robot log. No data? Make a virtual table below."], ["실제 시행 기록을 넣습니다.", "스마트폰 영상이나 로봇 로그면 충분합니다. 데이터가 없으면 아래에서 가상으로 만들 수 있습니다."]],
+    kinds: { video: ["Phone video", "스마트폰 영상"], log: ["Robot log", "로봇 로그"] }, run: ["push", "시행"], runs: ["Pushes", "밀기 횟수"],
+    simh: ["No video at hand? Simulate your table", "영상이 없으면 가상 탁자로 시작할 수 있습니다"],
+    lede: ["Set the physics of the “real” table, and NVIDIA Newton produces the measurements: a phone-style video it renders, or a robot's push log. Tether then has to work out your settings from the data alone.", "‘실제’ 탁자의 물리값을 정하면 NVIDIA Newton이 스마트폰 영상이나 로봇 로그를 생성합니다. Tether는 정답을 모른 채 이 데이터만으로 값을 찾아냅니다."],
+    mu: ["Table friction", "탁자 마찰계수"], strip: ["A region with different friction (spill, mat, worn spot)", "마찰이 다른 구간 추가 (엎지른 물, 매트, 닳은 부분 등)"],
+    y0: ["Region starts at", "구간 시작 거리"], pm: ["Friction in the region", "구간 마찰계수"], g: ["Robot arm strength", "로봇 팔 출력"], p: ["Robot camera tilt", "로봇 카메라 기울기"],
+    reach: ["Longest push slides", "최대 이동 거리"], targetLine: ["target range the robot must hit", "목표 범위"], launch: ["launch", "출발"],
+  },
+  driving: {
+    runsEn: "braking runs", surfaceWord: "road", surfaceWordKo: "도로", targetWord: "stop line", targetWordKo: "정지선과", objectWord: "car", objectWordKo: "차량",
+    tab: ["Car brakes to a stop line", "정지선에 맞춘 차량 제동"],
+    note: ["A braking planner tuned in simulation stops short or long on the real road: part of it is wet or icy, the speed controller under-delivers, the front camera misjudges distance. Lengths and speeds are full size; the fit runs on a 1:25 Froude-scaled model in NVIDIA Newton, which keeps friction unchanged.", "시뮬레이션에서 맞춘 제동 제어가 실제 도로에서는 정지선 앞뒤로 빗나갑니다. 도로 일부가 젖어 있거나 얼어 있고, 속도 제어는 명령을 덜 따라가며, 전방 카메라는 거리를 잘못 판단합니다. 거리와 속도는 실제 크기로 표시하고, 계산은 NVIDIA Newton의 1:25 축소 모델(프루드 상사)로 합니다. 마찰계수는 크기와 관계없이 같습니다."],
+    easy: [["Self-driving stacks are tuned in simulation.", "The real road is different (a wet or icy section, weaker braking), so the car stops before or past the line."], ["자율주행 제동은 시뮬레이션에서 먼저 조정합니다.", "그런데 실제 도로는 달라서(젖거나 언 구간, 약한 제동) 차량이 정지선 앞이나 뒤에 섭니다."]],
+    give: [["Give it a record of real braking runs.", "A roadside video or a vehicle log. No data? Make a virtual road below."], ["실제 제동 기록을 넣습니다.", "도로변 영상이나 차량 로그면 충분합니다. 데이터가 없으면 아래에서 가상 도로를 만들 수 있습니다."]],
+    kinds: { video: ["Roadside video", "도로변 영상"], log: ["Vehicle log", "차량 로그"] }, run: ["braking run", "제동"], runs: ["Braking runs", "제동 횟수"],
+    simh: ["No road data? Simulate your road", "도로 데이터가 없으면 가상 도로로 시작할 수 있습니다"],
+    lede: ["Set the “real” road, and NVIDIA Newton produces the measurements: a roadside video it renders, or a vehicle log (speed set-point, stop position, front-camera range to the line). Tether then has to work out your settings from the data alone.", "‘실제’ 도로 조건을 정하면 NVIDIA Newton이 도로변 영상이나 차량 로그(목표 속도, 정지 위치, 전방 카메라가 측정한 정지선 거리)를 생성합니다. Tether는 정답을 모른 채 이 데이터만으로 값을 찾아냅니다."],
+    mu: ["Road friction (dry asphalt ~0.8)", "노면 마찰계수 (마른 아스팔트 약 0.8)"], strip: ["A wet or icy section", "젖거나 언 구간 추가"],
+    y0: ["Section starts at", "구간 시작 거리"], pm: ["Friction in the section (wet ~0.4)", "구간 마찰계수 (젖은 노면 약 0.4)"], g: ["Speed control (actual / set-point)", "속도 제어 (실제/명령)"], p: ["Front camera pitch error", "전방 카메라 기울기 오차"],
+    reach: ["Longest stopping distance", "최대 제동 거리"], targetLine: ["stop-line range the planner must hit", "정지선 목표 범위"], launch: ["brake point", "제동 시작"],
+  },
+  factory: {
+    runsEn: "strokes", surfaceWord: "rail", surfaceWordKo: "레일", targetWord: "inspection position", targetWordKo: "검사 위치와", objectWord: "part", objectWordKo: "부품",
+    tab: ["Pusher slides a part to inspection", "푸셔로 부품을 검사 위치에 보내기"],
+    note: ["A pusher cell commissioned in simulation sends parts past or short of the inspection window: oil on part of the rail, a pusher that lost pressure, a line camera mounted slightly off. Off-position parts mean blurred or missed inspection images.", "시뮬레이션에서 맞춘 푸셔가 실제 라인에서는 부품을 검사 위치 앞뒤로 보냅니다. 레일 일부에 기름이 묻어 있거나, 푸셔 압력이 떨어졌거나, 라인 카메라가 조금 틀어져 있기 때문입니다. 위치가 어긋나면 검사 영상이 흐려지거나 누락됩니다."],
+    easy: [["Production cells are commissioned in simulation.", "The real line is different (an oily section, a weaker pusher), so parts stop off the inspection position."], ["생산 설비는 시뮬레이션으로 먼저 조정합니다.", "그런데 실제 라인은 달라서(기름 묻은 구간, 약해진 푸셔) 부품이 검사 위치를 벗어납니다."]],
+    give: [["Give it a record of real pusher strokes.", "A line camera video or a pusher log. No data? Make a virtual line below."], ["실제 푸셔 동작 기록을 넣습니다.", "라인 카메라 영상이나 푸셔 로그면 충분합니다. 데이터가 없으면 아래에서 가상 라인을 만들 수 있습니다."]],
+    kinds: { video: ["Line camera video", "라인 카메라 영상"], log: ["Pusher log", "푸셔 로그"] }, run: ["stroke", "푸셔 동작"], runs: ["Pusher strokes", "푸셔 동작 횟수"],
+    simh: ["No line data? Simulate your line", "라인 데이터가 없으면 가상 라인으로 시작할 수 있습니다"],
+    lede: ["Set the “real” rail, and NVIDIA Newton produces the measurements: a line camera video it renders, or a pusher log (command, stop position, the inspection camera's reading). Tether then has to work out your settings from the data alone.", "‘실제’ 레일 조건을 정하면 NVIDIA Newton이 라인 카메라 영상이나 푸셔 로그(명령값, 정지 위치, 검사 카메라 측정값)를 생성합니다. Tether는 정답을 모른 채 이 데이터만으로 값을 찾아냅니다."],
+    mu: ["Rail friction", "레일 마찰계수"], strip: ["An oily section on the rail", "기름 묻은 구간 추가"],
+    y0: ["Oily section starts at", "기름 구간 시작 거리"], pm: ["Friction in the oily section", "기름 구간 마찰계수"], g: ["Pusher strength (actual / commanded)", "푸셔 출력 (실제/명령)"], p: ["Inspection camera tilt", "검사 카메라 기울기"],
+    reach: ["Longest stroke slides", "최대 이동 거리"], targetLine: ["inspection positions the pusher must hit", "검사 위치 목표 범위"], launch: ["pusher", "푸셔"],
+  },
+};
+const Cx = (id, k) => { const v = (COPY[id] || COPY.robot)[k]; return Array.isArray(v) && typeof v[0] === "string" ? T(v[0], v[1]) : v; };
+const C = k => Cx(DATA_DOM, k);                  // data step: the tab the visitor picked
+const CS = k => Cx(DOM ? DOM.id : "robot", k);   // later steps: the session's domain
+const DD = () => (DOMS && DOMS[DATA_DOM]) || { scale: 1, speed_scale: 1 };
+let DATA_DOM = (() => { const h = location.hash.slice(1); if (["robot", "driving", "factory"].includes(h)) return h; try { return localStorage.getItem("tether-domain") || "robot"; } catch (_) { return "robot"; } })();
+function renderDomainCopy() {
+  $("#domtabs").innerHTML = ["robot", "driving", "factory"].map(id => { const d = DOMS ? DOMS[id] : null; const c = COPY[id];
+    return `<button role="tab" data-d="${id}" aria-selected="${id === DATA_DOM}"><b>${esc(d ? d.name[LANG] || d.name.en : id)}</b><span>${esc(T(c.tab[0], c.tab[1]))}</span></button>`; }).join("");
+  $("#domtabs").querySelectorAll("button").forEach(b => b.onclick = () => { DATA_DOM = b.dataset.d; try { localStorage.setItem("tether-domain", DATA_DOM); } catch (_) {} renderDomainCopy(); simDefaults(); renderSamples(); drawSimView(); });
+  $("#domnote").textContent = C("note");
+  if (typeof renderCrumb === "function") renderCrumb();
+  if (typeof renderStartCopy === "function" && $("#sp-ex")) renderStartCopy();
+  const e = C("easy"), g = C("give"), ez = $("#easy");
+  ez.innerHTML = `<h3>${T("In 30 seconds", "30초 설명")}</h3><ol><li><b>${esc(T(e[0][0], e[1][0]))}</b> ${esc(T(e[0][1], e[1][1]))}</li><li><b>${esc(T(g[0][0], g[1][0]))}</b> ${esc(T(g[0][1], g[1][1]))}</li><li><b>${T("The AI finds what is different,", "AI가 차이를 찾아")}</b> ${T("fixes the virtual world, and tells you which run to try next.", "시뮬레이터를 보정하고, 다음에 할 실험을 추천합니다.")}</li></ol>`;
+  const k = C("kinds");
+  $("#k-video").textContent = T(k.video[0], k.video[1]); $("#k-log").textContent = T(k.log[0], k.log[1]);
+  $("#sim-h").textContent = C("simh"); $("#sim-lede").textContent = C("lede");
+  $("#l-mu").textContent = C("mu"); $("#l-strip").textContent = C("strip"); $("#l-y0").textContent = C("y0"); $("#l-pm").textContent = C("pm");
+  $("#l-g").textContent = C("g"); $("#l-p").textContent = C("p"); $("#l-n").textContent = C("runs"); $("#l-r").textContent = C("reach");
+}
+
+async function initData() {
+  state.status = await be.status().catch(() => ({}));
+  const e = $("#engine");
+  const agentOn = state.status.provider && state.status.provider !== "none";
+  e.classList.toggle("off", !agentOn);
+  e.querySelector("span").textContent = LIVE ? (agentOn ? `Agent online: ${prettyModel(state.status.model)}` : "Agent off: offline fitting")
+                                             : `Recorded with ${prettyModel(DATA.model)} · NVIDIA Newton`;
+  if (!LIVE) { $("#nav-benchmark").href = DATA.benchmark_url || "#"; if (!DATA.benchmark_url) $("#nav-benchmark").remove(); }
+  if (!DOMS && LIVE) DOMS = Object.fromEntries((await fetch("/api/studio/domains").then(r => r.json()).catch(() => [])).map(d => [d.id, d]));
+  if (!DOM) setDomain("robot");
+  state.sampleList = await be.samples();
+  renderDomainCopy();
+  simDefaults();
+  renderSamples();
+  initSimLab();
+  document.querySelectorAll("#startpick button").forEach(b => b.onclick = () => setStart(b.dataset.m));
+  renderStartCopy();
+  setStart("example");
+  applyQuery();
+  const drop = $("#drop");
+  if (!LIVE) {
+    drop.classList.add("static");
+    $("#pick-label").setAttribute("aria-disabled", "true");
+    $("#drop-hint").textContent = "Uploads run on the live server (make serve, then open /studio). The samples above replay recorded runs.";
+    $("#file").disabled = true;
+    $("#pick-label").onclick = ev => { ev.preventDefault(); toast("Uploads need the live server: make serve"); };
+    return;
+  }
+  $("#pick-label").onkeydown = ev => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); $("#file").click(); } };
+  $("#file").onchange = () => $("#file").files[0] && startUpload($("#file").files[0]);
+  drop.ondragover = ev => { ev.preventDefault(); drop.classList.add("over"); };
+  drop.ondragleave = () => drop.classList.remove("over");
+  drop.ondrop = ev => { ev.preventDefault(); drop.classList.remove("over"); const f = ev.dataTransfer.files[0]; if (f) startUpload(f); };
+}
+function simDefaults() {  // each domain starts from a typical surface: table, dry asphalt with a wet section, an oily rail
+  const w = (DOMS && DOMS[DATA_DOM] && DOMS[DATA_DOM].world_default) || {};
+  if (w.mu_eff != null) $("#s-mu").value = w.mu_eff;
+  if (w.patch_y0 != null) $("#s-y0").value = w.patch_y0;
+  if (w.patch_mu != null) $("#s-pm").value = w.patch_mu;
+}
+/* Deep links from the overview and the Benchmark page: ?sample=<id> opens an example; ?mu=&y0=&pm=&g=&kind=&from= fills the
+   virtual table with a Benchmark case's hidden physics (same names as the Studio sliders, in base units). */
+function applyQuery() {
+  const q = new URLSearchParams(location.search);
+  const clean = () => { try { history.replaceState(null, "", location.pathname + (LANG === "ko" ? "?lang=ko" : "") + location.hash); } catch (_) {} };
+  if (q.get("sample") && (state.sampleList || []).some(s => s.id === q.get("sample"))) { clean(); startSample(q.get("sample")); return; }
+  if (!q.get("mu") || !LIVE) return;
+  clean();
+  const set = (id, v) => { if (v != null && v !== "") $(id).value = v; };
+  set("#s-mu", q.get("mu"));
+  $("#s-strip").checked = q.get("y0") != null;
+  set("#s-y0", q.get("y0")); set("#s-pm", q.get("pm")); set("#s-g", q.get("g"));
+  const kind = q.get("kind") === "log" ? "log" : "video";
+  document.querySelector(`input[name="simkind"][value="${kind}"]`).checked = true;
+  setStart("sim");
+  drawSimView();
+  const from = q.get("from");
+  const note = document.createElement("p"); note.className = "fromnote";
+  note.textContent = T(`Loaded from the Benchmark${from ? `: “${from}”` : ""}. The same hidden physics is set below; press Run in NVIDIA Newton to make the data, then diagnose it yourself.`,
+                       `검증 화면${from ? `의 “${from}”` : ""} 상황을 불러왔습니다. 아래에 같은 숨은 값을 설정해 두었습니다. ‘NVIDIA Newton으로 만들기’를 누르면 데이터를 생성하고 바로 진단할 수 있습니다.`);
+  $("#simlab .simform").prepend(note);
+  setTimeout(() => $("#simlab").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }), 300);
+}
+let START = "example";
+function setStart(m) {
+  START = m;
+  document.querySelectorAll("#startpick button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.m === m)));
+  document.querySelectorAll("#p-data .mode").forEach(el => el.hidden = el.dataset.mode !== m);
+  if (m === "sim") drawSimView();
+}
+function renderStartCopy() {
+  const k = C("kinds");
+  $("#data-lede").textContent = T("Pick a field, then choose how to start.", "분야를 고른 뒤, 시작 방법을 선택하세요.");
+  $("#sp-ex").textContent = T("Open an example", "예시로 보기"); $("#sp-ex-d").textContent = T("Recorded runs with a known answer", "정답을 아는 실행 기록");
+  $("#sp-sim").textContent = T("Simulate your own", "가상 데이터 만들기"); $("#sp-sim-d").textContent = T("Set the hidden physics; NVIDIA Newton makes the data", "숨길 물리값을 정하면 NVIDIA Newton이 데이터를 만듭니다");
+  $("#sp-up").textContent = T("Upload your data", "내 데이터 올리기"); $("#sp-up-d").textContent = T(`${k.video[0]} or ${k.log[0].toLowerCase()}`, `${k.video[1]} 또는 ${k.log[1]}`);
+  $("#intro-sum").textContent = T("New here? The 30-second version", "처음이신가요? 30초 설명");
+  $("#pl-1").textContent = T("1 · Field", "1 · 분야"); $("#pl-2").textContent = T("2 · How to start", "2 · 시작 방법");
+}
+function renderSamples() {
+  const all = state.sampleList || [];
+  const list = all.filter(s => (s.domain || "robot") === DATA_DOM);
+  $("#samples").innerHTML = (list.length ? list : all).map(s => { const k = Cx(s.domain || "robot", "kinds")[s.kind];
+    return `<button class="sample" data-id="${s.id}">
+      <div class="thumb" ${s.kind === "video" ? `style="background-image:url('${esc(thumbFor(s))}')"` : ""}>${s.kind === "log" ? logGlyph(s) : ""}<span class="kind">${esc(T(k[0], k[1]))}</span></div>
+      <div class="txt"><h3>${esc(s.title)}</h3><p>${esc(s.blurb)}</p></div></button>`; }).join("");
+  $("#samples").querySelectorAll(".sample").forEach(b => b.onclick = () => startSample(b.dataset.id));
+}
+function simWorld() {
+  const kind = document.querySelector('input[name="simkind"]:checked').value;
+  const w = { mu_eff: +$("#s-mu").value };
+  if ($("#s-strip").checked) { w.patch_y0 = +$("#s-y0").value; w.patch_mu = +$("#s-pm").value; }
+  if (kind === "log") { w.actuator_gain = +$("#s-g").value; w.camera_pitch_deg = +$("#s-p").value; }
+  return { kind, domain: DATA_DOM, world: w, pushes: +$("#s-n").value, reach: +$("#s-r").value };
+}
+function drawSimView() {
+  const { kind, world: w, pushes, reach } = simWorld();
+  const lab = $("#simlab"); lab.dataset.kind = kind; lab.dataset.strip = $("#s-strip").checked ? "on" : "off";
+  const dd = DD(), Lm = v => (v * dd.scale).toFixed(dd.scale === 1 ? 2 : 1) + " m";
+  $("#o-mu").textContent = (+$("#s-mu").value).toFixed(2); $("#o-y0").textContent = Lm(+$("#s-y0").value);
+  $("#o-pm").textContent = (+$("#s-pm").value).toFixed(2); $("#o-g").textContent = (+$("#s-g").value).toFixed(2) + "×";
+  $("#o-p").textContent = (+$("#s-p").value).toFixed(1) + "°"; $("#o-n").textContent = pushes; $("#o-r").textContent = Lm(reach);
+  // top-down table: friction colour along the push path, the stretch the pushes will cover, the target range
+  const W = 520, H = 210, x0 = 40, x1 = W - 20, ymax = 0.9, X = y => x0 + y / ymax * (x1 - x0);
+  const regs = w.patch_y0 != null ? [[0, w.patch_y0, w.mu_eff], [w.patch_y0, ymax, w.patch_mu]] : [[0, ymax, w.mu_eff]];
+  const bands = regs.map(([a, b, mu]) => `<rect x="${X(a)}" y="60" width="${X(b) - X(a)}" height="70" fill="${muColor(mu, 0.5)}" stroke="${muColor(mu)}"/><text x="${(X(a) + X(b)) / 2}" y="101" text-anchor="middle" style="font-family:var(--f-display);font-weight:600;font-size:20px;fill:#fff">μ ${mu.toFixed(2)}</text>`).join("");
+  const ticks = [0, 0.2, 0.4, 0.6, 0.8].map(t => `<text x="${X(t)}" y="${H - 8}" text-anchor="middle">${(t * dd.scale).toFixed(dd.scale === 1 ? 1 : 0)} m</text>`).join("");
+  const cover = `<line x1="${X(0.1)}" x2="${X(reach)}" y1="146" y2="146" stroke="#eeeeee" stroke-width="3"/><text x="${X(0.1)}" y="166" class="lbl">${T(`your ${pushes} runs stop in here`, `${pushes}회 모두 이 범위에서 정지`)}</text>`;
+  const tr = `<line x1="${X(0.2)}" x2="${X(0.6)}" y1="40" y2="40" stroke="#76b900" stroke-width="3"/><text x="${X(0.2)}" y="32" class="lbl">${C("targetLine")} (${Lm(0.2)}–${Lm(0.6)})</text>`;
+  const extra = kind === "log" ? `<text x="${x0}" y="${H - 26}" class="lbl">${C("g").split(" (")[0]} ${w.actuator_gain.toFixed(2)}× · ${C("p")} ${w.camera_pitch_deg.toFixed(1)}°</text>` : "";
+  $("#simview").innerHTML = `<svg viewBox="0 0 ${W} ${H}"><rect width="${W}" height="${H}" fill="#0a0a0a"/>${tr}${bands}${cover}${extra}${ticks}<line x1="${X(0)}" x2="${X(0)}" y1="52" y2="138" stroke="#a3a3a3"/><text x="${X(0)}" y="${H - 26}" class="lbl">${kind === "log" ? "" : C("launch")}</text></svg>
+    <p class="small muted" style="margin-top:8px">${T("Tether never sees this picture.", "Tether는 이 그림을 볼 수 없습니다.")} ${w.patch_y0 != null && reach < w.patch_y0 + 0.03 ? T("Your pushes stop before the region starts: watch it refuse to guess, then ask for longer pushes.", "모든 시행이 구간에 닿기 전에 멈춥니다. Tether가 추측하는 대신 추가 측정을 요청하는지 확인할 수 있습니다.") : w.patch_y0 != null ? T("Few pushes reach the region: expect wide intervals until you run the pushes it asks for.", "구간까지 간 시행이 적어 처음에는 오차 범위가 넓습니다. 추천 실험을 추가하면 좁아집니다.") : ""}</p>`;
+}
+function initSimLab() {
+  if (!LIVE) { $("#simlab").querySelectorAll("input,button").forEach(e => e.disabled = true); $("#sim-note").textContent = "Simulation runs on the live server (make serve, then /studio)."; drawSimView(); return; }
+  $("#simlab").addEventListener("input", drawSimView);
+  drawSimView();
+  $("#sim-run").onclick = async () => {
+    const body = simWorld();
+    $("#sim-run").disabled = true; $("#err-sim").textContent = "";
+    $("#sim-note").textContent = body.kind === "video" ? T(`Newton is simulating ${body.pushes} runs and rendering the video (about 2-3 s per run)…`, `Newton이 ${body.pushes}회 시행을 계산하고 영상을 만드는 중입니다(1회당 2~3초)…`) : T(`Newton is running ${body.pushes} runs…`, `Newton이 ${body.pushes}회 시행을 계산하는 중입니다…`);
+    try {
+      await begin(() => call(fetch("/api/studio/simulate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })));
+    } catch (e) { $("#err-sim").textContent = e.message; }
+    $("#sim-run").disabled = false; $("#sim-note").textContent = "";
+  };
+}
+function prettyModel(m) { return !m ? "Nemotron" : m.replace(/^nvidia\//, "").replace(/nemotron-3-super-120b-a12b/i, "Nemotron 3 Super 120B"); }
+function thumbFor(s) { return LIVE ? `/api/studio/sample-frame/${s.id}` : be.media((rec.recFor(s.id).videos[0] || {}).frame || ""); }
+function logGlyph(s) {
+  // the logged pushes seen from above: the surface, the target range, and a tick where each push stopped
+  let stops = s.stops || [];
+  if (!stops.length && !LIVE) { const r = rec.recFor(s.id); stops = r.stages[0].session.pushes.filter(p => !p.tipped).map(p => (p.start || 0) + p.stop); }
+  const dom = DOMS && DOMS[s.domain || "robot"], k = (dom && dom.scale) || 1;
+  const tone = { robot: "#4a3b2c", driving: "#2b2d30", factory: "#3a4048" }[s.domain || "robot"];
+  const xmax = Math.max(1.0, ...stops) * 1.05, X = m => 24 + m / xmax * 272;
+  const ticks = stops.map(m => `<line x1="${X(m).toFixed(1)}" x2="${X(m).toFixed(1)}" y1="66" y2="118" stroke="#eeeeee" stroke-width="2" stroke-opacity="0.9"/>`).join("");
+  const lbl = m => `${(m * k) % 1 ? (m * k).toFixed(1) : m * k} m`;
+  return `<svg viewBox="0 0 320 180" aria-hidden="true"><rect width="320" height="180" fill="#0a0a0a"/>
+    <rect x="24" y="62" width="272" height="60" fill="${tone}"/>
+    <rect x="${X(0.2).toFixed(1)}" y="124" width="${(X(0.6) - X(0.2)).toFixed(1)}" height="3" fill="#76b900"/>
+    ${ticks}
+    <text x="24" y="146" fill="#a3a3a3" font-size="11" font-family="IBM Plex Mono, monospace">0</text>
+    <text x="${X(0.2)}" y="146" fill="#76b900" font-size="11" font-family="IBM Plex Mono, monospace">${lbl(0.2)}</text>
+    <text x="${X(0.6)}" y="146" fill="#76b900" font-size="11" font-family="IBM Plex Mono, monospace" text-anchor="end">${lbl(0.6)}</text>
+    <text x="296" y="54" fill="#a3a3a3" font-size="11" font-family="IBM Plex Mono, monospace" text-anchor="end">${stops.length} ${T("stops", "정지 위치")}</text></svg>`;
+}
+async function startSample(id) {
+  const f = new FormData(); f.set("sample", id);
+  await begin(() => be.create(f));
+}
+async function startUpload(file) {
+  const f = new FormData(); f.set("file", file); f.set("name", file.name.replace(/\.[^.]+$/, ""));
+  $("#err-data").textContent = "Uploading…";
+  await begin(() => be.create(f));
+}
+async function begin(fn) {
+  $("#err-data").textContent = "";
+  try {
+    state.s = adopt(await fn());
+    state.result = null; state.truth = null; state.take = 0; state.done = new Set(["data"]);
+    state.summaries = { data: state.s.name };
+    go(state.s.kind === "log" ? "diag" : "measure");
+  } catch (e) { $("#err-data").textContent = e.message; }
+}
+
+/* ---------------------------------------------------------------- 2 measure */
+function renderMeasure() {
+  const s = state.s;
+  $("#err-measure").textContent = "";
+  if (s.kind === "log") return go("diag");  // a log has nothing to track: its pushes are listed in the analysis
+  $("#frame").parentElement.parentElement.style.display = "";
+  $("#m-title").textContent = "Measure the pushes";
+  $("#m-lede").textContent = DOM.id === "driving"
+    ? T("Drag the four green handles onto the corners of the painted reference box (5.25 × 7.43 m): its known size gives scale, and its perspective gives the camera's height and angle.", "초록 점 4개를 도로 위 기준 사각형(5.25 × 7.43 m) 모서리에 맞춥니다. 사각형 크기로 실제 거리와 카메라 높이·각도를 계산합니다.")
+    : "Drag the four green handles onto the corners of the sheet: its known size gives scale, and its perspective gives the camera's height and angle. The orange ring marks the object.";
+  const v = s.videos[state.take];
+  $("#takes").innerHTML = s.videos.length > 1 ? s.videos.map((x, i) => `<button role="tab" aria-selected="${i === state.take}" data-i="${i}">Take ${i + 1}${x.tracked ? " ✓" : ""}</button>`).join("") : "";
+  $("#takes").querySelectorAll("button").forEach(b => b.onclick = () => { state.take = Number(b.dataset.i); renderMeasure(); });
+  if (v.tracked) return renderTracked(v);
+  const corners = (v.corners || v.corners_hint || defaultCorners(v)).map(p => [...p]);
+  const obj = v.object_px ? [...v.object_px] : null;
+  $("#frame").innerHTML = `<img alt="First frame of the video" src="${esc(be.media(v.frame))}" width="${v.width}" height="${v.height}"><svg viewBox="0 0 ${v.width} ${v.height}" id="fsvg"></svg>`;
+  const draw = () => {
+    const pts = corners.map(p => p.join(",")).join(" ");
+    $("#fsvg").innerHTML = `<polygon points="${pts}" fill="rgba(118,185,0,0.12)" stroke="#76b900" stroke-width="2" vector-effect="non-scaling-stroke"/>` +
+      corners.map((p, k) => `<circle class="handle" data-k="${k}" cx="${p[0]}" cy="${p[1]}" r="${v.width / 90}" fill="#000000" stroke="#76b900" stroke-width="3" vector-effect="non-scaling-stroke" tabindex="0" role="slider" aria-label="Sheet corner ${k + 1}" aria-valuetext="${Math.round(p[0])}, ${Math.round(p[1])}"/>`).join("") +
+      (obj ? `<circle class="handle" data-k="obj" cx="${obj[0]}" cy="${obj[1]}" r="${v.width / 45}" fill="none" stroke="#e6a23c" stroke-width="3" vector-effect="non-scaling-stroke" tabindex="0" aria-label="Object"/>` : "");
+  };
+  draw();
+  dragHandles($("#fsvg"), v, (k, x, y) => { if (k === "obj") { if (obj) { obj[0] = x; obj[1] = y; } } else { corners[k][0] = x; corners[k][1] = y; } draw(); });
+  $("#frame-note").textContent = v.corners_auto ? T("Corners found automatically on the brightest rectangle. Check them against the sheet and drag any that are off.", "가장 밝은 사각형에서 모서리를 자동으로 찾았습니다. 종이와 맞는지 확인하고, 어긋난 점은 끌어서 옮기면 됩니다.") : v.corners_hint ? (LIVE ? (state.s.simulated ? "Corners pre-placed where the sheet sits in the simulated scene; adjust them if you like." : "Corners pre-placed for this sample; adjust them if you like.") : "Recorded session: corners pre-placed, tracking replays the recorded result.") : "Click-drag the handles. Any corner order works.";
+  $("#side").innerHTML = `
+    <label>${T("Reference", "기준 사각형")}<select id="sheet">${DOM.id === "driving" ? `<option value="a4">${T("Painted box (5.25 × 7.43 m)", "도로 위 기준 사각형 (5.25 × 7.43 m)")}</option>` : `<option value="a4">A4 (210 × 297 mm)</option><option value="letter">Letter (8.5 × 11 in)</option>`}</select></label>
+    <label>${T(`Height of the ${CS("objectWord")} (cm)`, `${CS("objectWordKo")} 높이 (cm)`)}<input id="oh" type="number" min="1" max="${DOM.id === "driving" ? 300 : 40}" step="0.5" value="${state.s.sample || state.s.simulated ? Math.round((DOM.object_height_m || 0.06) * 100) : 5}"></label>
+    <p class="small muted">The height removes parallax: the camera sees the middle of the object, not its footprint.</p>
+    ${obj ? "" : `<p class="small muted">The object is found automatically (the thing that moves). Click it on the frame to choose it yourself.</p>`}
+    <button class="btn primary" id="track">Track pushes</button>`;
+  if (!obj) $("#fsvg").addEventListener("click", ev => { if (ev.target.closest(".handle")) return; const p = svgPoint($("#fsvg"), ev); obj ? (obj[0] = p[0], obj[1] = p[1]) : null; });
+  let picked = null;
+  $("#fsvg").addEventListener("dblclick", ev => { picked = svgPoint($("#fsvg"), ev); toast("Object set"); });
+  $("#track").onclick = async () => {
+    $("#track").disabled = true; $("#track").textContent = "Tracking…"; $("#err-measure").textContent = "";
+    try {
+      const body = { corners, sheet: $("#sheet").value, object_height_m: toBaseLen(Number($("#oh").value) / 100) };
+      if (picked) body.object_px = picked;
+      state.s = adopt(await be.track(state.s.id, state.take, body));
+      state.result = null;
+      state.done.add("measure");
+      state.summaries.analysis = [`${state.s.session.pushes.length} pushes tracked`, `${state.s.session.pushes.length}회 추적`];
+      go("diag");  // the analysis starts on its own
+    } catch (e) { $("#err-measure").textContent = e.message; $("#track").disabled = false; $("#track").textContent = "Track pushes"; }
+  };
+}
+function defaultCorners(v) { const w = v.width, h = v.height; return [[w * 0.4, h * 0.6], [w * 0.55, h * 0.6], [w * 0.55, h * 0.75], [w * 0.4, h * 0.75]]; }
+function svgPoint(svg, ev) { const pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY; const p = pt.matrixTransform(svg.getScreenCTM().inverse()); return [p.x, p.y]; }
+function dragHandles(svg, v, move) {
+  let k = null;
+  svg.addEventListener("pointerdown", ev => { const h = ev.target.closest(".handle"); if (!h) return; k = h.dataset.k; svg.setPointerCapture(ev.pointerId); ev.preventDefault(); });
+  svg.addEventListener("pointermove", ev => { if (k === null) return; const [x, y] = svgPoint(svg, ev); move(k === "obj" ? k : Number(k), Math.max(0, Math.min(v.width, x)), Math.max(0, Math.min(v.height, y))); });
+  svg.addEventListener("pointerup", () => { k = null; });
+  svg.addEventListener("keydown", ev => {
+    const h = ev.target.closest(".handle"); if (!h) return;
+    const d = { ArrowLeft: [-2, 0], ArrowRight: [2, 0], ArrowUp: [0, -2], ArrowDown: [0, 2] }[ev.key]; if (!d) return;
+    ev.preventDefault(); const kk = h.dataset.k; const cx = Number(h.getAttribute("cx")) + d[0], cy = Number(h.getAttribute("cy")) + d[1];
+    move(kk === "obj" ? kk : Number(kk), cx, cy); svg.querySelector(`[data-k="${kk}"]`)?.focus();
+  });
+}
+function renderTracked(v) {
+  const s = state.s;
+  $("#frame").innerHTML = `<video src="${esc(be.media(v.file))}" muted playsinline controls loop preload="auto" width="${v.width}" height="${v.height}" aria-label="Video with tracked pushes"></video><svg viewBox="0 0 ${v.width} ${v.height}" id="tsvg" aria-hidden="true" style="pointer-events:none"></svg>`;
+  const vid = $("#frame video"), svg = $("#tsvg");
+  const paths = v.pushes.map(p => p.path_px);
+  const base = paths.map((pp, i) => `<polyline points="${pp.map(q => q.join(",")).join(" ")}" fill="none" stroke="${i % 2 ? "#91c733" : "#76b900"}" stroke-opacity="0.55" stroke-width="2" vector-effect="non-scaling-stroke"/>`).join("") +
+    `<polygon points="${v.corners.map(p => p.join(",")).join(" ")}" fill="none" stroke="#76b900" stroke-opacity="0.6" stroke-dasharray="6 4" vector-effect="non-scaling-stroke"/>`;
+  const tick = () => {
+    const f = vid.currentTime * (v.fps || 30);
+    const cur = v.pushes.find(p => f >= p.release_frame && f <= p.rest_frame + 8);
+    let dot = "";
+    if (cur) { const k = Math.min(cur.path_px.length - 1, Math.max(0, Math.floor((f - cur.release_frame) / 2))); const q = cur.path_px[k];
+      dot = `<circle cx="${q[0]}" cy="${q[1]}" r="${v.width / 70}" fill="none" stroke="#e6a23c" stroke-width="3" vector-effect="non-scaling-stroke"/>` +
+            `<text x="${q[0] + 16}" y="${q[1] - 14}" style="font-size:${v.width / 48}px;fill:#eeeeee">push ${cur.push + 1} · ${fmt(cur.launch_speed_mps)} m/s</text>`; }
+    svg.innerHTML = base + dot;
+    if (!vid.paused) requestAnimationFrame(tick);
+  };
+  vid.addEventListener("play", tick); vid.addEventListener("seeked", tick); vid.addEventListener("loadeddata", tick);
+  if (!reduce) vid.play().catch(() => {});
+  $("#frame-note").textContent = `Tracked paths (green) and the object as the video plays.`;
+  const cam = v.camera || {};
+  $("#side").innerHTML = `<dl class="facts">
+      <dt>Camera height</dt><dd>${fmt(cam.height_m)} m</dd>
+      <dt>Focal length</dt><dd>${Math.round(cam.focal_px || 0)} px</dd>
+      <dt>Pushes in this take</dt><dd>${v.pushes.length}</dd>
+      <dt>All pushes</dt><dd>${s.session.pushes.length}</dd>
+      <dt>Farthest stop</dt><dd>${fmt(Math.max(...s.session.pushes.map(p => p.start + p.stop)))} m</dd></dl>
+    <p class="small muted">Recovered from the sheet alone: no calibration pattern, no phone metadata.</p>
+    <button class="btn primary" id="to-diag">${state.result ? T("Back to the agent's notebook", "AI 분석 기록으로") : T(`Analyse ${s.session.pushes.length} pushes`, `${s.session.pushes.length}회 시행 분석하기`)}</button>
+    <button class="btn" id="retrack">Re-place corners</button>`;
+  $("#to-diag").onclick = () => go("diag");
+  $("#retrack").onclick = () => { v.tracked = false; renderMeasure(); };
+  if (!LIVE) $("#retrack").remove();
+  $("#m-pushes").innerHTML = `<h3>Pushes</h3><p class="lede">Each push from release (fastest frame) to rest, along the push direction. Positions share one table frame across takes.</p>` + pushTable(s.session.pushes, true);
+}
+function pushTable(pushes, video) {
+  const rows = pushes.map((p, i) => `<tr><td>${i + 1}${p.origin && p.origin.startsWith("video") ? ` <span class="dim">take ${Number(p.origin.slice(5)) + 1}</span>` : ""}</td>
+     <td>${video ? fmt(p.launch_speed) + " m/s" : fmt(p.command)}</td><td>${fmt(p.stop, 3)}</td>${video ? `<td>${fmt(p.start, 3)}</td>` : `<td>${p.target == null ? "–" : fmt(p.target, 3)}</td><td>${p.perceived == null ? "–" : fmt(p.perceived, 3)}</td>`}<td>${p.tipped ? "tipped" : ""}</td></tr>`).join("");
+  return `<div class="tablewrap"><table class="pushes"><thead><tr><th>Push</th><th>${video ? "Launch speed" : "Command"}</th><th>Slide (m)</th>${video ? "<th>Released at (m)</th>" : "<th>Target (m)</th><th>Perceived (m)</th>"}<th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+/* ---------------------------------------------------------------- 3 diagnose */
+function renderDiagChoice() {
+  const agentOn = LIVE ? state.status.provider && state.status.provider !== "none" : true;
+  const mode = state.mode || (agentOn ? "agent" : "offline");
+  const s = state.s;
+  // logs come straight here: their pushes, folded
+  $("#d-data").innerHTML = s && s.kind === "log" && s.session ? `<details class="sec more"><summary>${T(`The ${s.session.pushes.length} pushes as Tether read them`, `Tether가 읽은 시행 ${s.session.pushes.length}건`)}</summary>${pushTable(s.session.pushes, false)}</details>` : "";
+  const by = mode === "agent" ? `${esc(prettyModel(LIVE ? state.status.model : DATA.model))} ${T("tool agent", "도구 사용 AI")}` : T("offline fit (no LLM)", "계산만 사용 (AI 없음)");
+  const other = mode === "agent" ? T("Run again without the LLM", "AI 없이 다시 분석") : agentOn ? T("Run again with Nemotron", "Nemotron으로 다시 분석") : "";
+  $("#choice").innerHTML = `<span>${T("Analysed by", "분석")}: <b>${by}</b>${LIVE ? "" : T(" · recorded run, replaying its real tool calls", " · 기록된 실행을 실제 도구 호출 그대로 재생합니다")}</span>` +
+    (other && state.result ? ` <button type="button" class="linkbtn" id="rerun">${other}</button>` : "");
+  if ($("#rerun")) $("#rerun").onclick = () => { state.mode = mode === "agent" ? "offline" : "agent"; state.result = null; renderDiagChoice(); };
+  if (!state.result && !state.running) runDiagnosis(state.mode || mode);
+}
+const TOOL_WORDS = {
+  decel_profile: "Measured how fast it slows down along the table",
+  perception_check: "Compared where the camera saw targets with where they were",
+  fit_hypothesis: "Fitted a model",
+  test_hypothesis: "Tested a model",
+  probe_real: "Asked for more pushes",
+  commit: "Committed a simulator",
+  text: "Thought out loud",
+};
+const TOOL_WORDS_KO = {
+  decel_profile: "탁자 위치별 감속을 측정했습니다",
+  perception_check: "카메라 측정 거리와 실제 거리를 비교했습니다",
+  fit_hypothesis: "가설을 피팅했습니다",
+  test_hypothesis: "가설을 검증했습니다",
+  probe_real: "추가 측정을 요청했습니다",
+  commit: "결론을 확정했습니다",
+  text: "분석 내용을 정리했습니다",
+};
+const FIELD_WORDS = { mu_eff: "friction", actuator_gain: "actuator gain", patch_y0: "region start", patch_mu: "region friction", camera_dx: "camera offset", camera_pitch_deg: "camera pitch", lens_k: "lens distortion" };
+const FIELD_WORDS_KO = { mu_eff: "마찰", actuator_gain: "모터 출력", patch_y0: "구간 시작 거리", patch_mu: "구간 마찰", camera_dx: "카메라 위치 오차", camera_pitch_deg: "카메라 기울기", lens_k: "렌즈 왜곡" };
+function structureWords(free) {
+  const f = new Set(free || []); const out = [];
+  if (f.has("mu_eff")) out.push(T("friction", "마찰"));
+  if (f.has("actuator_gain")) out.push(T("actuator gain", "모터 출력"));
+  if (f.has("patch_y0") || f.has("patch_mu")) out.push(T("a friction region", "다른 마찰 구간"));
+  if (f.has("camera_dx") || f.has("camera_pitch_deg")) out.push(T("camera pose", "카메라 위치·각도"));
+  if (f.has("lens_k")) out.push(T("lens distortion", "렌즈 왜곡"));
+  return out.join(" + ") || T("nothing", "없음");
+}
+function nbItem(cls, who, what, detail) {
+  const li = document.createElement("li"); li.className = cls;
+  li.innerHTML = `<div class="who">${esc(who)}</div><div class="what">${what}</div>${detail || ""}`;
+  $("#nb").appendChild(li); return li;
+}
+function stepDetail(step) {
+  const r = step.result;
+  if (step.tool === "decel_profile" && Array.isArray(r)) return `<div class="detail">${T(`Deceleration in g, binned every ${tolText(0.05 * DOM.scale)} of ${CS("surfaceWord")}.`, `${CS("surfaceWordKo")} ${tolText(0.05 * DOM.scale)}마다 잰 감속 (g 단위).`)}</div>` + miniBars(r.filter(b => b.decel_g != null));
+  if (step.tool === "perception_check" && Array.isArray(r)) return r.length ? `<div class="detail">${T(`${r.length} targets: perceived`, `목표 ${r.length}곳: 실제 거리 → 카메라 측정 거리`)} ${r.slice(0, 3).map(x => T(`<span class="num">${fmt(x.perceived_m, 3)}</span> for <span class="num">${fmt(x.true_m, 3)}</span>`, `<span class="num">${fmt(x.true_m, 3)}</span> → <span class="num">${fmt(x.perceived_m, 3)}</span>`)).join(", ")}…</div>` : `<div class="detail">${T("No aimed pushes in this data: perception cannot be checked.", "목표 지점을 정한 시행이 없어 카메라 오차는 확인할 수 없습니다.")}</div>`;
+  if ((step.tool === "fit_hypothesis" || step.tool === "test_hypothesis") && r && typeof r === "object") {
+    const free = step.args && step.args.free;
+    const m = r.fitted_model || (step.args && step.args.model) || {};
+    const vals = Object.entries(m).filter(([k, x]) => x != null && (free ? free.includes(k) : true) && FIELD_WORDS[k]).map(([k, x]) => `${LANG === "ko" ? FIELD_WORDS_KO[k] : FIELD_WORDS[k]} <span class="num">${fmt(x, 3)}</span>`).join(", ");
+    const un = (r.unexplained || []).map(u => `<div class="flag">Still unexplained: ${esc(u)}</div>`).join("");
+    return `<div class="detail">${free ? `${T("Free", "찾아본 항목")}: ${structureWords(free)}. ` : ""}${vals}</div><div class="detail">${T("Stops off by", "멈춘 위치 오차")} <span class="num">${dist((r.stop_residual_rms_m || 0))}</span> rms${r.perception_residual_rms_m ? `, ${T("perception", "카메라")} <span class="num">${fmt(r.perception_residual_rms_m * 1000, 1)} mm</span>` : ""}.</div>${un}`;
+  }
+  if (step.tool === "probe_real" && r) {
+    const q = r.queued_for_human || (r.results || []).map(x => x.command);
+    return `<div class="detail">${r.queued_for_human ? T("Recorded data has no robot attached, so these go to you as next-experiment cards:", "로봇이 연결되어 있지 않아 이 제안은 '다음 실험'으로 표시합니다:") : T("Pushes run:", "실제 시행 결과:")} ${state.s && state.s.kind === "video" ? T("launch speeds (m/s)", "출발 속도 (m/s)") : T("commands", "명령값")} <span class="num">${(q || []).map(c => fmt(c, 2)).join(", ")}</span></div>`;
+  }
+  if (step.tool === "commit") return `<blockquote>${esc((step.args || {}).explanation || "")}</blockquote>`;
+  if (step.tool === "text") return `<div class="detail">${esc(step.text || "")}</div>`;
+  return "";
+}
+function miniBars(bins) {
+  if (!bins.length) return "";
+  const w = 520, h = 110, pad = 26, bw = (w - pad - 8) / bins.length;
+  const ymax = Math.max(1.0, ...bins.map(b => b.decel_g));
+  const bars = bins.map((b, i) => { const hh = Math.max(0, b.decel_g) / ymax * (h - 30);
+    return `<rect x="${pad + i * bw + 1}" y="${h - 18 - hh}" width="${bw - 2}" height="${hh}" fill="${muColor(b.decel_g)}"/>` +
+           (i % 2 === 0 ? `<text x="${pad + i * bw}" y="${h - 5}">${b.y_m.split("-")[0]}</text>` : ""); }).join("");
+  return `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Deceleration along the table">${bars}<text x="0" y="12">g</text><line x1="${pad}" x2="${w}" y1="${h - 18}" y2="${h - 18}" stroke="#333333"/></svg>`;
+}
+function nbHandler(who) {
+  let live = null;
+  const settle = () => { if (live) { live.classList.remove("live"); live.classList.add("ok"); live = null; } };
+  const on = e => {
+    settle();
+    if (e.type === "stage" && e.stage === "data") nbItem("ok", "Studio", T(`Read ${e.pushes} ${CS("runsEn")}`, `${e.pushes}건의 기록을 읽었습니다`), `<div class="detail">${T(`They reach from <span class="num">${fmt(e.coverage_m[0])}</span> to <span class="num">${fmt(e.coverage_m[1])} m</span> along the ${CS("surfaceWord")}.`, `${CS("surfaceWordKo")} 위 <span class="num">${fmt(e.coverage_m[0])}</span>–<span class="num">${fmt(e.coverage_m[1])} m</span> 사이에서 멈췄습니다.`)}</div>${(e.notes || []).map(n => `<div class="detail">${esc(tx(n[0].toUpperCase() + n.slice(1)))}.</div>`).join("")}`);
+    if (e.type === "stage" && e.stage === "agent") live = nbItem("live", who, T("Starting the investigation", "원인 찾기를 시작합니다"), "");
+    if (e.type === "stage" && e.stage === "note") nbItem("warn", "Studio", esc(e.message), "");
+    if (e.type === "agent_step") {
+      const s = e.step; const un = s.result && s.result.unexplained && s.result.unexplained.length;
+      const title = s.tool === "fit_hypothesis" ? `${T("Fitted", "피팅")}: ${structureWords(s.args && s.args.free)}` : s.tool === "test_hypothesis" ? `${T("Tested", "검증")}: ${structureWords(Object.keys((s.args || {}).model || {}).filter(k => { const x = s.args.model[k]; return x != null && x !== 0 && !(k === "actuator_gain" && x === 1); }))}` : s.tool === "probe_real" ? T(`Asked for more ${CS("runsEn")}`, "추가 측정을 요청했습니다") : s.tool === "decel_profile" ? T(`Measured how fast it slows down along the ${CS("surfaceWord")}`, `${CS("surfaceWordKo")} 위치별 감속을 측정했습니다`) : (LANG === "ko" ? TOOL_WORDS_KO[s.tool] : TOOL_WORDS[s.tool]) || s.tool;
+      live = nbItem(s.tool === "commit" ? "ok" : un ? "warn" : "live", who, esc(title), stepDetail(s));
+    }
+    if (e.type === "cross_check") {
+      const c = e.cross_check;
+      nbItem(c.adopted === "agent" ? "ok" : "warn", T("Studio cross-check", "Studio 교차 검증"), c.adopted === "agent" ? T("The agent's model explains everything a library search can", "AI의 결론이 로그를 모두 설명합니다")
+        : c.adopted === "agent without region" ? T("Left out the friction region the agent added: the data does not show it", "AI가 추가한 마찰 구간은 데이터로 뒷받침되지 않아 뺐습니다") : T("Overruled the agent's model", "AI의 결론이 부족해 수정했습니다"),
+        `<div class="detail">${T("Misfit (residuals over their noise floors): agent", "불일치 지수(1 이하면 충분): AI")} <span class="num">${fmt(c.agent_misfit)}</span>, ${T("library search", "자동 탐색")} <span class="num">${fmt(c.search_misfit)}</span>.${c.reason ? " " + esc(tx(c.reason)) : ""}</div>`);
+    }
+    if (e.type === "stage" && e.stage === "fit") live = nbItem("live", "Studio", T("Fitting the numbers and their uncertainty", "보정값과 오차 범위를 계산합니다"), `<div class="detail">${T("Least squares on every push, then the same fit on resampled sets of pushes (bootstrap) for 90% intervals.", "전체 기록으로 최소제곱 피팅을 한 뒤, 기록을 다시 뽑아 반복 피팅(부트스트랩)해 90% 범위를 구합니다.")}</div>`);
+    if (e.type === "calibration") { const c = e.calibration; nbItem("ok", "Studio", `${T("Calibrated", "찾은 원인")}: ${structureWords(c.structure)}`, `<div class="detail">${T("Chosen by", "결정 방법")}: ${esc(tx(c.chosen_by))}. ${T("Stops now off by", "남은 오차")} <span class="num">${dist(c.residuals.stop_residual_rms_m)}</span> rms.</div>`); }
+    if (e.type === "next") { const n = e.next_experiment; nbItem(n.settled ? "ok" : "warn", "Studio", n.settled ? T("No further pushes needed", "추가 측정이 필요 없습니다") : T(`Suggested ${n.suggestions.length} more ${CS("runsEn")}`, `${n.suggestions.length}회 추가 실험을 추천합니다`), `<div class="detail">${T("Largest disagreement between plausible models inside the working range:", "목표 범위 안에서 모델 간 예측 차이가 가장 큰 곳:")} <span class="num">±${dist(n.max_disagreement_in_range_m)}</span>.</div>`); }
+  };
+  return { on, settle };
+}
+function nbDone() {
+  const btn = document.createElement("li"); btn.className = "ok";
+  btn.innerHTML = `<div class="what">${T(`Done in ${fmt(state.result.seconds, 1)} s`, `${fmt(state.result.seconds, 1)}초 만에 완료했습니다`)}</div><div class="row" style="margin-top:10px"><button class="btn primary" id="to-res">${T("See the calibrated simulator", "보정된 시뮬레이터 보기")}</button></div>`;
+  $("#nb").appendChild(btn); $("#to-res").onclick = () => go("results");
+}
+function replayNotebook() {  // after a language switch: redraw the notebook from the recorded events
+  if (!state.nb || !state.nb.events.length) return;
+  $("#nb").innerHTML = "";
+  const h = nbHandler(state.nb.who);
+  state.nb.events.forEach(h.on); h.settle();
+  if (state.result) nbDone();
+}
+async function runDiagnosis(mode) {
+  const agent = mode === "agent";
+  $("#nb").innerHTML = ""; $("#err-diag").textContent = ""; state.running = true;
+  const who = agent ? prettyModel(LIVE ? state.status.model : DATA.model) : T("offline", "오프라인");
+  state.nb = { who, events: [] };
+  const h = nbHandler(who);
+  try {
+    state.result = toView(await be.analyze(state.s.id, agent, e => { e = toView(e); state.nb.events.push(e); h.on(e); }));
+    h.settle();
+    state.truth = null; state.laneIt = null; state.trainProgress = null; state.rolloutFile = null;
+    state.done.add("diag");
+    const n = state.s.session.pushes.length;
+    state.summaries.analysis = state.result.agent ? [`${n} pushes · ${state.result.agent.steps} agent steps`, `시행 ${n}건 · AI 분석 ${state.result.agent.steps}단계`] : [`${n} pushes · offline fit`, `시행 ${n}건 · 계산만 사용`];
+    state.summaries.results = null;
+    nbDone();
+    renderDiagChoice(); renderSteps();
+  } catch (e) { $("#err-diag").textContent = e.message; }
+  state.running = false;
+}
+
+/* ---------------------------------------------------------------- 4 results */
+function muColor(mu, alpha) {
+  // slick (cool) .. grippy (warm), centred on a typical dry table (mu ~0.6)
+  const t = Math.max(0, Math.min(1, (mu - 0.2) / 0.8));
+  const a = [76, 181, 230], m = [139, 144, 151], b = [230, 162, 60];
+  const mix = t < 0.5 ? a.map((x, i) => x + (m[i] - x) * t * 2) : m.map((x, i) => x + (b[i] - x) * (t - 0.5) * 2);
+  return `rgba(${mix.map(Math.round).join(",")},${alpha == null ? 1 : alpha})`;
+}
+function measuredTraining() {  // retraining already run for this calibration (live), or recorded with this take (static)
+  if (state.result && state.result.training) return state.result.training;
+  if (!LIVE && state.s && state.s.sample) { const r = rec.recFor(state.s.sample); return r ? ((r.stage_extras || [])[rec.stageOf(r)] || {}).training || null : null; }
+  return null;
+}
+function renderResults() {
+  const r = state.result; if (!r) return;
+  const c = r.calibration, s = state.s;
+  state.done.add("results");
+  state.summaries.results = [((L) => { const keep = LANG; LANG = L; const w = structureWords(c.structure); LANG = keep; return w; })("en"), ((L) => { const keep = LANG; LANG = L; const w = structureWords(c.structure); LANG = keep; return w; })("ko")];
+  renderSteps();
+  $("#r-lede").textContent = T(`${s.session.pushes.length} ${CS("runsEn")}, ${c.chosen_by}. Stops in the calibrated sim match yours within ${dist(c.residuals.stop_residual_rms_m)} rms.`, `${s.session.pushes.length}건의 기록을 사용했습니다. 보정된 시뮬레이터는 실제 정지 위치와 평균 ${dist(c.residuals.stop_residual_rms_m)} 이내로 일치합니다. (${tx(c.chosen_by)})`);
+  // what the tracks still show after the model (pattern, not size: launch scatter is not missing physics)
+  const pat = c.residuals.patterns, found = pat && pat.findings && pat.findings.length;
+  $("#r-pat").className = "patterns" + (found ? " found" : "");
+  $("#r-pat").textContent = !pat ? "" : found ? T(`Left unexplained: ${pat.findings.map(f => f.message).join("; ")}.`, `아직 설명하지 못한 부분: ${pat.findings.map(f => tx(f.message)).join("; ")}.`) :
+    pat.note ? T("Pattern check: too few tracked slides to look for leftover effects.", "남은 효과 점검: 추적된 시행이 적어 판단하지 않았습니다.") :
+    T(`Pattern check on ${pat.pushes} tracked slides: nothing systematic left; the remaining error is run-to-run scatter.`, `추적된 시행 ${pat.pushes}건으로 남은 효과를 점검했습니다: 체계적인 차이는 없고, 남은 오차는 시행마다의 흔들림입니다.`);
+  // hero: friction painted on the table
+  const ov = r.overlay && r.overlay[String(Math.max(0, s.videos.length - 1))];
+  const v = s.videos[s.videos.length - 1];
+  if (ov && v) {
+    const polys = ov.regions.map(g => `<polygon points="${g.poly.map(p => p.join(",")).join(" ")}" fill="${muColor(g.mu, 0.42)}" stroke="${muColor(g.mu)}" stroke-width="1.5" vector-effect="non-scaling-stroke"/>`).join("");
+    const kz = Math.max(1, Math.min(2.4, v.width / Math.max(1, (Math.max(...ov.regions.flatMap(g => g.poly).map(p => p[0])) - Math.min(...ov.regions.flatMap(g => g.poly).map(p => p[0]))) * 1.16)));
+    const fs = v.width / 34 / kz, txt = `font-family:var(--f-display);font-weight:600;fill:#fff;paint-order:stroke;stroke:#000;stroke-width:4px`;
+    const labels = ov.regions.map(g => { const q = g.label_px || [g.poly.reduce((a, p) => a + p[0], 0) / 4, g.poly.reduce((a, p) => a + p[1], 0) / 4];
+      return `<text x="${q[0]}" y="${q[1]}" text-anchor="middle" style="${txt};font-size:${fs}px">μ ${fmt(g.mu)}</text>`; }).join("");
+    const unm = ov.unmeasured_poly ? `<polygon points="${ov.unmeasured_poly.map(p => p.join(",")).join(" ")}" fill="url(#hatch2)"/>` : "";
+    const r0 = ov.reach_px && ov.reach_px[0];
+    const reach = ov.reach_px ? `<line x1="${ov.reach_px[0][0]}" y1="${ov.reach_px[0][1]}" x2="${ov.reach_px[1][0]}" y2="${ov.reach_px[1][1]}" stroke="#fff" stroke-width="2" stroke-dasharray="7 5" vector-effect="non-scaling-stroke"/><text x="${(ov.reach_px[0][0] + ov.reach_px[1][0]) / 2}" y="${Math.min(ov.reach_px[0][1], ov.reach_px[1][1]) - fs * 0.4}" text-anchor="middle" style="${txt};font-weight:500;font-size:${v.width / 62 / kz}px">${ov.unmeasured_poly ? T(`no push got past ${fmt(ov.reach_m)} m`, `${fmt(ov.reach_m)} m 이후 미측정`) : T(`measured to ${fmt(ov.reach_m)} m`, `${fmt(ov.reach_m)} m까지 측정함`)}</text>` : "";
+    const hasGhosts = ov.ghosts && ov.ghosts.length;
+    const media = hasGhosts ? `<video src="${esc(be.media(v.file))}" muted loop playsinline preload="auto" width="${v.width}" height="${v.height}" aria-label="Your video with the simulators' predictions overlaid"></video>`
+                            : `<img src="${esc(be.media(v.frame))}" alt="Your table with the measured friction painted on it" width="${v.width}" height="${v.height}">`;
+    // zoom onto where the action is: the painted table, the sheet and the tracked paths
+    const pts = [...ov.regions.flatMap(g => g.poly), ...(v.corners || []), ...(v.pushes || []).flatMap(p => p.path_px || [])];
+    let x0 = Math.min(...pts.map(p => p[0])), x1 = Math.max(...pts.map(p => p[0])), y0 = Math.min(...pts.map(p => p[1])), y1 = Math.max(...pts.map(p => p[1]));
+    const padx = (x1 - x0) * 0.08, pady = (y1 - y0) * 0.12;
+    x0 = Math.max(0, x0 - padx); x1 = Math.min(v.width, x1 + padx); y0 = Math.max(0, y0 - pady); y1 = Math.min(v.height, y1 + pady);
+    const k = Math.max(1, Math.min(2.4, v.width / (x1 - x0), v.height / (y1 - y0)));
+    const cx = Math.min(Math.max((x0 + x1) / 2 - v.width / (2 * k), 0), v.width - v.width / k), cy = Math.min(Math.max((y0 + y1) / 2 - v.height / (2 * k), 0), v.height - v.height / k);
+    const zoom = `transform: scale(${k.toFixed(3)}) translate(${(-cx / v.width * 100).toFixed(3)}%, ${(-cy / v.height * 100).toFixed(3)}%)`;
+    $("#r-map").innerHTML = `<div class="map"><div class="zoom" style="${zoom}">${media}<svg class="ov" viewBox="0 0 ${v.width} ${v.height}" aria-hidden="true"><defs><pattern id="hatch2" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="10" height="10" fill="rgba(0,0,0,0.5)"/><line x1="0" y1="0" x2="0" y2="10" stroke="rgba(255,255,255,0.35)" stroke-width="2"/></pattern></defs><g class="regions">${polys}${unm}${labels}${reach}</g><g id="ghosts"></g></svg></div><div class="cap">${T(`Your ${CS("surfaceWord")}, measured`, `측정한 ${CS("surfaceWordKo")}`)}</div><div class="scale"><div class="ramp"></div><div class="ends"><span>slick 0.2</span><span>grippy 1.0</span></div></div></div>` +
+      (hasGhosts ? `<div class="ghostbar"><button class="btn" id="g-play">Pause</button><label><input type="checkbox" id="g-cal" checked> <i class="gk cal"></i>calibrated sim</label><label><input type="checkbox" id="g-cur" checked> <i class="gk cur"></i>your current sim</label><label><input type="checkbox" id="g-map" checked> friction map</label><span class="small dim">Same launch speed and spot as each real push; the boxes are the simulators' predictions.</span></div>` : "");
+    if (hasGhosts) ghostPlayer(v, ov);
+  } else {
+    $("#r-map").innerHTML = `<div class="map strip1d">${strip1d(c, s)}<div class="cap">${T(`The ${CS("surfaceWord")} along the ${CS("run")}, measured`, `측정한 ${CS("surfaceWordKo")}`)}</div></div>`;
+  }
+  // verdict
+  const p = c.predicted;
+  const by = p.after.by_target;
+  const weak = by.findIndex(x => x < 0.9);
+  const lo = p.target_range_m[0], hi = p.target_range_m[1];
+  const chips = [];
+  chips.push(`<span class="chip ${c.residuals.stop_residual_rms_m < 0.01 * DOM.scale ? "g" : "w"}">${T("stops", "위치 오차")} ±${dist(c.residuals.stop_residual_rms_m)}</span>`);
+  if (r.agent && r.agent.cross_check) chips.push(`<span class="chip ${r.agent.cross_check.adopted === "agent" ? "g" : "w"}">${r.agent.cross_check.adopted === "agent" ? "agent model cross-checked" : r.agent.cross_check.adopted === "agent without region" ? "agent's region left out" : "agent overruled"}</span>`);
+  if (p.unmeasured_whatif) chips.push(`<span class="chip w">${T(`${CS("surfaceWord")} past ${fmt(p.measured_reach_m)} m unmeasured`, `${fmt(p.measured_reach_m)} m 이후 미측정`)}</span>`);
+  // headline: one number pair. Measured (retrained, run in the hidden world) when that exists; otherwise the model's
+  // prediction, with its spread as a footnote rather than as the number
+  const tr = measuredTraining(), cond = tr && tr.conditions;
+  const measured = cond && tr.hidden_known && cond.current.final_real != null;
+  const spread = p.unmeasured_whatif && p.after.hi - p.after.lo > 0.1;
+  const afterNote = spread ? T(`${pct(p.after.lo)}–${pct(p.after.hi)} depending on the unmeasured ${CS("surfaceWord")}`, `미측정 구간에 따라 ${pct(p.after.lo)}~${pct(p.after.hi)}`) : `90%: ${pct(p.after.lo)}–${pct(p.after.hi)}`;
+  $("#r-verdict").innerHTML = `
+    <div class="small muted">${measured ? T(`Hidden-world success after retraining: stops within ${tolText(p.tolerance_m)} of the ${CS("targetWord")}, targets ${fmt(lo, 1)}–${fmt(hi, 1)} m`, `재학습 후 숨겨진 실제 환경 성공률: ${fmt(lo, 1)}–${fmt(hi, 1)} m 목표에서 ${CS("targetWordKo")} ${tolText(p.tolerance_m)} 이내 정지`)
+      : T(`Predicted success of a policy trained in each simulator: stops within ${tolText(p.tolerance_m)} of the ${CS("targetWord")}, targets ${fmt(lo, 1)}–${fmt(hi, 1)} m`, `각 시뮬레이터로 학습한 정책의 예상 성공률: ${fmt(lo, 1)}–${fmt(hi, 1)} m 목표에서 ${CS("targetWordKo")} ${tolText(p.tolerance_m)} 이내 정지`)}</div>
+    <div class="pair">
+      <div><div class="big">${pct(measured ? cond.current.final_real : p.before.median)}</div><div class="what">${T("your current sim", "보정 전 시뮬레이터")}</div></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div><div class="big after">${pct(measured ? cond.tether.final_real : p.after.median)}</div><div class="what">${T("Tether-calibrated", "Tether 보정")}</div></div>
+    </div>
+    <div class="by">${measured ? T(`Measured: each policy retrained in ${tr.n_worlds} parallel NVIDIA Newton worlds, then run in the hidden world. Wide domain randomization reached ${pct(cond.wide.final_real)}. Model prediction for the calibrated sim: ${pct(p.after.median)} (${afterNote}).`, `실측: 각 정책을 NVIDIA Newton 병렬 환경 ${tr.n_worlds}개에서 재학습한 뒤 숨겨진 환경에서 실행했습니다. 넓은 도메인 랜덤화는 ${pct(cond.wide.final_real)}였습니다. 보정된 시뮬레이터의 모델 예측: ${pct(p.after.median)} (${afterNote}).`)
+      : T(`Model prediction (${afterNote}). ${weak < 0 ? "Holds across the whole target range." : `Weakest beyond ${fmt(lo + (hi - lo) * weak / by.length)} m${p.unmeasured_whatif ? `, where no run has measured the ${CS("surfaceWord")} yet` : ""}.`}`, `모델 예측입니다 (${afterNote}). ${weak < 0 ? "목표 범위 전체에서 잘 맞습니다." : `${fmt(lo + (hi - lo) * weak / by.length)} m 이후 구간에서 가장 낮습니다${p.unmeasured_whatif ? ". 해당 구간은 아직 측정하지 않았습니다" : ""}.`}`)}</div>
+    <div class="chips">${chips.join("")}</div>
+    ${measured ? "" : `<div class="caveat">${T("Rollouts of the fitted model across the plausible worlds, with your measured scatter as noise. The Retrain tab measures it: policies trained in NVIDIA Newton and run in the hidden world (samples and simulated data).", "적합한 모델을 가능한 환경 전체에서 실행한 예측이며, 측정한 흔들림을 잡음으로 넣었습니다. 재학습 탭에서 실측합니다: NVIDIA Newton에서 학습한 정책을 숨겨진 환경에서 실행합니다(예시와 가상 데이터).")}</div>`}`;
+  // forest
+  $("#r-forest").innerHTML = forest(c.gap, state.truth);
+  $("#r-truth").innerHTML = (state.s.sample || state.s.simulated) ? (state.truth ? `<span class="small muted">${T(`Hidden physics from ${esc(state.truth.source)} shown as white diamonds${state.truth.note ? `; ${esc(state.truth.note)}` : ""}.`, `흰 마름모가 정답입니다 (${esc(tx(state.truth.source))})${state.truth.note ? `. ${esc(tx(state.truth.note))}` : ""}.`)}</span>` : `<button class="btn" id="reveal">${T("Reveal the hidden physics", "정답 확인하기")}</button><span class="small muted">${state.s.simulated ? T("Your settings were never shown to Tether.", "설정한 값은 Tether에 전달되지 않았습니다.") : T("This sample came from a world Tether never saw.", "Tether는 이 예시의 정답을 모릅니다.")} ${T("Compare after the fact.", "결과와 비교할 수 있습니다.")}</span>`) : "";
+  if ($("#reveal")) $("#reveal").onclick = async () => { state.truth = toView(await be.truth(state.s.id)); renderResults(); };
+  // charts
+  $("#r-charts").innerHTML = chartStops(c) + chartFriction(c) + chartSuccess(c);
+  // next
+  const n = r.next_experiment;
+  let nx = n.settled ? `<div class="settled">The pushes you have settle the model over the whole working range (models agree within ±${dist(n.max_disagreement_in_range_m)}).</div>` :
+    `<div class="next">${n.suggestions.map(x => `<div class="card"><div class="t">${T(`Stop at ${fmt(x.predicted_stop_m)} m`, `${fmt(x.predicted_stop_m)} m 지점까지 시행`)}</div><div class="small num muted">${x.command != null ? (DOM.id === "driving" ? `${T("speed set-point", "속도 명령")} ${fmt(x.command, 1)} m/s (${Math.round(x.command * 3.6)} km/h)` : `${T("command", "명령값")} ${fmt(x.command)}`) : `${T("launch", "출발 속도")} ≈ ${fmt(x.launch_speed_mps, 1)} m/s${DOM.id === "driving" ? ` (${Math.round(x.launch_speed_mps * 3.6)} km/h)` : ""}`}</div><p>${esc(tx(x.why[0].toUpperCase() + x.why.slice(1)))}.</p></div>`).join("")}</div>`;
+  if (n.agent_requests && n.agent_requests.length) nx += `<p class="asks">${T("The agent also asked for commands", "AI가 요청한 명령값")} ${n.agent_requests.map(a => `<span class="num">${fmt(a.command)}</span>${a.useful ? "" : T(" (off the target range)", " (목표 범위 밖)")}`).join(", ")}.</p>`;
+  const more = moreAction();
+  $("#r-next").innerHTML = nx + (more ? `<div class="row" style="margin-top:14px">${more}</div>` : "") + `<div class="row" style="margin-top:22px"><button class="btn primary" id="to-x">Retrain on the calibrated physics</button></div>`;
+  if ($("#more")) $("#more").onclick = addTake;
+  if ($("#more-sim")) $("#more-sim").onclick = async () => {
+    const n = state.result.next_experiment, b = $("#more-sim");
+    b.disabled = true; b.textContent = "Newton is running them…";
+    const body = state.s.kind === "video" ? { speeds: n.suggestions.map(x => toBaseSpeed(x.launch_speed_mps)) }
+      : { commands: [...n.suggestions.map(x => x.command), ...(n.agent_requests || []).filter(a => a.useful).map(a => a.command)].slice(0, 8).map(toBaseSpeed) };
+    try {
+      const s = await call(fetch(`/api/studio/sessions/${state.s.id}/simulate-more`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }));
+      state.s = adopt(s); state.result = null; state.truth = null;
+      ["diag", "results", "export"].forEach(k => state.done.delete(k));
+      if (s.added != null) state.take = s.added;
+      toast(s.kind === "video" ? "Take " + (s.added + 1) + " rendered" : `Added ${s.added_pushes} pushes`);
+      go("measure");
+    } catch (e) { toast(e.message); b.disabled = false; b.textContent = "Run these pushes in NVIDIA Newton"; }
+  };
+  if ($("#more-file")) $("#more-file").onchange = () => addTake($("#more-file").files[0]);
+  if ($("#more-log")) $("#more-log").onchange = async () => {
+    try { const f = new FormData(); f.set("file", $("#more-log").files[0]);
+      state.s = adopt(await call(fetch(`/api/studio/sessions/${state.s.id}/logs`, { method: "POST", body: f })));
+      state.result = null; state.done.delete("diag"); state.done.delete("results"); state.done.delete("export");
+      toast(`Added ${state.s.added_pushes} pushes`); go("measure");
+    } catch (e) { toast(e.message); } };
+  $("#to-x").onclick = () => go("train");
+}
+function moreAction() {
+  const s = state.s;
+  if (LIVE && s.simulated) {
+    const n = state.result && state.result.next_experiment;
+    const has = n && (n.suggestions.length || (n.agent_requests || []).some(a => a.useful));
+    return has ? `<button class="btn primary" id="more-sim">Run these pushes in NVIDIA Newton</button><span class="small muted">Same hidden table; ${s.kind === "video" ? "a second video take" : "more rows in the log"}.</span>` : "";
+  }
+  if (s.kind !== "video") return LIVE ? `<label class="btn">Add the pushes you ran (CSV/JSON)<input type="file" id="more-log" accept=".csv,.json" hidden></label><span class="small muted">Same columns as your first log; they are merged and you diagnose again.</span>` : "";
+  const sample = s.sample && (LIVE ? null : rec.recFor(s.sample));
+  const parts = samplePartsOf(s.sample);
+  if (parts.length > s.videos.length) return `<button class="btn" id="more">${T(`Load take ${s.videos.length + 1}: the ${CS("runsEn")} it asked for`, `${s.videos.length + 1}번째 영상 불러오기: 추천 실험`)}</button>`;
+  if (LIVE && !s.sample) return `<label class="btn">Add a video of these pushes<input type="file" id="more-file" accept="video/*" hidden></label><span class="small muted">Keep the sheet where it was.</span>`;
+  return "";
+}
+function samplePartsOf(id) {
+  if (!id) return [];
+  const m = (state.sampleList || []).find(x => x.id === id) || (!LIVE && rec.recFor(id) ? rec.recFor(id).sample : null);
+  return (m && m.parts) || [];
+}
+async function addTake(file) {
+  try {
+    const f = new FormData();
+    if (file instanceof File) f.set("file", file); else f.set("part", samplePartsOf(state.s.sample)[state.s.videos.length]);
+    const s = adopt(await be.addVideo(state.s.id, f));
+    state.s = s; state.take = s.added; state.result = null; state.truth = null;
+    state.done.delete("diag"); state.done.delete("results"); state.done.delete("export");
+    go("measure");
+  } catch (e) { toast(e.message); }
+}
+function ghostPlayer(v, ov) {
+  const vid = $("#r-map video"), g = $("#ghosts"), fps = v.fps || 30;
+  const edges = [[0, 1], [1, 2], [2, 3], [3, 0], [4, 5], [5, 6], [6, 7], [7, 4], [0, 4], [1, 5], [2, 6], [3, 7]];
+  const box = (pts, cls) => `<g class="${cls}">${edges.map(([a, b]) => `<line x1="${pts[a][0]}" y1="${pts[a][1]}" x2="${pts[b][0]}" y2="${pts[b][1]}"/>`).join("")}<polygon points="${[4, 5, 6, 7].map(i => pts[i].join(",")).join(" ")}"/></g>`;
+  const show = { cal: true, cur: true };
+  const draw = () => {
+    const f = Math.floor(vid.currentTime * fps);
+    let p = null;
+    for (const q of ov.ghosts) if (q.release_frame <= f && f < q.release_frame + q.frames) p = q;
+    let out = "";
+    if (p) {
+      const k = f - p.release_frame;
+      if (show.cur) out += box(p.current[Math.min(k, p.current.length - 1)], "gh cur");
+      if (show.cal) out += box(p.calibrated[Math.min(k, p.calibrated.length - 1)], "gh cal");
+    }
+    g.innerHTML = out;
+  };
+  const loop = () => { draw(); if (!vid.paused) requestAnimationFrame(loop); };
+  vid.addEventListener("play", loop); vid.addEventListener("seeked", draw); vid.addEventListener("loadeddata", draw);
+  const pb = $("#g-play");
+  pb.onclick = () => { vid.paused ? vid.play() : vid.pause(); };
+  vid.addEventListener("play", () => pb.textContent = "Pause"); vid.addEventListener("pause", () => { pb.textContent = "Play"; draw(); });
+  $("#g-cal").onchange = e => { show.cal = e.target.checked; draw(); };
+  $("#g-cur").onchange = e => { show.cur = e.target.checked; draw(); };
+  $("#g-map").onchange = e => { $("#r-map .regions").style.display = e.target.checked ? "" : "none"; };
+  if (reduce) { vid.currentTime = (ov.ghosts[0].release_frame + 12) / fps; pb.textContent = "Play"; } else vid.play().catch(() => { pb.textContent = "Play"; });
+}
+function strip1d(c, s) {
+  const W = 900, H = 230, x0 = 40, x1 = W - 20, ymax = 0.9 * DOM.scale, y00 = -0.05 * DOM.scale;
+  const X = y => x0 + (y - y00) / (ymax - y00) * (x1 - x0);
+  const m = c.model, regs = m.patch_y0 != null ? [[y00, m.patch_y0, m.mu_eff], [m.patch_y0, ymax, m.patch_mu]] : [[y00, ymax, m.mu_eff]];
+  const reach = c.predicted.measured_reach_m;
+  const bands = regs.map(([a, b, mu]) => `<rect x="${X(a)}" y="70" width="${X(b) - X(a)}" height="70" fill="${muColor(mu, 0.5)}" stroke="${muColor(mu)}"/><text x="${(X(a) + X(b)) / 2}" y="112" text-anchor="middle" style="font-family:var(--f-display);font-weight:600;font-size:22px;fill:#fff">μ ${fmt(mu)}</text>`).join("");
+  const stops = s.session.pushes.map(p => `<line x1="${X(p.start + p.stop)}" x2="${X(p.start + p.stop)}" y1="146" y2="160" stroke="#eeeeee" stroke-width="2"/>`).join("");
+  const tr = c.predicted.target_range_m;
+  const ticks = nice(0, ymax * 0.95, 5).map(t => `<text x="${X(t)}" y="${H - 12}" text-anchor="middle">${t} m</text>`).join("");
+  const unm = reach < ymax ? `<rect x="${X(reach)}" y="70" width="${X(ymax) - X(reach)}" height="70" fill="url(#hatch)"/><line x1="${X(reach)}" x2="${X(reach)}" y1="58" y2="150" stroke="#fff" stroke-dasharray="5 4"/><text x="${X(reach) + 6}" y="62" class="lbl">${T(`no push got past ${fmt(reach)} m`, `${fmt(reach)} m 이후 미측정`)}</text>` : "";
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Friction along the push path">
+    <defs><pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="rgba(0,0,0,0.45)"/><line x1="0" y1="0" x2="0" y2="8" stroke="#6e6e6e" stroke-width="2"/></pattern></defs>
+    <rect width="${W}" height="${H}" fill="#0a0a0a"/>
+    <text x="${X(0)}" y="40" class="lbl">${CS("launch")}</text><line x1="${X(0)}" x2="${X(0)}" y1="46" y2="150" stroke="#a3a3a3"/>
+    ${bands}${unm}${stops}<text x="${x1}" y="172" text-anchor="end" class="lbl">${T("ticks: where your runs stopped", "눈금: 실제 정지 위치")}</text>
+    <line x1="${X(tr[0])}" x2="${X(tr[1])}" y1="190" y2="190" stroke="#76b900" stroke-width="3"/><text x="${X(tr[0])}" y="184" class="lbl">target range</text>${ticks}</svg>`;
+}
+function forest(gap, truth) {
+  const tm = truth && truth.model;
+  const rows = gap.map(g => {
+    const vals = [g.lo, g.hi, g.real, g.sim, tm && tm[g.field]].filter(x => x != null);
+    let a = Math.min(...vals), b = Math.max(...vals); const pad = (b - a) * 0.25 || Math.abs(b) * 0.1 || 0.1; a -= pad; b += pad;
+    const X = x => 8 + (x - a) / (b - a) * 284;
+    const svg = `<svg viewBox="0 0 300 26" preserveAspectRatio="none" aria-hidden="true">
+      <line x1="${X(g.lo)}" x2="${X(g.hi)}" y1="13" y2="13" stroke="${g.significant ? "#76b900" : "#a3a3a3"}" stroke-width="4"/>
+      ${g.sim != null ? `<line x1="${X(g.sim)}" x2="${X(g.sim)}" y1="4" y2="22" stroke="#6e6e6e" stroke-width="2"/>` : ""}
+      <circle cx="${X(g.real)}" cy="13" r="5" fill="#eeeeee"/>
+      ${tm && tm[g.field] != null ? `<rect x="${X(tm[g.field]) - 5}" y="8" width="10" height="10" transform="rotate(45 ${X(tm[g.field])} 13)" fill="none" stroke="#fff" stroke-width="2"/>` : ""}</svg>`;
+    const u = g.unit && g.unit !== "x" ? " " + g.unit : g.unit === "x" ? "×" : "";
+    const d = g.field === "camera_pitch_deg" ? 1 : g.field === "camera_dx" ? 3 : 3;
+    const truthCell = tm ? `<td class="v">${tm[g.field] == null ? "none" : fmt(tm[g.field], d) + u}</td>` : "";
+    const lab = (DOM.labels && (DOM.labels[LANG] || DOM.labels.en) || {})[g.field] || g.label;
+    return `<tr><td>${esc(lab)}<div class="tag ${g.significant ? "g" : ""}">${g.significant ? "differs from your sim" : "within noise of your sim"}</div></td>
+      <td class="v dim">${g.sim == null ? "none" : fmt(g.sim, d) + u}</td><td class="v">${fmt(g.real, d)}${u}</td><td class="v dim">${fmt(g.lo, d)}–${fmt(g.hi, d)}</td>${truthCell}<td class="plot">${svg}</td></tr>`;
+  }).join("");
+  return `<div class="tablewrap" style="max-height:none"><table class="forest"><thead><tr><th>Parameter</th><th>Your sim</th><th>Measured</th><th>90% interval</th>${tm ? "<th>Hidden truth</th>" : ""}<th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+function axes(W, H, m, xs, ys, xl, yl, xt, yt) {
+  const X = x => m.l + (x - xs[0]) / (xs[1] - xs[0]) * (W - m.l - m.r);
+  const Y = y => H - m.b - (y - ys[0]) / (ys[1] - ys[0]) * (H - m.t - m.b);
+  const g = [`<line x1="${m.l}" x2="${W - m.r}" y1="${H - m.b}" y2="${H - m.b}" stroke="#333333"/>`, `<line x1="${m.l}" x2="${m.l}" y1="${m.t}" y2="${H - m.b}" stroke="#333333"/>`];
+  xt.forEach(t => g.push(`<text x="${X(t)}" y="${H - m.b + 14}" text-anchor="middle">${t}</text>`));
+  yt.forEach(t => g.push(`<text x="${m.l - 6}" y="${Y(t) + 3}" text-anchor="end">${t}</text><line x1="${m.l}" x2="${W - m.r}" y1="${Y(t)}" y2="${Y(t)}" stroke="#222222"/>`));
+  g.push(`<text x="${W - m.r}" y="${H - 4}" text-anchor="end" class="lbl">${xl}</text><text x="${m.l}" y="${m.t - 6}" class="lbl">${yl}</text>`);
+  return { X, Y, g: g.join("") };
+}
+const nice = (a, b, n) => { const st = Math.pow(10, Math.floor(Math.log10((b - a) / n))); const k = [1, 2, 2.5, 5, 10].find(k => (b - a) / (st * k) <= n) * st; const out = []; for (let t = Math.ceil(a / k) * k; t <= b + 1e-9; t += k) out.push(+t.toFixed(4)); return out; };
+function chartStops(c) {
+  const d = c.curves.stops, W = 360, H = 240, m = { l: 40, r: 10, t: 20, b: 34 };
+  const xmax = Math.max(...d.grid), ymax = Math.min(1.2 * DOM.scale, Math.max(0.3 * DOM.scale, ...d.points.map(p => p.y), ...d.model) * 1.08);
+  const A = axes(W, H, m, [0, xmax], [0, ymax], d.x_label, "slide (m)", nice(0, xmax, 5), nice(0, ymax, 5));
+  const clip = y => Math.min(ymax, y);
+  const band = `<path d="M${d.grid.map((x, i) => `${A.X(x)},${A.Y(clip(d.band[i][1]))}`).join("L")}L${d.grid.map((x, i) => `${A.X(x)},${A.Y(clip(d.band[i][0]))}`).reverse().join("L")}Z" fill="rgba(118,185,0,0.22)"/>`;
+  const line = (ys, col, dash) => `<polyline points="${d.grid.map((x, i) => `${A.X(x)},${A.Y(clip(ys[i]))}`).join(" ")}" fill="none" stroke="${col}" stroke-width="2" ${dash ? 'stroke-dasharray="5 4"' : ""}/>`;
+  const pts = d.points.map(p => `<circle cx="${A.X(p.x)}" cy="${A.Y(clip(p.y))}" r="3.6" fill="${p.tipped ? "none" : "#eeeeee"}" stroke="#eeeeee"/>`).join("");
+  return `<div class="chart"><h4>Where it stops</h4><p>Your pushes against the calibrated model (band: 90% of plausible models) and your current sim.</p>
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Slide distance against launch speed">${A.g}${band}${line(d.sim, "#6e6e6e", true)}${line(d.model, "#76b900")}${pts}</svg>
+    <div class="legend"><span><i style="background:#eeeeee;height:7px;width:7px"></i>your pushes</span><span><i style="background:#76b900"></i>calibrated</span><span><i style="background:#6e6e6e"></i>current sim</span></div></div>`;
+}
+function chartFriction(c) {
+  const f = c.curves.friction, W = 360, H = 240, m = { l: 40, r: 10, t: 20, b: 34 };
+  const meas = f.measured.filter(b => b.n >= 2);
+  const ymax = Math.max(1.0, ...meas.map(b => b.mu), ...f.model) * 1.05;
+  const yEnd = 0.9 * DOM.scale;
+  const A = axes(W, H, m, [0, yEnd], [0, ymax], T(`position along the ${CS("surfaceWord")} (m)`, `${CS("surfaceWordKo")} 위 위치 (m)`), T("friction μ", "마찰 μ"), nice(0, yEnd * 0.95, 4), nice(0, ymax, 4));
+  const bars = meas.map(b => `<rect x="${A.X(Math.max(0, b.y0)) + 1}" y="${A.Y(Math.max(0, b.mu))}" width="${Math.max(0, A.X(b.y1) - A.X(Math.max(0, b.y0)) - 2)}" height="${A.Y(0) - A.Y(Math.max(0, b.mu))}" fill="${muColor(b.mu, 0.55)}"/>`).join("");
+  const band = f.model_lo[0] != null ? `<path d="M${f.y.map((y, i) => `${A.X(y)},${A.Y(f.model_hi[i])}`).join("L")}L${f.y.map((y, i) => `${A.X(y)},${A.Y(f.model_lo[i])}`).reverse().join("L")}Z" fill="rgba(118,185,0,0.2)"/>` : "";
+  const line = (ys, col, dash) => `<polyline points="${f.y.map((y, i) => `${A.X(y)},${A.Y(ys[i])}`).join(" ")}" fill="none" stroke="${col}" stroke-width="2" ${dash ? 'stroke-dasharray="5 4"' : ""}/>`;
+  const reach = c.predicted.measured_reach_m;
+  const unm = reach < yEnd ? `<rect x="${A.X(reach)}" y="${m.t}" width="${A.X(yEnd) - A.X(reach)}" height="${A.Y(0) - m.t}" fill="rgba(0,0,0,0.6)"/><text x="${A.X(reach) + 4}" y="${m.t + 12}" class="lbl">unmeasured</text>` : "";
+  return `<div class="chart"><h4>${T(`Friction along the ${CS("surfaceWord")}`, `${CS("surfaceWordKo")} 위치별 마찰`)}</h4><p>Deceleration seen in the tracks (bars) and the friction the calibrated sim uses (line, band).</p>
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Friction along the table">${A.g}${bars}${band}${line(f.sim, "#6e6e6e", true)}${line(f.model, "#76b900")}${unm}</svg>
+    <div class="legend"><span><i style="background:${muColor(0.4)}"></i>measured</span><span><i style="background:#76b900"></i>calibrated</span><span><i style="background:#6e6e6e"></i>current sim</span></div></div>`;
+}
+function chartSuccess(c) {
+  const p = c.predicted, W = 360, H = 240, m = { l: 40, r: 10, t: 20, b: 34 }, n = p.after.by_target.length;
+  const [lo, hi] = p.target_range_m;
+  const A = axes(W, H, m, [lo, hi], [0, 1], "target distance (m)", "predicted success", nice(lo, hi, 4), [0, 0.5, 1]);
+  const bw = (A.X(hi) - A.X(lo)) / n;
+  const bars = p.after.by_target.map((v, i) => `<rect x="${A.X(lo) + i * bw + bw * 0.5}" y="${A.Y(v)}" width="${bw * 0.42}" height="${A.Y(0) - A.Y(v)}" fill="#76b900"/>`).join("") +
+    p.before.by_target.map((v, i) => `<rect x="${A.X(lo) + i * bw + bw * 0.08}" y="${A.Y(v)}" width="${bw * 0.42}" height="${Math.max(0, A.Y(0) - A.Y(v))}" fill="#6e6e6e"/>`).join("");
+  return `<div class="chart"><h4>Success by target distance</h4><p>${T(`Predicted for a policy trained in each sim (within ${tolText(p.tolerance_m)}).`, `각 시뮬레이터로 학습했을 때 예상 성공률입니다 (${tolText(p.tolerance_m)} 이내).`)}</p>
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Predicted success by target distance">${A.g}${bars}</svg>
+    <div class="legend"><span><i style="background:#6e6e6e;height:8px"></i>current sim</span><span><i style="background:#76b900;height:8px"></i>calibrated sim</span></div></div>`;
+}
+
+/* ---------------------------------------------------------------- 5 retrain and test */
+const TCOL = { current: "#6e6e6e", wide: "#e6a23c", tether: "#76b900" };
+const TNAME = { current: ["Your current simulator", "보정 전 시뮬레이터"], wide: ["Wide domain randomization", "넓은 도메인 랜덤화"], tether: ["Tether's measured ranges", "Tether 측정 범위"] };
+function trainScore(c, known) { return known ? c.final_real : c.train[c.train.length - 1]; }
+function learnChart(r) {
+  const W = 560, H = 300, m = { l: 44, r: 16, t: 18, b: 38 }, n = r.iterations;
+  const A = axes(W, H, m, [0, n], [0, 1], T("training iteration", "학습 반복"), r.hidden_known ? T("success in the hidden real world", "숨겨진 실제 환경에서 성공률") : T("success in the training worlds", "학습 환경에서 성공률"),
+                 nice(0, n, 5), [0, 0.25, 0.5, 0.75, 1]);
+  const line = (ys, col, dash, w) => { const pts = ys.map((y, i) => y == null ? null : `${A.X(i)},${A.Y(y)}`).filter(Boolean);
+    return pts.length ? `<polyline points="${pts.join(" ")}" fill="none" stroke="${col}" stroke-width="${w}" ${dash ? 'stroke-dasharray="5 4" stroke-opacity="0.7"' : ""}/>` : ""; };
+  const ids = Object.keys(r.conditions);
+  const body = ids.map(id => { const c = r.conditions[id];
+    return (r.hidden_known ? line(c.train, TCOL[id], true, 1.4) + line(c.real, TCOL[id], false, 2.6) : line(c.train, TCOL[id], false, 2.6)) +
+      (r.hidden_known ? c.real : c.train).map((y, i) => y == null ? "" : `<circle cx="${A.X(i)}" cy="${A.Y(y)}" r="3" fill="${TCOL[id]}"/>`).join(""); }).join("");
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${T("Learning curves", "학습 곡선")}">${A.g}${body}</svg>
+    <div class="legend">${ids.map(id => `<span><i style="background:${TCOL[id]};height:3px"></i>${T(...TNAME[id])}</span>`).join("")}${r.hidden_known ? `<span>${T("solid: hidden real world · dashed: training worlds", "실선: 숨겨진 실제 환경 · 점선: 학습 환경")}</span>` : ""}</div>`;
+}
+function lanesSvg(r, cond, it) {
+  const lanes = r.conditions[cond].lanes[Math.min(it, r.conditions[cond].lanes.length - 1)] || [];
+  const W = 560, rowH = 26, H = 30 + lanes.length * rowH, x0 = 70, x1 = W - 16;
+  const ymax = Math.max(r.target_range_m[1] * 1.6, ...lanes.map(l => l.slide)) * 1.02, X = y => x0 + Math.max(0, y) / ymax * (x1 - x0);
+  const box = Math.max(4, X(0.03 * DOM.scale) - X(0)) * 1.4;
+  const rows = lanes.map((l, i) => { const y = 22 + i * rowH, ok = Math.abs(l.slide - l.target) <= r.tolerance_m;
+    return `<line x1="${x0}" x2="${x1}" y1="${y}" y2="${y}" stroke="#222222"/>
+      <rect x="${X(l.target - r.tolerance_m)}" y="${y - 9}" width="${X(l.target + r.tolerance_m) - X(l.target - r.tolerance_m)}" height="18" fill="rgba(118,185,0,0.18)"/>
+      <line x1="${X(l.target)}" x2="${X(l.target)}" y1="${y - 10}" y2="${y + 10}" stroke="#76b900" stroke-width="2"/>
+      <text x="${x0 - 8}" y="${y + 4}" text-anchor="end">μ ${fmt(l.mu)}</text>
+      <rect class="lanebox" data-i="${i}" x="${X(0) - box / 2}" y="${y - box / 2}" width="${box}" height="${box}" fill="${ok ? "#76b900" : "#e2574c"}" data-ok="${ok}"/>`; }).join("");
+  return `<svg viewBox="0 0 ${W} ${H}" id="lanes-svg" role="img" aria-label="${T("Parallel training worlds", "병렬 학습 환경")}">${rows}</svg>`;
+}
+function animateLanes(r, cond, it) {
+  const lanes = r.conditions[cond].lanes[Math.min(it, r.conditions[cond].lanes.length - 1)] || [];
+  const svg = $("#lanes-svg"); if (!svg) return;
+  const W = 560, x0 = 70, x1 = W - 16, ymax = Math.max(r.target_range_m[1] * 1.6, ...lanes.map(l => l.slide)) * 1.02, X = y => x0 + Math.max(0, y) / ymax * (x1 - x0);
+  const boxes = [...svg.querySelectorAll(".lanebox")], n = Math.max(...lanes.map(l => l.track.length));
+  let f = 0; cancelAnimationFrame(state.laneRaf);
+  const step = () => {
+    boxes.forEach((b, i) => { const tr = lanes[i].track, y = tr[Math.min(f, tr.length - 1)], w = +b.getAttribute("width"); b.setAttribute("x", X(y) - w / 2);
+      b.setAttribute("fill", f >= tr.length - 1 ? (b.dataset.ok === "true" ? "#76b900" : "#e2574c") : "#eeeeee"); });
+    f += 1; if (f < n + 2) state.laneRaf = requestAnimationFrame(() => setTimeout(step, 1000 / 15));
+  };
+  if (reduce) { f = n; } step();
+}
+function renderTrain() {
+  state.done.add("train"); renderSteps();
+  const el = $("#t-body"), r = state.result && state.result.training;
+  $("#t-lede").textContent = T(`Same learner, same budget, three ways to build the training worlds. Each iteration pushes ${r ? r.n_worlds : 16} parallel NVIDIA Newton worlds at every point of the policy's table, then corrects the commands by the median miss. The hidden real world is never used for learning; when it is known (examples, simulated data) it only scores the result.`,
+    `같은 학습 방법과 예산으로 학습 환경만 세 가지로 바꿉니다. 매 반복마다 NVIDIA Newton 병렬 환경 ${r ? r.n_worlds : 16}개에서 정책 표의 모든 목표 지점을 시행하고, 빗나간 정도의 중앙값으로 명령을 수정합니다. 숨겨진 실제 환경은 학습에 쓰지 않으며, 정답을 아는 경우(예시, 가상 데이터)에만 결과 평가에 사용합니다.`);
+  if (!r) {
+    const p = state.trainProgress;
+    el.innerHTML = `<div class="row"><button class="btn primary" id="t-run" ${p ? "disabled" : ""}>${T("Retrain in NVIDIA Newton", "NVIDIA Newton에서 재학습")}</button><span class="small muted" id="t-note">${p ? T(`Training: ${p.condition ? T(...TNAME[p.condition]) : ""}, iteration ${p.iteration ?? 0}…`, `학습 중: ${p.condition ? T(...TNAME[p.condition]) : ""}, ${p.iteration ?? 0}회차…`) : T("About 1 minute on CPU (three conditions × 11 iterations × 176 pushes).", "CPU 기준 약 1분 걸립니다(조건 3개 × 반복 11회 × 시행 176회).")}</span></div>`;
+    if (!p) $("#t-run").onclick = async () => {
+      state.trainProgress = {}; renderTrain();
+      try {
+        const res = await be.train(state.s.id, pr => { state.trainProgress = pr; if (state.step === "train") renderTrain(); });
+        state.result.training = toView(res); state.trainProgress = null;
+      } catch (e) { state.trainProgress = null; toast(e.message); }
+      if (state.step === "train") renderTrain();
+    };
+    return;
+  }
+  const known = r.hidden_known, ids = Object.keys(r.conditions);
+  const best = Math.max(...ids.map(id => trainScore(r.conditions[id], known)));
+  state.laneCond = state.laneCond || "tether"; state.laneIt = state.laneIt ?? r.iterations;
+  el.innerHTML = `<div class="tcards">${ids.map(id => { const c = r.conditions[id], v = trainScore(c, known);
+      return `<div class="tcard ${id === "tether" ? "hl" : ""}"><span class="sw" style="background:${TCOL[id]}"></span><b class="num ${v === best ? "g" : ""}">${pct(v)}</b>
+        <span>${T(...TNAME[id])}</span><small>${id === "current" ? T("one world: your simulator as it is", "환경 1개: 보정 전 시뮬레이터 그대로") : id === "wide" ? T(`${c.distinct_worlds} worlds, friction ${fmt(c.mu_range[0])}–${fmt(c.mu_range[1])}, uniform surface`, `환경 ${c.distinct_worlds}개, 마찰계수 ${fmt(c.mu_range[0])}–${fmt(c.mu_range[1])}, 균일한 바닥`) : T(`${c.distinct_worlds} worlds from the bootstrap: friction ${fmt(c.mu_range[0])}–${fmt(c.mu_range[1])} plus the measured region`, `부트스트랩 환경 ${c.distinct_worlds}개: 마찰계수 ${fmt(c.mu_range[0])}–${fmt(c.mu_range[1])}, 측정한 구간 포함`)}</small></div>`; }).join("")}</div>
+    <p class="small muted" style="margin-top:6px">${known ? T(`Success = stopping within ${tolText(r.tolerance_m)} of the ${CS("targetWord")} in the hidden real world, 24 targets ${fmt(r.target_range_m[0], 1)}–${fmt(r.target_range_m[1], 1)} m.`, `성공 기준: 숨겨진 실제 환경에서 ${CS("targetWordKo")} ${tolText(r.tolerance_m)} 이내로 정지 (목표 24개, ${fmt(r.target_range_m[0], 1)}–${fmt(r.target_range_m[1], 1)} m).`) : T("Your own data has no hidden truth to score against, so this shows success in each condition's own training worlds. Run the policy on your real system to score it.", "직접 올린 데이터는 정답이 없어 각 조건의 학습 환경 안에서의 성공률을 보여 줍니다. 실제 성능은 실제 장비에서 확인해야 합니다.")} ${esc(r.engine)}, ${r.seconds} s.</p>
+    <div class="tgrid"><div class="chart"><h4>${T("Learning curves", "학습 곡선")}</h4>${learnChart(r)}</div>
+      <div class="chart"><h4>${T("Inside the training worlds", "학습 환경 들여다보기")}</h4><p>${T(`8 of the parallel worlds at one table point (Newton tracks). Green band: within ${tolText(r.tolerance_m)} of the ${CS("targetWord")} that world's camera reports.`, `병렬 환경 중 8개를 한 목표 지점에서 본 Newton 시뮬레이션 결과입니다. 초록 띠: 각 환경의 카메라가 측정한 ${CS("targetWordKo")} ${tolText(r.tolerance_m)} 이내.`)}</p>
+        <div class="row" style="margin:8px 0"><div class="seg2" role="group">${ids.map(id => `<button type="button" data-c="${id}" aria-pressed="${state.laneCond === id}">${T(...TNAME[id])}</button>`).join("")}</div></div>
+        <label class="small muted" style="display:flex;gap:10px;align-items:center">${T("iteration", "반복")} <input type="range" id="lane-it" min="0" max="${r.iterations}" value="${state.laneIt}" style="flex:1"> <output id="lane-it-o" class="num">${state.laneIt}</output> <button class="btn" id="lane-play" type="button">${T("Play", "재생")}</button></label>
+        <div id="lanes">${lanesSvg(r, state.laneCond, state.laneIt)}</div></div></div>
+    ${LIVE && r.hidden_known ? `<div class="row" style="margin-top:14px"><button class="btn" id="t-vid">${T("Show the three policies in the hidden world (NVIDIA Newton video)", "세 정책을 숨겨진 실제 환경에서 비교하기 (NVIDIA Newton 영상)")}</button><span class="small muted" id="t-vid-note"></span></div><div id="t-vid-box"></div>` : ""}
+    <div class="caveat" style="margin-top:12px">${T("The policy is a command table over the perceived distance, learned by trial (iterative learning control, median over worlds). It is deliberately simple so that what differs between the three is only the physics it was trained on.", "정책은 카메라 측정 거리마다 명령을 정하는 표이며, 시행착오(환경별 중앙값으로 수정하는 반복 학습 제어)로 학습합니다. 세 조건의 차이가 학습에 쓴 물리값에서만 나오도록 일부러 단순하게 설계했습니다.")}</div>`;
+  const redrawLanes = () => { $("#lanes").innerHTML = lanesSvg(r, state.laneCond, state.laneIt); $("#lane-it-o").textContent = state.laneIt; animateLanes(r, state.laneCond, state.laneIt); };
+  el.querySelectorAll("[data-c]").forEach(b => b.onclick = () => { state.laneCond = b.dataset.c; el.querySelectorAll("[data-c]").forEach(x => x.setAttribute("aria-pressed", String(x === b))); redrawLanes(); });
+  $("#lane-it").oninput = e => { state.laneIt = +e.target.value; redrawLanes(); };
+  $("#lane-play").onclick = async () => { for (let i = 0; i <= r.iterations; i++) { state.laneIt = i; $("#lane-it").value = i; redrawLanes(); await sleep(reduce ? 0 : 1600); } };
+  animateLanes(r, state.laneCond, state.laneIt);
+  const showVid = f => { $("#t-vid-box").innerHTML = `<video src="${esc(be.media(f))}" controls autoplay muted playsinline loop style="width:100%;margin-top:10px;border:1px solid var(--line)"></video>`; };
+  if (state.rolloutFile && $("#t-vid-box")) showVid(state.rolloutFile);
+  if ($("#t-vid")) $("#t-vid").onclick = async () => {
+    $("#t-vid").disabled = true; $("#t-vid-note").textContent = T("Newton is rendering three columns (about 30 s)…", "Newton이 세 화면을 렌더링하는 중입니다 (약 30초)…");
+    try { const v = await call(fetch(`/api/studio/sessions/${state.s.id}/train/video`, { method: "POST" })); state.rolloutFile = v.file; showVid(v.file); $("#t-vid-note").textContent = ""; }
+    catch (e) { $("#t-vid-note").textContent = e.message; $("#t-vid").disabled = false; }
+  };
+}
+
+/* ---------------------------------------------------------------- 6 export */
+const XTABS = [
+  { id: "newton", name: "NVIDIA Newton", file: "newton_calibration.py" },
+  { id: "carla", name: "CARLA", file: "carla_calibration.py", only: true },
+  { id: "isaaclab", name: "Isaac Lab", file: "isaaclab_events.py" },
+  { id: "markdown", name: "Report", file: "report.md" },
+  { id: "json", name: "JSON", file: "calibration.json" },
+];
+function exportText(id) {
+  const r = state.result;
+  if (id === "json") return JSON.stringify(r.report_json, null, 2);
+  return r.exports[id];
+}
+function highlight(text, id) {
+  if (id !== "newton" && id !== "isaaclab" && id !== "carla") return esc(text);
+  return text.split("\n").map(line => {
+    let q = null, cut = -1;  // the comment starts at the first # outside a string literal
+    for (let i = 0; i < line.length; i++) { const ch = line[i];
+      if (q) { if (ch === q) q = null; } else if (ch === '"' || ch === "'") q = ch; else if (ch === "#") { cut = i; break; } }
+    const code = cut >= 0 ? line.slice(0, cut) : line, com = cut >= 0 ? `<span class="c">${esc(line.slice(cut))}</span>` : "";
+    const parts = code.split(/("[^"]*"|'[^']*')/);
+    return parts.map((t, i) => i % 2 ? `<span class="s">${esc(t)}</span>` : esc(t).replace(/\b(import|from|class|def|return|True|False|None|as)\b/g, '<span class="k">$1</span>')).join("") + com;
+  }).join("\n");
+}
+function verifyChart(v) {
+  const W = 420, H = 300, m = { l: 46, r: 12, t: 16, b: 36 };
+  const all = v.pushes.flatMap(p => [p.measured, p.calibrated, p.current]);
+  const hi = Math.max(...all) * 1.06, lo = 0;
+  const A = axes(W, H, m, [lo, hi], [lo, hi], T("measured stop (m)", "실제 정지 거리 (m)"), T("replayed in Newton (m)", "Newton 재현 (m)"), nice(lo, hi, 5), nice(lo, hi, 5));
+  const diag = `<line x1="${A.X(lo)}" y1="${A.Y(lo)}" x2="${A.X(hi)}" y2="${A.Y(hi)}" stroke="#eeeeee" stroke-opacity="0.35" stroke-dasharray="4 4"/>`;
+  const dots = (k, col, r) => v.pushes.map(p => `<circle cx="${A.X(p.measured)}" cy="${A.Y(p[k])}" r="${r}" fill="${col}"/>`).join("");
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${T("Replayed stops against measured stops", "재현한 정지 위치와 실제 정지 위치")}">${A.g}${diag}${dots("current", "#6e6e6e", 4)}${dots("calibrated", "#76b900", 4.2)}</svg>
+    <div class="legend"><span><i style="background:#76b900;height:8px"></i>${T("exported (calibrated) physics", "보정된 물리값")}</span><span><i style="background:#6e6e6e;height:8px"></i>${T("your current sim", "보정 전 시뮬레이터")}</span><span>${T("on the dashed line = exact", "점선 위 = 정확히 일치")}</span></div>`;
+}
+function renderVerify() {
+  const el = $("#verify"), v = state.result && state.result.verify;
+  const head = `<div><h3>${T("Verified in NVIDIA Newton", "NVIDIA Newton으로 검증")}</h3>
+    <p class="small muted" style="margin-top:4px">${T(`Before you take it home: every measured ${CS("run")} replayed in the full physics engine, from its own start and launch, once with the exported physics and once with your current simulator. The fit used a fast analytic model; this checks the numbers in the engine you will load them into.`, `내보내기 전에 확인합니다. 측정한 모든 시행을 실제와 같은 출발 위치·속도로 NVIDIA Newton에서 다시 실행합니다. 한 번은 보정값으로, 한 번은 보정 전 시뮬레이터로 실행해 비교합니다. 보정값은 빠른 근사 모델로 찾았기 때문에, 실제로 사용할 물리 엔진에서 다시 확인하는 단계입니다.`)}</p>`;
+  if (!v) {
+    el.innerHTML = head + `<div class="row" style="margin-top:12px"><button class="btn primary" id="v-run">${T("Replay in NVIDIA Newton", "NVIDIA Newton으로 재현하기")}</button><span class="small muted" id="v-note">${T("Takes a few seconds on CPU.", "CPU로 몇 초 걸립니다.")}</span></div></div>`;
+    $("#v-run").onclick = async () => {
+      $("#v-run").disabled = true; $("#v-note").textContent = T("Newton is replaying…", "Newton이 재현하는 중입니다…");
+      try { state.result.verify = toView(await be.verify(state.s.id)); renderVerify(); }
+      catch (e) { $("#v-note").textContent = e.message; $("#v-run").disabled = false; }
+    };
+    return;
+  }
+  const better = v.rms_current_m / Math.max(1e-6, v.rms_calibrated_m);
+  el.innerHTML = head + `<div class="stats">
+      <div><b class="g num">±${dist(v.rms_calibrated_m)}</b><span>${T("exported physics, rms stop error", "보정값의 평균 정지 위치 오차")}</span></div>
+      <div><b class="num">±${dist(v.rms_current_m)}</b><span>${T("your current sim", "보정 전 시뮬레이터")}</span></div>
+      <div><b class="num">${better >= 10 ? Math.round(better) : better.toFixed(1)}×</b><span>${T("closer to reality", "더 정확")}</span></div>
+      <div><b class="num">${v.pushes.length}</b><span>${T(`${CS("runsEn")} replayed in ${v.seconds} s`, `재현한 시행 수 (${v.seconds}초)`)}</span></div></div>
+    <p class="small muted" style="margin-top:10px">${T(`Worst single ${CS("run")}: ${dist(v.worst_calibrated_m)}. Part of what remains is measurement noise in your data and the box's finite contact patch, which the analytic fit ignores.`, `가장 크게 벗어난 기록: ${dist(v.worst_calibrated_m)}. 남은 오차에는 측정 잡음과, 근사 모델이 고려하지 않는 접촉면 크기 효과가 포함됩니다.`)} ${esc(v.engine)}.</p></div>
+    <div>${verifyChart(v)}</div>`;
+}
+function renderExport() {
+  state.done.add("export"); renderSteps();
+  renderVerify();
+  const tabs = XTABS.filter(t => !t.only || (state.result.exports || {})[t.id]);
+  if (!tabs.some(t => t.id === state.exportTab)) state.exportTab = "newton";
+  $("#x-tabs").innerHTML = tabs.map(t => `<button role="tab" aria-selected="${state.exportTab === t.id}" data-id="${t.id}">${t.name}</button>`).join("");
+  $("#x-tabs").querySelectorAll("button").forEach(b => b.onclick = () => { state.exportTab = b.dataset.id; renderExport(); });
+  const t = XTABS.find(x => x.id === state.exportTab), text = exportText(t.id);
+  $("#x-code").innerHTML = highlight(text, t.id);
+  $("#x-note").textContent = { newton: "Material values for newton.ModelBuilder.ShapeConfig, plus the measured friction region.", isaaclab: "An EventTermCfg that randomizes the object's material over the measured interval at startup.", carla: T("CARLA 0.9.16: scales your vehicle's tire friction by measured / simulated μ, places a friction trigger on the wet or icy section, and ends with a braking check.", "CARLA 0.9.16용 설정입니다. 타이어 마찰을 ‘측정값/시뮬레이션값’ 비율로 조정하고, 젖거나 언 구간에 마찰 트리거를 배치하며, 제동 거리 검증식을 포함합니다."), markdown: "A one-page report to share.", json: "Everything above, machine-readable (tether.calibration/v1)." }[t.id];
+  $("#x-dl").hidden = !LIVE;
+  const others = ["robot", "driving", "factory"].filter(id => id !== DOM.id);
+  const home = $("#nav-home") && $("#nav-home").getAttribute("href");
+  const cons = $("#nav-benchmark") && $("#nav-benchmark").getAttribute("href");
+  $("#wayout").innerHTML = `<h3>${T("Where next", "다음으로")}</h3><div class="row">
+      ${others.map(id => `<a class="btn" href="#${id}" data-dom="${id}">${T("Try", "다른 분야:")} ${esc(DOMS[id].name[LANG] || DOMS[id].name.en)}</a>`).join("")}
+      ${cons ? `<a class="btn" href="${esc(cons)}">${T("Benchmark: how the AI is tested", "검증: AI를 어떻게 시험했는지 보기")}</a>` : ""}
+      ${home ? `<a class="btn" href="${esc(home)}">${T("Overview", "소개")}</a>` : ""}</div>`;
+  $("#wayout").querySelectorAll("[data-dom]").forEach(a => a.onclick = ev => { ev.preventDefault(); DATA_DOM = a.dataset.dom; try { localStorage.setItem("tether-domain", DATA_DOM); } catch (_) {} renderDomainCopy(); simDefaults(); renderSamples(); drawSimView(); go("data"); });  // a shared page cannot start downloads; Copy works everywhere
+  $("#x-copy").onclick = async () => { try { await navigator.clipboard.writeText(text); toast("Copied"); }
+    catch (_) { const r = document.createRange(); r.selectNodeContents($("#x-code")); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); toast("Selected: press Ctrl/Cmd+C"); } };
+  $("#x-dl").onclick = () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type: "text/plain" })); a.download = t.file; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); toast("Downloaded " + t.file); };
+}
+
+/* ---------------------------------------------------------------- Ask Tether (Nemotron, grounded in this session) */
+const SUGG = {
+  data: [["What does this tool do, in simple words?", "이 도구는 무엇을 합니까?"], ["How should I film my table?", "영상은 어떻게 촬영합니까?"], ["What do the simulation sliders mean?", "가상 탁자 설정 항목을 설명해 주십시오"]],
+  measure: [["Why do I place handles on the sheet's corners?", "A4 용지 모서리를 맞추는 이유는?"], ["What is parallax and why does height matter?", "물체 높이가 필요한 이유는?"]],
+  diag: [["What is the agent doing right now?", "AI는 지금 무엇을 하고 있습니까?"], ["Why not just trust the AI's numbers?", "AI의 숫자를 그대로 쓰지 않는 이유는?"]],
+  results: [["Explain my result in simple words", "결과를 쉽게 설명해 주십시오"], ["How sure is this?", "이 결과는 얼마나 확실합니까?"], ["What should I do next?", "다음에 무엇을 해야 합니까?"]],
+  train: [["Why does wide randomization do worse here?", "넓은 도메인 랜덤화가 더 나쁜 이유는?"], ["What does this mean for my real system?", "이 결과는 실제 장비에 어떤 의미입니까?"]],
+  export: [["How do I use this in Isaac Lab?", "Isaac Lab에는 어떻게 적용합니까?"], ["What do the randomization ranges mean?", "설정의 범위는 무슨 의미입니까?"]],
+};
+state.chat = [];
+function mdLite(t) {
+  const lines = esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").split(/\n/);
+  let out = "", inList = false;
+  for (const l of lines) {
+    const m = l.match(/^\s*(?:[-*•]|\d+\.)\s+(.*)$/);
+    if (m) { if (!inList) { out += "<ul>"; inList = true; } out += `<li>${m[1]}</li>`; continue; }
+    if (inList) { out += "</ul>"; inList = false; }
+    out += l.trim() ? `<p style="margin:4px 0">${l}</p>` : "";
+  }
+  return out + (inList ? "</ul>" : "");
+}
+function renderChat() {
+  if (!$("#chat")) return;
+  $("#askfab").textContent = T("Ask", "질문");
+  $("#chat-in").placeholder = T("Ask a question…", "질문을 입력하십시오…");
+  $("#chatlog").innerHTML = state.chat.map(m => `<div class="msg ${m.role === "user" ? "user" : m.err ? "bot err" : "bot"}">${m.role === "user" ? esc(m.content) : mdLite(m.content)}</div>`).join("") +
+    (state.chatBusy ? `<div class="msg bot">${T("Thinking…", "답변 준비 중…")}</div>` : "");
+  $("#chatlog").scrollTop = $("#chatlog").scrollHeight;
+  const sg = SUGG[state.step] || SUGG.data;
+  $("#chat-sugg").innerHTML = LIVE ? sg.map(([en, ko]) => `<button type="button">${esc(T(en, ko))}</button>`).join("") : "";
+  $("#chat-sugg").querySelectorAll("button").forEach(b => b.onclick = () => askChat(b.textContent));
+  const off = !LIVE || (state.status && state.status.provider === "none");
+  $("#chat-in").disabled = off || state.chatBusy; $("#chat-send").disabled = off || state.chatBusy;
+  if (off) $("#chat-intro").textContent = T("Ask needs the live server with a language model (make serve with TETHER_LLM=tokenfactory).", "질문 기능은 AI가 연결된 서버에서만 사용할 수 있습니다 (TETHER_LLM=tokenfactory로 make serve).");
+}
+async function askChat(q) {
+  q = (q || "").trim(); if (!q || state.chatBusy) return;
+  state.chat.push({ role: "user", content: q }); state.chatBusy = true; renderChat();
+  try {
+    const body = { sid: state.s && state.s.id, lang: LANG, step: state.step, messages: state.chat.filter(m => !m.err).map(m => ({ role: m.role, content: m.content })) };
+    const r = await call(fetch("/api/studio/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }));
+    state.chat.push({ role: "assistant", content: r.answer });
+  } catch (e) { state.chat.push({ role: "assistant", content: e.message, err: true }); }
+  state.chatBusy = false; renderChat();
+}
+function initChat() {
+  const open = v => { $("#chat").hidden = !v; $("#askfab").setAttribute("aria-expanded", String(v)); if (v) { renderChat(); $("#chat-in").focus(); } };
+  $("#askfab").onclick = () => open($("#chat").hidden);
+  $("#chat-x").onclick = () => open(false);
+  $("#chat-form").onsubmit = ev => { ev.preventDefault(); const q = $("#chat-in").value; $("#chat-in").value = ""; askChat(q); };
+  $("#chat-in").onkeydown = ev => { if (ev.key === "Enter" && !ev.shiftKey) { ev.preventDefault(); $("#chat-form").requestSubmit(); } };
+  document.addEventListener("keydown", ev => { if (ev.key === "Escape" && !$("#chat").hidden) open(false); });
+}
+
+/* ---------------------------------------------------------------- boot */
+document.querySelectorAll(".lang button").forEach(b => b.onclick = () => setLang(b.dataset.lang));
+initChat();
+renderSteps();
+$("#to-x2").onclick = () => go("export");
+initData().then(() => setLang(LANG));
+addEventListener("hashchange", () => {  // a link to /studio#driving while already on the page: switch the data tab
+  const h = location.hash.slice(1);
+  if (!["robot", "driving", "factory"].includes(h) || h === DATA_DOM) return;
+  DATA_DOM = h; renderDomainCopy(); simDefaults(); renderSamples(); drawSimView(); if (state.step !== "data") go("data");
+});
+</script>
+</body>
+</html>

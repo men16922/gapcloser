@@ -6,16 +6,16 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from agent.llm import RecordedLLM
-from agent.tool_agent import from_params
-from sim.params import ParamSet
-from sim.push_task import AnalyticPushEnv
-from studio import design, export
-from studio.fit import calibrate
-from studio.pipeline import analyze
-from studio.session import Push, Session, SessionError, load, resample, to_csv
+from tether.agent.llm import RecordedLLM
+from tether.agent.tool_agent import from_params
+from tether.sim.params import ParamSet
+from tether.sim.push_task import AnalyticPushEnv
+from tether.studio import design, export
+from tether.studio.fit import calibrate
+from tether.studio.pipeline import analyze
+from tether.studio.session import Push, Session, SessionError, load, resample, to_csv
 
-SAMPLES = Path(__file__).resolve().parent.parent / "studio" / "samples"
+SAMPLES = Path(__file__).resolve().parent.parent / "tether" / "studio" / "samples"
 PATCH = ParamSet.nominal().with_(object_mu=0.6, table_mu=0.6, patch_y0=0.35, patch_mu=0.4, actuator_gain=0.9)
 
 
@@ -103,8 +103,8 @@ def test_launch_offset_keeps_a_friction_region_fixed_to_the_table():
 
 
 def test_plane_camera_recovers_pose_and_backprojects_with_parallax():
-    from studio.video import PlaneCamera
-    from studio.video_sample import CAM_POS, H, W, project, sheet_corners_world
+    from tether.studio.video import PlaneCamera
+    from tether.studio.video_sample import CAM_POS, H, W, project, sheet_corners_world
 
     cam = PlaneCamera(project(sheet_corners_world()), (0.210, 0.297), (W, H))
     assert abs(cam.height_m - CAM_POS[2]) < 0.005
@@ -117,7 +117,7 @@ def test_plane_camera_recovers_pose_and_backprojects_with_parallax():
 @pytest.mark.skipif(not (SAMPLES / "flick-video.mp4").exists(), reason="sample video not rendered")
 def test_sample_video_tracks_to_ground_truth():
     pytest.importorskip("cv2")
-    from studio.video import track_video
+    from tether.studio.video import track_video
 
     truth = json.loads((SAMPLES / "flick-video.truth.json").read_text())
     s, dbg = track_video(SAMPLES / "flick-video.mp4", truth["sheet_corners_px"], object_height_m=0.06)
@@ -175,7 +175,7 @@ def test_cross_check_overrules_an_agent_that_ignores_the_launch_speed():
 
 
 def test_domain_units_scale_lengths_and_speeds_but_not_friction():
-    from studio import domains as D
+    from tether.studio import domains as D
 
     d = D.get("driving")
     assert D.model_to_domain(d, {"mu_eff": 0.7, "patch_y0": 0.36, "camera_dx": 0.01, "lens_k": 0.5}) == \
@@ -193,7 +193,7 @@ def test_sheet_corners_are_found_automatically():
 
     import numpy as np
 
-    from studio.video import auto_sheet
+    from tether.studio.video import auto_sheet
 
     path = SAMPLES / "stop-line-video.mp4"
     if not path.exists():
@@ -212,9 +212,9 @@ def test_carla_export_runs_against_the_carla_api_shape():
     import sys
     import types
 
-    from studio import export
-    from studio.pipeline import analyze
-    from studio.session import load
+    from tether.studio import export
+    from tether.studio.pipeline import analyze
+    from tether.studio.session import load
 
     class V:
         def __init__(self, x=0.0, y=0.0, z=0.0):
@@ -292,7 +292,7 @@ def test_real_table_validation_runs_end_to_end_on_a_clip_with_a_tilt_angle(tmp_p
     import math
     import shutil
 
-    import eval.prove_real as pr
+    import tether.eval.prove_real as pr
 
     shutil.copyfile(SAMPLES / "flick-video.mp4", tmp_path / "table.mp4")
     (tmp_path / "truth.json").write_text(json.dumps({"table": {"tilt_kinetic_deg": math.degrees(math.atan(0.55)), "object_height_cm": 6.0},
@@ -310,8 +310,8 @@ def test_trajectory_shape_pins_friction_when_the_launch_speed_is_mismeasured():
     can be 20% off. The shape of the whole slide (how long it takes to stop) still gives friction."""
     import random
 
-    from studio.fit import calibrate
-    from studio.session import Push, Session
+    from tether.studio.fit import calibrate
+    from tether.studio.session import Push, Session
 
     rng, mu, g = random.Random(4), 0.16, 9.81
     pushes = []
@@ -327,7 +327,7 @@ def test_trajectory_shape_pins_friction_when_the_launch_speed_is_mismeasured():
 
 
 def test_tracks_that_cannot_be_slides_are_flagged():
-    from studio.video import implausible
+    from tether.studio.video import implausible
 
     clean = [0.0, 0.04, 0.075, 0.105, 0.13, 0.15, 0.165, 0.175, 0.18, 0.18]
     assert implausible(clean, 30.0, 1.25) is None
@@ -339,8 +339,8 @@ def test_tracks_that_cannot_be_slides_are_flagged():
 def test_a_friction_region_the_agent_adds_within_noise_is_left_out():
     """The short-reach log never reaches its slick region; an agent that fits one anyway (it lowers the stop error
     by under a millimetre) is overruled by the same within-noise rule the offline search uses."""
-    from agent.llm import RecordedLLM
-    from agent.tool_agent import from_params
+    from tether.agent.llm import RecordedLLM
+    from tether.agent.tool_agent import from_params
 
     s = load((SAMPLES / "short-reach.csv").read_text(), "short-reach.csv", "sr")
     free = ["mu_eff", "actuator_gain", "patch_y0", "patch_mu"]

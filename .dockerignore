@@ -4,11 +4,11 @@
 runs/live
 runs/*.log
 runs/*.md
-spike
-dashboard/dist
-scripts
+tether/web/dist
+film
 docs
 tests
+deploy
+integrations
+submission
 .claude
-.codex
-.kiro

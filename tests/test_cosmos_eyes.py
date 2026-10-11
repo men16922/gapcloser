@@ -7,11 +7,11 @@ import sys
 import urllib.error
 from pathlib import Path
 
-from agent.cosmos_eyes import CosmosEyes, events_from_frames, parse_frames
-from agent.llm import RecordedLLM
-from agent.tool_agent import ToolAgentDiagnoser
-from sim.params import ParamSet, Randomization
-from sim.push_task import AnalyticPushEnv, InverseTrainer, eval_targets
+from tether.agent.cosmos_eyes import CosmosEyes, events_from_frames, parse_frames
+from tether.agent.llm import RecordedLLM
+from tether.agent.tool_agent import ToolAgentDiagnoser
+from tether.sim.params import ParamSet, Randomization
+from tether.sim.push_task import AnalyticPushEnv, InverseTrainer, eval_targets
 
 ROOT = Path(__file__).resolve().parents[1]
 DEMO = ROOT / "runs" / "demo"
@@ -40,7 +40,7 @@ def test_parse_frames_accepts_object_bare_list_and_fences():
 
 
 def test_import_is_light():
-    code = "import sys, agent.cosmos_eyes; print(sorted(m for m in ('numpy','scipy','PIL','requests') if m in sys.modules))"
+    code = "import sys, tether.agent.cosmos_eyes; print(sorted(m for m in ('numpy','scipy','PIL','requests') if m in sys.modules))"
     out = subprocess.run([sys.executable, "-c", code], cwd=ROOT, capture_output=True, text=True, check=True)
     assert out.stdout.strip() == "[]"
 
@@ -103,7 +103,7 @@ def _rollouts():
 
 
 def _commit_llm():
-    from agent.tool_agent import from_params
+    from tether.agent.tool_agent import from_params
 
     commit = {"id": "c0", "name": "commit", "arguments": json.dumps({"model": from_params(ParamSet.nominal()), "explanation": "x"})}
     return RecordedLLM({"chat:diagnose": [{"content": "", "tool_calls": [commit], "model": "scripted"}]})
@@ -130,7 +130,7 @@ class FixedEyes:
 
 
 def test_eyes_only_annotates_bundle_with_agreement(tmp_path):
-    from eval.record_demo import annotate_eyes
+    from tether.eval.record_demo import annotate_eyes
 
     bundle = json.loads((DEMO / "bundle.json").read_text())
     run = next(r for r in bundle["runs"] if r["id"] == "tipping-edge")

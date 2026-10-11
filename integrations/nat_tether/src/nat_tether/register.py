@@ -6,7 +6,7 @@ here Nemotron 3 Super on Nebius Token Factory), the runner and front ends (`nat 
 stream: every tool call the agent makes (decel_profile, perception_check, fit_hypothesis, probe_real, commit) is
 pushed as a NAT TOOL_START/TOOL_END step, so NAT's profiler and observability exporters see the agent's path.
 
-The agent loop and the least-squares fitter are Tether's own (agent/tool_agent.py, studio/fit.py): NAT core ships
+The agent loop and the least-squares fitter are Tether's own (tether/agent/tool_agent.py, tether/studio/fit.py): NAT core ships
 no agent, and the numbers must come from the fitter, never from the model.
 """
 
@@ -35,7 +35,7 @@ class TetherCalibrateConfig(FunctionBaseConfig, name="tether_calibrate"):
     data, and the next experiment worth running."""
 
     llm_name: LLMRef | None = Field(default=None, description="The LLM that drives the tool agent; none = offline fit.")
-    repo: str = Field(default=str(REPO), description="Path to the Tether repository (imports studio/ and agent/).")
+    repo: str = Field(default=str(REPO), description="Path to the Tether repository (imports the tether package).")
     n_boot: int = Field(default=30, description="Bootstrap refits for the intervals.")
     record: str | None = Field(default=None, description="Append every LLM response to this JSON file (replayable).")
     replay: str | None = Field(default=None, description="Replay a recorded run from this JSON file instead of calling the LLM.")
@@ -43,7 +43,7 @@ class TetherCalibrateConfig(FunctionBaseConfig, name="tether_calibrate"):
 
 def _llm_from(config, builder: Builder):
     """Tether's OpenAI-compatible client, built from a NAT `llms:` entry (base_url, model, key)."""
-    from agent.llm import OpenAICompatLLM
+    from tether.agent.llm import OpenAICompatLLM
 
     c = builder.get_llm_config(config.llm_name)
     key = c.api_key.get_secret_value() if getattr(c, "api_key", None) else os.environ.get("NEBIUS_API_KEY", "")
@@ -55,9 +55,9 @@ def _llm_from(config, builder: Builder):
 
 
 def _load(source: str):
-    from studio.session import load
+    from tether.studio.session import load
 
-    samples = Path(REPO) / "studio" / "samples"
+    samples = Path(REPO) / "tether" / "studio" / "samples"
     path = samples / f"{source}.csv" if (samples / f"{source}.csv").exists() else Path(source).expanduser()
     if not path.exists():
         names = sorted(p.stem for p in samples.glob("*.csv"))
@@ -69,7 +69,7 @@ def _load(source: str):
 
 
 def summarize(res) -> dict:
-    from studio import structure
+    from tether.studio import structure
 
     cal = res.calibration
     return {
@@ -89,7 +89,7 @@ def summarize(res) -> dict:
 async def tether_calibrate(config: TetherCalibrateConfig, builder: Builder):
     if config.repo not in sys.path:
         sys.path.insert(0, config.repo)
-    from agent.llm import RecordedLLM, RecordingLLM
+    from tether.agent.llm import RecordedLLM, RecordingLLM
 
     if config.replay:
         llm = RecordedLLM.from_file(Path(config.replay))
@@ -101,7 +101,7 @@ async def tether_calibrate(config: TetherCalibrateConfig, builder: Builder):
     async def _calibrate(source: str) -> str:
         """Calibrate from `source`: a Studio sample name (lab-bench, short-reach, brake-log, press-line) or the path
         of a robot log (CSV/JSON: command, stop, optional target, perceived, track). Returns JSON."""
-        from studio.pipeline import analyze
+        from tether.studio.pipeline import analyze
 
         steps = Context.get().intermediate_step_manager
 

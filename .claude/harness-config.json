@@ -1,19 +1,30 @@
 {
   "$comment": "Per-repo harness config. Copied to .claude/harness-config.json by /harness-init for historical compatibility across engines. The plugin skills (sync/checkpoint/tidy-docs/overnight-report/overnight-seed) read this to learn your doc filenames, gate command, engine, and line budgets. Edit these to match your repo; skills fall back to these same defaults if the file is absent. Optional: add \"harness_root\": \"/abs/path/to/plugin\" to pin a specific overnight-harness install (else the Makefile auto-resolves the highest installed version).",
-  "project_name": "GapCloser",
+  "project_name": "Tether",
   "docs": {
-    "brief": "docs/AGENT_BRIEF.md",
-    "status": "docs/STATUS.md",
-    "plan": "docs/NEXT_PLAN.md",
-    "log": "docs/PROGRESS_LOG.md",
-    "completed": "docs/COMPLETED_SUMMARY.md",
-    "decisions": "docs/DECISIONS.md",
-    "lessons": "docs/LESSONS.md"
+    "brief": "docs/project/AGENT_BRIEF.md",
+    "status": "docs/project/STATUS.md",
+    "plan": "docs/project/NEXT_PLAN.md",
+    "log": "docs/project/PROGRESS_LOG.md",
+    "completed": "docs/project/COMPLETED_SUMMARY.md",
+    "decisions": "docs/project/DECISIONS.md",
+    "lessons": "docs/project/LESSONS.md"
   },
-  "archive_dir": "docs/archive",
+  "archive_dir": "docs/project/archive",
   "gate": "make check",
   "smoke": "make smoke-local",
-  "budgets": { "brief": 60, "status": 120, "plan": 120, "log": 120, "lessons": 40 },
+  "budgets": {
+    "brief": 60,
+    "status": 120,
+    "plan": 120,
+    "log": 120,
+    "lessons": 40
+  },
   "engine": "claude",
-  "engine_choices": ["claude", "codex", "opencode", "agy"]
+  "engine_choices": [
+    "claude",
+    "codex",
+    "opencode",
+    "agy"
+  ]
 }

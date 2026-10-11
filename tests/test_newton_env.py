@@ -2,10 +2,10 @@ import pytest
 
 pytest.importorskip("newton")
 
-from agent.loop import HeuristicPlanner, RealWorld, TrajectoryDiagnoser, run_loop  # noqa: E402
-from sim.newton_push import NewtonPushEnv  # noqa: E402
-from sim.params import ParamSet, Randomization  # noqa: E402
-from sim.push_task import AnalyticPushEnv, GridTrainer, eval_targets  # noqa: E402
+from tether.agent.loop import HeuristicPlanner, RealWorld, TrajectoryDiagnoser, run_loop  # noqa: E402
+from tether.sim.newton_push import NewtonPushEnv  # noqa: E402
+from tether.sim.params import ParamSet, Randomization  # noqa: E402
+from tether.sim.push_task import AnalyticPushEnv, GridTrainer, eval_targets  # noqa: E402
 
 TARGETS = eval_targets(20, 1000)
 
@@ -28,7 +28,7 @@ def test_newton_loop_closes_weak_motor_gap():
 
 
 def test_tipping_is_flagged_only_at_high_friction():
-    from sim.push_task import Policy
+    from tether.sim.push_task import Policy
 
     env = NewtonPushEnv()
     low = env.rollout(ParamSet.nominal(), Policy(2 * 0.8 * 9.81), TARGETS)
@@ -38,8 +38,8 @@ def test_tipping_is_flagged_only_at_high_friction():
 
 
 def test_extract_frames_from_rendered_clip(tmp_path):
-    from eval.record_demo import extract_frames
-    from sim.newton_push import render_trial
+    from tether.eval.record_demo import extract_frames
+    from tether.sim.newton_push import render_trial
 
     clip = tmp_path / "c.webp"
     render_trial(ParamSet.nominal(), 2.5, 0.4, clip)
@@ -48,7 +48,7 @@ def test_extract_frames_from_rendered_clip(tmp_path):
 
 
 def test_newton_friction_patch_matches_analytic_without_tipping():
-    from sim.push_task import slide_distance
+    from tether.sim.push_task import slide_distance
 
     cmds = [1.5, 2.2, 2.6, 3.0]
     for p in (ParamSet.nominal().with_(patch_y0=0.35, patch_mu=0.45), ParamSet.nominal().with_(patch_y0=0.3, patch_mu=0.95),

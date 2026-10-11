@@ -1,9 +1,9 @@
 import json
 
-from agent.loop import HeuristicDiagnoser, HeuristicPlanner, RealWorld, TrajectoryDiagnoser, fit_launch, run_loop
-from eval.compare import run, summarize
-from sim.params import ParamSet, Randomization
-from sim.push_task import AnalyticPushEnv, GridTrainer, analytic_track, eval_targets
+from tether.agent.loop import HeuristicDiagnoser, HeuristicPlanner, RealWorld, TrajectoryDiagnoser, fit_launch, run_loop
+from tether.eval.compare import run, summarize
+from tether.sim.params import ParamSet, Randomization
+from tether.sim.push_task import AnalyticPushEnv, GridTrainer, analytic_track, eval_targets
 
 TARGETS = eval_targets(20, 1000)
 
@@ -72,8 +72,8 @@ def test_trajectory_diagnoser_breaks_gain_confound():
 
 def test_tipped_trials_do_not_drive_friction_changes():
     """Tipped cubes stop short for reasons outside the sliding model; the diagnosers must ignore them."""
-    from agent.loop import HeuristicDiagnoser, TrajectoryDiagnoser
-    from sim.push_task import Rollout
+    from tether.agent.loop import HeuristicDiagnoser, TrajectoryDiagnoser
+    from tether.sim.push_task import Rollout
 
     env = AnalyticPushEnv()
     pol = GridTrainer(env).train(Randomization.none())
@@ -88,7 +88,7 @@ def test_tipped_trials_do_not_drive_friction_changes():
 
 
 def test_observe_and_launch_command_have_exact_inverses_in_open_worlds():
-    from sim.push_task import launch_command, observe, slide_distance, unobserve
+    from tether.sim.push_task import launch_command, observe, slide_distance, unobserve
 
     p = ParamSet.nominal().with_(patch_y0=0.35, patch_mu=0.3, lens_k=0.2, camera_pitch_deg=2.0, camera_dx=0.01)
     for t in (0.2, 0.34, 0.36, 0.6):
@@ -98,7 +98,7 @@ def test_observe_and_launch_command_have_exact_inverses_in_open_worlds():
 
 def test_analytic_track_follows_patch_deceleration():
     p = ParamSet.nominal().with_(patch_y0=0.3, patch_mu=0.2)
-    from sim.push_task import launch_command, slide_distance
+    from tether.sim.push_task import launch_command, slide_distance
 
     c = launch_command(0.6, p)
     tr = analytic_track(c, p)
@@ -107,7 +107,7 @@ def test_analytic_track_follows_patch_deceleration():
 
 
 def test_inverse_trainer_matches_the_world_it_is_trained_on():
-    from sim.push_task import InverseTrainer
+    from tether.sim.push_task import InverseTrainer
 
     env = AnalyticPushEnv()
     for p in (ParamSet.nominal(), ParamSet.nominal().with_(patch_y0=0.35, patch_mu=0.3, lens_k=0.25, actuator_gain=0.85)):
@@ -119,7 +119,7 @@ def test_inverse_trainer_matches_the_world_it_is_trained_on():
 
 
 def test_real_world_counts_probe_and_rollout_trials():
-    from sim.push_task import InverseTrainer
+    from tether.sim.push_task import InverseTrainer
 
     real = RealWorld(AnalyticPushEnv(), ParamSet.nominal())
     real.rollout(InverseTrainer().train(Randomization.none()), TARGETS)

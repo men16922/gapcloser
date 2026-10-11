@@ -8,9 +8,9 @@ import pytest
 
 mujoco = pytest.importorskip("mujoco")
 
-from sim.mujoco_push import MujocoPushEnv  # noqa: E402
-from sim.params import GRAVITY, ParamSet  # noqa: E402
-from sim.push_task import FRAME_DT  # noqa: E402
+from tether.sim.mujoco_push import MujocoPushEnv  # noqa: E402
+from tether.sim.params import GRAVITY, ParamSet  # noqa: E402
+from tether.sim.push_task import FRAME_DT  # noqa: E402
 
 
 def _fit_track(track, stop):
@@ -41,15 +41,15 @@ def test_friction_region_and_off_menu_effects_change_the_slide():
 
 
 def _log(effects, seed=3):
-    from eval.cross_engine import first_day_log, hidden_world
+    from tether.eval.cross_engine import first_day_log, hidden_world
 
     h = hidden_world(random.Random(seed))
     return first_day_log(MujocoPushEnv(effects), ParamSet.nominal().with_(**h), seed), h
 
 
 def test_pattern_check_finds_speed_dependence_but_not_plain_scatter():
-    from studio import structure
-    from studio.fit import calibrate
+    from tether.studio import structure
+    from tether.studio.fit import calibrate
 
     s, _ = _log({})
     cal = calibrate(s, n_boot=0)

@@ -3,11 +3,11 @@ from pathlib import Path
 
 import pytest
 
-from agent.llm import LLMResponse, RecordedLLM, RecordingLLM, pick_model
-from agent.llm_diagnoser import LLMDiagnoser, build_evidence, parse_response, validate_suspects
-from agent.loop import HeuristicPlanner, RealWorld, run_loop
-from sim.params import ParamSet
-from sim.push_task import AnalyticPushEnv, GridTrainer, eval_targets
+from tether.agent.llm import LLMResponse, RecordedLLM, RecordingLLM, pick_model
+from tether.agent.llm_diagnoser import LLMDiagnoser, build_evidence, parse_response, validate_suspects
+from tether.agent.loop import HeuristicPlanner, RealWorld, run_loop
+from tether.sim.params import ParamSet
+from tether.sim.push_task import AnalyticPushEnv, GridTrainer, eval_targets
 
 TARGETS = eval_targets(20, 1000)
 FIXTURE = Path(__file__).parent / "fixtures" / "nemotron_weak_motor.json"
@@ -46,7 +46,7 @@ def test_validate_suspects_filters_dedupes_clamps_and_drops_no_change():
 def test_evidence_has_tracking_ratios_and_no_hidden_values():
     env = AnalyticPushEnv()
     hidden = ParamSet.nominal().with_(actuator_gain=0.76)
-    pol = GridTrainer(env).train(__import__("sim.params", fromlist=["Randomization"]).Randomization.none())
+    pol = GridTrainer(env).train(__import__("tether.sim.params", fromlist=["Randomization"]).Randomization.none())
     ev = build_evidence(env.rollout(hidden, pol, TARGETS), env.rollout(ParamSet.nominal(), pol, TARGETS), ParamSet.nominal())
     assert abs(ev["tracking"]["launch_speed_ratio_real_over_sim"] - 0.76) < 1e-3
     assert ev["sim_current"]["actuator_gain"] == 1.0  # the agent sees its own sim, never the hidden value

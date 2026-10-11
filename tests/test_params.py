@@ -2,7 +2,7 @@ import random
 
 import pytest
 
-from sim.params import (CLOSED_PARAMS, OPEN_PARAMS, PARAM_SPACE, ConfigDiff, ParamSet, Randomization,
+from tether.sim.params import (CLOSED_PARAMS, OPEN_PARAMS, PARAM_SPACE, ConfigDiff, ParamSet, Randomization,
                         effective_friction, sample_hidden)
 
 

@@ -2,7 +2,7 @@
 
 2026-10-10 23:46 · git c9bd732 · arm64 Darwin · 776 s · full
 
-Everything below except section 5 was recomputed by `python -m eval.prove` on this machine, with no network.
+Everything below except section 5 was recomputed by `python -m tether.eval.prove` on this machine, with no network.
 
 ## 1. Interval coverage
 
