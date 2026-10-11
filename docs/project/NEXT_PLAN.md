@@ -9,6 +9,7 @@ progress table are in `docs/project/plans/2026-10-11-s-level-plan.md`.
 
 - [x] [auto] Upload folder `submission/` (`make submission`): film 2:28 with ~68 s of the app in action, YouTube thumbnail and description, Devpost gallery and About text; steps in `docs/submission/SUBMIT.md`.
 - [ ] [manual] Owner: upload the film to YouTube (public), then submit on Devpost following `docs/submission/SUBMIT.md`.
+- [ ] [auto] After the YouTube upload: put the link into `docs/article/tether.{en,ko}.md` and the portfolio copies (`men16922.github.io/public/posts/tether/`), and README; optional Tether card in the portfolio Projects section.
 - [ ] [manual] Film feedback from the owner, if any: re-render with `make film`, then `make submission`.
 
 ## Priority 1 — Engineering

@@ -4,6 +4,13 @@ Last Updated: 2026-10-11
 
 This file maintains only recent incremental summaries (newest 3-5 items, ≤120 lines). Older entries are archived to `docs/archive/progress-YYYY-MM.md` via `/tidy-docs`.
 
+## 2026-10-11 — Tech article (EN/KO) published on the portfolio
+- Status: done; waiting on the owner's YouTube upload.
+- Changed: `docs/article/tether.{en,ko}.md` (+ `img/`, served from GitHub raw); published on https://men16922.github.io as `/articles/tether` and `/kr/articles/tether` (portfolio repo commits bc0c40c, 292223e: new "Portfolio" tab, `ArticlePost` page rendering `public/posts/<slug>/<lang>.md` with marked; `.gitattributes` now marks jpg etc. binary after JPGs were line-ending converted). Devpost replay numbers corrected (4-8 mm table scale, 18-27 cm driving).
+- Verified: live `.md` files 200, live image hashes equal the originals, `make check` 122 passed (earlier this day), Prettier check passed on the portfolio.
+- Blockers: none; YouTube upload and Devpost submission are the owner's.
+- Next: add the YouTube link to both articles (repo + portfolio) once the owner sends it; optionally a Tether card in the portfolio Projects section.
+
 ## 2026-10-11 — One clear structure: pages Overview / Studio / Benchmark, app code in `tether/`
 - Changed: "Agent console" is now **Benchmark** (KO 검증) at `/benchmark` (`/console` kept as an alias); every page has the same top bar (tagline, nav, AI status, EN/KO), the Benchmark page states its job on top (test the AI on worlds whose answer is known; Gap-Bench) and links to Studio; Overview and Studio link to it the same way. Repo: app code moved into one package `tether/` (agent, sim, studio, server, web (was dashboard), eval, `paths.py`); `film/` (was video, `film.py` -> `render.py`); `docs/guide/` (was reference); harness docs in `docs/project/`; Makefile grouped by purpose, `make pages` (was `make dashboard`); README repository map and Korean folder map (guide 00, section 10). Tech article (EN/KO) in `docs/article/`.
 - Verified: `make check` 122 passed; clean copy of `tether/` + `runs/demo` builds the pages and serves /, /studio, /benchmark; Cloud Run redeployed (/, /studio, /benchmark, /console 200; Nemotron online); app footage and the Ask clip re-recorded on the live server, film 147.9 s, `make submission` rebuilt.
