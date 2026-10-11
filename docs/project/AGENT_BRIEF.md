@@ -2,7 +2,7 @@
 
 Last Updated: 2026-10-11
 
-> ▶ NEXT SESSION: Submission ready (2026-10-11). Pages are Overview / Studio / Benchmark (`/benchmark`); app code lives in the `tether/` package (map: README "Repository map"). Everything to upload is in `submission/` (`make submission`), field by field in `docs/submission/SUBMIT.md`; the owner uploads to YouTube and submits on Devpost. Live demo on Cloud Run (`make deploy`). Owner's guide: `docs/guide/00_처음_읽어주세요.md`. Deployed 2026-10-11 (Cloud Run revision with /benchmark); film re-recorded with the new nav (2:28). Open: film feedback.
+> ▶ NEXT SESSION: Plan-only round done. Read `docs/project/plans/2026-10-11-feedback-hardening.md`, then start NEXT_PLAN Priority 1-A (`tether/eval/real_benchmark.py`: baselines + leave-one-push-out; move the paper's 0.082 to a different-protocol reference line in README/DEVPOST/articles/film; re-render film). Owner should hold the YouTube upload until A is done.
 
 ## Snapshot
 

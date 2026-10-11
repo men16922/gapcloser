@@ -4,6 +4,13 @@ Last Updated: 2026-10-11
 
 This file maintains only recent incremental summaries (newest 3-5 items, ≤120 lines). Older entries are archived to `docs/archive/progress-YYYY-MM.md` via `/tidy-docs`.
 
+## 2026-10-11 — Next plan from FEEDBACK.md (plan only, no code)
+- Status: plan written; nothing implemented. Waiting on the owner's answers (YouTube timing, filming, one Token Factory run).
+- Changed: `docs/project/NEXT_PLAN.md` (Priority 1 A–G, calendar, Frozen list), `docs/project/plans/2026-10-11-feedback-hardening.md` (code-checked findings, designs, risks). `FEEDBACK.md` added (untracked).
+- Verified: external review claims A/B/C checked against code and `runs/proof/real_benchmark.json` (all true); extra findings: 20 of 45 video tracks excluded, `verify` replays the fit's own pushes, film footer quotes the paper's 0.082. `make lint` OK; `make check` not run (docs only).
+- Blockers: owner decisions (hold YouTube upload until A is done; filming 10-17/18; ~$0.1 Token Factory run; portfolio push).
+- Next: start A (`real_benchmark.py` baselines + leave-one-push-out, move 0.082 to a reference line, re-render film).
+
 ## 2026-10-11 — Tech article (EN/KO) published on the portfolio
 - Status: done; waiting on the owner's YouTube upload.
 - Changed: `docs/article/tether.{en,ko}.md` (+ `img/`, served from GitHub raw); published on https://men16922.github.io as `/articles/tether` and `/kr/articles/tether` (portfolio repo commits bc0c40c, 292223e: new "Portfolio" tab, `ArticlePost` page rendering `public/posts/<slug>/<lang>.md` with marked; `.gitattributes` now marks jpg etc. binary after JPGs were line-ending converted). Devpost replay numbers corrected (4-8 mm table scale, 18-27 cm driving).
