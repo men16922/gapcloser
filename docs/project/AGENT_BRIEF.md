@@ -2,7 +2,7 @@
 
 Last Updated: 2026-10-11
 
-> ▶ NEXT SESSION: Submission ready (2026-10-11). Pages are Overview / Studio / Benchmark (`/benchmark`); app code lives in the `tether/` package (map: README "Repository map"). Everything to upload is in `submission/` (`make submission`), field by field in `docs/submission/SUBMIT.md`; the owner uploads to YouTube and submits on Devpost. Live demo on Cloud Run (`make deploy`). Owner's guide: `docs/guide/00_처음_읽어주세요.md`. Open: redeploy + re-record the Ask clip so the film shows the new nav, film feedback.
+> ▶ NEXT SESSION: Submission ready (2026-10-11). Pages are Overview / Studio / Benchmark (`/benchmark`); app code lives in the `tether/` package (map: README "Repository map"). Everything to upload is in `submission/` (`make submission`), field by field in `docs/submission/SUBMIT.md`; the owner uploads to YouTube and submits on Devpost. Live demo on Cloud Run (`make deploy`). Owner's guide: `docs/guide/00_처음_읽어주세요.md`. Deployed 2026-10-11 (Cloud Run revision with /benchmark); film re-recorded with the new nav (2:28). Open: film feedback.
 
 ## Snapshot
 

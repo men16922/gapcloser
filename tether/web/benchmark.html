@@ -992,8 +992,8 @@ function boot(B, LIVE) {
   const renderStatus = () => {
     const on = !LIVE || (LIVE.provider && LIVE.provider !== "none"), st = $("#status");
     st.classList.toggle("off", !on);
-    st.querySelector("span").textContent = !LIVE ? tl("Recorded runs: Nemotron 3 Super", "Nemotron 3 Super 실행 기록 재생")
-      : on ? tl("Agent online: Nemotron 3 Super", "AI 연결됨: Nemotron 3 Super") : tl("Agent off: offline fitting", "AI 꺼짐: 계산 방식만 사용");
+    st.querySelector("span").textContent = !LIVE ? tl("Recorded runs: Nemotron 3 Super 120B", "Nemotron 3 Super 120B 실행 기록 재생")
+      : on ? tl("Agent online: Nemotron 3 Super 120B", "AI 연결됨: Nemotron 3 Super 120B") : tl("Agent off: offline fitting", "AI 꺼짐: 계산 방식만 사용");
   };
   renderStatus();
   function HAS_EYES() { return !!(B.stack.eyes || B.runs.some((r) => r.events.some((e) => e.clip && e.clip.eyes))); }

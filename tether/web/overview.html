@@ -257,8 +257,8 @@ function renderStack() {
   $("#stack").innerHTML = [["NVIDIA Newton", T("physics and rendering (Warp)", "물리 시뮬레이션·렌더링 (Warp)")], ["NVIDIA Nemotron 3 Super 120B", STATUS.recorded ? T("on Nebius Token Factory (recorded runs)", "Nebius Token Factory (실행 기록 재생)") : on ? T("live on Nebius Token Factory", "Nebius Token Factory 연결됨") : T("off on this server", "이 서버에서는 꺼져 있음")], ["NVIDIA NeMo Agent Toolkit", T("the agent as a workflow (nat run)", "AI 에이전트를 워크플로로 실행 (nat run)")], ["NVIDIA Cosmos Reason 2", T("optional, local: tipped or not", "선택 사항, 로컬 실행: 넘어짐 판정")], ["Isaac Lab · CARLA", T("export targets", "내보내기 형식")]]
     .map(([a, b]) => `<span><b>${a}</b> · ${b}</span>`).join("");
   const st = $("#status"); st.classList.toggle("off", !on);
-  st.querySelector("span").textContent = STATUS.recorded ? T("Recorded runs: Nemotron 3 Super", "Nemotron 3 Super 실행 기록 재생")
-    : on ? T("Agent online: Nemotron 3 Super", "AI 연결됨: Nemotron 3 Super") : T("Agent off: offline fitting", "AI 꺼짐: 계산 방식만 사용");
+  st.querySelector("span").textContent = STATUS.recorded ? T("Recorded runs: Nemotron 3 Super 120B", "Nemotron 3 Super 120B 실행 기록 재생")
+    : on ? T("Agent online: Nemotron 3 Super 120B", "AI 연결됨: Nemotron 3 Super 120B") : T("Agent off: offline fitting", "AI 꺼짐: 계산 방식만 사용");
 }
 function setLang(l) { LANG = l; try { localStorage.setItem("tether-lang", l); } catch (_) {} render(); }
 document.querySelectorAll(".lang button").forEach(b => b.onclick = () => setLang(b.dataset.lang));
